@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import org.json.*;
@@ -54,7 +53,21 @@ public class PersonalGoalDeck {
         }
 
         //Shuffle the deck
+        this.shuffle();
+    }
+
+    public PersonalGoalDeck(List<PersonalGoalCard> cardList) {
+        cards = cardList;
+        this.shuffle();
+    }
+
+    public void shuffle() {
         Collections.shuffle(cards);
+    }
+
+    public void addCard(PersonalGoalCard c) {
+        cards.add(c);
+        this.shuffle();
     }
 
     /**
