@@ -11,7 +11,9 @@
   <url>http://maven.apache.org</url>
 
   <properties>
-    <maven.compiler.release>11</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.target>19</maven.compiler.target>
+    <maven.compiler.source>19</maven.compiler.source>
   </properties>
 
   <build>
