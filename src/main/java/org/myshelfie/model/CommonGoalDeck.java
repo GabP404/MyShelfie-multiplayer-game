@@ -1,17 +1,20 @@
 package org.myshelfie.model;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
+import java.util.List;
 
 public class CommonGoalDeck {
-    private LinkedList<CommonGoalCard> deck;
+    private List<CommonGoalCard> deck = new ArrayList<>();
+
+    /**
+     * Initialize the deck list so that it contains all CommonGoalCards
+     */
     public CommonGoalDeck() {
-        /*
-         * Initialize the deck list so that it contains all CommonGoalCards
-         */
+        // TODO: implement this
     }
     public CommonGoalCard drawCommonGoalCard() {
         Collections.shuffle(deck);
-        return deck.pop();
+        return deck.remove(0);
     }
 }
