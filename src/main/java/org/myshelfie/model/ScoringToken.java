@@ -2,17 +2,17 @@ package org.myshelfie.model;
 
 public class ScoringToken {
     private Integer points;
-    private String CommonGoalID;
+    private String CommonGoalId;
 
-    public ScoringToken(Integer points, String commonGoalID) {
+    public ScoringToken(Integer points, String commonGoalId) {
         this.points = points;
-        CommonGoalID = commonGoalID;
+        this.CommonGoalId = commonGoalId;
     }
     public Integer getPoints() {
         return points;
     }
 
-    public String getCommonGoalID() {
-        return CommonGoalID;
+    public String getCommonGoalId() {
+        return CommonGoalId;
     }
 }
