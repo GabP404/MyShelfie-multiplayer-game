@@ -1,6 +1,6 @@
 package org.myshelfie.model;
 
-public class PersonalGoalCard {
+final class PersonalGoalCard {
     private Tile[][] constraints;
 
     public PersonalGoalCard() {
