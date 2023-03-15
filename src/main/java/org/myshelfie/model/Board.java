@@ -1,16 +1,11 @@
 package org.myshelfie.model;
 
 public class Board {
+    private static final int DIMBOARD = 9;
     private Tile[][] boardTiles;
 
     public Board() {
-        this.boardTiles = new Tile[9][9];
-
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 9; j++) {
-                this.boardTiles = null;
-            }
-        }
+        this.boardTiles = new Tile[DIMBOARD][DIMBOARD];
     }
 
     public void setTile(int x, int y, Tile t) {
