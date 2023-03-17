@@ -2,19 +2,20 @@ package org.myshelfie.model;
 
 public class Bookshelf {
 
-    private static final int DIMROW = 6;
-    private static final int DIMCOLUMN = 5;
+    public static final int NUMROWS = 6;
+    public static final int NUMCOLUMNS = 5;
 
     private Tile[][] tiles;
+
 
     /**
      * Bookshelf constructor.
      * It initializes an empty bookshelf.
      */
     public Bookshelf() {
-        tiles = new Tile[DIMROW][DIMCOLUMN];
-        for (int i = 0; i < DIMROW; i++) {
-           for (int j = 0; j < DIMCOLUMN; j++) {
+        tiles = new Tile[NUMROWS][NUMCOLUMNS];
+        for (int i = 0; i < NUMROWS; i++) {
+           for (int j = 0; j < NUMCOLUMNS; j++) {
                tiles[i][j] = null;
            }
         }
@@ -30,7 +31,7 @@ public class Bookshelf {
         if (tiles[0][c] != null)
             throw new TileInsertionException("This column is already full!");
 
-        int i = DIMCOLUMN;
+        int i = NUMROWS -1;
         while (tiles[i][c] != null) {
             i--;
         }
@@ -39,7 +40,7 @@ public class Bookshelf {
 
     //parameters are row(r) and column(c)
     public Tile getTile(int r, int c) throws TileUnreachableException {
-        if(r < 0 || r >= DIMROW || c < 0 || c >= DIMCOLUMN)
+        if(r < 0 || r >= NUMROWS || c < 0 || c >= NUMCOLUMNS)
             throw new TileUnreachableException("Tile selected is unreachable (out of bound)");
 
         return tiles[r][c];
