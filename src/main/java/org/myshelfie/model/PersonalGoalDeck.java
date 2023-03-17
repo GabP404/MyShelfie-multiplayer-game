@@ -38,14 +38,20 @@ public class PersonalGoalDeck {
             for (int i = 0; i < JSONCards.length(); i++) {
                 JSONArray card = JSONCards.getJSONArray(i);
                 PersonalGoalCard c = new PersonalGoalCard();
+		List<Pair<Pair<int, int>, Tile>> l = new List<Pair<Pair<int, int>, Tile>>();
                 for (int k = 0; k < card.length(); k++) {
                     JSONObject constraint = card.getJSONObject(i);
-                    c.setTile(
-                            (Integer) constraint.get("col"),
-                            (Integer) constraint.get("row"),
-                            (ItemType) constraint.get("type")
+		    Pair<Pair<int, int>, Tile> constraint;
+		    constraint = new Pair<>(
+			new Pair<int, int>(			
+	                        (Integer) constraint.get("col"),
+				(Integer) constraint.get("row")
+			),
+                        new Tile(constraint.get("type"))
                     );
+		    l.add(constraint);   
                 }
+		c = new PersonalGoalCard(l);
                 cards.add(c);
             }
         } catch (IOException | TileInsertionException e) {
@@ -65,16 +71,23 @@ public class PersonalGoalDeck {
         Collections.shuffle(cards);
     }
 
-    public void addCard(PersonalGoalCard c) {
-        cards.add(c);
-        this.shuffle();
-    }
-
     /**
-     * Returns a card from the deck, removing it.
+     * Returns a card from the deck, without removing it.
      * @return The personal goal card
      */
     public PersonalGoalCard draw() {
-        return cards.remove(0);
+	this.shuffle();
+        return cards.peek();
+    }
+
+    /**
+     * Returns two cards from the deck, without removing them.
+     * @return A list with two personal goal cards
+     */
+    public List<PersonalGoalCard> drawTwo() {
+    	List<PersonalGoalCard> l = new ArrayList<PersonalGoalCard>();
+	this.shuffle();
+	l.add(cards.peek());
+	l.add(cards.peekLast());
     }
 }
