@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.myshelfie.model.util.Pair;
 import org.json.*;
 
 public class PersonalGoalDeck {
@@ -37,19 +38,19 @@ public class PersonalGoalDeck {
             JSONArray JSONCards = jo.getJSONArray("cards");
             for (int i = 0; i < JSONCards.length(); i++) {
                 JSONArray card = JSONCards.getJSONArray(i);
-                PersonalGoalCard c = new PersonalGoalCard();
-		List<Pair<Pair<int, int>, Tile>> l = new List<Pair<Pair<int, int>, Tile>>();
+                PersonalGoalCard c;
+		        List<Pair<Pair<Integer, Integer>, Tile>> l = new List<Pair<Pair<Integer, Integer>, Tile>>();
                 for (int k = 0; k < card.length(); k++) {
-                    JSONObject constraint = card.getJSONObject(i);
-		    Pair<Pair<int, int>, Tile> constraint;
-		    constraint = new Pair<>(
-			new Pair<int, int>(			
-	                        (Integer) constraint.get("col"),
-				(Integer) constraint.get("row")
-			),
-                        new Tile(constraint.get("type"))
+                    JSONObject constraint_json = card.getJSONObject(i);
+                    Pair<Pair<Integer, Integer>, Tile> constraint;
+                    constraint = new Pair<>(
+                        new Pair<Integer, Integer>(
+                                (Integer) constraint_json.get("col"),
+                                (Integer) constraint_json.get("row")
+                        ),
+                        new Tile((ItemType) constraint_json.get("type"))
                     );
-		    l.add(constraint);   
+		            l.add(constraint);
                 }
 		c = new PersonalGoalCard(l);
                 cards.add(c);
@@ -77,7 +78,7 @@ public class PersonalGoalDeck {
      */
     public PersonalGoalCard draw() {
 	this.shuffle();
-        return cards.peek();
+        return cards.get(0);
     }
 
     /**
@@ -86,8 +87,9 @@ public class PersonalGoalDeck {
      */
     public List<PersonalGoalCard> drawTwo() {
     	List<PersonalGoalCard> l = new ArrayList<PersonalGoalCard>();
-	this.shuffle();
-	l.add(cards.peek());
-	l.add(cards.peekLast());
+        this.shuffle();
+        l.add(cards.get(0));
+        l.add(cards.get(1));
+        return l;
     }
 }
