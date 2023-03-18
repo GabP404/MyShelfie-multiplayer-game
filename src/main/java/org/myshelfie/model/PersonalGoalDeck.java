@@ -6,11 +6,14 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 import org.myshelfie.model.util.Pair;
 import org.json.*;
 
-public class PersonalGoalDeck {
-    public List<PersonalGoalCard> cards;
+public final class PersonalGoalDeck {
+    private List<PersonalGoalCard> cards;
+    private static PersonalGoalDeck single_istance;
 
     /**
      * Initialize the deck of personal goal cards from a specification file.
@@ -63,33 +66,53 @@ public class PersonalGoalDeck {
         this.shuffle();
     }
 
+    /**
+     * PersonalGoalDeck constructor, starting from a pre-existing list.
+     * @param cardList: The list of PersonalGoalCards.
+     */
     public PersonalGoalDeck(List<PersonalGoalCard> cardList) {
         cards = cardList;
         this.shuffle();
     }
 
-    public void shuffle() {
-        Collections.shuffle(cards);
+    /**
+     * Get PersonalGoalDeck instance
+     * @param filename Name of the JSON file with the info about the cards
+     * @return An instance of the PersonalGoalDeck
+     */
+    public static PersonalGoalDeck getInstance(String filename) {
+        if (single_istance == null)
+            single_istance = new PersonalGoalDeck(filename);
+        return single_istance;
     }
 
     /**
-     * Returns a card from the deck, without removing it.
-     * @return The personal goal card
+     * Get PersonalGoalDeck instance
+     * @param cardList List of PersonalGoalCards
+     * @return An instance of the PersonalGoalDeck
      */
-    public PersonalGoalCard draw() {
-	this.shuffle();
-        return cards.get(0);
+    public static PersonalGoalDeck getInstance(List<PersonalGoalCard> cardList) {
+        if (single_istance == null)
+            single_istance = new PersonalGoalDeck(cardList);
+        return single_istance;
     }
 
     /**
-     * Returns two cards from the deck, without removing them.
-     * @return A list with two personal goal cards
+     * Draw a variable number of distinct cards from the deck, without
+     * removing them
+     * @param x The number of cards to be drawn
+     * @return A list containing the drawn cards
      */
-    public List<PersonalGoalCard> drawTwo() {
-    	List<PersonalGoalCard> l = new ArrayList<PersonalGoalCard>();
-        this.shuffle();
-        l.add(cards.get(0));
-        l.add(cards.get(1));
-        return l;
+    public List<PersonalGoalCard> draw(int x) {
+        List<PersonalGoalCard> drawnCards = new ArrayList<PersonalGoalCard>();
+        List<Integer> positions= new Random().ints(0, cards.size())
+                .distinct()
+                .limit(x)
+                .boxed()
+                .collect(Collectors.toList());
+        for(Integer i: positions) {
+            drawnCards.add(cards.get(i));
+        }
+        return drawnCards;
     }
 }
