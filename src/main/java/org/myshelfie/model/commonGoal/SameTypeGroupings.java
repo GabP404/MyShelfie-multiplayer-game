@@ -10,8 +10,6 @@ import java.util.List;
 public class SameTypeGroupings extends CommonGoalCard {
     private final Integer numGroups;
     private final Integer groupDim;
-    private final Integer numRows = 6;
-    private final Integer numCols = 5;
     private final List<Pair<Integer, Integer>> adjacencyDeltas = new ArrayList<>();
     /**
      * marks is a matrix that supports bookshelf exploration
@@ -50,11 +48,12 @@ public class SameTypeGroupings extends CommonGoalCard {
      * Check if the specific constraints of the card are satisfied
      * @param bookshelf The library that will be checked
      */
+    @Override
     public Boolean checkGoalSatisfied(Bookshelf bookshelf){
         int numGroupsFound = 0;
         marksInit(bookshelf);
-        for (int r=0; r<numRows; r++) {
-            for (int c=0; c<numCols; c++) {
+        for (int r = 0; r< Bookshelf.NUMROWS; r++) {
+            for (int c = 0; c< Bookshelf.NUMCOLUMNS; c++) {
                 if (marks[r][c]!=CellMarkType.DONE) {
                     List<Pair<Integer,Integer>> group = new ArrayList<>();
                     group.add(new Pair<>(r,c));
@@ -104,7 +103,7 @@ public class SameTypeGroupings extends CommonGoalCard {
                 int x = r + d.getLeft();
                 int y = c + d.getRight();
                 try {
-                    if( x>=0 && x<numRows && y>=0 && y<numCols && marks[x][y]==CellMarkType.NEW && bookshelf.getTile(x, y).getItemType() == targetType ) {
+                    if( x>=0 && x< Bookshelf.NUMROWS && y>=0 && y< Bookshelf.NUMCOLUMNS && marks[x][y]==CellMarkType.NEW && bookshelf.getTile(x, y).getItemType() == targetType ) {
                         // add the coordinates to the result list
                         res.add(new Pair<>(x,y));
                         // marks the cells as VISITED
@@ -130,9 +129,9 @@ public class SameTypeGroupings extends CommonGoalCard {
      */
     private void marksInit(Bookshelf b) {
         // TODO: test if setting to DONE empty cells leads to expected behavior
-        marks = new CellMarkType[numRows][numCols];
-        for (int r=0; r<numRows; r++) {
-            for (int c=0; c<numCols; c++) {
+        marks = new CellMarkType[Bookshelf.NUMROWS][Bookshelf.NUMCOLUMNS];
+        for (int r = 0; r<Bookshelf.NUMROWS; r++) {
+            for (int c = 0; c< Bookshelf.NUMCOLUMNS; c++) {
                 try {
                     if (b.getTile(r,c) == null) {
                         marks[r][c] = CellMarkType.DONE;
