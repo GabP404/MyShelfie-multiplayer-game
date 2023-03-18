@@ -6,10 +6,14 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+
 import org.json.*;
 
-public class PersonalGoalDeck {
-    public List<PersonalGoalCard> cards;
+public final class PersonalGoalDeck {
+    private List<PersonalGoalCard> cards;
+    private static PersonalGoalDeck single_istance;
 
     /**
      * Initialize the deck of personal goal cards from a specification file.
@@ -51,30 +55,34 @@ public class PersonalGoalDeck {
         } catch (IOException | TileInsertionException e) {
             //TODO handle exception(s)
         }
-
-        //Shuffle the deck
-        this.shuffle();
     }
 
     public PersonalGoalDeck(List<PersonalGoalCard> cardList) {
         cards = cardList;
-        this.shuffle();
     }
 
-    public void shuffle() {
-        Collections.shuffle(cards);
+    public static PersonalGoalDeck getInstance(String filename) {
+        if (single_istance == null)
+            single_istance = new PersonalGoalDeck(filename);
+        return single_istance;
     }
 
-    public void addCard(PersonalGoalCard c) {
-        cards.add(c);
-        this.shuffle();
+    public static PersonalGoalDeck getInstance(List<PersonalGoalCard> cardList) {
+        if (single_istance == null)
+            single_istance = new PersonalGoalDeck(cardList);
+        return single_istance;
     }
 
-    /**
-     * Returns a card from the deck, removing it.
-     * @return The personal goal card
-     */
-    public PersonalGoalCard draw() {
-        return cards.remove(0);
+    public List<PersonalGoalCard> draw(int x) {
+        List<PersonalGoalCard> drawnCards = new ArrayList<PersonalGoalCard>();
+        List<Integer> positions= new Random().ints(0, cards.size())
+                .distinct()
+                .limit(x)
+                .boxed()
+                .collect(Collectors.toList());
+        for(Integer i: positions) {
+            drawnCards.add(cards.get(i));
+        }
+        return drawnCards;
     }
 }

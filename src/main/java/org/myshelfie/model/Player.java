@@ -10,6 +10,10 @@ public class Player {
     private PersonalGoalCard personalGoal;
     private Bookshelf bookshelf;
 
+    private List<Tile> tilesPicked;
+
+    private static int DIM_TILESPICKED = 3;
+
     /**
      * Constructor of the Player class.
      * @param nick      The player's nickname
@@ -21,6 +25,7 @@ public class Player {
         this.hasFinalToken = false;
         this.personalGoal = persGoal;
         this.bookshelf = new Bookshelf();
+        this.tilesPicked = new ArrayList<Tile>();
     }
 
     public String getNickname() {
@@ -65,4 +70,33 @@ public class Player {
     public List<ScoringToken> getCommonGoalTokens() {
         return commonGoalTokens;
     }
+
+    public List<Tile> getTilesPicked() {
+        return tilesPicked;
+    }
+    public void setTilesPicked(List<Tile> tilesPicked) {
+        this.tilesPicked = tilesPicked;
+    }
+
+    public void addTilesPicked(Tile t) throws TileInsertionException{
+        if(this.tilesPicked.size() == DIM_TILESPICKED) throw new TileInsertionException("maximum number of tiles picked reached");
+        this.tilesPicked.add(t);
+    }
+
+    public void addTilesPicked(List<Tile> tilesPicked) throws TileInsertionException{
+        if(this.tilesPicked.size() + tilesPicked.size() > DIM_TILESPICKED) throw new TileInsertionException("maximum number of tiles picked reached");
+        this.tilesPicked.addAll(tilesPicked);
+    }
+
+    public void removeTilesPicked(Tile t){
+        this.tilesPicked.remove(t);
+    }
+
+    public void removeTilesPicked(List<Tile> tilesRemoved) {
+        for(Tile t: tilesRemoved) {
+            this.tilesPicked.remove(t);
+        }
+    }
+
+
 }
