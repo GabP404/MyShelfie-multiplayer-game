@@ -23,7 +23,6 @@ public final class CommonGoalDeck {
 
     public List<CommonGoalCard> drawCommonGoalCard(int x) {
         List<CommonGoalCard> drawnCards = new ArrayList<CommonGoalCard>();
-
         List<Integer> positions= new Random().ints(0, deck.size())
                 .distinct()
                 .limit(x)
