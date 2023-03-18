@@ -61,9 +61,6 @@ public final class PersonalGoalDeck {
         } catch (IOException | TileInsertionException e) {
             //TODO handle exception(s)
         }
-
-        //Shuffle the deck
-        this.shuffle();
     }
 
     /**
@@ -72,7 +69,6 @@ public final class PersonalGoalDeck {
      */
     public PersonalGoalDeck(List<PersonalGoalCard> cardList) {
         cards = cardList;
-        this.shuffle();
     }
 
     /**
