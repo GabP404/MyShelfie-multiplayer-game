@@ -45,4 +45,12 @@ public class Bookshelf {
 
         return tiles[r][c];
     }
+
+    public int getHeight(int c){
+        int r = 0;
+        while (tiles[r][c] == null && r < Bookshelf.NUMROWS) {
+            r++;
+        }
+        return NUMROWS - r;
+    }
 }

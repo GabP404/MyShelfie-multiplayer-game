@@ -4,6 +4,14 @@ import org.myshelfie.model.*;
 
 import java.util.ArrayDeque;
 
+/*
+    Five columns of increasing or decreasing
+    height. Starting from the first column on
+    the left or on the right, each next column
+    must be made of exactly one more tile.
+    Tiles can be of any type.
+ */
+
 public class StairTiles extends CommonGoalCard {
     /**
      * Initialize the CommonGoalCard associating the points' stack to it
@@ -18,77 +26,31 @@ public class StairTiles extends CommonGoalCard {
 
     @Override
     public Boolean checkGoalSatisfied(Bookshelf bookshelf) {
-        /*
-            c -> column
-            r -> row
-            flg -> flag to keep track if the condition is met
-        * */
-        int c = 0;
-        int r = 0;
-        boolean flg = true;
+        //checking the stair
 
-        //checking the descending stair
-        //finding the higher tile in the first column
-        while (true) {
-            try {
-                if (!(bookshelf.getTile(r, c) == null && r < Bookshelf.NUMROWS)) break;
-            } catch (TileUnreachableException outOfBoundTile) {
-                // TODO: maybe handle exception
-            }
-            r++;
+        int pre;    //height of the precedent column in the stair
+        int cur;    //height of the current column in the stair
+        int c = 0;  //column counter
+        boolean flgD = true;    //flag descending stair
+        boolean flgA = true;    //flag ascending stair
+
+        //save the height of the first column
+        pre = bookshelf.getHeight(c);
+        c++;
+        while (c < Bookshelf.NUMCOLUMNS && (flgA || flgD)) {
+            //save the height of the current column
+            cur = bookshelf.getHeight(c);
+            if (pre != cur + 1)
+                flgD = false;
+
+            if (pre != cur - 1)
+                flgA = false;
+
+            //the current height becomes the precedent height
+            pre = cur;
+            c++;
         }
-        //check if there are enough tile to have a stair
-        if (Bookshelf.NUMROWS - r > 5) {
-            //analysing tile positions
-            while (c < Bookshelf.NUMCOLUMNS - 1 && flg) {
-                try {
-                    if (bookshelf.getTile(r, c + 1) != null || bookshelf.getTile(r + 1, c + 1) == null) {
-                        flg = false;
-                    }
-                } catch (TileUnreachableException outOfBoundTile) {
-                    // TODO: maybe handle exception
-                }
-
-                c++;
-            }
-
-            if (flg)
-                return true;
-        }
-
-        //checking the ascending stair
-        //finding the higher tile in the first column
-        r = 0;
-        c = Bookshelf.NUMCOLUMNS - 1;
-        flg = true;
-        while (true) {
-            try {
-                if (!(bookshelf.getTile(r, c) == null && r < Bookshelf.NUMROWS)) break;
-            } catch (TileUnreachableException outOfBoundTile) {
-                // TODO: maybe handle exception
-            }
-            r++;
-        }
-        //check if there are enough tile to have a stair
-        if (Bookshelf.NUMROWS - r > 5) {
-            //analysing tile positions
-            while (c > 0 && flg) {
-                try {
-                    if (bookshelf.getTile(r, c - 1) != null || bookshelf.getTile(r + 1, c - 1) == null) {
-                        flg = false;
-                    }
-                } catch (TileUnreachableException outOfBoundTile) {
-                    // TODO: maybe handle exception
-                }
-                c--;
-            }
-            if (flg)
-                return true;
-        }
-
-        return false;
-
-
+        return flgA || flgD;
     }
 
 }
