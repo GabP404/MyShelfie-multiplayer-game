@@ -52,7 +52,7 @@ public class SameTypeGroupings extends CommonGoalCard {
      */
     public Boolean checkGoalSatisfied(Bookshelf bookshelf){
         int numGroupsFound = 0;
-        marksInit();
+        marksInit(bookshelf);
         for (int r=0; r<numRows; r++) {
             for (int c=0; c<numCols; c++) {
                 if (marks[r][c]!=CellMarkType.DONE) {
@@ -125,12 +125,23 @@ public class SameTypeGroupings extends CommonGoalCard {
 
     /**
      * Support method used every check to initialize the support matrix
+     * @param b is used to determine whether a cell is empty or not (if getter returns null set mark to DONE
+     *          to avoid considering empty cells during neighbours exploration)
      */
-    private void marksInit() {
+    private void marksInit(Bookshelf b) {
+        // TODO: test if setting to DONE empty cells leads to expected behavior
         marks = new CellMarkType[numRows][numCols];
         for (int r=0; r<numRows; r++) {
             for (int c=0; c<numCols; c++) {
-                marks[r][c] = CellMarkType.NEW;
+                try {
+                    if (b.getTile(r,c) == null) {
+                        marks[r][c] = CellMarkType.DONE;
+                    } else {
+                        marks[r][c] = CellMarkType.NEW;
+                    }
+                } catch (TileUnreachableException e) {
+                    //
+                }
             }
         }
     }
