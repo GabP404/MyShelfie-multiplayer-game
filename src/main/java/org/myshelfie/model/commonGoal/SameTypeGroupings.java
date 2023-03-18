@@ -27,15 +27,17 @@ public class SameTypeGroupings extends CommonGoalCard {
         for (int i = 0; i < Bookshelf.NUMROWS; i++) {
             for (int j = 0; j < Bookshelf.NUMCOLUMNS; j++) {
                 if (!visited[i][j]) {
-                    ItemType targetType = null;
-                    try {
-                        targetType = bookshelf.getTile(i,j).getItemType();
-                    } catch (TileUnreachableException e) {
-                        // unhandeled exception
-                    }
                     int tmpGroupSize = 0;
+                    Tile tmp;
                     try {
-                        tmpGroupSize = getGroupSize(visited, i, j, targetType, bookshelf);
+                        tmp = bookshelf.getTile(i,j);
+                        try {
+                            if (tmp != null) {
+                                tmpGroupSize = getGroupSize(visited, i, j, tmp.getItemType(), bookshelf);
+                            }
+                        } catch (TileUnreachableException e) {
+                            // unhandeled exception
+                        }
                     } catch (TileUnreachableException e) {
                         // unhandeled exception
                     }
@@ -49,7 +51,7 @@ public class SameTypeGroupings extends CommonGoalCard {
         return Boolean.FALSE;
     }
     private int getGroupSize(boolean[][] visited, int row, int col, ItemType targetType, Bookshelf b) throws TileUnreachableException{
-        if (row < 0 || row >= Bookshelf.NUMROWS || col < 0 || col >= Bookshelf.NUMCOLUMNS || visited[row][col] || b.getTile(row, col).getItemType()!=targetType || b.getTile(row,col)==null) {
+        if (row < 0 || row >= Bookshelf.NUMROWS || col < 0 || col >= Bookshelf.NUMCOLUMNS || visited[row][col] || b.getTile(row,col)==null || b.getTile(row, col).getItemType()!=targetType) {
             return 0;
         }
         visited[row][col] = true;
