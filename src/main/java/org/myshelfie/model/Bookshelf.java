@@ -1,5 +1,8 @@
 package org.myshelfie.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Bookshelf {
 
     public static final int NUMROWS = 6;
@@ -52,5 +55,40 @@ public class Bookshelf {
             r++;
         }
         return NUMROWS - r;
+    }
+
+    public List<Integer> getAdjacentSizes() {
+        List<Integer> groupSizes = new ArrayList<>();
+
+        boolean[][] visited = new boolean[tiles.length][tiles[0].length];
+
+        for (int i = 0; i < tiles.length; i++) {
+            for (int j = 0; j < tiles[0].length; j++) {
+                if (!visited[i][j]) {
+                    int groupSize = getGroupSize(visited, i, j, tiles[i][j].getItemType());
+                    if (groupSize > 0) {
+                        groupSizes.add(groupSize);
+                    }
+                }
+            }
+        }
+
+        return groupSizes;
+    }
+
+    private int getGroupSize(boolean[][] visited, int row, int col, ItemType value) {
+        if (row < 0 || row >= tiles.length || col < 0 || col >= tiles[0].length || visited[row][col] || !value.equals(tiles[row][col].getItemType())) {
+            return 0;
+        }
+
+        visited[row][col] = true;
+
+        int size = 1;
+        size += getGroupSize(visited, row - 1, col, value); // check above
+        size += getGroupSize(visited, row + 1, col, value); // check below
+        size += getGroupSize(visited, row, col - 1, value); // check left
+        size += getGroupSize(visited, row, col + 1, value); // check right
+
+        return size;
     }
 }
