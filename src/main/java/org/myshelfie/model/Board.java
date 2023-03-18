@@ -56,6 +56,50 @@ public class Board {
         }
     }
 
+    /**
+     * Refill the board.
+     * @param numPlayers The number of players
+     * @param bag The bag of Tiles
+     */
+    public void refillBoard(int numPlayers, TileBag bag) {
+        for (int i = 0; i < DIMBOARD; i++) {
+            for (int j = 0; j < DIMBOARD; j++) {
+                if (numPlayers >= mask[i][j] && boardTiles[i][j] == null) {
+                    boardTiles[i][j] = bag.drawItemTile();
+                }
+            }
+        }
+    }
+
+    /**
+     * Check whether the board needs to be refilled or not
+     * @param numPlayers Number of players
+     * @return true if the board needs to be refilled, false otherwise
+     */
+    public boolean isRefillNeeded() {
+        for (int i = 0; i < DIMBOARD; i++) {
+            for (int j = 0; j < DIMBOARD; j++) {
+                if (boardTiles[i][j] != null) {
+                    if (!hasOneOrMoreFreeBorders(i, j))
+                        return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean hasOneOrMoreFreeBorders(int row, int col) {
+        return isFreeTileBox(row - 1, col) || isFreeTileBox(row + 1, col) ||
+                isFreeTileBox(row, col - 1) || isFreeTileBox(row, col + 1);
+    }
+
+    private boolean isFreeTileBox(int row, int col) {
+        //A cell is considered to be free if it's null or if it's outside the borders,
+        if (row < 0 || row >= DIMBOARD || col < 0 || col >= DIMBOARD)
+            return true;
+        return boardTiles[row][col] == null;
+    }
+
     public void setTile(int x, int y, Tile t) {
         this.boardTiles[x][y] = t;
     }
