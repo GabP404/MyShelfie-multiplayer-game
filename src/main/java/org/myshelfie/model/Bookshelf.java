@@ -41,7 +41,13 @@ public class Bookshelf {
         tiles[i][c] = t;
     }
 
-    //parameters are row(r) and column(c)
+    /**
+     *
+     * @param r The row of the bookshelf
+     * @param c The column of the bookshelf
+     * @return The tile in (r, c)
+     * @throws TileUnreachableException If (r, c) is out of bounds
+     */
     public Tile getTile(int r, int c) throws TileUnreachableException {
         if(r < 0 || r >= NUMROWS || c < 0 || c >= NUMCOLUMNS)
             throw new TileUnreachableException("Tile selected is unreachable (out of bound)");
@@ -51,7 +57,7 @@ public class Bookshelf {
 
     public int getHeight(int c){
         int r = 0;
-        while (tiles[r][c] == null && r < Bookshelf.NUMROWS) {
+        while (r < Bookshelf.NUMROWS && tiles[r][c] == null) {
             r++;
         }
         return NUMROWS - r;
@@ -61,6 +67,13 @@ public class Bookshelf {
         List<Integer> groupSizes = new ArrayList<>();
 
         boolean[][] visited = new boolean[tiles.length][tiles[0].length];
+
+        for (int i = 0; i < tiles.length; i++) {
+            for (int j = 0; j < tiles[0].length; j++) {
+                if (tiles[i][j] == null)
+                    visited[i][j] = true;
+            }
+        }
 
         for (int i = 0; i < tiles.length; i++) {
             for (int j = 0; j < tiles[0].length; j++) {
