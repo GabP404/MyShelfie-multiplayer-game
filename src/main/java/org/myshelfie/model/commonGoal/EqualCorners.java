@@ -21,17 +21,18 @@ public class EqualCorners extends CommonGoalCard {
 
     @Override
     public Boolean checkGoalSatisfied(Bookshelf bookshelf) {
-        ItemType typesupp;
+        //ItemType typesupp;
+        Tile tilesupp;
         try {
             //check top left corner != null
-            typesupp = bookshelf.getTile(0,0).getItemType();
-            if( typesupp == null)
+            tilesupp = bookshelf.getTile(0,0);
+            if(tilesupp == null)
                 return false;
 
             //check if all other corners are of the same ItemType as the top left corner
-            return bookshelf.getTile(Bookshelf.NUMROWS - 1, 0).getItemType() == typesupp &&
-                    bookshelf.getTile(Bookshelf.NUMROWS - 1, Bookshelf.NUMCOLUMNS - 1).getItemType() == typesupp &&
-                    bookshelf.getTile(0, Bookshelf.NUMCOLUMNS - 1).getItemType() == typesupp;
+            return bookshelf.getTile(Bookshelf.NUMROWS - 1, 0).getItemType() == tilesupp.getItemType() &&
+                    bookshelf.getTile(Bookshelf.NUMROWS - 1, Bookshelf.NUMCOLUMNS - 1).getItemType() == tilesupp.getItemType() &&
+                    bookshelf.getTile(0, Bookshelf.NUMCOLUMNS - 1).getItemType() == tilesupp.getItemType();
 
         } catch (TileUnreachableException outOfBoundTile) {
             // TODO: maybe handle exception
