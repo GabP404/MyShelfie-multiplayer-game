@@ -3,6 +3,7 @@ package org.myshelfie.model.commonGoal;
 import org.myshelfie.model.*;
 
 import java.util.ArrayDeque;
+
 /*
     Four tiles of the same type in the four
     corners of the bookshelf.
@@ -25,11 +26,17 @@ public class EqualCorners extends CommonGoalCard {
         Tile tilesupp;
         try {
             //check top left corner != null
-            tilesupp = bookshelf.getTile(0,0);
-            if(tilesupp == null)
+            tilesupp = bookshelf.getTile(0, 0);
+            if (tilesupp == null)
                 return false;
 
             //check if all other corners are of the same ItemType as the top left corner
+            if (bookshelf.getTile(Bookshelf.NUMROWS - 1, 0) == null ||
+                    bookshelf.getTile(Bookshelf.NUMROWS - 1, Bookshelf.NUMCOLUMNS - 1) == null ||
+                    bookshelf.getTile(0, Bookshelf.NUMCOLUMNS - 1) == null) {
+                return false;
+            }
+
             return bookshelf.getTile(Bookshelf.NUMROWS - 1, 0).getItemType() == tilesupp.getItemType() &&
                     bookshelf.getTile(Bookshelf.NUMROWS - 1, Bookshelf.NUMCOLUMNS - 1).getItemType() == tilesupp.getItemType() &&
                     bookshelf.getTile(0, Bookshelf.NUMCOLUMNS - 1).getItemType() == tilesupp.getItemType();
