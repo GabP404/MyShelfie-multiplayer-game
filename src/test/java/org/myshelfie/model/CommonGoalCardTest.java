@@ -1,18 +1,10 @@
 package org.myshelfie.model;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.myshelfie.model.commonGoal.*;
-import org.myshelfie.model.Bookshelf;
 
-import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CommonGoalCardTest {
 
@@ -20,7 +12,7 @@ class CommonGoalCardTest {
         BOOKSHELFS
      */
     Bookshelf bksEmpty;
-    Bookshelf bks1;
+    Bookshelf bks1, bks2, bks3;
     Bookshelf bksCats;
     Bookshelf bksCorners;
     Bookshelf bksCross;
@@ -37,6 +29,10 @@ class CommonGoalCardTest {
     CommonGoalCard diagonalTilesCard;
     CommonGoalCard squareTilesCard;
     CommonGoalCard stairTilesCard;
+    CommonGoalCard sameTypeGroupings_4x5;
+    CommonGoalCard sameTypeGroupings_2x3;
+    CommonGoalCard sameTypeGroupings_1x10;
+
 
     void fillBookshelf(Bookshelf b, int[][] mat) {
         for (int r = Bookshelf.NUMROWS - 1; r >= 0; r--) {
@@ -60,15 +56,35 @@ class CommonGoalCardTest {
         diagonalTilesCard = new DiagonalTiles("DiagonalTilesCard", null);
         squareTilesCard = new SquareTiles("SquareTilesCard", null);
         stairTilesCard = new StairTiles("StairTilesCard", null);
+        sameTypeGroupings_4x5 = new SameTypeGroupings("SameTypeGroupings_4x5", null, 4, 5);     // requires 5 groups of at least 3 cards of same type -> TRUE
+        sameTypeGroupings_2x3 = new SameTypeGroupings("SameTypeGroupings_2x3", null, 2, 3);     // requires 4 groups of at least 3 cards of same type -> TRUE
+        sameTypeGroupings_1x10 = new SameTypeGroupings("SameTypeGroupings_1x10", null, 1, 10);  // requires one group of at least 7 cards of same type -> FALSE
 
+        int[][] random1 = {
+                {5,  5,  0,  0,  3},
+                {5,  5,  5,  4,  2},
+                {1,  1,  1,  5,  2},
+                {1,  1,  4,  1,  2},
+                {1,  4,  1,  1,  2},
+                {3,  1,  1,  2,  2}
+        };
 
-        int[][] a1 = {
-                {5, 5, 0, -1, -1},
-                {5, 5, 5, 2, 2},
-                {1, 1, 5, 5, 0},
-                {1, 4, 2, 2, 0},
-                {4, 0, 1, 5, 2},
-                {3, 1, 1, 2, 2}
+        int[][] random2 = {
+                {5, -1,  0, -1, -1},
+                {5, -1,  5, -1,  2},
+                {5,  5,  5,  5,  5},
+                {1,  4,  5,  2,  5},
+                {3,  3,  2,  2,  5},
+                {3,  1,  5,  5,  5}
+        };
+
+        int[][] random3 = {
+                {-1, -1, -1, -1, -1},
+                {-1, -1, -1, -1, -1},
+                {-1, -1, -1, -1,  5},
+                {-1,  4, -1, -1,  2},
+                { 3,  3, -1,  0,  5},
+                { 3,  1,  3,  4,  0}
         };
 
         int[][] cats = {
@@ -126,7 +142,13 @@ class CommonGoalCardTest {
         };
 
         bks1 = new Bookshelf();
-        fillBookshelf(bks1, a1);
+        fillBookshelf(bks1, random1);
+
+        bks2 = new Bookshelf();
+        fillBookshelf(bks2, random2);
+
+        bks3 = new Bookshelf();
+        fillBookshelf(bks3, random3);
 
         bksCats = new Bookshelf();
         fillBookshelf(bksCats, cats);
@@ -158,6 +180,7 @@ class CommonGoalCardTest {
         DiagonalTilesTest();
         SquareTilesTest();
         StairTilesTest();
+        SameTypeGroupingsTest();
     }
 
     @Test
@@ -232,7 +255,29 @@ class CommonGoalCardTest {
         assertEquals(Boolean.FALSE, stairTilesCard.checkGoalSatisfied(bksEmpty));
     }
 
+    @Test
+    void SameTypeGroupingsTest() {
+        assertEquals(Boolean.TRUE, sameTypeGroupings_4x5.checkGoalSatisfied(bks1));
+        assertEquals(Boolean.TRUE, sameTypeGroupings_2x3.checkGoalSatisfied(bks1));
+        assertEquals(Boolean.FALSE, sameTypeGroupings_1x10.checkGoalSatisfied(bks1));
 
+        assertEquals(Boolean.FALSE, sameTypeGroupings_4x5.checkGoalSatisfied(bks2));
+        assertEquals(Boolean.TRUE, sameTypeGroupings_2x3.checkGoalSatisfied(bks2));
+        assertEquals(Boolean.TRUE, sameTypeGroupings_1x10.checkGoalSatisfied(bks2));
+
+        assertEquals(Boolean.FALSE, sameTypeGroupings_4x5.checkGoalSatisfied(bks3));
+        assertEquals(Boolean.FALSE, sameTypeGroupings_2x3.checkGoalSatisfied(bks3));
+        assertEquals(Boolean.FALSE, sameTypeGroupings_1x10.checkGoalSatisfied(bks3));
+
+        /*assertEquals(Boolean.FALSE, equalCornersCard.checkGoalSatisfied(bks1));
+        assertEquals(Boolean.TRUE, equalCornersCard.checkGoalSatisfied(bksCats));
+        assertEquals(Boolean.TRUE, equalCornersCard.checkGoalSatisfied(bksCorners));
+        assertEquals(Boolean.TRUE, equalCornersCard.checkGoalSatisfied(bksCross));
+        assertEquals(Boolean.FALSE, equalCornersCard.checkGoalSatisfied(bksDiagonal));
+        assertEquals(Boolean.FALSE, equalCornersCard.checkGoalSatisfied(bksSquare));
+        assertEquals(Boolean.FALSE, equalCornersCard.checkGoalSatisfied(bksStair));
+        assertEquals(Boolean.FALSE, equalCornersCard.checkGoalSatisfied(bksEmpty)); */
+    }
 
     /*
         DOES NOT WORK.
