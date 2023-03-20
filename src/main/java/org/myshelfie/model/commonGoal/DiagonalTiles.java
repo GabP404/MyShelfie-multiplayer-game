@@ -44,7 +44,9 @@ public class DiagonalTiles extends CommonGoalCard {
     }
 
     private Boolean checkDiagonal(Bookshelf b, int r, int c, int inclination) {
-        ItemType typesupp;
+
+        Tile tileSupp;
+        Tile tileCurrent;
         /*
             ascending or descending inclination
 
@@ -57,12 +59,16 @@ public class DiagonalTiles extends CommonGoalCard {
             inclination = -1;
 
         try {
-            typesupp = b.getTile(r, c).getItemType();
-            if (typesupp != null) {
+            tileSupp = b.getTile(r, c);//.getItemType();
+            if (tileSupp != null) {
                 //analyse the diagonal
                 for (int i = 0; i < 5; i++) {
-                    if (typesupp != b.getTile(r + (i * inclination), c + (i * inclination)).getItemType()) {
+                    tileCurrent = b.getTile(r + (i * inclination), c + (i * inclination));
+                    if (tileCurrent == null) {
                         return false;
+                    } else {
+                        if (tileSupp.getItemType() != tileCurrent.getItemType())
+                            return false;
                     }
                 }
                 return true;
@@ -70,7 +76,7 @@ public class DiagonalTiles extends CommonGoalCard {
         } catch (TileUnreachableException outOfBoundTile) {
             // TODO: maybe handle exception
         }
-        return null;
+        return false;
     }
 
 }
