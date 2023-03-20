@@ -32,7 +32,7 @@ public final class PersonalGoalDeck {
      * }
      * @param filename The name of the file which contains the description of the specifics, in JSON.
      */
-    public PersonalGoalDeck(String filename) {
+    private PersonalGoalDeck(String filename) {
         this.cards = new ArrayList<PersonalGoalCard>();
         Path filePath = Path.of(filename);
         try {
@@ -42,7 +42,7 @@ public final class PersonalGoalDeck {
             for (int i = 0; i < JSONCards.length(); i++) {
                 JSONArray card = JSONCards.getJSONArray(i);
                 PersonalGoalCard c;
-		        List<Pair<Pair<Integer, Integer>, Tile>> l = new List<Pair<Pair<Integer, Integer>, Tile>>();
+		        List<Pair<Pair<Integer, Integer>, Tile>> l = new ArrayList<Pair<Pair<Integer, Integer>, Tile>>();
                 for (int k = 0; k < card.length(); k++) {
                     JSONObject constraint_json = card.getJSONObject(i);
                     Pair<Pair<Integer, Integer>, Tile> constraint;
@@ -58,7 +58,7 @@ public final class PersonalGoalDeck {
 		c = new PersonalGoalCard(l);
                 cards.add(c);
             }
-        } catch (IOException | TileInsertionException e) {
+        } catch (IOException e) {
             //TODO handle exception(s)
         }
     }
@@ -67,7 +67,7 @@ public final class PersonalGoalDeck {
      * PersonalGoalDeck constructor, starting from a pre-existing list.
      * @param cardList: The list of PersonalGoalCards.
      */
-    public PersonalGoalDeck(List<PersonalGoalCard> cardList) {
+    private PersonalGoalDeck(List<PersonalGoalCard> cardList) {
         cards = cardList;
     }
 
