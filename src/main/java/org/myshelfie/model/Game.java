@@ -7,7 +7,7 @@ public class Game {
     private Board board;
     private List<CommonGoalCard> commonGoals;
     private TileBag tileBag;
-    private boolean isPlaying;
+    private boolean Playing;
 
     public Game(List<Player> players, Board board, List<CommonGoalCard> commonGoals, TileBag tileBag) {
         this.players = players;
@@ -23,11 +23,11 @@ public class Game {
     }
 
     public void startGame() {
-        isPlaying = true;
+        Playing = true;
     }
 
     public void suspendGame() {
-        isPlaying = false;
+        Playing = false;
     }
 
     public Player getCurrPlayer() {
@@ -55,7 +55,7 @@ public class Game {
     }
 
     public boolean isPlaying() {
-        return isPlaying;
+        return Playing;
     }
 
     public void setCurrPlayer(Player currPlayer) {
