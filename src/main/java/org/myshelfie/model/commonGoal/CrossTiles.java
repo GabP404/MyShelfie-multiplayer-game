@@ -23,18 +23,27 @@ public class CrossTiles extends CommonGoalCard {
     @Override
     public Boolean checkGoalSatisfied(Bookshelf bookshelf) {
 
-        ItemType typesupp;
+        Tile tileSupp;
+        //ItemType typesupp;
 
         for (int r = 0; r < Bookshelf.NUMROWS - 2; r++) {
             for (int c = 0; c < Bookshelf.NUMCOLUMNS - 2; c++) {
                 try {
-                    typesupp = bookshelf.getTile(r, c).getItemType();
-                    if (typesupp != null) {
-                        if (bookshelf.getTile(r, c + 2).getItemType() == typesupp &&
-                                bookshelf.getTile(r + 1, c + 1).getItemType() == typesupp &&
-                                bookshelf.getTile(r + 2, c).getItemType() == typesupp &&
-                                bookshelf.getTile(r + 2, c + 2).getItemType() == typesupp) {
-                            return true;
+                    //typesupp = bookshelf.getTile(r, c).getItemType();
+                    tileSupp = bookshelf.getTile(r, c);
+                    if (tileSupp != null) {
+                        if (bookshelf.getTile(r, c + 2) != null &&
+                                bookshelf.getTile(r + 1, c + 1) != null &&
+                                bookshelf.getTile(r + 2, c) != null &&
+                                bookshelf.getTile(r + 2, c + 2) != null) {
+                            if (
+                                    bookshelf.getTile(r, c + 2).getItemType() == tileSupp.getItemType() &&
+                                            bookshelf.getTile(r + 1, c + 1).getItemType() == tileSupp.getItemType() &&
+                                            bookshelf.getTile(r + 2, c).getItemType() == tileSupp.getItemType() &&
+                                            bookshelf.getTile(r + 2, c + 2).getItemType() == tileSupp.getItemType()
+                            ) {
+                                return true;
+                            }
                         }
                     }
                 } catch (TileUnreachableException outOfBoundTile) {
