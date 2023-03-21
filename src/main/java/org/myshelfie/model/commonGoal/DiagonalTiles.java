@@ -34,7 +34,7 @@ public class DiagonalTiles extends CommonGoalCard {
         /*
             checking ascending diagonals
          */
-        for (int r = Bookshelf.NUMROWS - 1; r >= 4; r--) {
+        for (int r = 0; r < Bookshelf.NUMROWS - 4; r++) {
             for (int c = Bookshelf.NUMCOLUMNS - 1; c >= 4; c--) {
                 if (Boolean.TRUE.equals(checkDiagonal(bookshelf, r, c, -1)))
                     return true;
@@ -59,11 +59,11 @@ public class DiagonalTiles extends CommonGoalCard {
             inclination = -1;
 
         try {
-            tileSupp = b.getTile(r, c);//.getItemType();
+            tileSupp = b.getTile(r, c);
             if (tileSupp != null) {
                 //analyse the diagonal
                 for (int i = 0; i < 5; i++) {
-                    tileCurrent = b.getTile(r + (i * inclination), c + (i * inclination));
+                    tileCurrent = b.getTile(r + i, c + (i * inclination));
                     if (tileCurrent == null) {
                         return false;
                     } else {
