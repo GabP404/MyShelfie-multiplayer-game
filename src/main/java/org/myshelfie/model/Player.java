@@ -83,11 +83,6 @@ public class Player {
         this.tilesPicked.add(t);
     }
 
-    public void addTilesPicked(List<Tile> tilesPicked) throws TileInsertionException{
-        if(this.tilesPicked.size() + tilesPicked.size() > DIM_TILESPICKED) throw new TileInsertionException("maximum number of tiles picked reached");
-        this.tilesPicked.addAll(tilesPicked);
-    }
-
     public void removeTilesPicked(Tile t){
         this.tilesPicked.remove(t);
     }
@@ -97,6 +92,5 @@ public class Player {
             this.tilesPicked.remove(t);
         }
     }
-
 
 }
