@@ -13,6 +13,8 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 public final class PersonalGoalDeck {
+    //In the future, this may become accessible via a "configuration" class
+    private static final String FILENAME = "personalGoalCards.json";
     private List<PersonalGoalCard> cards;
     private static PersonalGoalDeck single_istance;
 
@@ -71,24 +73,12 @@ public final class PersonalGoalDeck {
 
     /**
      * Get PersonalGoalDeck instance
-     * @param filename Name of the JSON file with the info about the cards
      * @return An instance of the PersonalGoalDeck
      * @throws IOException If the file does not exist
      */
-    public static PersonalGoalDeck getInstance(String filename) throws IOException {
+    public static PersonalGoalDeck getInstance() throws IOException {
         if (single_istance == null)
-            single_istance = new PersonalGoalDeck(filename);
-        return single_istance;
-    }
-
-    /**
-     * Get PersonalGoalDeck instance
-     * @param cardList List of PersonalGoalCards
-     * @return An instance of the PersonalGoalDeck
-     */
-    public static PersonalGoalDeck getInstance(List<PersonalGoalCard> cardList) {
-        if (single_istance == null)
-            single_istance = new PersonalGoalDeck(cardList);
+            single_istance = new PersonalGoalDeck(FILENAME);
         return single_istance;
     }
 
