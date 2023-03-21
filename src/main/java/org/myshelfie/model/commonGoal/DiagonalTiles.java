@@ -34,7 +34,7 @@ public class DiagonalTiles extends CommonGoalCard {
         /*
             checking ascending diagonals
          */
-        for (int r = Bookshelf.NUMROWS - 1; r >= 4; r--) {
+        for (int r = 0; r < Bookshelf.NUMROWS - 4; r++) {
             for (int c = Bookshelf.NUMCOLUMNS - 1; c >= 4; c--) {
                 if (Boolean.TRUE.equals(checkDiagonal(bookshelf, r, c, -1)))
                     return true;

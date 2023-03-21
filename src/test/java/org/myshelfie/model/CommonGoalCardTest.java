@@ -19,6 +19,8 @@ class CommonGoalCardTest {
     Bookshelf bksDiagonal;
     Bookshelf bksSquare;
     Bookshelf bksStair;
+    Bookshelf bksDiagonalReverse;
+    Bookshelf bksHollowCorner;
 
     /*
         COMMON GOAL CARDS
@@ -129,6 +131,15 @@ class CommonGoalCardTest {
                 {0, 1, 1, 2, 3}
         };
 
+        int[][] diagonalReverse = {
+                {3, 5, -1, -1, 2},
+                {5, 3, -1,  2, 2},
+                {4, 1, -1,  2, 0},
+                {1, 2,  2,  3, 0},
+                {2, 2,  4,  5, 3},
+                {2, 1,  1,  2, 3}
+        };
+
         int[][] square = {
                 {1, 2, 0, -1, 3},
                 {2, 2, 5, 2, 2},
@@ -145,6 +156,16 @@ class CommonGoalCardTest {
                 {-1, -1,  5,  5,  0},
                 {-1,  0,  5,  5,  3},
                 {0,   1,  1,  2,  3}
+        };
+
+
+        int[][] hollowCorner = {
+                {3, -1, -1, -1, -1},
+                {2, -1, -1, -1,  2},
+                {1, -1, -1,  2,  2},
+                {5, -1,  5,  5,  0},
+                {1,  0,  5,  5,  3},
+                {0,  1,  1,  2,  3}
         };
 
         bksComplete = new Bookshelf();
@@ -173,6 +194,12 @@ class CommonGoalCardTest {
 
         bksStair = new Bookshelf();
         fillBookshelf(bksStair, stair);
+
+        bksDiagonalReverse = new Bookshelf();
+        fillBookshelf(bksDiagonalReverse, diagonalReverse);
+
+        bksHollowCorner = new Bookshelf();
+        fillBookshelf(bksHollowCorner, hollowCorner);
 
         bksEmpty = new Bookshelf();
 
@@ -211,6 +238,7 @@ class CommonGoalCardTest {
         assertEquals(Boolean.FALSE, equalCornersCard.checkGoalSatisfied(bksDiagonal));
         assertEquals(Boolean.FALSE, equalCornersCard.checkGoalSatisfied(bksSquare));
         assertEquals(Boolean.FALSE, equalCornersCard.checkGoalSatisfied(bksStair));
+        assertEquals(Boolean.FALSE, equalCornersCard.checkGoalSatisfied(bksHollowCorner));
         assertEquals(Boolean.FALSE, equalCornersCard.checkGoalSatisfied(bksEmpty));
     }
 
@@ -236,6 +264,7 @@ class CommonGoalCardTest {
         assertEquals(Boolean.FALSE, diagonalTilesCard.checkGoalSatisfied(bksSquare));
         assertEquals(Boolean.FALSE, diagonalTilesCard.checkGoalSatisfied(bksStair));
         assertEquals(Boolean.FALSE, diagonalTilesCard.checkGoalSatisfied(bksEmpty));
+        assertEquals(Boolean.TRUE, diagonalTilesCard.checkGoalSatisfied(bksDiagonalReverse));
     }
 
     @Test
