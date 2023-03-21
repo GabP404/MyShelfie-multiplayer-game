@@ -187,6 +187,7 @@ class CommonGoalCardTest {
         SquareTilesTest();
         StairTilesTest();
         SameTypeGroupingsTest();
+        SlightlyDifferentLinesTest();
     }
 
     @Test
