@@ -16,7 +16,7 @@ public class StairTiles extends CommonGoalCard {
     /**
      * Initialize the CommonGoalCard associating the points' stack to it
      *
-     * @param id
+     * @param id String that identifies the card
      * @param tokens The token stack that will be placed on the card
      *               NOTE: the stack's generation logic will be in the controller
      */

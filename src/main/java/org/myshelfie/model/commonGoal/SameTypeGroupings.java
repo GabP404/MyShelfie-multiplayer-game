@@ -28,18 +28,9 @@ public class SameTypeGroupings extends CommonGoalCard {
             for (int j = 0; j < Bookshelf.NUMCOLUMNS; j++) {
                 if (!visited[i][j]) {
                     int tmpGroupSize = 0;
-                    Tile tmp;
-                    try {
-                        tmp = bookshelf.getTile(i,j);
-                        try {
-                            if (tmp != null) {
-                                tmpGroupSize = getGroupSize(visited, i, j, tmp.getItemType(), bookshelf);
-                            }
-                        } catch (TileUnreachableException e) {
-                            // unhandeled exception
-                        }
-                    } catch (TileUnreachableException e) {
-                        // unhandeled exception
+                    Tile tmp = bookshelf.getTile(i,j);
+                    if (tmp != null) {
+                        tmpGroupSize = getGroupSize(visited, i, j, tmp.getItemType(), bookshelf);
                     }
                     numGroupsFound += tmpGroupSize>=groupDim ? 1 : 0;
                     if (numGroupsFound >= numGroups) {
