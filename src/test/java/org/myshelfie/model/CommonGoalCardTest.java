@@ -20,6 +20,7 @@ class CommonGoalCardTest {
     Bookshelf bksSquare;
     Bookshelf bksStair;
     Bookshelf bksDiagonalReverse;
+    Bookshelf bksHollowCorner;
 
     /*
         COMMON GOAL CARDS
@@ -157,6 +158,16 @@ class CommonGoalCardTest {
                 {0,   1,  1,  2,  3}
         };
 
+
+        int[][] hollowCorner = {
+                {3, -1, -1, -1, -1},
+                {2, -1, -1, -1,  2},
+                {1, -1, -1,  2,  2},
+                {5, -1,  5,  5,  0},
+                {1,  0,  5,  5,  3},
+                {0,  1,  1,  2,  3}
+        };
+
         bksComplete = new Bookshelf();
         fillBookshelf(bksComplete, complete);
 
@@ -186,6 +197,9 @@ class CommonGoalCardTest {
 
         bksDiagonalReverse = new Bookshelf();
         fillBookshelf(bksDiagonalReverse, diagonalReverse);
+
+        bksHollowCorner = new Bookshelf();
+        fillBookshelf(bksHollowCorner, hollowCorner);
 
         bksEmpty = new Bookshelf();
 
@@ -223,6 +237,7 @@ class CommonGoalCardTest {
         assertEquals(Boolean.FALSE, equalCornersCard.checkGoalSatisfied(bksDiagonal));
         assertEquals(Boolean.FALSE, equalCornersCard.checkGoalSatisfied(bksSquare));
         assertEquals(Boolean.FALSE, equalCornersCard.checkGoalSatisfied(bksStair));
+        assertEquals(Boolean.FALSE, equalCornersCard.checkGoalSatisfied(bksHollowCorner));
         assertEquals(Boolean.FALSE, equalCornersCard.checkGoalSatisfied(bksEmpty));
     }
 
