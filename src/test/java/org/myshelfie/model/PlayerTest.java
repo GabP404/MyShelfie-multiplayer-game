@@ -1,16 +1,12 @@
 package org.myshelfie.model;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
+
 import org.junit.jupiter.api.Test;
 import org.myshelfie.model.util.Pair;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -76,7 +72,7 @@ class PlayerTest {
         assertTrue(p.getTilesPicked().get(1).equals(t2));
         t.remove(t1);
         assertFalse(p.getTilesPicked().get(0).equals(t1));
-        assertTrue(p.getTilesPicked().get(1).equals(t2));
+        assertThrows(IndexOutOfBoundsException.class, () -> {p.getTilesPicked().get(1).equals(t2);});
     }
 
 
