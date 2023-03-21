@@ -24,4 +24,8 @@ public class TileBag {
         return tiles.remove(0);
     }
 
+    public int getSize() {
+        return tiles.size();
+    }
+
 }
