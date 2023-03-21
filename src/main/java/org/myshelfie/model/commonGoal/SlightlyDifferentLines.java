@@ -56,25 +56,21 @@ public class SlightlyDifferentLines extends CommonGoalCard {
         for (int x=0; x<xlim; x++) {
             Set<ItemType> diffTypesFound = new HashSet<>();
             for (int y=0; y<ylim; y++) {
-                try {
-                    Tile tmp;
-                    if (direction) {
-                        // we're looking for COLUMNS, so second coordinate must refer to external loop's iterator variable
-                        tmp = bookshelf.getTile(y, x);
-                    } else {
-                        // we're looking for ROWS, so first coordinate must refer to external loop's iterator variable
-                        tmp = bookshelf.getTile(x, y);
-                    }
-                    if (tmp!=null){
-                        diffTypesFound.add(tmp.getItemType());
-                    } else {
-                        // the ROW or COLUMN cannot have empty cells, so if a null cell is found than the entire internal
-                        // iteration must be interrupted and discarded
-                        diffTypesFound = null;
-                        break;
-                    }
-                } catch(TileUnreachableException e) {
-                    // should never
+                Tile tmp;
+                if (direction) {
+                    // we're looking for COLUMNS, so second coordinate must refer to external loop's iterator variable
+                    tmp = bookshelf.getTile(y, x);
+                } else {
+                    // we're looking for ROWS, so first coordinate must refer to external loop's iterator variable
+                    tmp = bookshelf.getTile(x, y);
+                }
+                if (tmp!=null){
+                    diffTypesFound.add(tmp.getItemType());
+                } else {
+                    // the ROW or COLUMN cannot have empty cells, so if a null cell is found than the entire internal
+                    // iteration must be interrupted and discarded
+                    diffTypesFound = null;
+                    break;
                 }
             }
             // if the line's size respects constraint than increments the number of lines found

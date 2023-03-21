@@ -12,7 +12,7 @@ public class DiagonalTiles extends CommonGoalCard {
     /**
      * Initialize the CommonGoalCard associating the points' stack to it
      *
-     * @param id
+     * @param id String that identifies the card
      * @param tokens The token stack that will be placed on the card
      *               NOTE: the stack's generation logic will be in the controller
      */
@@ -58,24 +58,21 @@ public class DiagonalTiles extends CommonGoalCard {
         else
             inclination = -1;
 
-        try {
-            tileSupp = b.getTile(r, c);
-            if (tileSupp != null) {
-                //analyse the diagonal
-                for (int i = 0; i < 5; i++) {
-                    tileCurrent = b.getTile(r + i, c + (i * inclination));
-                    if (tileCurrent == null) {
+        tileSupp = b.getTile(r, c);//.getItemType();
+        if (tileSupp != null) {
+            //analyse the diagonal
+            for (int i = 0; i < 5; i++) {
+                tileCurrent = b.getTile(r + (i * inclination), c + (i * inclination));
+                if (tileCurrent == null) {
+                    return false;
+                } else {
+                    if (tileSupp.getItemType() != tileCurrent.getItemType())
                         return false;
-                    } else {
-                        if (tileSupp.getItemType() != tileCurrent.getItemType())
-                            return false;
-                    }
                 }
-                return true;
             }
-        } catch (TileUnreachableException outOfBoundTile) {
-            // TODO: maybe handle exception
+            return true;
         }
+
         return false;
     }
 

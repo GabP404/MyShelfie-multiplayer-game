@@ -12,7 +12,7 @@ public class EqualCorners extends CommonGoalCard {
     /**
      * Initialize the CommonGoalCard associating the points' stack to it
      *
-     * @param id
+     * @param id String that identifies the card
      * @param tokens The token stack that will be placed on the card
      *               NOTE: the stack's generation logic will be in the controller
      */
@@ -24,26 +24,20 @@ public class EqualCorners extends CommonGoalCard {
     public Boolean checkGoalSatisfied(Bookshelf bookshelf) {
         //ItemType typesupp;
         Tile tilesupp;
-        try {
-            //check top left corner != null
-            tilesupp = bookshelf.getTile(0, 0);
-            if (tilesupp == null)
-                return false;
+        //check top left corner != null
+        tilesupp = bookshelf.getTile(0, 0);
+        if (tilesupp == null)
+            return false;
 
-            //check if all other corners are of the same ItemType as the top left corner
-            if (bookshelf.getTile(Bookshelf.NUMROWS - 1, 0) == null ||
-                    bookshelf.getTile(Bookshelf.NUMROWS - 1, Bookshelf.NUMCOLUMNS - 1) == null ||
-                    bookshelf.getTile(0, Bookshelf.NUMCOLUMNS - 1) == null) {
-                return false;
-            }
-
-            return bookshelf.getTile(Bookshelf.NUMROWS - 1, 0).getItemType() == tilesupp.getItemType() &&
-                    bookshelf.getTile(Bookshelf.NUMROWS - 1, Bookshelf.NUMCOLUMNS - 1).getItemType() == tilesupp.getItemType() &&
-                    bookshelf.getTile(0, Bookshelf.NUMCOLUMNS - 1).getItemType() == tilesupp.getItemType();
-
-        } catch (TileUnreachableException outOfBoundTile) {
-            // TODO: maybe handle exception
+        //check if all other corners are of the same ItemType as the top left corner
+        if (bookshelf.getTile(Bookshelf.NUMROWS - 1, 0) == null ||
+                bookshelf.getTile(Bookshelf.NUMROWS - 1, Bookshelf.NUMCOLUMNS - 1) == null ||
+                bookshelf.getTile(0, Bookshelf.NUMCOLUMNS - 1) == null) {
+            return false;
         }
-        return null;
+
+        return bookshelf.getTile(Bookshelf.NUMROWS - 1, 0).getItemType() == tilesupp.getItemType() &&
+                bookshelf.getTile(Bookshelf.NUMROWS - 1, Bookshelf.NUMCOLUMNS - 1).getItemType() == tilesupp.getItemType() &&
+                bookshelf.getTile(0, Bookshelf.NUMCOLUMNS - 1).getItemType() == tilesupp.getItemType();
     }
 }
