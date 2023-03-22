@@ -62,7 +62,7 @@ public class DiagonalTiles extends CommonGoalCard {
         if (tileSupp != null) {
             //analyse the diagonal
             for (int i = 0; i < 5; i++) {
-                tileCurrent = b.getTile(r + (i * inclination), c + (i * inclination));
+                tileCurrent = b.getTile(r + i, c + (i * inclination));
                 if (tileCurrent == null) {
                     return false;
                 } else {
