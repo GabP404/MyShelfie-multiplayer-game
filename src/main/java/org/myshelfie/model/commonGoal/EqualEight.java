@@ -13,7 +13,7 @@ public class EqualEight extends CommonGoalCard {
     /**
      * Initialize the CommonGoalCard associating the points' stack to it
      *
-     * @param id
+     * @param id String that identifies the card
      * @param tokens The token stack that will be placed on the card
      *               NOTE: the stack's generation logic will be in the controller
      */
@@ -29,15 +29,10 @@ public class EqualEight extends CommonGoalCard {
 
         for (int i = 0; i < Bookshelf.NUMROWS; i++) {
             for (int j = 0; j < Bookshelf.NUMCOLUMNS; j++) {
-                try {
-                    if (bookshelf.getTile(i, j) != null) {
-                        //increment the counter
-                        enumCount[bookshelf.getTile(i, j).getItemType().ordinal()]++;
-                    }
-                } catch (TileUnreachableException outOfBoundTile) {
-                    // TODO: maybe handle exception
+                if (bookshelf.getTile(i, j) != null) {
+                    //increment the counter
+                    enumCount[bookshelf.getTile(i, j).getItemType().ordinal()]++;
                 }
-
             }
         }
 

@@ -18,7 +18,7 @@ public class Board {
         {5, 5, 5, 4, 2, 2, 5, 5, 5},
         {5, 5, 5, 5, 4, 3, 5, 5, 5},
     };
-    private static final int DIMBOARD = 9;
+    public static final int DIMBOARD = 9;
     private Tile[][] boardTiles;
 
     /**
@@ -73,7 +73,6 @@ public class Board {
 
     /**
      * Check whether the board needs to be refilled or not
-     * @param numPlayers Number of players
      * @return true if the board needs to be refilled, false otherwise
      */
     public boolean isRefillNeeded() {
@@ -102,5 +101,9 @@ public class Board {
 
     public void setTile(int x, int y, Tile t) {
         this.boardTiles[x][y] = t;
+    }
+
+    public Tile getTile(int x, int y) {
+        return this.boardTiles[x][y];
     }
 }
