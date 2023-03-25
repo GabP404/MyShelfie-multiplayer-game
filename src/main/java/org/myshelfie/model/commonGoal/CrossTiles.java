@@ -41,14 +41,14 @@ public class CrossTiles extends CommonGoalCard {
                                         bookshelf.getTile(r + 2, c).getItemType() == tileSupp.getItemType() &&
                                         bookshelf.getTile(r + 2, c + 2).getItemType() == tileSupp.getItemType()
                         ) {
-                            return true;
+                            return Boolean.TRUE;
                         }
                     }
                 }
 
             }
         }
-        return false;
+        return Boolean.FALSE;
     }
 
 }
