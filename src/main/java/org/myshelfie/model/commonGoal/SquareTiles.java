@@ -38,7 +38,7 @@ public class SquareTiles extends CommonGoalCard {
                     int tmpGroupSize = 0;
                     Tile tmp = bookshelf.getTile(i, j);
                     if (tmp != null) {
-                        tmpGroupSize = getGroupSize(visited, i, j, tmp.getItemType(), bookshelf);
+                        tmpGroupSize = bookshelf.getGroupSize(visited, i, j, tmp.getItemType());
                     }
                     //if the group has 4 tiles analyze their shape
                     if (tmpGroupSize == 4) {
@@ -55,22 +55,5 @@ public class SquareTiles extends CommonGoalCard {
             }
         }
         return false;
-
     }
-
-    //code from (SameTypeGroupings), there might be a way to not duplicate the code. TO BE DISCUSSED
-    private int getGroupSize(boolean[][] visited, int row, int col, ItemType targetType, Bookshelf b) throws TileUnreachableException {
-        if (row < 0 || row >= Bookshelf.NUMROWS || col < 0 || col >= Bookshelf.NUMCOLUMNS || visited[row][col] || b.getTile(row, col) == null || b.getTile(row, col).getItemType() != targetType) {
-            return 0;
-        }
-        visited[row][col] = true;
-        int size = 1;
-        size += getGroupSize(visited, row - 1, col, targetType, b); // check above
-        size += getGroupSize(visited, row + 1, col, targetType, b); // check below
-        size += getGroupSize(visited, row, col - 1, targetType, b); // check left
-        size += getGroupSize(visited, row, col + 1, targetType, b); // check right
-        return size;
-    }
-
-
 }
