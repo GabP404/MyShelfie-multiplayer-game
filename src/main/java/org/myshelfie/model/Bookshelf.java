@@ -51,6 +51,7 @@ public class Bookshelf {
     public Tile getTile(int r, int c) throws TileUnreachableException {
         if(r < 0 || r >= NUMROWS || c < 0 || c >= NUMCOLUMNS)
             throw new TileUnreachableException("Tile selected is unreachable (out of bound)");
+
         return tiles[r][c];
     }
 
