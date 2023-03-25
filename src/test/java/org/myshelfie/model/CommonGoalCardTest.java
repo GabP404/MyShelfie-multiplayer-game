@@ -206,18 +206,6 @@ class CommonGoalCardTest {
     }
 
     @Test
-    void checkGoalSatisfied() {
-        EqualEightTest();
-        EqualCornersTest();
-        CrossTilesTest();
-        DiagonalTilesTest();
-        SquareTilesTest();
-        StairTilesTest();
-        SameTypeGroupingsTest();
-        SlightlyDifferentLinesTest();
-    }
-
-    @Test
     void EqualEightTest() {
         assertEquals(Boolean.TRUE, equalEightCard.checkGoalSatisfied(bksComplete));
         assertEquals(Boolean.TRUE, equalEightCard.checkGoalSatisfied(bksCats));
