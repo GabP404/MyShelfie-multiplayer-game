@@ -42,7 +42,7 @@ public class Bookshelf {
     }
 
     /**
-     *
+     * Retrieves tile in position (r,c)
      * @param r The row of the bookshelf
      * @param c The column of the bookshelf
      * @return The tile in (r, c)
@@ -51,10 +51,13 @@ public class Bookshelf {
     public Tile getTile(int r, int c) throws TileUnreachableException {
         if(r < 0 || r >= NUMROWS || c < 0 || c >= NUMCOLUMNS)
             throw new TileUnreachableException("Tile selected is unreachable (out of bound)");
-
         return tiles[r][c];
     }
 
+    /**
+     * @param c Column of interest
+     * @return The height of the column c inside this Bookshelf
+     */
     public int getHeight(int c){
         int r = 0;
         while (r < Bookshelf.NUMROWS && tiles[r][c] == null) {
@@ -63,6 +66,11 @@ public class Bookshelf {
         return NUMROWS - r;
     }
 
+    /**
+     * Examines all the bookshelf to produce a list of the sizes of all the standalone groups of adjacent tiles
+     * of the same type. This method allows the computing of scoring points related to adjacent tiles.
+     * @return The list containing the sizes of all groups
+     */
     public List<Integer> getAdjacentSizes() {
         List<Integer> groupSizes = new ArrayList<>();
 
@@ -89,6 +97,16 @@ public class Bookshelf {
         return groupSizes;
     }
 
+    /**
+     * Recursive method that allows to compute the size of standalone groups of adjacent tiles of same type.
+     * Once checked that the current tile has targetType, size is incremented by one and then incremented by the result
+     * of all the recursive calls to all the adjacent tiles.
+     * @param visited A boolean matrix with same size as tiles[][] used to avoid considering more that once the same tile
+     * @param row The row index
+     * @param col The column index
+     * @param targetType ItemType of the group's tiles
+     * @return The size of the subgroup
+     */
     public int getGroupSize(boolean[][] visited, int row, int col, ItemType targetType) {
         if (row < 0 || row >= NUMROWS || col < 0 || col >= NUMCOLUMNS || visited[row][col] || tiles[row][col]==null || targetType!=tiles[row][col].getItemType()) {
             return 0;
