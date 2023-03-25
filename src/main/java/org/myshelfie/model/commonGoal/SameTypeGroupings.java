@@ -32,7 +32,7 @@ public class SameTypeGroupings extends CommonGoalCard {
     }
 
     /**
-     * This CommonGoalCard checks for the presence of numGroups separed groups of at least groupDim adjacent tiles
+     * This CommonGoalCard checks for the presence of numGroups standalone groups of at least groupDim adjacent tiles
      * of the same type. This method exploits Bookshelf getGroupSize() recursive method to determine groups' size.
      * @param bookshelf The Bookshelf to be analyzed
      * @return Boolean TRUE whether the constraint is satisfied, FALSE if not
