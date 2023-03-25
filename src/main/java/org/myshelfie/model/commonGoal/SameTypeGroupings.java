@@ -32,7 +32,7 @@ public class SameTypeGroupings extends CommonGoalCard {
     }
 
     /**
-     * This CommonGoalCard checks for the presence of numGroups standalone groups of at least groupDim adjacent tiles
+     * This CommonGoalCard checks for the presence of numGroups separed groups of at least groupDim adjacent tiles
      * of the same type. This method exploits Bookshelf getGroupSize() recursive method to determine groups' size.
      * @param bookshelf The Bookshelf to be analyzed
      * @return Boolean TRUE whether the constraint is satisfied, FALSE if not
@@ -47,7 +47,7 @@ public class SameTypeGroupings extends CommonGoalCard {
                     int tmpGroupSize = 0;
                     Tile tmp = bookshelf.getTile(i,j);
                     if (tmp != null) {
-                        tmpGroupSize = bookshelf.getGroupSize(visited, i, j, tmp.getItemType());
+                        tmpGroupSize = getGroupSize(visited, i, j, tmp.getItemType(), bookshelf);
                     }
                     numGroupsFound += tmpGroupSize>=groupDim ? 1 : 0;
                     if (numGroupsFound >= numGroups) {
@@ -57,5 +57,17 @@ public class SameTypeGroupings extends CommonGoalCard {
             }
         }
         return Boolean.FALSE;
+    }
+    private int getGroupSize(boolean[][] visited, int row, int col, ItemType targetType, Bookshelf b) throws TileUnreachableException{
+        if (row < 0 || row >= Bookshelf.NUMROWS || col < 0 || col >= Bookshelf.NUMCOLUMNS || visited[row][col] || b.getTile(row,col)==null || b.getTile(row, col).getItemType()!=targetType) {
+            return 0;
+        }
+        visited[row][col] = true;
+        int size = 1;
+        size += getGroupSize(visited, row - 1, col, targetType, b); // check above
+        size += getGroupSize(visited, row + 1, col, targetType, b); // check below
+        size += getGroupSize(visited, row, col - 1, targetType, b); // check left
+        size += getGroupSize(visited, row, col + 1, targetType, b); // check right
+        return size;
     }
 }
