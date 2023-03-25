@@ -18,9 +18,9 @@ public class Bookshelf {
     public Bookshelf() {
         tiles = new Tile[NUMROWS][NUMCOLUMNS];
         for (int i = 0; i < NUMROWS; i++) {
-           for (int j = 0; j < NUMCOLUMNS; j++) {
-               tiles[i][j] = null;
-           }
+            for (int j = 0; j < NUMCOLUMNS; j++) {
+                tiles[i][j] = null;
+            }
         }
     }
 
@@ -89,18 +89,18 @@ public class Bookshelf {
         return groupSizes;
     }
 
-    private int getGroupSize(boolean[][] visited, int row, int col, ItemType value) {
-        if (row < 0 || row >= tiles.length || col < 0 || col >= tiles[0].length || visited[row][col] || !value.equals(tiles[row][col].getItemType())) {
+    public int getGroupSize(boolean[][] visited, int row, int col, ItemType targetType) {
+        if (row < 0 || row >= NUMROWS || col < 0 || col >= NUMCOLUMNS || visited[row][col] || tiles[row][col]==null || targetType!=tiles[row][col].getItemType()) {
             return 0;
         }
 
         visited[row][col] = true;
 
         int size = 1;
-        size += getGroupSize(visited, row - 1, col, value); // check above
-        size += getGroupSize(visited, row + 1, col, value); // check below
-        size += getGroupSize(visited, row, col - 1, value); // check left
-        size += getGroupSize(visited, row, col + 1, value); // check right
+        size += getGroupSize(visited, row - 1, col, targetType); // check above
+        size += getGroupSize(visited, row + 1, col, targetType); // check below
+        size += getGroupSize(visited, row, col - 1, targetType); // check left
+        size += getGroupSize(visited, row, col + 1, targetType); // check right
 
         return size;
     }
