@@ -49,11 +49,11 @@ public class SquareTiles extends CommonGoalCard {
                         }
                     }
                     if (numGroupsFound >= numGroups) {
-                        return true;
+                        return Boolean.TRUE;
                     }
                 }
             }
         }
-        return false;
+        return Boolean.FALSE;
     }
 }

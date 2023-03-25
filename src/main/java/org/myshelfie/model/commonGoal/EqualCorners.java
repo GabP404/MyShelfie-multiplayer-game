@@ -27,13 +27,13 @@ public class EqualCorners extends CommonGoalCard {
         //check top left corner != null
         tilesupp = bookshelf.getTile(0, 0);
         if (tilesupp == null)
-            return false;
+            return Boolean.FALSE;
 
         //check if all other corners are of the same ItemType as the top left corner
         if (bookshelf.getTile(Bookshelf.NUMROWS - 1, 0) == null ||
                 bookshelf.getTile(Bookshelf.NUMROWS - 1, Bookshelf.NUMCOLUMNS - 1) == null ||
                 bookshelf.getTile(0, Bookshelf.NUMCOLUMNS - 1) == null) {
-            return false;
+            return Boolean.FALSE;
         }
 
         return bookshelf.getTile(Bookshelf.NUMROWS - 1, 0).getItemType() == tilesupp.getItemType() &&
