@@ -39,9 +39,9 @@ public class EqualEight extends CommonGoalCard {
         //analyse the counter
         for (int count : enumCount) {
             if (count >= 8) {
-                return true;
+                return Boolean.TRUE;
             }
         }
-        return false;
+        return Boolean.FALSE;
     }
 }

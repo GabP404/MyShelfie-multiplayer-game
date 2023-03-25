@@ -28,7 +28,7 @@ public class DiagonalTiles extends CommonGoalCard {
         for (int r = 0; r < Bookshelf.NUMROWS - 4; r++) {
             for (int c = 0; c < Bookshelf.NUMCOLUMNS - 4; c++) {
                 if (Boolean.TRUE.equals(checkDiagonal(bookshelf, r, c, 1)))
-                    return true;
+                    return Boolean.TRUE;
             }
         }
         /*
@@ -37,10 +37,10 @@ public class DiagonalTiles extends CommonGoalCard {
         for (int r = 0; r < Bookshelf.NUMROWS - 4; r++) {
             for (int c = Bookshelf.NUMCOLUMNS - 1; c >= 4; c--) {
                 if (Boolean.TRUE.equals(checkDiagonal(bookshelf, r, c, -1)))
-                    return true;
+                    return Boolean.TRUE;
             }
         }
-        return false;
+        return Boolean.FALSE;
     }
 
     private Boolean checkDiagonal(Bookshelf b, int r, int c, int inclination) {
@@ -64,16 +64,16 @@ public class DiagonalTiles extends CommonGoalCard {
             for (int i = 0; i < 5; i++) {
                 tileCurrent = b.getTile(r + i, c + (i * inclination));
                 if (tileCurrent == null) {
-                    return false;
+                    return Boolean.FALSE;
                 } else {
                     if (tileSupp.getItemType() != tileCurrent.getItemType())
-                        return false;
+                        return Boolean.FALSE;
                 }
             }
-            return true;
+            return Boolean.TRUE;
         }
 
-        return false;
+        return Boolean.FALSE;
     }
 
 }
