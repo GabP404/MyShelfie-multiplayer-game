@@ -4,9 +4,8 @@ import org.myshelfie.model.*;
 
 import java.util.ArrayDeque;
 
-/*
-    Eight tiles of the same type. There’s no
-    restriction about the position of these tiles.
+/**
+ * Eight tiles of the same type. There’s no restriction about the position of these tiles.
  */
 
 public class EqualEight extends CommonGoalCard {

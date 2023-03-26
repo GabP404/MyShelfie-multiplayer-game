@@ -4,12 +4,9 @@ import org.myshelfie.model.*;
 
 import java.util.ArrayDeque;
 
-/*
-    Five columns of increasing or decreasing
-    height. Starting from the first column on
-    the left or on the right, each next column
-    must be made of exactly one more tile.
-    Tiles can be of any type.
+/**
+ * Five columns of increasing or decreasing height. Starting from the first column on
+ * the left or on the right, each next column must be made of exactly one more tile. Tiles can be of any type.
  */
 
 public class StairTiles extends CommonGoalCard {
