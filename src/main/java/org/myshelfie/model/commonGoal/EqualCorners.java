@@ -4,9 +4,8 @@ import org.myshelfie.model.*;
 
 import java.util.ArrayDeque;
 
-/*
-    Four tiles of the same type in the four
-    corners of the bookshelf.
+/**
+ * Four tiles of the same type in the four corners of the bookshelf.
  */
 public class EqualCorners extends CommonGoalCard {
     /**
