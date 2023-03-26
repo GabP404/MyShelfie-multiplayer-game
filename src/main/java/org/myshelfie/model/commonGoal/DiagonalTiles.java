@@ -4,8 +4,8 @@ import org.myshelfie.model.*;
 
 import java.util.ArrayDeque;
 
-/*
-    Five tiles of the same type forming a diagonal.
+/**
+ * Five tiles of the same type forming a diagonal.
  */
 
 public class DiagonalTiles extends CommonGoalCard {

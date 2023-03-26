@@ -4,8 +4,8 @@ import org.myshelfie.model.*;
 
 import java.util.ArrayDeque;
 
-/*
-    Five tiles of the same type forming an X.
+/**
+ * Five tiles of the same type forming an X.
  */
 
 public class CrossTiles extends CommonGoalCard {
