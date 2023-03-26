@@ -35,8 +35,8 @@ class CommonGoalCardTest {
     CommonGoalCard sameTypeGroupings_2x3;
     CommonGoalCard sameTypeGroupings_1x10;
     CommonGoalCard slightlyDifferentLines_3row_2to3;
-    CommonGoalCard slightlyDifferentLines_4row_2to3;
-    CommonGoalCard slightlyDifferentLines_3col_4to6;
+    CommonGoalCard slightlyDifferentLines_4row_1to3;
+    CommonGoalCard slightlyDifferentLines_2col_6to6;
 
 
     void fillBookshelf(Bookshelf b, int[][] mat) {
@@ -65,8 +65,8 @@ class CommonGoalCardTest {
         sameTypeGroupings_2x3 = new SameTypeGroupings("SameTypeGroupings_2x3", null, 2, 3);     // requires 4 groups of at least 3 cards of same type -> TRUE
         sameTypeGroupings_1x10 = new SameTypeGroupings("SameTypeGroupings_1x10", null, 1, 10);  // requires one group of at least 7 cards of same type -> FALSE
         slightlyDifferentLines_3row_2to3 = new SlightlyDifferentLines("slightlyDifferentLines_3row_2to3", null, false, 3, 2, 3);
-        slightlyDifferentLines_4row_2to3 = new SlightlyDifferentLines("slightlyDifferentLines_4row_2to3", null, false, 3, 2, 4);
-        slightlyDifferentLines_3col_4to6 = new SlightlyDifferentLines("slightlyDifferentLines_3col_4to6", null, true, 6, 4, 3);
+        slightlyDifferentLines_4row_1to3 = new SlightlyDifferentLines("slightlyDifferentLines_4row_1to3", null, false, 3, 1, 4);
+        slightlyDifferentLines_2col_6to6 = new SlightlyDifferentLines("slightlyDifferentLines_2col_6to6", null, true, 6, 6, 2);
 
         int[][] complete = {
                 {5,  5,  0,  0,  3},
@@ -309,16 +309,16 @@ class CommonGoalCardTest {
 
     @Test
     void SlightlyDifferentLinesTest () {
-        assertEquals(Boolean.TRUE, slightlyDifferentLines_4row_2to3.checkGoalSatisfied(bksComplete));
-        assertEquals(Boolean.FALSE, slightlyDifferentLines_3col_4to6.checkGoalSatisfied(bksComplete));
+        assertEquals(Boolean.TRUE, slightlyDifferentLines_4row_1to3.checkGoalSatisfied(bksComplete));
+        assertEquals(Boolean.FALSE, slightlyDifferentLines_2col_6to6.checkGoalSatisfied(bksComplete));
         assertEquals(Boolean.TRUE, slightlyDifferentLines_3row_2to3.checkGoalSatisfied(bksComplete));
 
-        assertEquals(Boolean.FALSE, slightlyDifferentLines_4row_2to3.checkGoalSatisfied(bksOneTile));
-        assertEquals(Boolean.FALSE, slightlyDifferentLines_3col_4to6.checkGoalSatisfied(bksOneTile));
+        assertEquals(Boolean.FALSE, slightlyDifferentLines_4row_1to3.checkGoalSatisfied(bksOneTile));
+        assertEquals(Boolean.FALSE, slightlyDifferentLines_2col_6to6.checkGoalSatisfied(bksOneTile));
         assertEquals(Boolean.FALSE, slightlyDifferentLines_3row_2to3.checkGoalSatisfied(bksOneTile));
 
-        assertEquals(Boolean.FALSE, slightlyDifferentLines_4row_2to3.checkGoalSatisfied(bksSemiComplete));
-        assertEquals(Boolean.FALSE, slightlyDifferentLines_3col_4to6.checkGoalSatisfied(bksSemiComplete));
+        assertEquals(Boolean.FALSE, slightlyDifferentLines_4row_1to3.checkGoalSatisfied(bksSemiComplete));
+        assertEquals(Boolean.FALSE, slightlyDifferentLines_2col_6to6.checkGoalSatisfied(bksSemiComplete));
         assertEquals(Boolean.FALSE, slightlyDifferentLines_3row_2to3.checkGoalSatisfied(bksSemiComplete));
     }
     /*
