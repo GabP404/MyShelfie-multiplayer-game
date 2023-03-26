@@ -55,6 +55,7 @@ public class Bookshelf {
     }
 
     /**
+     * Method that returns the height of a certain column of the bookshelf intended as the number of non-null tiles in it.
      * @param c Column of interest
      * @return The height of the column c inside this Bookshelf
      */
