@@ -1,5 +1,10 @@
 package org.myshelfie.model;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+
+import static org.myshelfie.model.CommonGoalDeck.COMMON_GOAL_DECK_SIZE;
 
 public class Game {
     private Player currPlayer;
@@ -9,13 +14,28 @@ public class Game {
     private TileBag tileBag;
     private boolean playing;
 
-    public Game(List<Player> players, Board board, List<CommonGoalCard> commonGoals, TileBag tileBag) {
-        this.players = players;
+    public Game(List<String> nickNames, Board board, TileBag tileBag) {
         this.board = board;
-        this.commonGoals = commonGoals;
         this.tileBag = tileBag;
         this.currPlayer = players.get(0);
         suspendGame();
+        createPlayers(nickNames);
+        CommonGoalDeck commonGoalDeck = new CommonGoalDeck(players.size());
+        this.commonGoals = commonGoalDeck.drawCommonGoalCard();
+    }
+
+    /**
+     * Create a personalGoalDeck in order to get the PersonalGoalCard for the players.
+     * Create the players
+     * @param nickNames
+     */
+    private void createPlayers(List<String> nickNames) {
+        PersonalGoalDeck personalGoalDeck = new PersonalGoalDeck();
+        List<PersonalGoalCard> drawnPersonalGoalCard = personalGoalDeck.draw(players.size());
+        this.players = new ArrayList<>();
+        for(int i = 0; i < players.size(); i++) {
+            players.add(new Player(nickNames.get(i),drawnPersonalGoalCard.get(i)));
+        }
     }
 
     public Game() {
@@ -68,10 +88,6 @@ public class Game {
 
     public void setBoard(Board board) {
         this.board = board;
-    }
-
-    public void setCommonGoals(List<CommonGoalCard> commonGoals) {
-        this.commonGoals = commonGoals;
     }
 
     public void setTileBag(TileBag tileBag) {

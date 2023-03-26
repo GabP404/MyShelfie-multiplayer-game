@@ -17,7 +17,6 @@ public class Player {
     /**
      * Constructor of the Player class.
      * @param nick      The player's nickname
-     * @param persGoal  The player's personal goal card
      */
     public Player(String nick, PersonalGoalCard persGoal) {
         this.nickname = new String(nick);
@@ -32,10 +31,6 @@ public class Player {
         return nickname;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
     public Boolean getHasFinalToken() {
         return hasFinalToken;
     }
@@ -46,10 +41,6 @@ public class Player {
 
     public PersonalGoalCard getPersonalGoal() {
         return personalGoal;
-    }
-
-    public void setPersonalGoal(PersonalGoalCard personalGoal) {
-        this.personalGoal = personalGoal;
     }
 
     public Bookshelf getBookshelf() {
