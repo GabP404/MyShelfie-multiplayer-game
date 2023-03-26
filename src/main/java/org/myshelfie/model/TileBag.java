@@ -14,7 +14,7 @@ public class TileBag {
 
         for (ItemType t : ItemType.values()) {
             for (int i = 0; i < TILEPERTYPE; i++) {
-                this.tiles.add(new Tile(t));
+                this.tiles.add(new Tile(t,(i%3) + 1));
             }
         }
         Collections.shuffle(this.tiles);
