@@ -5,14 +5,15 @@ import org.myshelfie.model.*;
 import java.util.ArrayDeque;
 
 /**
- *  - card 1: Six groups each containing at least 2 tiles of the same type. The tiles of one group can be different from those of another group.
- *  - card 2: Four groups each containing at least 4 tiles of the same type.The tiles of one group can be different from those of another group.
  * This class represents an abstraction of cards 1 and 3, since it generalizes all the possible constraint of the type:
  * bookshelf must have x standalone groups of adjacent tiles with same type (different groups may have different ItemType)
  * each one with dimension greater or equal to y.
- * So the initialization of these two cards must happen as follows:
- * - card 1: SameTypeGroupings('1', tokens, 6, 2)
- * - card 2: SameTypeGroupings('2', tokens, 4, 4)
+ * The two cards above may be represented as:
+ *  - card 1: 6 groups as described above with size greater or equal to 2
+ *  - card 3: 4 groups as descrived above with size greater or equal to 4
+ *  Thus the inizalization of these two cards must happen as follows:
+ *   card 1: SameTypeGroupings('1', tokens, 6, 2)
+ *   card 3: SametypeGroupings('3', tokens, 4, 4)
  */
 public class SameTypeGroupings extends CommonGoalCard {
     private final Integer numGroups;
@@ -47,7 +48,7 @@ public class SameTypeGroupings extends CommonGoalCard {
                     int tmpGroupSize = 0;
                     Tile tmp = bookshelf.getTile(i,j);
                     if (tmp != null) {
-                        tmpGroupSize = getGroupSize(visited, i, j, tmp.getItemType(), bookshelf);
+                        tmpGroupSize = bookshelf.getGroupSize(visited, i, j, tmp.getItemType());
                     }
                     numGroupsFound += tmpGroupSize>=groupDim ? 1 : 0;
                     if (numGroupsFound >= numGroups) {
@@ -57,17 +58,5 @@ public class SameTypeGroupings extends CommonGoalCard {
             }
         }
         return Boolean.FALSE;
-    }
-    private int getGroupSize(boolean[][] visited, int row, int col, ItemType targetType, Bookshelf b) throws TileUnreachableException{
-        if (row < 0 || row >= Bookshelf.NUMROWS || col < 0 || col >= Bookshelf.NUMCOLUMNS || visited[row][col] || b.getTile(row,col)==null || b.getTile(row, col).getItemType()!=targetType) {
-            return 0;
-        }
-        visited[row][col] = true;
-        int size = 1;
-        size += getGroupSize(visited, row - 1, col, targetType, b); // check above
-        size += getGroupSize(visited, row + 1, col, targetType, b); // check below
-        size += getGroupSize(visited, row, col - 1, targetType, b); // check left
-        size += getGroupSize(visited, row, col + 1, targetType, b); // check right
-        return size;
     }
 }

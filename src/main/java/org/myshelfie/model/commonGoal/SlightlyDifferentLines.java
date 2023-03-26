@@ -7,16 +7,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * - card 5: Three columns each formed by 6 tiles of maximum three different types.
- *           One column can show the same or a different combination of another column.
- * - card 8: Four lines each formed by 5 tiles of maximum three different types. One line can
- *           show the same or a different combination of another line
- * - card 9: Two columns each formed by 6 different types of tiles.
- * - card 10: Two lines each formed by 5 different types of tiles. One line can show the
- *            same or a different combination of the other line
  * This class abstracts the constraints in the form of: bookshelf must have a certain number of compete columns (or rows) composed by tiles whose
  * types are such that the total number of different types between them is in a certain range.
- * Given this description, the initialization of these cards must happen as follows:
+ * Thanks to this definition the class can be used to represent the following cards:
+ * - card 5: 3 complete columns, each one composed by tiles with no more than 3 different ItemTypes
+ * - card 8: 4 complete rows, each one composed by tiles with no more than 3 different ItemTypes
+ * - card 9: 2 complete columns in which all tiles have different type (at least 6 different ItemTypes)
+ * - card 10: 2 complete columns in which all tiles have different type (at least 5 differnt ItemTypes)
+ * Given this description, the inizialization of these cards must happen as follows:
  * - card 5: SlightlyDifferentLines('5', tokens, true, 3, 1, 3)
  * - card 8: SlightlyDifferentLines('8', tokens, false, 3, 1, 4)
  * - card 9: SlightlyDifferentLines('9', tokens, true, 6, 6, 2)
