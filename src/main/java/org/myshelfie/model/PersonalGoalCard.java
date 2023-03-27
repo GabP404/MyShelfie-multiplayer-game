@@ -6,7 +6,7 @@ import java.util.List;
 public class PersonalGoalCard {
     private List<Pair<Pair<Integer, Integer>, Tile>> constraints;
 
-    protected PersonalGoalCard(List<Pair<Pair<Integer, Integer>, Tile>> constraint_tiles) {
+    public PersonalGoalCard(List<Pair<Pair<Integer, Integer>, Tile>> constraint_tiles) {
         constraints = constraint_tiles;
     }
 
