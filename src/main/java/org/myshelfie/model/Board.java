@@ -87,7 +87,7 @@ public class Board {
         return true;
     }
 
-    private boolean hasOneOrMoreFreeBorders(int row, int col) {
+    public boolean hasOneOrMoreFreeBorders(int row, int col) {
         return isFreeTileBox(row - 1, col) || isFreeTileBox(row + 1, col) ||
                 isFreeTileBox(row, col - 1) || isFreeTileBox(row, col + 1);
     }
