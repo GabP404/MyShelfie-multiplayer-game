@@ -1,12 +1,16 @@
 package org.myshelfie.model;
-
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myshelfie.model.util.Pair;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -27,7 +31,11 @@ class PlayerTest {
         assertNotNull(p.getNickname());
         assertNotNull(p.getTilesPicked());
         assertNotNull(p.getPersonalGoal());
+        p.addScoringToken(new ScoringToken(8,"1"));
+        p.addScoringToken(new ScoringToken(4,"2"));
+        assertTrue(p.getPointsScoringTokens() == 12);
     }
+
 
     @Test
     public void testAddTilesPickedAndRemovedTilesPicked() throws TileInsertionException {

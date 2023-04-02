@@ -1,21 +1,15 @@
 package org.myshelfie.model;
+import java.util.*;
 
-import org.myshelfie.util.Observable;
-
-import java.util.List;
-
-public class Game extends Observable<Game.Event> {
-    public enum Event {
-        BOOKSHELF_UPDATE, BOARD_UPDATE, TOKEN_UPDATE
-    }
+public class Game {
     private Player currPlayer;
     private List<Player> players;
     private Board board;
-    private List<CommonGoalCard> commonGoals;
+    private HashMap<CommonGoalCard,List<ScoringToken>> commonGoals;
     private TileBag tileBag;
     private boolean playing;
 
-    public Game(List<Player> players, Board board, List<CommonGoalCard> commonGoals, TileBag tileBag) {
+    public Game(List<Player> players, Board board, HashMap<CommonGoalCard,List<ScoringToken>> commonGoals, TileBag tileBag) {
         this.players = players;
         this.board = board;
         this.commonGoals = commonGoals;
@@ -49,7 +43,11 @@ public class Game extends Observable<Game.Event> {
     }
 
     public List<CommonGoalCard> getCommonGoals() {
-        return commonGoals;
+        List<CommonGoalCard> x = new ArrayList<>();
+        commonGoals.forEach(
+                (key,value) -> x.add(key)
+        );
+        return x;
     }
     public TileBag getTileBag() {
         return tileBag;
@@ -60,6 +58,14 @@ public class Game extends Observable<Game.Event> {
         return players.get(pos + 1);
     }
 
+    public ScoringToken popTopScoringToken(CommonGoalCard c) {
+        LinkedList<ScoringToken> x = (LinkedList<ScoringToken>) commonGoals.get(c);
+        return x.removeFirst();
+    }
+    public ScoringToken getTopScoringToken(CommonGoalCard c) {
+        LinkedList<ScoringToken> x = (LinkedList<ScoringToken>) commonGoals.get(c);
+        return x.getFirst();
+    }
     public boolean isPlaying() {
         return playing;
     }
