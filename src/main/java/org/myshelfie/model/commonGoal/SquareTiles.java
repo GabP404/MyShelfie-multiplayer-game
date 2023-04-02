@@ -10,15 +10,9 @@ import java.util.ArrayDeque;
  */
 
 public class SquareTiles extends CommonGoalCard {
-    /**
-     * Initialize the CommonGoalCard associating the points' stack to it
-     *
-     * @param id String that identifies the card
-     * @param tokens The token stack that will be placed on the card
-     *               NOTE: the stack's generation logic will be in the controller
-     */
-    public SquareTiles(String id, ArrayDeque<ScoringToken> tokens) {
-        super(id, tokens);
+
+    public SquareTiles(String id) {
+        super(id);
     }
 
     @Override

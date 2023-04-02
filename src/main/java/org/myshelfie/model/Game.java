@@ -1,24 +1,20 @@
 package org.myshelfie.model;
-import java.util.List;
+import java.util.*;
 
 public class Game {
     private Player currPlayer;
     private List<Player> players;
     private Board board;
-    private List<CommonGoalCard> commonGoals;
+    private HashMap<CommonGoalCard,List<ScoringToken>> commonGoals;
     private TileBag tileBag;
     private boolean playing;
 
-    public Game(List<Player> players, Board board, List<CommonGoalCard> commonGoals, TileBag tileBag) {
+    public Game(List<Player> players, Board board, HashMap<CommonGoalCard,List<ScoringToken>> commonGoals, TileBag tileBag) {
         this.players = players;
         this.board = board;
         this.commonGoals = commonGoals;
         this.tileBag = tileBag;
         this.currPlayer = players.get(0);
-        suspendGame();
-    }
-
-    public Game() {
         suspendGame();
     }
 
@@ -43,7 +39,11 @@ public class Game {
     }
 
     public List<CommonGoalCard> getCommonGoals() {
-        return commonGoals;
+        List<CommonGoalCard> x = new ArrayList<>();
+        commonGoals.forEach(
+                (key,value) -> x.add(key)
+        );
+        return x;
     }
     public TileBag getTileBag() {
         return tileBag;
@@ -54,27 +54,19 @@ public class Game {
         return players.get(pos + 1);
     }
 
+    public ScoringToken popTopScoringToken(CommonGoalCard c) {
+        LinkedList<ScoringToken> x = (LinkedList<ScoringToken>) commonGoals.get(c);
+        return x.removeFirst();
+    }
+    public ScoringToken getTopScoringToken(CommonGoalCard c) {
+        LinkedList<ScoringToken> x = (LinkedList<ScoringToken>) commonGoals.get(c);
+        return x.getFirst();
+    }
     public boolean isPlaying() {
         return playing;
     }
-
     public void setCurrPlayer(Player currPlayer) {
         this.currPlayer = currPlayer;
     }
 
-    public void setPlayers(List<Player> players) {
-        this.players = players;
-    }
-
-    public void setBoard(Board board) {
-        this.board = board;
-    }
-
-    public void setCommonGoals(List<CommonGoalCard> commonGoals) {
-        this.commonGoals = commonGoals;
-    }
-
-    public void setTileBag(TileBag tileBag) {
-        this.tileBag = tileBag;
-    }
 }
