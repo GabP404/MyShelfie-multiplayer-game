@@ -76,7 +76,7 @@ class PlayerTest {
         assertTrue(p.getTilesPicked().get(1).equals(t2));
         t.remove(t1);
         assertFalse(p.getTilesPicked().get(0).equals(t1));
-        assertTrue(p.getTilesPicked().get(1).equals(t2));
+        assertTrue(p.getTilesPicked().get(0).equals(t2));
     }
 
 
