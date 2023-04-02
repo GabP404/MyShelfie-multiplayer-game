@@ -17,10 +17,10 @@ import java.util.Set;
  * This class abstracts the constraints in the form of: bookshelf must have a certain number of compete columns (or rows) composed by tiles whose
  * types are such that the total number of different types between them is in a certain range.
  * Given this description, the initialization of these cards must happen as follows:
- * - card 5: SlightlyDifferentLines('5', tokens, true, 3, 1, 3)
- * - card 8: SlightlyDifferentLines('8', tokens, false, 3, 1, 4)
- * - card 9: SlightlyDifferentLines('9', tokens, true, 6, 6, 2)
- * - card 10: SlightlyDifferentLines('8', tokens, false, 6, 5, 2)
+ * - card 5: SlightlyDifferentLines('5', true, 3, 1, 3)
+ * - card 8: SlightlyDifferentLines('8', false, 3, 1, 4)
+ * - card 9: SlightlyDifferentLines('9', true, 6, 6, 2)
+ * - card 10: SlightlyDifferentLines('8',  false, 6, 5, 2)
  */
 public class SlightlyDifferentLines extends CommonGoalCard {
     private final boolean direction;
@@ -28,18 +28,9 @@ public class SlightlyDifferentLines extends CommonGoalCard {
     private final int numMinDiffTypes;
     private final int numLines;
 
-    /**
-     * Constructor of the card
-     * @param id Card identifier
-     * @param tokens Tokens' stack on the card
-     * @param direction If false we're looking for ROWS
-     *                  if true we're looking for COLUMNS
-     * @param numMaxDiffTypes Max number of different types of tiles in a group
-     * @param numMinDiffTypes Min number of different types of tiles in a group
-     * @param numLines Number of lines we're looking for
-     */
-    public SlightlyDifferentLines(String id, ArrayDeque<ScoringToken> tokens, boolean direction, int numMaxDiffTypes, int numMinDiffTypes, int numLines) {
-        super(id, tokens);
+
+    public SlightlyDifferentLines(String id, boolean direction, int numMaxDiffTypes, int numMinDiffTypes, int numLines) {
+        super(id);
         if (numMaxDiffTypes < numMinDiffTypes) {
             throw new IllegalArgumentException("Card parameters are invalid: numMaxDiffTypes must be greater or equal to numMinDiffTypes.");
         }

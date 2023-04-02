@@ -55,18 +55,18 @@ class CommonGoalCardTest {
 
     @BeforeEach
     void setUp() {
-        equalEightCard = new EqualEight("EqualEightCard", null);
-        equalCornersCard = new EqualCorners("EqualCornersCard", null);
-        crossTilesCard = new CrossTiles("CrossTilesCard", null);
-        diagonalTilesCard = new DiagonalTiles("DiagonalTilesCard", null);
-        squareTilesCard = new SquareTiles("SquareTilesCard", null);
-        stairTilesCard = new StairTiles("StairTilesCard", null);
-        sameTypeGroupings_4x5 = new SameTypeGroupings("SameTypeGroupings_4x5", null, 4, 5);     // requires 5 groups of at least 3 cards of same type -> TRUE
-        sameTypeGroupings_2x3 = new SameTypeGroupings("SameTypeGroupings_2x3", null, 2, 3);     // requires 4 groups of at least 3 cards of same type -> TRUE
-        sameTypeGroupings_1x10 = new SameTypeGroupings("SameTypeGroupings_1x10", null, 1, 10);  // requires one group of at least 7 cards of same type -> FALSE
-        slightlyDifferentLines_3row_2to3 = new SlightlyDifferentLines("slightlyDifferentLines_3row_2to3", null, false, 3, 2, 3);
-        slightlyDifferentLines_4row_1to3 = new SlightlyDifferentLines("slightlyDifferentLines_4row_1to3", null, false, 3, 1, 4);
-        slightlyDifferentLines_2col_6to6 = new SlightlyDifferentLines("slightlyDifferentLines_2col_6to6", null, true, 6, 6, 2);
+        equalEightCard = new EqualEight("EqualEightCard");
+        equalCornersCard = new EqualCorners("EqualCornersCard");
+        crossTilesCard = new CrossTiles("CrossTilesCard");
+        diagonalTilesCard = new DiagonalTiles("DiagonalTilesCard");
+        squareTilesCard = new SquareTiles("SquareTilesCard");
+        stairTilesCard = new StairTiles("StairTilesCard");
+        sameTypeGroupings_4x5 = new SameTypeGroupings("SameTypeGroupings_4x5",4, 5);     // requires 5 groups of at least 3 cards of same type -> TRUE
+        sameTypeGroupings_2x3 = new SameTypeGroupings("SameTypeGroupings_2x3", 2, 3);     // requires 4 groups of at least 3 cards of same type -> TRUE
+        sameTypeGroupings_1x10 = new SameTypeGroupings("SameTypeGroupings_1x10", 1, 10);  // requires one group of at least 7 cards of same type -> FALSE
+        slightlyDifferentLines_3row_2to3 = new SlightlyDifferentLines("slightlyDifferentLines_3row_2to3", false, 3, 2, 3);
+        slightlyDifferentLines_4row_1to3 = new SlightlyDifferentLines("slightlyDifferentLines_4row_1to3",false, 3, 1, 4);
+        slightlyDifferentLines_2col_6to6 = new SlightlyDifferentLines("slightlyDifferentLines_2col_6to6",  true, 6, 6, 2);
 
         int[][] complete = {
                 {5,  5,  0,  0,  3},

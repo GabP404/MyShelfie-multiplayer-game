@@ -11,22 +11,15 @@ import java.util.ArrayDeque;
  * bookshelf must have x standalone groups of adjacent tiles with same type (different groups may have different ItemType)
  * each one with dimension greater or equal to y.
  * So the initialization of these two cards must happen as follows:
- * - card 1: SameTypeGroupings('1', tokens, 6, 2)
- * - card 2: SameTypeGroupings('2', tokens, 4, 4)
+ * - card 1: SameTypeGroupings('1', 6, 2)
+ * - card 2: SameTypeGroupings('2', 4, 4)
  */
 public class SameTypeGroupings extends CommonGoalCard {
     private final Integer numGroups;
     private final Integer groupDim;
-    /**
-     * Initialize the CommonGoalCard associating the points' stack to it
-     * @param id The identifier of the card
-     * @param tokens The token stack that will be placed on the card
-     *               NOTE: the stack's generation logic will be in the controller
-     * @param numGroups Number of groups required by card
-     * @param groupDim Minimum number of tiles of same type required to form a group
-     */
-    public SameTypeGroupings(String id, ArrayDeque<ScoringToken> tokens, Integer numGroups, Integer groupDim) {
-        super(id, tokens);
+
+    public SameTypeGroupings(String id, Integer numGroups, Integer groupDim) {
+        super(id);
         this.numGroups = numGroups;
         this.groupDim = groupDim;
     }
