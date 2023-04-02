@@ -12,8 +12,8 @@ public class LocatedTile extends Tile{
     /**
      * Constructor for the LocatedTile class
      * @param itemType Type of the Tile
-     * @param r The row in the bookshelf
-     * @param c The column in the bookshelf
+     * @param r The row in the board
+     * @param c The column in the board
      */
     public LocatedTile(ItemType itemType, int r, int c) {
         super(itemType);
