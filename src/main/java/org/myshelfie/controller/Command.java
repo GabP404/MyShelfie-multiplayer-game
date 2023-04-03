@@ -1,5 +1,7 @@
 package org.myshelfie.controller;
 
+import org.myshelfie.model.TileInsertionException;
+
 public interface Command {
-    public void execute() throws InvalidCommand;
+    void execute() throws InvalidCommand, TileInsertionException;
 }

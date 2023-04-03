@@ -9,13 +9,19 @@ import org.json.JSONObject;
 public class SelectedColumnMessage extends CommandMessage {
     int selectedColumn;
 
-    public SelectedColumnMessage(int col) {
+    /**
+     * @param nickname   Nickname of the player sending the message
+     * @param col        column selected by the player
+     */
+    public SelectedColumnMessage(String nickname, int col) {
+        super(nickname);
         selectedColumn = col;
     }
 
     @Override
     public String toString() {
         JSONObject jo = new JSONObject();
+        jo.put("nickname", nickname);
         jo.put("col", selectedColumn);
         return jo.toString();
     }
