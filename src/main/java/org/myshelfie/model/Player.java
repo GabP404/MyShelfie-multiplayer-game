@@ -32,10 +32,6 @@ public class Player {
         return nickname;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
     public Boolean getHasFinalToken() {
         return hasFinalToken;
     }
@@ -81,6 +77,18 @@ public class Player {
     public void addTilesPicked(Tile t) throws TileInsertionException{
         if(this.tilesPicked.size() == DIM_TILESPICKED) throw new TileInsertionException("maximum number of tiles picked reached");
         this.tilesPicked.add(t);
+    }
+
+    /**
+     * @return number of points earnt from ScoringTokens
+     */
+    public int getPointsScoringTokens() {
+        int x = 0;
+        for (ScoringToken s :
+                this.commonGoalTokens) {
+            x+= s.getPoints();
+        }
+        return x;
     }
 
     public void removeTilesPicked(Tile t){
