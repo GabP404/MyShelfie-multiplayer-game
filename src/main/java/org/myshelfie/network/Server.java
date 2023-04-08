@@ -1,5 +1,7 @@
 package org.myshelfie.network;
 
+import org.myshelfie.network.messages.commandMessages.CommandMessageWrapper;
+
 public interface Server {
     /**
      * Register a client to the server

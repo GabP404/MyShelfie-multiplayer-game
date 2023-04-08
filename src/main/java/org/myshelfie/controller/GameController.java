@@ -2,7 +2,7 @@ package org.myshelfie.controller;
 
 import org.myshelfie.model.Game;
 import org.myshelfie.network.Client;
-import org.myshelfie.network.CommandMessageType;
+import org.myshelfie.network.messages.commandMessages.CommandMessageType;
 
 import java.util.List;
 

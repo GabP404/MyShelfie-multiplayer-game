@@ -1,4 +1,4 @@
-package org.myshelfie.network;
+package org.myshelfie.network.messages.commandMessages;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

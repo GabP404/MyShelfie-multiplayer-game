@@ -1,4 +1,4 @@
-package org.myshelfie.network;
+package org.myshelfie.network.messages.commandMessages;
 
 /**
  *  this class wraps the message sent by the client or the server. By doing so when a client or server receives

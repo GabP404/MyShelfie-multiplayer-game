@@ -1,4 +1,4 @@
-package org.myshelfie.network;
+package org.myshelfie.network.messages.commandMessages;
 
 /**
  * List of all the types of messages that can be sent from the client to the server.
