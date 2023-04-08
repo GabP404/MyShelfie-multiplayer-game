@@ -1,14 +1,12 @@
 package org.myshelfie.view;
 
-import org.myshelfie.model.Game;
-import org.myshelfie.model.GameView;
+import org.myshelfie.network.messages.gameMessages.GameEventType;
+import org.myshelfie.network.messages.gameMessages.GameView;
 import org.myshelfie.model.LocatedTile;
-import org.myshelfie.network.CommandMessageType;
-import org.myshelfie.util.Observable;
 
 import java.util.List;
 
-public class CommandLineInterface extends Observable<CommandMessageType> implements Runnable {
+public class CommandLineInterface implements Runnable {
     private final String nickname;
     private List<LocatedTile> selectedTiles;    // tiles selected from the board
     private int selectedColumn;     // the column into insert a new hand of tiles
@@ -31,7 +29,7 @@ public class CommandLineInterface extends Observable<CommandMessageType> impleme
 
     }
 
-    public void update(GameView o, Game.Event arg) {
+    public void update(GameView o, GameEventType arg) {
 
     }
 

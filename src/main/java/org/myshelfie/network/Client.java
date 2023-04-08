@@ -1,7 +1,7 @@
 package org.myshelfie.network;
 
-import org.myshelfie.model.Game;
-import org.myshelfie.model.GameView;
+import org.myshelfie.network.messages.gameMessages.GameEventType;
+import org.myshelfie.network.messages.gameMessages.GameView;
 
 public interface Client {
     /**
@@ -9,5 +9,5 @@ public interface Client {
      * @param o    The resulting model view
      * @param ev   The causing event
      */
-    void update(GameView o, Game.Event ev);
+    void update(GameView o, GameEventType ev);
 }

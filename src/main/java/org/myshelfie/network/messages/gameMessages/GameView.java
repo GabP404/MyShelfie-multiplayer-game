@@ -1,4 +1,9 @@
-package org.myshelfie.model;
+package org.myshelfie.network.messages.gameMessages;
+
+import org.myshelfie.model.Board;
+import org.myshelfie.model.CommonGoalCard;
+import org.myshelfie.model.Game;
+import org.myshelfie.model.Player;
 
 import java.util.List;
 import java.io.Serializable;

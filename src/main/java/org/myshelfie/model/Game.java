@@ -1,12 +1,9 @@
 package org.myshelfie.model;
-import org.myshelfie.util.Observable;
+import org.myshelfie.network.messages.gameMessages.GameEventType;
 
 import java.util.*;
 
-public class Game extends Observable<Game.Event> {
-    public enum Event {
-        BOOKSHELF_UPDATE, BOARD_UPDATE, TOKEN_UPDATE
-    }
+public class Game {
     private Player currPlayer;
     private List<Player> players;
     private Board board;
