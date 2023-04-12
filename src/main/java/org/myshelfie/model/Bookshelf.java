@@ -2,11 +2,12 @@ package org.myshelfie.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.myshelfie.controller.Configuration;
 
 public class Bookshelf {
 
-    public static final int NUMROWS = 6;
-    public static final int NUMCOLUMNS = 5;
+    public static final int NUMROWS = Configuration.getBookshelfRows();
+    public static final int NUMCOLUMNS = Configuration.getBookshelfCols();
 
     private Tile[][] tiles;
 
