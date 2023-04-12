@@ -10,7 +10,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Bookshelf")
-class BookshelfTest {
+public class BookshelfTest {
     private Bookshelf shelf;
 
     @BeforeEach
