@@ -1,8 +1,7 @@
-package org.myshelfie.network.listener;
+package org.myshelfie.network.server;
 
-import org.myshelfie.network.Client;
 import org.myshelfie.network.Listener;
-import org.myshelfie.network.Server;
+import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.gameMessages.GameEventType;
 import org.myshelfie.network.messages.gameMessages.GameView;
 

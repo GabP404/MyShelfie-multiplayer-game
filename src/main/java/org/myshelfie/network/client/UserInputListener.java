@@ -1,9 +1,8 @@
-package org.myshelfie.network.listener;
+package org.myshelfie.network.client;
 
-import org.myshelfie.network.Client;
 import org.myshelfie.network.Listener;
-import org.myshelfie.network.Server;
-import org.myshelfie.network.messages.commandMessages.*;
+import org.myshelfie.network.messages.commandMessages.UserInputEventType;
+import org.myshelfie.network.server.Server;
 import org.myshelfie.view.CommandLineInterface;
 
 public class UserInputListener implements Listener<UserInputEventType> {

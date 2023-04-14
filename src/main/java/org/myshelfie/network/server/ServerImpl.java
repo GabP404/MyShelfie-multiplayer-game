@@ -1,11 +1,9 @@
-package org.myshelfie.network.local;
+package org.myshelfie.network.server;
 
 import org.myshelfie.controller.GameController;
 import org.myshelfie.model.Game;
-import org.myshelfie.network.Client;
+import org.myshelfie.network.client.Client;
 import org.myshelfie.network.EventManager;
-import org.myshelfie.network.Server;
-import org.myshelfie.network.listener.GameListener;
 import org.myshelfie.network.messages.commandMessages.CommandMessageWrapper;
 import org.myshelfie.network.messages.commandMessages.UserInputEventType;
 import org.myshelfie.network.messages.gameMessages.GameEventType;
@@ -13,9 +11,8 @@ import org.myshelfie.network.messages.gameMessages.GameEventType;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ServerImpl implements Server {
+public class ServerImpl extends Server {
     private List<Client> clients;
-    private Game model;
     private GameController controller;
     public static EventManager eventManager = new EventManager();
 
@@ -39,16 +36,6 @@ public class ServerImpl implements Server {
     public ServerImpl(Game game) {
         this.model = game;
         this.clients = new ArrayList<>();
-    }
-
-    /**
-     * Getter for the model that the server is using. This method is used in order to allow GameListener to send
-     * the updated modelView everytime a change occurs in the model.
-     * NOTE: this method will need to be parametric when we'll handle multiple games.
-     * @return The model used by the server
-     */
-    public Game getGame() {
-        return model;
     }
 
     /**

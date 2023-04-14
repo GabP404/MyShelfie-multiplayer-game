@@ -1,7 +1,7 @@
 package org.myshelfie.controller;
 
 import org.myshelfie.model.Game;
-import org.myshelfie.network.Client;
+import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.commandMessages.UserInputEventType;
 
 import java.util.List;

@@ -1,6 +1,6 @@
 package org.myshelfie.model;
 
-import org.myshelfie.network.local.ServerImpl;
+import org.myshelfie.network.server.ServerImpl;
 import org.myshelfie.network.messages.gameMessages.GameEventType;
 
 import java.util.ArrayList;
