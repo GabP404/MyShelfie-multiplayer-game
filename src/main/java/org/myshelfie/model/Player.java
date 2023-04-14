@@ -1,5 +1,8 @@
 package org.myshelfie.model;
 
+import org.myshelfie.network.local.ServerImpl;
+import org.myshelfie.network.messages.gameMessages.GameEventType;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,8 +23,8 @@ public class Player {
      * @param persGoal  The player's personal goal card
      */
     public Player(String nick, PersonalGoalCard persGoal) {
-        this.nickname = new String(nick);
-        this.commonGoalTokens = new ArrayList<ScoringToken>();
+        this.nickname = nick;
+        this.commonGoalTokens = new ArrayList<>();
         this.hasFinalToken = false;
         this.personalGoal = persGoal;
         this.bookshelf = new Bookshelf();
@@ -39,6 +42,8 @@ public class Player {
 
     public void setHasFinalToken(Boolean hasFinalToken) {
         this.hasFinalToken = hasFinalToken;
+        // notify the server that the final token has changed
+        ServerImpl.eventManager.notify(GameEventType.TOKEN_UPDATE);
     }
 
     public PersonalGoalCard getPersonalGoal() {
