@@ -6,11 +6,11 @@ import org.myshelfie.network.Server;
 import org.myshelfie.network.messages.commandMessages.*;
 import org.myshelfie.view.CommandLineInterface;
 
-public class UserListener implements Listener {
+public class UserInputListener implements Listener<UserInputEventType> {
     private final Server server;
     private final Client client;
 
-    public UserListener(Server server, Client client) {
+    public UserInputListener(Server server, Client client) {
         this.server = server;
         this.client = client;
     }
@@ -22,20 +22,19 @@ public class UserListener implements Listener {
      * @param arg The arguments that were passed to the event.
      */
     @Override
-    public <E extends Enum<E>> void update(E ev, Object arg) {
+    public void update(UserInputEventType ev, Object arg) {
         CommandLineInterface cli = (CommandLineInterface) arg;
-        CommandMessageType event = (CommandMessageType) ev;
 
         // TODO: define how to precisely retrieve the data from the cli
-        CommandMessage m = switch (event) {
+        CommandMessage m = switch (ev) {
             case SELECTED_TILES -> new PickedTilesCommandMessage(cli.getSelectedTiles());
             case SELECTED_BOOKSHELF_COLUMN -> new SelectedColumnMessage(cli.getSelectedColumn());
             case SELECTED_HAND_TILE -> new SelectedTileFromHandCommandMessage(cli.getSelectedTileFromHand());
             default ->
-                // TODO: decide wheter to throw an exception or send a special kind of message
+                // TODO: decide whether to throw an exception or send a special kind of message
                     null;
         };
         // send the message to the server
-        server.update(client, new CommandMessageWrapper(m, event));
+        server.update(client, new CommandMessageWrapper(m, ev));
     }
 }
