@@ -1,5 +1,6 @@
 package org.myshelfie.network;
 
+import org.myshelfie.model.Game;
 import org.myshelfie.network.messages.commandMessages.CommandMessageWrapper;
 
 public interface Server {
@@ -8,6 +9,9 @@ public interface Server {
      * @param client the client to register
      */
     void register(Client client);
+
+    // IMPORTANT TODO: currently the model is accessible by the Clients, we need to refactor packages (separating client and server) and use friendly methods
+    Game getGame();
 
     /**
      * Update of the server after a client has made a choice
