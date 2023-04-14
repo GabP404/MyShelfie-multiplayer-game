@@ -1,5 +1,5 @@
 package org.myshelfie.network;
 
-public interface Listener {
-    public <E extends Enum<E>> void update(E ev, Object arg);
+public interface Listener<T extends Enum<T>> {
+    public void update(T ev, Object arg);
 }

@@ -7,7 +7,7 @@ import org.myshelfie.network.Client;
 import org.myshelfie.network.Listener;
 import org.myshelfie.network.Server;
 
-public class GameListener implements Listener {
+public class GameListener implements Listener<GameEventType> {
     private final Server server;
     private final Client client;
 
@@ -15,14 +15,13 @@ public class GameListener implements Listener {
         this.server = server;
         this.client = client;
     }
-
     /**
      * Send to the client the (immutable) game after a change.
      * @param ev The event that has been emitted
      * @param arg The updated game (model)
      */
     @Override
-    public <E extends Enum<E>> void update(E ev, Object arg) {
-        client.update(new GameView((Game) arg), (GameEventType) ev);
+    public void update(GameEventType ev, Object arg) {
+        client.update(new GameView((Game) arg), ev);
     }
 }
