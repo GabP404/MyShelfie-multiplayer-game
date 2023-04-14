@@ -1,15 +1,13 @@
-package org.myshelfie.network.local;
+package org.myshelfie.network.client;
 
-import org.myshelfie.network.Client;
 import org.myshelfie.network.EventManager;
-import org.myshelfie.network.Server;
-import org.myshelfie.network.listener.UserInputListener;
+import org.myshelfie.network.server.Server;
 import org.myshelfie.network.messages.commandMessages.UserInputEventType;
 import org.myshelfie.network.messages.gameMessages.GameEventType;
 import org.myshelfie.network.messages.gameMessages.GameView;
 import org.myshelfie.view.CommandLineInterface;
 
-public class ClientImpl implements Client, Runnable {
+public class ClientImpl extends Client implements Runnable {
     // TODO: initialize the view (it needs to know the nickname)
     private CommandLineInterface view;
     public static EventManager eventManager = new EventManager();
@@ -33,16 +31,6 @@ public class ClientImpl implements Client, Runnable {
     @Override
     public void update(GameView game, GameEventType event) {
         view.update(game, event);
-    }
-
-    /**
-     * This method is needed for make the CLI available to the UserInputListener that will have to retrieve changes
-     * made by the client on the view and send them to the server
-     * @return The view of this client
-     */
-    @Override
-    public CommandLineInterface getCLI() {
-        return this.view;
     }
 
     @Override
