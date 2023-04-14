@@ -2,7 +2,7 @@ package org.myshelfie.controller;
 
 import org.myshelfie.model.Game;
 import org.myshelfie.network.Client;
-import org.myshelfie.network.messages.commandMessages.CommandMessageType;
+import org.myshelfie.network.messages.commandMessages.UserInputEventType;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ public class GameController {
         this.clients = clients;
     }
 
-    public void executeCommand(String command, CommandMessageType t) {
+    public void executeCommand(String command, UserInputEventType t) {
         try {
             Command c = null;
             switch (t) {

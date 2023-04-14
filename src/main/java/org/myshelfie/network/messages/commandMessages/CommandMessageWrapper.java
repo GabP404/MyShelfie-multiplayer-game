@@ -7,15 +7,15 @@ package org.myshelfie.network.messages.commandMessages;
 
 public class CommandMessageWrapper {
 
-    private CommandMessageType type;
+    private UserInputEventType type;
     private String message;
 
-    public CommandMessageWrapper(CommandMessage m, CommandMessageType t) {
+    public CommandMessageWrapper(CommandMessage m, UserInputEventType t) {
         type = t;
         message = ""; //TODO JSON ser
     }
 
-    public CommandMessageType getType() {
+    public UserInputEventType getType() {
         return type;
     }
 
