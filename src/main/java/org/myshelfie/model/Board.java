@@ -1,5 +1,8 @@
 package org.myshelfie.model;
 
+import org.myshelfie.network.local.ServerImpl;
+import org.myshelfie.network.messages.gameMessages.GameEventType;
+
 public class Board {
     /**
      * Describes the board on which the tiles are placed.
@@ -69,6 +72,8 @@ public class Board {
                 }
             }
         }
+        // notify the server that the board has changed
+        ServerImpl.eventManager.notify(GameEventType.BOARD_UPDATE);
     }
 
     /**
@@ -101,6 +106,8 @@ public class Board {
 
     public void setTile(int x, int y, Tile t) {
         this.boardTiles[x][y] = t;
+        // notify the server that the board has changed
+        ServerImpl.eventManager.notify(GameEventType.BOARD_UPDATE);
     }
 
     public Tile getTile(int x, int y) {
