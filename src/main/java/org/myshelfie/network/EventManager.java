@@ -1,7 +1,5 @@
 package org.myshelfie.network;
 
-import org.myshelfie.network.Listener;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,19 +12,19 @@ import java.util.Map;
  *  the event (of one of the specified eventType) and some argument.
  */
 public class EventManager {
-    private Map<String, List<Listener>> listeners = new HashMap<>();
+    // Map that links the Class Object representing the type of the event (enum), to the list of listeners that will be able to handle it
+    private Map<Class<? extends Enum<?>>, List<Listener<? extends Enum<?>>>> listeners = new HashMap<>();
 
     /**
      * Subscribe a listener to an event.
      * @param eventType The enum containing all the events this listener will listen to
      * @param listener The listener to subscribe
      */
-    public void subscribe(Class<? extends Enum<?>> eventType, Listener listener) {
-        String s = eventType.toString();
-        if (!listeners.containsKey(s)) {
-            listeners.put(s, new ArrayList<>());
+    public <E extends Enum<E>> void subscribe(Class<E> eventType, Listener<E> listener) {
+        if (!listeners.containsKey(eventType)) {
+            listeners.put(eventType, new ArrayList<>());
         }
-        List<Listener> users = listeners.get(s);
+        List<Listener<?>> users = listeners.get(eventType);
         users.add(listener);
     }
 
@@ -35,9 +33,11 @@ public class EventManager {
      * @param eventType The event to unsubscribe from
      * @param listener The listener to unsubscribe
      */
-    public void unsubscribe(Class<? extends Enum<?>> eventType, Listener listener) {
-        List<Listener> users = listeners.get(eventType.toString());
-        users.remove(listener);
+    public <E extends Enum<E>> void unsubscribe(Class<E> eventType, Listener<E> listener) {
+        List<Listener<?>> eventListeners = listeners.get(eventType);
+        if (eventListeners != null) {
+            eventListeners.remove(listener);
+        }
     }
 
     /**
@@ -46,12 +46,13 @@ public class EventManager {
      * @param arg The argument attached to the event
      */
     public <E extends Enum<E>> void notify(E event, Object arg) {
-        // the string is the name of the enum that contains the event received
-        String eventType = event.getDeclaringClass().toString();
-        // The update() is called on all the listeners subscribed to the eventType
-        List<Listener> users = listeners.get(eventType);
-        for (Listener listener : users) {
-            listener.update(event, arg);
+        List<Listener<?>> eventListeners = listeners.get(event.getClass());
+        if (eventListeners != null) {
+            for (Listener<?> listener : eventListeners) {
+                // TODO: try to avoid this cast if possible
+                Listener<E> typedListener = (Listener<E>) listener;
+                typedListener.update(event, arg);
+            }
         }
     }
 }
