@@ -19,12 +19,11 @@ public class UserInputListener implements Listener<UserInputEventType> {
      * This method is called when user input is received from the CLI.
      * Creates the appropriate message, wraps it and sends it to the server.
      * @param ev The event that was fired. NOTE: This must be an element of an enumeration!
-     * @param arg The arguments that were passed to the event.
      */
     @Override
-    public void update(UserInputEventType ev, Object arg) {
-        CommandLineInterface cli = (CommandLineInterface) arg;
-
+    public void update(UserInputEventType ev) {
+        CommandLineInterface cli = client.getCLI();
+        /*
         // TODO: define how to precisely retrieve the data from the cli
         CommandMessage m = switch (ev) {
             case SELECTED_TILES -> new PickedTilesCommandMessage(cli.getSelectedTiles());
@@ -36,5 +35,7 @@ public class UserInputListener implements Listener<UserInputEventType> {
         };
         // send the message to the server
         server.update(client, new CommandMessageWrapper(m, ev));
+
+         */
     }
 }
