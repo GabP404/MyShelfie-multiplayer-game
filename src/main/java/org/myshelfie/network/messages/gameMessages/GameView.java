@@ -45,4 +45,10 @@ public class GameView implements Serializable {
     public Board getBoard() {
         return board;
     }
+
+    @Override
+    public String toString() {
+        //TODO implement
+        return "";
+    }
 }

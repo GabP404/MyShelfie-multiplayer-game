@@ -1,5 +1,5 @@
 package org.myshelfie.model;
-import org.myshelfie.network.server.ServerImpl;
+import org.myshelfie.network.server.Server;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 
 import java.util.*;
@@ -73,7 +73,7 @@ public class Game {
             throw new WrongArgumentException("CommonGoalCard not found");
         ScoringToken scoringToken = x.removeFirst();
         // notify the server that the token stack has changed
-        ServerImpl.eventManager.notify(GameEvent.TOKEN_UPDATE, null);
+        Server.eventManager.notify(GameEvent.TOKEN_UPDATE, null);
         return scoringToken;
     }
     public ScoringToken getTopScoringToken(CommonGoalCard c) throws WrongArgumentException{

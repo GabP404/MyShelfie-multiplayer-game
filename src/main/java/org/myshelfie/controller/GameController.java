@@ -19,6 +19,8 @@ public class GameController {
 
     public GameController() {}
 
+    public GameController(Game game) {this.game = game;}
+
     public void createGame(List<String> nicknames, int numCommonGoalCard) throws IOException, URISyntaxException {
         int numPlayer = nicknames.size();
         CommonGoalDeck commonGoalDeck = CommonGoalDeck.getInstance();

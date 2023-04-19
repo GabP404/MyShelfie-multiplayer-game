@@ -2,7 +2,7 @@ package org.myshelfie.model;
 
 import org.myshelfie.controller.Configuration;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
-import org.myshelfie.network.server.ServerImpl;
+import org.myshelfie.network.server.Server;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +48,7 @@ public class Bookshelf {
         }
         tiles[i][c] = t;
         // notify the server that the bookshelf has changed
-        ServerImpl.eventManager.notify(GameEvent.BOOKSHELF_UPDATE, null);
+        Server.eventManager.notify(GameEvent.BOOKSHELF_UPDATE, null);
     }
 
     /**

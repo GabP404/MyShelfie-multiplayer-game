@@ -4,7 +4,10 @@ import org.myshelfie.model.Game;
 import org.myshelfie.network.Listener;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
+import org.myshelfie.network.messages.gameMessages.EventWrapper;
 import org.myshelfie.network.messages.gameMessages.GameView;
+
+import java.net.Socket;
 
 public class GameListener implements Listener<GameEvent> {
     private final Server server;
@@ -31,6 +34,12 @@ public class GameListener implements Listener<GameEvent> {
      */
     @Override
     public void update(GameEvent ev, Object arg) {
-        client.update(new GameView(this.listenedGame), ev);
+        if (client.isRMI())
+            client.update(new GameView(this.listenedGame), ev);
+        else {
+            EventWrapper ew = new EventWrapper(new GameView(this.listenedGame), ev);
+            Socket clientSocket = client.getClientSocket();
+            server.sendTo(clientSocket, ew);
+        }
     }
 }
