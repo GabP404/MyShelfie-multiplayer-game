@@ -1,6 +1,9 @@
 package org.myshelfie.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -13,6 +16,7 @@ Questi test coprono tutte le linee di codice della classe ScoringToken.
  mentre i test "testGetPoints" e "testGetCommonGoalId" coprono i singoli metodi getPoints e getCommonGoalId.
  */
 
+@DisplayName("ScoringToken")
 public class ScoringTokenTest {
 
     @Test

@@ -6,7 +6,7 @@ import org.myshelfie.model.commonGoal.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class CommonGoalCardTest {
+public class CommonGoalCardTest {
 
     /*
         BOOKSHELFS
