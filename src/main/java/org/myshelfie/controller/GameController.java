@@ -1,6 +1,7 @@
 package org.myshelfie.controller;
 
 import org.myshelfie.model.Game;
+import org.myshelfie.model.TileInsertionException;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.commandMessages.UserInputEventType;
 
@@ -29,11 +30,12 @@ public class GameController {
                 case SELECTED_BOOKSHELF_COLUMN -> c = new PickTilesCommand(game.getBoard(),game.getCurrPlayer() ,command);
                 case SELECTED_TILES -> c = new SelectTileFromHandCommand(game.getCurrPlayer(), command);
                 case SELECTED_HAND_TILE -> c = new SelectColumnCommand(game.getCurrPlayer(), command);
-                case CHAT_MESSAGE -> c = new ChatCommand(command);
             }
             c.execute();
-        } catch (InvalidCommand | TileInsertionException e) {
+        } catch (InvalidCommand e) {
             //TODO handle exception
+        } catch (TileInsertionException e) {
+            throw new RuntimeException(e);
         }
     }
 }

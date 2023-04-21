@@ -80,19 +80,4 @@ public class Game {
         this.currPlayer = currPlayer;
     }
 
-    public void setPlayers(List<Player> players) {
-        this.players = players;
-    }
-
-    public void setBoard(Board board) {
-        this.board = board;
-    }
-
-    public void setCommonGoals(List<CommonGoalCard> commonGoals) {
-        this.commonGoals = commonGoals;
-    }
-
-    public void setTileBag(TileBag tileBag) {
-        this.tileBag = tileBag;
-    }
 }
