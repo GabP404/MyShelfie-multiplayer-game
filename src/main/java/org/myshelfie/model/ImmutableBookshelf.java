@@ -1,49 +1,21 @@
 package org.myshelfie.model;
 
-import org.myshelfie.network.server.ServerImpl;
-import org.myshelfie.network.messages.gameMessages.GameEventType;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class Bookshelf {
-
+public final class ImmutableBookshelf {
     public static final int NUMROWS = 6;
     public static final int NUMCOLUMNS = 5;
 
-    private Tile[][] tiles;
+    private final Tile[][] tiles;
 
-
-    /**
-     * Bookshelf constructor.
-     * It initializes an empty bookshelf.
-     */
-    public Bookshelf() {
+    public ImmutableBookshelf(Bookshelf b) {
         tiles = new Tile[NUMROWS][NUMCOLUMNS];
         for (int i = 0; i < NUMROWS; i++) {
             for (int j = 0; j < NUMCOLUMNS; j++) {
-                tiles[i][j] = null;
+                tiles[i][j] = b.getTile(i,j);
             }
         }
-    }
-
-    /**
-     * Add a tile in a specific column of the bookshelf, if possible.
-     * @param t The tile
-     * @param c The index of the column (0 <= c < 5)
-     * @throws TileInsertionException if the column is already full
-     */
-    public void insertTile(Tile t, int c) throws TileInsertionException {
-        if (tiles[0][c] != null)
-            throw new TileInsertionException("This column is already full!");
-
-        int i = NUMROWS -1;
-        while (tiles[i][c] != null) {
-            i--;
-        }
-        tiles[i][c] = t;
-        // notify the server that the bookshelf has changed
-        ServerImpl.eventManager.notify(GameEventType.BOOKSHELF_UPDATE);
     }
 
     /**
@@ -58,6 +30,7 @@ public class Bookshelf {
             throw new TileUnreachableException("Tile selected is unreachable (out of bound)");
         return tiles[r][c];
     }
+
 
     /**
      * Method that returns the height of a certain column of the bookshelf intended as the number of non-null tiles in it.
@@ -128,4 +101,6 @@ public class Bookshelf {
 
         return size;
     }
+
+
 }
