@@ -1,4 +1,7 @@
 package org.myshelfie.model;
+import org.myshelfie.network.server.ServerImpl;
+import org.myshelfie.network.messages.gameMessages.GameEventType;
+
 import java.util.*;
 
 public class Game {
@@ -15,6 +18,10 @@ public class Game {
         this.commonGoals = commonGoals;
         this.tileBag = tileBag;
         this.currPlayer = players.get(0);
+        suspendGame();
+    }
+
+    public Game() {
         suspendGame();
     }
 
@@ -56,7 +63,10 @@ public class Game {
 
     public ScoringToken popTopScoringToken(CommonGoalCard c) {
         LinkedList<ScoringToken> x = (LinkedList<ScoringToken>) commonGoals.get(c);
-        return x.removeFirst();
+        ScoringToken scoringToken = x.removeFirst();
+        // notify the server that the token stack has changed
+        ServerImpl.eventManager.notify(GameEventType.TOKEN_UPDATE);
+        return scoringToken;
     }
     public ScoringToken getTopScoringToken(CommonGoalCard c) {
         LinkedList<ScoringToken> x = (LinkedList<ScoringToken>) commonGoals.get(c);
@@ -65,6 +75,7 @@ public class Game {
     public boolean isPlaying() {
         return playing;
     }
+
     public void setCurrPlayer(Player currPlayer) {
         this.currPlayer = currPlayer;
     }

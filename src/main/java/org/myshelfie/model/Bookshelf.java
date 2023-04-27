@@ -1,5 +1,8 @@
 package org.myshelfie.model;
 
+import org.myshelfie.network.server.ServerImpl;
+import org.myshelfie.network.messages.gameMessages.GameEventType;
+
 import java.util.ArrayList;
 import java.util.List;
 import org.myshelfie.controller.Configuration;
@@ -40,6 +43,8 @@ public class Bookshelf {
             i--;
         }
         tiles[i][c] = t;
+        // notify the server that the bookshelf has changed
+        ServerImpl.eventManager.notify(GameEventType.BOOKSHELF_UPDATE);
     }
 
     /**
@@ -52,6 +57,7 @@ public class Bookshelf {
     public Tile getTile(int r, int c) throws TileUnreachableException {
         if(r < 0 || r >= NUMROWS || c < 0 || c >= NUMCOLUMNS)
             throw new TileUnreachableException("Tile selected is unreachable (out of bound)");
+
         return tiles[r][c];
     }
 

@@ -1,4 +1,4 @@
-package org.myshelfie.network;
+package org.myshelfie.network.messages.commandMessages;
 
 /**
  *  this class wraps the message sent by the client or the server. By doing so when a client or server receives
@@ -7,15 +7,15 @@ package org.myshelfie.network;
 
 public class CommandMessageWrapper {
 
-    private CommandMessageType type;
+    private UserInputEventType type;
     private String message;
 
-    public CommandMessageWrapper(CommandMessage m, CommandMessageType t) {
+    public CommandMessageWrapper(CommandMessage m, UserInputEventType t) {
         type = t;
         message = ""; //TODO JSON ser
     }
 
-    public CommandMessageType getType() {
+    public UserInputEventType getType() {
         return type;
     }
 
