@@ -1,23 +1,27 @@
 package org.myshelfie.model;
-
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.myshelfie.model.util.Pair;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import java.net.URISyntaxException;
+import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 
 class PlayerTest {
 
     @Test
-    public void testConstructorAndGetterPlayer() throws IOException {
-        Pair<Pair<Integer,Integer>,Tile> p2 = new Pair<>(new Pair<>(0,0),new Tile(ItemType.BOOK));
-        List<Pair<Pair<Integer,Integer>,Tile>> lp = new ArrayList<>();
-        lp.add(p2);
-        PersonalGoalCard pg = new PersonalGoalCard(lp);
+    public void testConstructorAndGetterPlayer() throws IOException, URISyntaxException {
+        PersonalGoalDeck pgc = PersonalGoalDeck.getInstance();
+        List<PersonalGoalCard> pgcGame = pgc.draw(1);
+        PersonalGoalCard pg = pgcGame.get(0);
         String nick = "User101";
         Player p = new Player(nick,pg);
         assertNotNull(p);
@@ -27,7 +31,11 @@ class PlayerTest {
         assertNotNull(p.getNickname());
         assertNotNull(p.getTilesPicked());
         assertNotNull(p.getPersonalGoal());
+        p.addScoringToken(new ScoringToken(8,"1"));
+        p.addScoringToken(new ScoringToken(4,"2"));
+        assertTrue(p.getPointsScoringTokens() == 12);
     }
+
 
     @Test
     public void testAddTilesPickedAndRemovedTilesPicked() throws TileInsertionException {

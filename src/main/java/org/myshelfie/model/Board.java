@@ -1,5 +1,7 @@
 package org.myshelfie.model;
 
+import org.myshelfie.controller.Configuration;
+
 public class Board {
     /**
      * Describes the board on which the tiles are placed.
@@ -7,18 +9,8 @@ public class Board {
 
     //Declare the minimum number of players that have to play so that
     //the corresponding box is activated during the game
-    private static final int[][] mask = {
-        {5, 5, 5, 3, 4, 5, 5, 5, 5},
-        {5, 5, 5, 2, 2, 4, 5, 5, 5},
-        {5, 5, 3, 2, 2, 2, 3, 5, 5},
-        {5, 4, 2, 2, 2, 2, 2, 2, 3},
-        {4, 2, 2, 2, 2, 2, 2, 2, 4},
-        {3, 2, 2, 2, 2, 2, 2, 4, 5},
-        {5, 5, 3, 2, 2, 2, 3, 5, 5},
-        {5, 5, 5, 4, 2, 2, 5, 5, 5},
-        {5, 5, 5, 5, 4, 3, 5, 5, 5},
-    };
-    public static final int DIMBOARD = 9;
+    private static final int[][] mask = Configuration.getBoardMask();
+    public static final int DIMBOARD = Configuration.getBoardDimension();
     private Tile[][] boardTiles;
 
     /**

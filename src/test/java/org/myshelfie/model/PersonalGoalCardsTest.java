@@ -30,7 +30,7 @@ public class PersonalGoalCardsTest {
         Bookshelf b = new Bookshelf();
         PersonalGoalDeck deck = PersonalGoalDeck.getInstance();
         PersonalGoalCard card = deck.draw(1).get(0);
-        assertFalse(card.isGoalSatisfied(b));
+        assertEquals(card.getPoints(b), 0);
     }
 
     @DisplayName("Drawing cards from the deck")

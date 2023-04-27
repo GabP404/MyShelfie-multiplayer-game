@@ -9,15 +9,9 @@ import java.util.ArrayDeque;
  */
 
 public class DiagonalTiles extends CommonGoalCard {
-    /**
-     * Initialize the CommonGoalCard associating the points' stack to it
-     *
-     * @param id String that identifies the card
-     * @param tokens The token stack that will be placed on the card
-     *               NOTE: the stack's generation logic will be in the controller
-     */
-    public DiagonalTiles(String id, ArrayDeque<ScoringToken> tokens) {
-        super(id, tokens);
+
+    public DiagonalTiles(String id) {
+        super(id);
     }
 
     @Override

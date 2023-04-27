@@ -8,15 +8,9 @@ import java.util.ArrayDeque;
  * Four tiles of the same type in the four corners of the bookshelf.
  */
 public class EqualCorners extends CommonGoalCard {
-    /**
-     * Initialize the CommonGoalCard associating the points' stack to it
-     *
-     * @param id String that identifies the card
-     * @param tokens The token stack that will be placed on the card
-     *               NOTE: the stack's generation logic will be in the controller
-     */
-    public EqualCorners(String id, ArrayDeque<ScoringToken> tokens) {
-        super(id, tokens);
+
+    public EqualCorners(String id) {
+        super(id);
     }
 
     @Override
