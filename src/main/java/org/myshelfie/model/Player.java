@@ -12,8 +12,8 @@ public class Player {
     private Boolean hasFinalToken;
     private PersonalGoalCard personalGoal;
     private Bookshelf bookshelf;
-
     private List<Tile> tilesPicked;
+    private int selectedColumn;
 
     private static int DIM_TILESPICKED = 3;
 
@@ -28,7 +28,8 @@ public class Player {
         this.hasFinalToken = false;
         this.personalGoal = persGoal;
         this.bookshelf = new Bookshelf();
-        this.tilesPicked = new ArrayList<>();
+        this.tilesPicked = new ArrayList<Tile>();
+        this.selectedColumn = -1;
     }
 
     public String getNickname() {
@@ -106,4 +107,11 @@ public class Player {
         }
     }
 
+    public int getSelectedColumn() {
+        return selectedColumn;
+    }
+
+    public void setSelectedColumn(int selectedColumn) {
+        this.selectedColumn = selectedColumn;
+    }
 }

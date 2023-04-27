@@ -2,18 +2,17 @@ package org.myshelfie.controller;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.myshelfie.model.Board;
-import org.myshelfie.model.Bookshelf;
-import org.myshelfie.model.LocatedTile;
-import org.myshelfie.model.TileUnreachableException;
+import org.myshelfie.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 public class PickTilesCommand implements Command {
-    Board b;
-    Set<LocatedTile> tiles;
+    private Board b;
+    private Player currPlayer;
+    private Set<LocatedTile> tiles;
+    private String nickname;
     public PickTilesCommand(Board b, Set<LocatedTile> tiles) {
         this.b = b;
         this.tiles = tiles;
@@ -24,9 +23,14 @@ public class PickTilesCommand implements Command {
      * @param b Board of the game
      * @param serial Serialized version of the parameters
      */
-    public PickTilesCommand(Board b, String serial) {
+    public PickTilesCommand(Board b, Player currPlayer, String serial) {
         this.b = b;
-        JSONArray ja = new JSONArray(serial);
+        this.currPlayer = currPlayer;
+
+        JSONObject jo = new JSONObject(serial);
+        nickname = jo.getString("nickname");
+
+        JSONArray ja = jo.getJSONArray("coordinates");
         for (int i = 0; i < ja.length(); i++) {
             JSONObject tilesCoordinate = ja.getJSONObject(i);
             int row = tilesCoordinate.getInt("row");
@@ -102,11 +106,21 @@ public class PickTilesCommand implements Command {
     }
 
 
-    public void execute() throws TileUnreachableException {
+    public void execute() throws TileUnreachableException, TileInsertionException {
+        if(!currPlayer.getNickname().equals(nickname))
+        {
+            //TODO: maybe handle wrong turn command
+            return;
+        }
+
         if (!isTilesGroupSelectable(b, tiles))
             throw new TileUnreachableException("The chosen group of tiles is not selectable!");
 
         for (LocatedTile t: tiles)
+        {
+            currPlayer.addTilesPicked(b.getTile(t.getRow(),t.getCol()));
             b.setTile(t.getRow(), t.getCol(), null);
+        }
+
     }
 }
