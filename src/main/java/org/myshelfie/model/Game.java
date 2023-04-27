@@ -9,6 +9,8 @@ public class Game {
     private TileBag tileBag;
     private boolean playing;
 
+    private ModelState modelState;
+
     public Game(List<Player> players, Board board, List<CommonGoalCard> commonGoals, TileBag tileBag) {
         this.players = players;
         this.board = board;
@@ -76,5 +78,13 @@ public class Game {
 
     public void setTileBag(TileBag tileBag) {
         this.tileBag = tileBag;
+    }
+
+    public ModelState getModelState() {
+        return modelState;
+    }
+
+    public void setModelState(ModelState modelState) {
+        this.modelState = modelState;
     }
 }
