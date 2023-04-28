@@ -14,6 +14,8 @@ public class Game {
 
     private ModelState modelState;
 
+    private Player winner;
+
     public Game(List<Player> players, Board board, HashMap<CommonGoalCard,List<ScoringToken>> commonGoals, TileBag tileBag, ModelState modelState) {
         this.players = players;
         this.board = board;
@@ -21,6 +23,7 @@ public class Game {
         this.tileBag = tileBag;
         this.currPlayer = players.get(0);
         this.modelState = modelState;
+        this.winner = null;
         suspendGame();
     }
 
@@ -90,4 +93,14 @@ public class Game {
     public void setModelState(ModelState modelState) {
         this.modelState = modelState;
     }
+
+    public Player getWinner() {
+        return winner;
+    }
+
+    public void setWinner(Player winner) {
+        this.winner = winner;
+    }
+
+
 }
