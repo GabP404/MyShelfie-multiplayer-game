@@ -3,6 +3,7 @@ package org.myshelfie.controller;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.myshelfie.model.*;
+import org.myshelfie.network.messages.commandMessages.UserInputEventType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +14,8 @@ public class PickTilesCommand implements Command {
     private Player currPlayer;
     private Set<LocatedTile> tiles;
     private String nickname;
+    private ModelState currentModelState;
+
     public PickTilesCommand(Board b, Set<LocatedTile> tiles) {
         this.b = b;
         this.tiles = tiles;
@@ -23,7 +26,7 @@ public class PickTilesCommand implements Command {
      * @param b Board of the game
      * @param serial Serialized version of the parameters
      */
-    public PickTilesCommand(Board b, Player currPlayer, String serial) {
+    public PickTilesCommand(Board b, Player currPlayer, String serial, ModelState currentModelState) {
         this.b = b;
         this.currPlayer = currPlayer;
 
@@ -37,6 +40,8 @@ public class PickTilesCommand implements Command {
             int col = tilesCoordinate.getInt("col");
             tiles.add(new LocatedTile(b.getTile(row, col).getItemType(), row, col));
         }
+        this.currentModelState = currentModelState;
+
     }
 
     public boolean isCellSelectable(int row, int col) {
@@ -106,19 +111,22 @@ public class PickTilesCommand implements Command {
     }
 
 
-    public void execute() throws TileUnreachableException, TileInsertionException {
-        if(!currPlayer.getNickname().equals(nickname))
-        {
-            //TODO: maybe handle wrong turn command
-            return;
+    public void execute() throws  WrongTurnException, InvalidCommand, WrongArgumentException {
+        if(!currPlayer.getNickname().equals(nickname)) {
+            throw new WrongTurnException("Wrong player turn");
         }
+        if(currentModelState == ModelState.WAITING_SELECTION_TILE) throw new InvalidCommand("Waiting for Tile Selection ");
 
         if (!isTilesGroupSelectable(b, tiles))
-            throw new TileUnreachableException("The chosen group of tiles is not selectable!");
+            throw new WrongArgumentException("The chosen group of tiles is not selectable!");
 
         for (LocatedTile t: tiles)
         {
-            currPlayer.addTilesPicked(b.getTile(t.getRow(),t.getCol()));
+            try {
+                currPlayer.addTilesPicked(b.getTile(t.getRow(),t.getCol()));
+            } catch (TileInsertionException e) {
+                throw new WrongArgumentException(e.getMessage());
+            }
             b.setTile(t.getRow(), t.getCol(), null);
         }
 

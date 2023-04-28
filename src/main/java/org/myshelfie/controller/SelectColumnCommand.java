@@ -1,30 +1,38 @@
 package org.myshelfie.controller;
 
 import org.json.JSONObject;
+import org.myshelfie.model.ModelState;
 import org.myshelfie.model.Player;
+import org.myshelfie.model.WrongArgumentException;
+import org.myshelfie.network.messages.commandMessages.UserInputEventType;
 
 public class SelectColumnCommand implements Command {
-    private Player player;
+    private Player currPlayer;
     private final String nickname;
     private final int selectedColumn;
+
+    private ModelState currentModelState;
 
     /**
      * @param serial JSON-serialized version of the selectedColumn parameter
      */
-    public SelectColumnCommand(Player currPlayer, String serial) {
-        this.player = currPlayer;
+    public SelectColumnCommand(Player currPlayer, String serial, ModelState currentModelState) {
+        this.currPlayer = currPlayer;
         JSONObject jo = new JSONObject(serial);
         nickname = jo.getString("nickname");
         selectedColumn = jo.getInt("col");
-
+        this.currentModelState = currentModelState;
     }
 
-    public void execute() {
-        if(!player.getNickname().equals(nickname))
-        {
-            //TODO: maybe handle wrong turn command
-            return;
+    public void execute() throws WrongTurnException, InvalidCommand, WrongArgumentException {
+        if(!currPlayer.getNickname().equals(nickname)) {
+            throw new WrongTurnException("Wrong player turn");
         }
-        player.setSelectedColumn(selectedColumn);
+        if(currentModelState == ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN) throw new InvalidCommand("Waiting for Column Selection ");
+        try {
+            currPlayer.setSelectedColumn(selectedColumn);
+        }catch (WrongArgumentException e) {
+            throw new WrongArgumentException(e.getMessage());
+        }
     }
 }

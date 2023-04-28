@@ -3,51 +3,37 @@ package org.myshelfie.controller;
 import org.json.JSONObject;
 import org.myshelfie.model.*;
 
-import java.util.List;
-
 public class SelectTileFromHandCommand implements Command {
     private final String nickname;
-    private Player player;
+    private Player currPlayer;
     private final int index;
     //private final List<Tile> hand;
     private final ItemType itemType;
+    private ModelState currentModelState;
 
-    public SelectTileFromHandCommand(Player currPlayer, String serial) {
-        player = currPlayer;
+    public SelectTileFromHandCommand(Player currPlayer, String serial, ModelState currentModelState) {
+        this.currPlayer = currPlayer;
         JSONObject jo = new JSONObject(serial);
         nickname = jo.getString("nickname");
         index = jo.getInt("index");
         itemType = (ItemType) jo.get("itemType");
+        this.currentModelState = currentModelState;
+
     }
 
-    public void execute() throws InvalidCommand, TileInsertionException {
-        if(!player.getNickname().equals(nickname))
-        {
-            //TODO: maybe handle wrong turn command
-            return;
+    public void execute() throws InvalidCommand, WrongTurnException, WrongArgumentException {
+        if(!currPlayer.getNickname().equals(nickname)) {
+            throw new WrongTurnException("Wrong player turn");
+        }
+        if(currentModelState != ModelState.WAITING_3_SELECTION_TILE_FROM_HAND && currentModelState != ModelState.WAITING_2_SELECTION_TILE_FROM_HAND && currentModelState != ModelState.WAITING_1_SELECTION_TILE_FROM_HAND){
+            throw new InvalidCommand("Waiting for Tile Selection Hand ");
         }
 
-        if (index >= player.getTilesPicked().size() || index < 0) {
-            throw new InvalidCommand("");
+        try {
+            currPlayer.getBookshelf().insertTile(currPlayer.getTilePicked(index), currPlayer.getSelectedColumn());
+            currPlayer.removeTilesPicked(currPlayer.getTilePicked(index));
+        }catch (TileInsertionException | TileUnreachableException e) {
+            throw new WrongArgumentException("Wrong argument");
         }
-
-        if (player.getTilesPicked().get(index).getItemType() != itemType) {
-            throw new InvalidCommand("The forecasted tile types do not match!");
-        }
-
-        if (player.getSelectedColumn() >= Bookshelf.NUMCOLUMNS || player.getSelectedColumn() < 0) {
-            throw new InvalidCommand("Selected column is out of bound");
-        }
-
-
-        player.getBookshelf().insertTile(player.getTilesPicked().get(index), player.getSelectedColumn());
-        player.removeTilesPicked(player.getTilesPicked().get(index));
-
-        if(player.getTilesPicked().size() == 0)
-        {
-            player.setSelectedColumn(-1);
-            //TODO: change state when implemented
-        }
-
     }
 }
