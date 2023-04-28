@@ -12,12 +12,15 @@ public class Game {
     private TileBag tileBag;
     private boolean playing;
 
-    public Game(List<Player> players, Board board, HashMap<CommonGoalCard,List<ScoringToken>> commonGoals, TileBag tileBag) {
+    private ModelState modelState;
+
+    public Game(List<Player> players, Board board, HashMap<CommonGoalCard,List<ScoringToken>> commonGoals, TileBag tileBag, ModelState modelState) {
         this.players = players;
         this.board = board;
         this.commonGoals = commonGoals;
         this.tileBag = tileBag;
         this.currPlayer = players.get(0);
+        this.modelState = modelState;
         suspendGame();
     }
 
@@ -80,4 +83,11 @@ public class Game {
         this.currPlayer = currPlayer;
     }
 
+    public ModelState getModelState() {
+        return modelState;
+    }
+
+    public void setModelState(ModelState modelState) {
+        this.modelState = modelState;
+    }
 }
