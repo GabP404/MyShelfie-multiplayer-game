@@ -34,7 +34,7 @@ public class GameTest {
         }
         TileBag tb = new TileBag();
 
-        this.g1 = new Game(players,new Board(numPlayer),commonGoal,tb);
+        this.g1 = new Game(players,new Board(numPlayer),commonGoal,tb,ModelState.CREATED_GAME);
         assertNotNull(g1);
         assertNotNull(g1.getPlayers());
         assertNotNull(g1.getBoard());
@@ -76,5 +76,4 @@ public class GameTest {
         }
         return tokens;
     }
-
 }
