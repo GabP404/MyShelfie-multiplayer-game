@@ -130,4 +130,13 @@ public class Bookshelf {
 
         return size;
     }
+
+    public boolean isFull() {
+        for(int i = 0; i < NUMROWS; i++) {
+            for(int j = 0; j < NUMCOLUMNS; j++) {
+                if(tiles[i][j] == null) return false;
+            }
+        }
+        return true;
+    }
 }
