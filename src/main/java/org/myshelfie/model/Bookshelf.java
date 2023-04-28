@@ -43,7 +43,7 @@ public class Bookshelf {
         }
         tiles[i][c] = t;
         // notify the server that the bookshelf has changed
-        ServerImpl.eventManager.notify(GameEventType.BOOKSHELF_UPDATE);
+        ServerImpl.eventManager.notify(GameEventType.BOOKSHELF_UPDATE, null);
     }
 
     /**

@@ -43,7 +43,7 @@ public class Player {
     public void setHasFinalToken(Boolean hasFinalToken) {
         this.hasFinalToken = hasFinalToken;
         // notify the server that the final token has changed
-        ServerImpl.eventManager.notify(GameEventType.TOKEN_UPDATE);
+        ServerImpl.eventManager.notify(GameEventType.TOKEN_UPDATE,  null);
     }
 
     public PersonalGoalCard getPersonalGoal() {

@@ -2,6 +2,7 @@ package org.myshelfie.network.server;
 
 import org.myshelfie.controller.GameController;
 import org.myshelfie.model.Game;
+import org.myshelfie.network.Listener;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.EventManager;
 import org.myshelfie.network.messages.commandMessages.CommandMessageWrapper;
@@ -11,10 +12,11 @@ import org.myshelfie.network.messages.gameMessages.GameEventType;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ServerImpl extends Server {
+public class ServerImpl implements Server {
     private List<Client> clients;
     private GameController controller;
     public static EventManager eventManager = new EventManager();
+    private Game model;
 
 
     /**
@@ -30,7 +32,7 @@ public class ServerImpl extends Server {
     }
 
     /**
-     * Overloaded constructor used for testing since it allows to initialize the Game object outside
+     * Overloaded constructor used during testing since it allows to initialize the Game object outside
      * @param game Already initialized model
      */
     public ServerImpl(Game game) {
@@ -41,13 +43,16 @@ public class ServerImpl extends Server {
     /**
      * Register a client to the server
      * @param client the client to register
+     * // TODO: to handle multiple games this method will need a Game game parameter
+     *          which will be used to create the {@link GameListener#GameListener GameListener}
      */
     @Override
     public void register(Client client) {
         this.clients.add(client);
         // Subscribe a new GameListener that will be notified when a change in the model occurs.
         // After being notified the Listener will send a message to the client containing the event and the ModelView obj
-        eventManager.subscribe(GameEventType.class, new GameListener(this, client));
+        // TODO: to handle multiple games, the registration will need to refer to a specific game
+        eventManager.subscribe(GameEventType.class, new GameListener(this, client, this.model));
     }
 
     /**
