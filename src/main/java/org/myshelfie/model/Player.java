@@ -14,6 +14,7 @@ public class Player {
     private Bookshelf bookshelf;
     private List<Tile> tilesPicked;
     private int selectedColumn;
+    private boolean online;
 
     private static int DIM_TILESPICKED = 3;
 
@@ -30,6 +31,7 @@ public class Player {
         this.bookshelf = new Bookshelf();
         this.tilesPicked = new ArrayList<Tile>();
         this.selectedColumn = -1;
+        this.online = true;
     }
 
     public String getNickname() {
@@ -80,6 +82,11 @@ public class Player {
         this.tilesPicked = tilesPicked;
     }
 
+    public Tile getTilePicked(int index) throws ArrayIndexOutOfBoundsException{
+        if(index < 0 || index > this.tilesPicked.size()) throw new ArrayIndexOutOfBoundsException();
+        return this.tilesPicked.get(index);
+    }
+
     public void addTilesPicked(Tile t) throws TileInsertionException{
         if(this.tilesPicked.size() == DIM_TILESPICKED) throw new TileInsertionException("maximum number of tiles picked reached");
         this.tilesPicked.add(t);
@@ -97,11 +104,15 @@ public class Player {
         return x;
     }
 
-    public void removeTilesPicked(Tile t){
+    public void removeTilesPicked(Tile t) throws TileUnreachableException{
+        if (!this.tilesPicked.contains(t)) throw new TileUnreachableException("Tile not found");
         this.tilesPicked.remove(t);
     }
 
-    public void removeTilesPicked(List<Tile> tilesRemoved) {
+    public void removeTilesPicked(List<Tile> tilesRemoved) throws TileUnreachableException{
+        for(Tile t: tilesRemoved) {
+            if(!this.tilesPicked.contains(t)) throw new TileUnreachableException("Tile not found");
+        }
         for(Tile t: tilesRemoved) {
             this.tilesPicked.remove(t);
         }
@@ -111,7 +122,23 @@ public class Player {
         return selectedColumn;
     }
 
-    public void setSelectedColumn(int selectedColumn) {
-        this.selectedColumn = selectedColumn;
+    //aggiungere exception e verificare che possa fare quella mossa
+    public void setSelectedColumn(int selectedColumn) throws WrongArgumentException {
+        if(selectedColumn < 0 || selectedColumn >= Bookshelf.NUMCOLUMNS) {
+            throw new WrongArgumentException("Column Out of range");
+        }
+            this.selectedColumn = selectedColumn;
+    }
+
+    public boolean isOnline() {
+        return online;
+    }
+
+    public void setOnline(boolean online) {
+        this.online = online;
+    }
+
+    public int getTotalPoints() {
+        return getPointsScoringTokens() + this.personalGoal.getPoints(this.bookshelf);
     }
 }
