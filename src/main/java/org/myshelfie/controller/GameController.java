@@ -3,7 +3,7 @@ package org.myshelfie.controller;
 import org.myshelfie.model.Game;
 import org.myshelfie.model.TileInsertionException;
 import org.myshelfie.network.client.Client;
-import org.myshelfie.network.messages.commandMessages.UserInputEventType;
+import org.myshelfie.network.messages.commandMessages.UserInputEvent;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ public class GameController {
     private Game game;
     private List<Client> clients;
     public GameController() {
-        game = new Game();
+        // game = new Game();
     }
 
     public GameController(Game game) {
@@ -23,7 +23,7 @@ public class GameController {
         this.clients = clients;
     }
 
-    public void executeCommand(String command, UserInputEventType t) {
+    public void executeCommand(String command, UserInputEvent t) {
         try {
             Command c = null;
             switch (t) {

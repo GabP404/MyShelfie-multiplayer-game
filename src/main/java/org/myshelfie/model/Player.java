@@ -1,7 +1,7 @@
 package org.myshelfie.model;
 
 import org.myshelfie.network.server.ServerImpl;
-import org.myshelfie.network.messages.gameMessages.GameEventType;
+import org.myshelfie.network.messages.gameMessages.GameEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +43,7 @@ public class Player {
     public void setHasFinalToken(Boolean hasFinalToken) {
         this.hasFinalToken = hasFinalToken;
         // notify the server that the final token has changed
-        ServerImpl.eventManager.notify(GameEventType.TOKEN_UPDATE,  null);
+        ServerImpl.eventManager.notify(GameEvent.TOKEN_UPDATE,  null);
     }
 
     public PersonalGoalCard getPersonalGoal() {

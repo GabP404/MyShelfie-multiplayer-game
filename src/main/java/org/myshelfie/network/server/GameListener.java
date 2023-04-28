@@ -3,10 +3,10 @@ package org.myshelfie.network.server;
 import org.myshelfie.model.Game;
 import org.myshelfie.network.Listener;
 import org.myshelfie.network.client.Client;
-import org.myshelfie.network.messages.gameMessages.GameEventType;
+import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.GameView;
 
-public class GameListener implements Listener<GameEventType> {
+public class GameListener implements Listener<GameEvent> {
     private final Server server;
     private final Client client;
     private Game listenedGame;
@@ -30,7 +30,7 @@ public class GameListener implements Listener<GameEventType> {
      * @param arg In this case the argument is not used TODO: maybe it can be set as an optional parameter
      */
     @Override
-    public void update(GameEventType ev, Object arg) {
+    public void update(GameEvent ev, Object arg) {
         client.update(new GameView(this.listenedGame), ev);
     }
 }

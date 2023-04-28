@@ -1,6 +1,6 @@
 package org.myshelfie.network.client;
 
-import org.myshelfie.network.messages.gameMessages.GameEventType;
+import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.GameView;
 import org.myshelfie.view.CommandLineInterface;
 
@@ -11,7 +11,7 @@ public abstract class Client {
      * @param o    The resulting model view
      * @param ev   The causing event
      */
-    public abstract void update(GameView o, GameEventType ev);
+    public abstract void update(GameView o, GameEvent ev);
 
     /**
      * This method is needed for make the CLI available to the UserInputListener that will have to retrieve changes

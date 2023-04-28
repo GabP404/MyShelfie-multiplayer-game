@@ -1,6 +1,6 @@
 package org.myshelfie.model;
 import org.myshelfie.network.server.ServerImpl;
-import org.myshelfie.network.messages.gameMessages.GameEventType;
+import org.myshelfie.network.messages.gameMessages.GameEvent;
 
 import java.util.*;
 
@@ -61,7 +61,7 @@ public class Game {
         LinkedList<ScoringToken> x = (LinkedList<ScoringToken>) commonGoals.get(c);
         ScoringToken scoringToken = x.removeFirst();
         // notify the server that the token stack has changed
-        ServerImpl.eventManager.notify(GameEventType.TOKEN_UPDATE);
+        ServerImpl.eventManager.notify(GameEvent.TOKEN_UPDATE, null);
         return scoringToken;
     }
     public ScoringToken getTopScoringToken(CommonGoalCard c) {
