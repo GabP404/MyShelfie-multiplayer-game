@@ -1,11 +1,11 @@
 package org.myshelfie.network.client;
 
 import org.myshelfie.network.Listener;
-import org.myshelfie.network.messages.commandMessages.UserInputEventType;
+import org.myshelfie.network.messages.commandMessages.UserInputEvent;
 import org.myshelfie.network.server.Server;
 import org.myshelfie.view.CommandLineInterface;
 
-public class UserInputListener implements Listener<UserInputEventType> {
+public class UserInputListener implements Listener<UserInputEvent> {
     private final Server server;
     private final Client client;
 
@@ -17,10 +17,12 @@ public class UserInputListener implements Listener<UserInputEventType> {
     /**
      * This method is called when user input is received from the CLI.
      * Creates the appropriate message, wraps it and sends it to the server.
-     * @param ev The event that was fired. NOTE: This must be an element of an enumeration!
+     *
+     * @param ev  The event that was fired. NOTE: This must be an element of an enumeration!
+     * @param arg Message to be sent to the server
      */
     @Override
-    public void update(UserInputEventType ev) {
+    public void update(UserInputEvent ev, Object arg) {
         CommandLineInterface cli = client.getCLI();
         /*
         // TODO: define how to precisely retrieve the data from the cli

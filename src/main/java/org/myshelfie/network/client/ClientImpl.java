@@ -2,8 +2,8 @@ package org.myshelfie.network.client;
 
 import org.myshelfie.network.EventManager;
 import org.myshelfie.network.server.Server;
-import org.myshelfie.network.messages.commandMessages.UserInputEventType;
-import org.myshelfie.network.messages.gameMessages.GameEventType;
+import org.myshelfie.network.messages.commandMessages.UserInputEvent;
+import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.GameView;
 import org.myshelfie.view.CommandLineInterface;
 
@@ -20,7 +20,7 @@ public class ClientImpl extends Client implements Runnable {
         view = new CommandLineInterface(nickName);
         server.register(this);
         // Subscribe a new UserInputListener that listen to changes in the view and forward events adding message to the server
-        eventManager.subscribe(UserInputEventType.class, new UserInputListener(server, this));
+        eventManager.subscribe(UserInputEvent.class, new UserInputListener(server, this));
     }
 
     /**
@@ -29,7 +29,7 @@ public class ClientImpl extends Client implements Runnable {
      * @param event   The causing event
      */
     @Override
-    public void update(GameView game, GameEventType event) {
+    public void update(GameView game, GameEvent event) {
         view.update(game, event);
     }
 

@@ -3,7 +3,7 @@ package org.myshelfie.network.messages.commandMessages;
 /**
  * List of all the types of messages that can be sent from the client to the server.
  */
-public enum UserInputEventType {
+public enum UserInputEvent {
     /**
      * List of the selected tiles to take from the living room board
      */

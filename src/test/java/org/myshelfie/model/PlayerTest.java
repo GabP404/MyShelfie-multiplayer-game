@@ -10,7 +10,6 @@ import org.myshelfie.model.util.Pair;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,10 +17,11 @@ import static org.junit.jupiter.api.Assertions.*;
 class PlayerTest {
 
     @Test
-    public void testConstructorAndGetterPlayer() throws IOException, URISyntaxException {
-        PersonalGoalDeck pgc = PersonalGoalDeck.getInstance();
-        List<PersonalGoalCard> pgcGame = pgc.draw(1);
-        PersonalGoalCard pg = pgcGame.get(0);
+    public void testConstructorAndGetterPlayer() throws IOException {
+        Pair<Pair<Integer,Integer>,Tile> p2 = new Pair<>(new Pair<>(0,0),new Tile(ItemType.BOOK));
+        List<Pair<Pair<Integer,Integer>,Tile>> lp = new ArrayList<>();
+        lp.add(p2);
+        PersonalGoalCard pg = new PersonalGoalCard(lp);
         String nick = "User101";
         Player p = new Player(nick,pg);
         assertNotNull(p);
