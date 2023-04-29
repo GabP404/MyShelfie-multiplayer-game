@@ -1,9 +1,10 @@
 package org.myshelfie.model;
 
+import org.myshelfie.controller.Configuration;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.myshelfie.controller.Configuration;
 
 public class TileBag {
     private static final int TILEPERTYPE = Configuration.getTilesPerType();
@@ -11,7 +12,7 @@ public class TileBag {
 
 
     public TileBag() {
-        this.tiles = new ArrayList<Tile>();
+        this.tiles = new ArrayList<>();
 
         for (ItemType t : ItemType.values()) {
             for (int i = 0; i < TILEPERTYPE; i++) {
@@ -25,7 +26,9 @@ public class TileBag {
      * Method that returns the first tile in the bag and removes it from the bag.
      * @return The first tile in the bag
      */
-    public Tile drawItemTile() {
+    public Tile drawItemTile() throws WrongArgumentException{
+        if (tiles.size() == 0)
+            throw new WrongArgumentException("The bag is empty!");
         return tiles.remove(0);
     }
 

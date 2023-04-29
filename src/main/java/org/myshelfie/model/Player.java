@@ -82,13 +82,13 @@ public class Player {
         this.tilesPicked = tilesPicked;
     }
 
-    public Tile getTilePicked(int index) throws ArrayIndexOutOfBoundsException{
-        if(index < 0 || index > this.tilesPicked.size()) throw new ArrayIndexOutOfBoundsException();
+    public Tile getTilePicked(int index) throws WrongArgumentException {
+        if(index < 0 || index > this.tilesPicked.size()) throw new WrongArgumentException("Tile's index out of bound");
         return this.tilesPicked.get(index);
     }
 
-    public void addTilesPicked(Tile t) throws TileInsertionException{
-        if(this.tilesPicked.size() == DIM_TILESPICKED) throw new TileInsertionException("maximum number of tiles picked reached");
+    public void addTilesPicked(Tile t) throws WrongArgumentException{
+        if(this.tilesPicked.size() == DIM_TILESPICKED) throw new WrongArgumentException("Maximum number of tiles picked reached");
         this.tilesPicked.add(t);
     }
 
@@ -104,14 +104,14 @@ public class Player {
         return x;
     }
 
-    public void removeTilesPicked(Tile t) throws TileUnreachableException{
-        if (!this.tilesPicked.contains(t)) throw new TileUnreachableException("Tile not found");
+    public void removeTilesPicked(Tile t) throws WrongArgumentException{
+        if (!this.tilesPicked.contains(t)) throw new WrongArgumentException("Tile not found");
         this.tilesPicked.remove(t);
     }
 
-    public void removeTilesPicked(List<Tile> tilesRemoved) throws TileUnreachableException{
+    public void removeTilesPicked(List<Tile> tilesRemoved) throws WrongArgumentException{
         for(Tile t: tilesRemoved) {
-            if(!this.tilesPicked.contains(t)) throw new TileUnreachableException("Tile not found");
+            if(!this.tilesPicked.contains(t)) throw new WrongArgumentException("Tile not found");
         }
         for(Tile t: tilesRemoved) {
             this.tilesPicked.remove(t);
@@ -122,12 +122,11 @@ public class Player {
         return selectedColumn;
     }
 
-    //aggiungere exception e verificare che possa fare quella mossa
     public void setSelectedColumn(int selectedColumn) throws WrongArgumentException {
         if(selectedColumn < 0 || selectedColumn >= Bookshelf.NUMCOLUMNS) {
             throw new WrongArgumentException("Column Out of range");
         }
-            this.selectedColumn = selectedColumn;
+        this.selectedColumn = selectedColumn;
     }
 
     public boolean isOnline() {
@@ -138,7 +137,7 @@ public class Player {
         this.online = online;
     }
 
-    public int getTotalPoints() {
+    public int getTotalPoints() throws WrongArgumentException{
         return getPointsScoringTokens() + this.personalGoal.getPoints(this.bookshelf);
     }
 }

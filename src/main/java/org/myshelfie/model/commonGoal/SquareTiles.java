@@ -1,8 +1,9 @@
 package org.myshelfie.model.commonGoal;
 
-import org.myshelfie.model.*;
-
-import java.util.ArrayDeque;
+import org.myshelfie.model.Bookshelf;
+import org.myshelfie.model.CommonGoalCard;
+import org.myshelfie.model.Tile;
+import org.myshelfie.model.WrongArgumentException;
 
 /**
  * Two groups each containing 4 tiles of the same type in a 2x2 square.
@@ -16,7 +17,7 @@ public class SquareTiles extends CommonGoalCard {
     }
 
     @Override
-    public Boolean checkGoalSatisfied(Bookshelf bookshelf) {
+    public Boolean checkGoalSatisfied(Bookshelf bookshelf) throws WrongArgumentException{
 
         boolean[][] visited = new boolean[Bookshelf.NUMROWS][Bookshelf.NUMCOLUMNS];
         //number of squares to be found

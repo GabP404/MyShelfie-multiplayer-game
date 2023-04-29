@@ -34,9 +34,9 @@ public class ConfigurationTest {
     public void testGetBoardMask() {
         int[][] mask = Configuration.getBoardMask();
         assertNotNull(mask);
-        for (int i = 0; i < mask.length; i++) {
-            for (int j = 0; j < mask[i].length; j++) {
-                assert  mask[i][j] > 0;
+        for (int[] ints : mask) {
+            for (int anInt : ints) {
+                assert anInt > 0;
             }
         }
     }

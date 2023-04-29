@@ -67,22 +67,28 @@ public class Game {
         return players.get(pos + 1);
     }
 
-    public ScoringToken popTopScoringToken(CommonGoalCard c) {
+    public ScoringToken popTopScoringToken(CommonGoalCard c) throws WrongArgumentException {
         LinkedList<ScoringToken> x = (LinkedList<ScoringToken>) commonGoals.get(c);
+        if (x == null)
+            throw new WrongArgumentException("CommonGoalCard not found");
         ScoringToken scoringToken = x.removeFirst();
         // notify the server that the token stack has changed
         ServerImpl.eventManager.notify(GameEvent.TOKEN_UPDATE, null);
         return scoringToken;
     }
-    public ScoringToken getTopScoringToken(CommonGoalCard c) {
+    public ScoringToken getTopScoringToken(CommonGoalCard c) throws WrongArgumentException{
         LinkedList<ScoringToken> x = (LinkedList<ScoringToken>) commonGoals.get(c);
+        if (x == null)
+            throw new WrongArgumentException("CommonGoalCard not found");
         return x.getFirst();
     }
     public boolean isPlaying() {
         return playing;
     }
 
-    public void setCurrPlayer(Player currPlayer) {
+    public void setCurrPlayer(Player currPlayer) throws WrongArgumentException{
+        if (currPlayer == null || !players.contains(currPlayer))
+            throw new WrongArgumentException("Player not found");
         this.currPlayer = currPlayer;
     }
 
@@ -98,7 +104,9 @@ public class Game {
         return winner;
     }
 
-    public void setWinner(Player winner) {
+    public void setWinner(Player winner) throws WrongArgumentException {
+        if (currPlayer == null || !players.contains(currPlayer))
+            throw new WrongArgumentException("Player not found");
         this.winner = winner;
     }
 

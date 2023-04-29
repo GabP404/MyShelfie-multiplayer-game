@@ -29,11 +29,7 @@ public class SelectTileFromHandCommand implements Command {
             throw new InvalidCommand("Waiting for Tile Selection Hand ");
         }
 
-        try {
-            currPlayer.getBookshelf().insertTile(currPlayer.getTilePicked(index), currPlayer.getSelectedColumn());
-            currPlayer.removeTilesPicked(currPlayer.getTilePicked(index));
-        }catch (TileInsertionException | TileUnreachableException e) {
-            throw new WrongArgumentException("Wrong argument");
-        }
+        currPlayer.getBookshelf().insertTile(currPlayer.getTilePicked(index), currPlayer.getSelectedColumn());
+        currPlayer.removeTilesPicked(currPlayer.getTilePicked(index));
     }
 }

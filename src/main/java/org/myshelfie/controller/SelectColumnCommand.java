@@ -4,7 +4,6 @@ import org.json.JSONObject;
 import org.myshelfie.model.ModelState;
 import org.myshelfie.model.Player;
 import org.myshelfie.model.WrongArgumentException;
-import org.myshelfie.network.messages.commandMessages.UserInputEventType;
 
 public class SelectColumnCommand implements Command {
     private Player currPlayer;
@@ -29,10 +28,6 @@ public class SelectColumnCommand implements Command {
             throw new WrongTurnException("Wrong player turn");
         }
         if(currentModelState == ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN) throw new InvalidCommand("Waiting for Column Selection ");
-        try {
-            currPlayer.setSelectedColumn(selectedColumn);
-        }catch (WrongArgumentException e) {
-            throw new WrongArgumentException(e.getMessage());
-        }
+        currPlayer.setSelectedColumn(selectedColumn);
     }
 }

@@ -1,11 +1,11 @@
 package org.myshelfie.model;
 
-import org.myshelfie.network.server.ServerImpl;
+import org.myshelfie.controller.Configuration;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
+import org.myshelfie.network.server.ServerImpl;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.myshelfie.controller.Configuration;
 
 public class Bookshelf {
 
@@ -32,11 +32,15 @@ public class Bookshelf {
      * Add a tile in a specific column of the bookshelf, if possible.
      * @param t The tile
      * @param c The index of the column (0 <= c < 5)
-     * @throws TileInsertionException if the column is already full
+     * @throws WrongArgumentException if the column is already full
      */
-    public void insertTile(Tile t, int c) throws TileInsertionException {
-        if (tiles[0][c] != null)
-            throw new TileInsertionException("This column is already full!");
+    public void insertTile(Tile t, int c) throws WrongArgumentException {
+        if (c < 0 || c >= NUMCOLUMNS)
+            throw new WrongArgumentException("Column selected is unreachable (out of bound)");
+        else if (tiles[0][c] != null)
+            throw new WrongArgumentException("This column is already full!");
+        else if (t == null)
+            throw new WrongArgumentException("Tile is null!");
 
         int i = NUMROWS -1;
         while (tiles[i][c] != null) {
@@ -52,11 +56,11 @@ public class Bookshelf {
      * @param r The row of the bookshelf
      * @param c The column of the bookshelf
      * @return The tile in (r, c)
-     * @throws TileUnreachableException If (r, c) is out of bounds
+     * @throws WrongArgumentException If (r, c) is out of bounds
      */
-    public Tile getTile(int r, int c) throws TileUnreachableException {
+    public Tile getTile(int r, int c) throws WrongArgumentException {
         if(r < 0 || r >= NUMROWS || c < 0 || c >= NUMCOLUMNS)
-            throw new TileUnreachableException("Tile selected is unreachable (out of bound)");
+            throw new WrongArgumentException("Tile selected is unreachable (out of bound)");
 
         return tiles[r][c];
     }
@@ -66,7 +70,9 @@ public class Bookshelf {
      * @param c Column of interest
      * @return The height of the column c inside this Bookshelf
      */
-    public int getHeight(int c){
+    public int getHeight(int c) throws WrongArgumentException {
+        if (c < 0 || c >= NUMCOLUMNS)
+            throw new WrongArgumentException("Column selected is unreachable (out of bound)");
         int r = 0;
         while (r < Bookshelf.NUMROWS && tiles[r][c] == null) {
             r++;

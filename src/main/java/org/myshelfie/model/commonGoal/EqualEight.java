@@ -1,8 +1,9 @@
 package org.myshelfie.model.commonGoal;
 
-import org.myshelfie.model.*;
-
-import java.util.ArrayDeque;
+import org.myshelfie.model.Bookshelf;
+import org.myshelfie.model.CommonGoalCard;
+import org.myshelfie.model.ItemType;
+import org.myshelfie.model.WrongArgumentException;
 
 /**
  * Eight tiles of the same type. There’s no restriction about the position of these tiles.
@@ -15,7 +16,7 @@ public class EqualEight extends CommonGoalCard {
     }
 
     @Override
-    public Boolean checkGoalSatisfied(Bookshelf bookshelf) {
+    public Boolean checkGoalSatisfied(Bookshelf bookshelf) throws WrongArgumentException{
 
         //array to count occurrences of each different type
         int[] enumCount = new int[ItemType.values().length];

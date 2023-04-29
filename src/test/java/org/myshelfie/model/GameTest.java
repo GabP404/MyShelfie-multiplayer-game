@@ -1,23 +1,22 @@
 package org.myshelfie.model;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.myshelfie.model.commonGoal.CrossTiles;
-import org.myshelfie.model.util.Pair;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class GameTest {
     Game g1;
 
 
     @Test
-    public void testConstructorAndGetter() throws IOException, URISyntaxException {
+    public void testConstructorAndGetter() throws IOException, URISyntaxException, WrongArgumentException {
         int standard_game = 2;
         int numPlayer = 2;
         CommonGoalDeck cgd = CommonGoalDeck.getInstance();
@@ -43,7 +42,7 @@ public class GameTest {
         assertNotNull(g1.getCurrPlayer());
         assertFalse(g1.isPlaying());
         this.g1.startGame();
-        assertEquals(true,this.g1.isPlaying());
+        assertTrue(this.g1.isPlaying());
         this.g1.getTopScoringToken(cgc.get(0));
         ScoringToken st = this.g1.popTopScoringToken(cgc.get(0));
         assertNotEquals(this.g1.getTopScoringToken(cgc.get(0)),st);
@@ -56,23 +55,21 @@ public class GameTest {
     private LinkedList<ScoringToken> createTokensPersonalGoalCard(String id, int numPlayer) {
         LinkedList<ScoringToken> tokens = new LinkedList<>();
         switch (numPlayer) {
-            case 2:
-                tokens.add(new ScoringToken(8,id));
-                tokens.add(new ScoringToken(4,id));
-                break;
-
-            case 3:
-                tokens.add(new ScoringToken(8,id));
-                tokens.add(new ScoringToken(6,id));
-                tokens.add(new ScoringToken(4,id));
-                break;
-
-            case 4:
-                tokens.add(new ScoringToken(8,id));
-                tokens.add(new ScoringToken(6,id));
-                tokens.add(new ScoringToken(4,id));
-                tokens.add(new ScoringToken(2,id));
-                break;
+            case 2 -> {
+                tokens.add(new ScoringToken(8, id));
+                tokens.add(new ScoringToken(4, id));
+            }
+            case 3 -> {
+                tokens.add(new ScoringToken(8, id));
+                tokens.add(new ScoringToken(6, id));
+                tokens.add(new ScoringToken(4, id));
+            }
+            case 4 -> {
+                tokens.add(new ScoringToken(8, id));
+                tokens.add(new ScoringToken(6, id));
+                tokens.add(new ScoringToken(4, id));
+                tokens.add(new ScoringToken(2, id));
+            }
         }
         return tokens;
     }

@@ -55,7 +55,7 @@ public class Board {
      * @param numPlayers The number of players
      * @param bag The bag of Tiles
      */
-    public void refillBoard(int numPlayers, TileBag bag) {
+    public void refillBoard(int numPlayers, TileBag bag) throws WrongArgumentException{
         for (int i = 0; i < DIMBOARD; i++) {
             for (int j = 0; j < DIMBOARD; j++) {
                 if (numPlayers >= mask[i][j] && boardTiles[i][j] == null) {

@@ -2,7 +2,6 @@ package org.myshelfie.model.commonGoal;
 
 import org.myshelfie.model.*;
 
-import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -47,7 +46,7 @@ public class SlightlyDifferentLines extends CommonGoalCard {
      * @return Boolean.TRUE if the constraints are satisfied, FALSE if not
      */
     @Override
-    public Boolean checkGoalSatisfied(Bookshelf bookshelf){
+    public Boolean checkGoalSatisfied(Bookshelf bookshelf) throws WrongArgumentException {
         int xlim;
         int ylim;
         int linesFound=0;

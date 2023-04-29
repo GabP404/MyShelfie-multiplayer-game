@@ -2,7 +2,7 @@ package org.myshelfie.controller;
 
 import org.myshelfie.model.*;
 import org.myshelfie.network.client.Client;
-import org.myshelfie.network.messages.commandMessages.UserInputEventType;
+import org.myshelfie.network.messages.commandMessages.UserInputEvent;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -76,13 +76,27 @@ public class GameController {
         }
         if(numPlayersOnline == 1){
             this.game.setModelState(ModelState.END_GAME);
-            this.game.setWinner(this.game.getPlayers().stream().filter(x -> x.isOnline()).collect(Collectors.toList()).get(0));
+            try {
+                this.game.setWinner(this.game.getPlayers().stream().filter(x -> x.isOnline()).collect(Collectors.toList()).get(0));
+            } catch (WrongArgumentException e) {
+                throw new RuntimeException(e);
+            }
             return true;
         }
         if(this.game.getPlayers().stream().filter(x -> x.getBookshelf().isFull()).count() > 0) {
             this.game.setModelState(ModelState.END_GAME);
-            Player p = this.game.getPlayers().stream().reduce( (a, b) -> a.getTotalPoints() > b.getTotalPoints() ? a:b).orElse(null);
-            this.game.setWinner(p);
+            Player p = this.game.getPlayers().stream().reduce( (a, b) -> {
+                try {
+                    return a.getTotalPoints() > b.getTotalPoints() ? a:b;
+                } catch (WrongArgumentException e) {
+                    throw new RuntimeException(e);
+                }
+            }).orElse(null);
+            try {
+                this.game.setWinner(p);
+            } catch (WrongArgumentException e) {
+                throw new RuntimeException(e);
+            }
         }
         return false;
     }
@@ -91,17 +105,17 @@ public class GameController {
         //setting player offline
     }
 
-    public void setOffinePlayer(String nickname) {
+    public void setOfflinePlayer(String nickname) {
         this.game.getPlayers().stream().filter(x -> x.getNickname().equals(nickname)).collect(Collectors.toList()).get(0).setOnline(false);
     }
 
-    public void setOninePlayer(String nickname) {
+    public void setOnlinePlayer(String nickname) {
         this.game.getPlayers().stream().filter(x -> x.getNickname().equals(nickname)).collect(Collectors.toList()).get(0).setOnline(true);
     }
 
 
     //change firm of the method based
-    public void executeCommand(String command, UserInputEventType t) {
+    public void executeCommand(String command, UserInputEvent t) {
             Command c = null;
             switch (t) {
                 case SELECTED_BOOKSHELF_COLUMN -> c = new PickTilesCommand(game.getBoard(),game.getCurrPlayer() ,command,this.game.getModelState());
@@ -120,15 +134,15 @@ public class GameController {
             nextState();
     }
 
-    private void checkState(UserInputEventType t) throws InvalidCommand{
+    private void checkState(UserInputEvent t) throws InvalidCommand{
         ModelState currentGameState = game.getModelState();
         if(currentGameState == ModelState.CREATED_GAME) throw new InvalidCommand("Game is not started");
-        if(currentGameState == ModelState.WAITING_SELECTION_TILE && t != UserInputEventType.SELECTED_TILES) throw new InvalidCommand("Waiting for Tile Selection ");
-        if(currentGameState == ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN && t != UserInputEventType.SELECTED_BOOKSHELF_COLUMN) throw new InvalidCommand("Waiting for Column Selection ");
+        if(currentGameState == ModelState.WAITING_SELECTION_TILE && t != UserInputEvent.SELECTED_TILES) throw new InvalidCommand("Waiting for Tile Selection ");
+        if(currentGameState == ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN && t != UserInputEvent.SELECTED_BOOKSHELF_COLUMN) throw new InvalidCommand("Waiting for Column Selection ");
         if(currentGameState == ModelState.END_GAME) throw new InvalidCommand("Game ended");
-        if(currentGameState == ModelState.WAITING_3_SELECTION_TILE_FROM_HAND && t != UserInputEventType.SELECTED_HAND_TILE) throw new InvalidCommand("Waiting for Tile Selection Hand ");
-        if(currentGameState == ModelState.WAITING_2_SELECTION_TILE_FROM_HAND && t != UserInputEventType.SELECTED_HAND_TILE) throw new InvalidCommand("Waiting for Tile Selection Hand ");
-        if(currentGameState == ModelState.WAITING_1_SELECTION_TILE_FROM_HAND && t != UserInputEventType.SELECTED_HAND_TILE) throw new InvalidCommand("Waiting for Tile Selection Hand ");
+        if(currentGameState == ModelState.WAITING_3_SELECTION_TILE_FROM_HAND && t != UserInputEvent.SELECTED_HAND_TILE) throw new InvalidCommand("Waiting for Tile Selection Hand ");
+        if(currentGameState == ModelState.WAITING_2_SELECTION_TILE_FROM_HAND && t != UserInputEvent.SELECTED_HAND_TILE) throw new InvalidCommand("Waiting for Tile Selection Hand ");
+        if(currentGameState == ModelState.WAITING_1_SELECTION_TILE_FROM_HAND && t != UserInputEvent.SELECTED_HAND_TILE) throw new InvalidCommand("Waiting for Tile Selection Hand ");
     }
 
 
@@ -152,9 +166,17 @@ public class GameController {
                 if(checkEndGame()) {
                     nextState = ModelState.END_GAME;
                 }else {
-                    game.setCurrPlayer(game.getNextPlayer());
-                    while(!game.getCurrPlayer().isOnline()) {
+                    try {
                         game.setCurrPlayer(game.getNextPlayer());
+                    } catch (WrongArgumentException e) {
+                        throw new RuntimeException(e);
+                    }
+                    while(!game.getCurrPlayer().isOnline()) {
+                        try {
+                            game.setCurrPlayer(game.getNextPlayer());
+                        } catch (WrongArgumentException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                     nextState = ModelState.WAITING_SELECTION_TILE;
                 }

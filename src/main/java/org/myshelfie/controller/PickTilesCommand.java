@@ -3,7 +3,6 @@ package org.myshelfie.controller;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.myshelfie.model.*;
-import org.myshelfie.network.messages.commandMessages.UserInputEventType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -122,11 +121,7 @@ public class PickTilesCommand implements Command {
 
         for (LocatedTile t: tiles)
         {
-            try {
-                currPlayer.addTilesPicked(b.getTile(t.getRow(),t.getCol()));
-            } catch (TileInsertionException e) {
-                throw new WrongArgumentException(e.getMessage());
-            }
+            currPlayer.addTilesPicked(b.getTile(t.getRow(),t.getCol()));
             b.setTile(t.getRow(), t.getCol(), null);
         }
 

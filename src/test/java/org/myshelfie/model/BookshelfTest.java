@@ -31,7 +31,7 @@ public class BookshelfTest {
                 shelf.insertTile(t, 0);
             }
         });
-        assertThrows(TileInsertionException.class, () -> {
+        assertThrows(WrongArgumentException.class, () -> {
             Tile t = new Tile(ItemType.values()[0]);
             shelf.insertTile(t, 0);
         });
@@ -52,8 +52,8 @@ public class BookshelfTest {
     @DisplayName("Getting a tile out of bounds")
     @Test
     void getUnreachableTile() {
-        assertThrows(TileUnreachableException.class, () -> shelf.getTile(Bookshelf.NUMROWS + 1, 0));
-        assertThrows(TileUnreachableException.class, () -> shelf.getTile(0, Bookshelf.NUMCOLUMNS + 1));
+        assertThrows(WrongArgumentException.class, () -> shelf.getTile(Bookshelf.NUMROWS + 1, 0));
+        assertThrows(WrongArgumentException.class, () -> shelf.getTile(0, Bookshelf.NUMCOLUMNS + 1));
     }
     
     @DisplayName("Getting a tile in normal conditions")
@@ -66,17 +66,17 @@ public class BookshelfTest {
             Tile t = shelf.getTile(3, 0);
             assertInstanceOf(Tile.class, t);
             assertEquals(t.getItemType(), ItemType.values()[0]);
-        } catch (TileInsertionException | TileUnreachableException e) {
+        } catch (WrongArgumentException e) {
             fail();
         }
     }
 
     @Test
     void getHeight() {
-        for (int i = 0; i < Bookshelf.NUMCOLUMNS; i++) {
-            assertEquals(shelf.getHeight(i), 0);
-        }
         try {
+            for (int i = 0; i < Bookshelf.NUMCOLUMNS; i++) {
+                assertEquals(shelf.getHeight(i), 0);
+            }
             shelf.insertTile(new Tile(ItemType.values()[0]), 0);
             shelf.insertTile(new Tile(ItemType.values()[0]), 0);
             shelf.insertTile(new Tile(ItemType.values()[0]), 0);
@@ -86,7 +86,7 @@ public class BookshelfTest {
             assertEquals(shelf.getHeight(1), 0);
             assertEquals(shelf.getHeight(2), 2);
             assertEquals(shelf.getHeight(3), 0);
-        } catch (TileInsertionException e) {
+        } catch (WrongArgumentException e) {
             fail();
         }
     }
@@ -138,7 +138,7 @@ public class BookshelfTest {
             Integer[] expectedResults = {6, 6, 5, 3, 1};
             assertEquals(groupSizes.size(), 6);
             assertTrue(groupSizes.containsAll(List.of(expectedResults)));
-        } catch (TileInsertionException e) {
+        } catch (WrongArgumentException e) {
             fail();
         }
     }

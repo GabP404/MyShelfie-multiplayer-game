@@ -46,7 +46,7 @@ public class CommonGoalCardTest {
                     if (mat[r][c] != -1) {
                         b.insertTile(new Tile(ItemType.values()[mat[r][c]]), c);
                     }
-                } catch (TileInsertionException e) {
+                } catch (WrongArgumentException e) {
                     // do nothing
                 }
             }
@@ -206,7 +206,7 @@ public class CommonGoalCardTest {
     }
 
     @Test
-    void EqualEightTest() {
+    void EqualEightTest() throws WrongArgumentException {
         assertEquals(Boolean.TRUE, equalEightCard.checkGoalSatisfied(bksComplete));
         assertEquals(Boolean.TRUE, equalEightCard.checkGoalSatisfied(bksCats));
         assertEquals(Boolean.FALSE, equalEightCard.checkGoalSatisfied(bksCorners));
@@ -218,7 +218,7 @@ public class CommonGoalCardTest {
     }
 
     @Test
-    void EqualCornersTest() {
+    void EqualCornersTest() throws WrongArgumentException {
         assertEquals(Boolean.FALSE, equalCornersCard.checkGoalSatisfied(bksComplete));
         assertEquals(Boolean.TRUE, equalCornersCard.checkGoalSatisfied(bksCats));
         assertEquals(Boolean.TRUE, equalCornersCard.checkGoalSatisfied(bksCorners));
@@ -231,7 +231,7 @@ public class CommonGoalCardTest {
     }
 
     @Test
-    void CrossTilesTest() {
+    void CrossTilesTest() throws WrongArgumentException {
         assertEquals(Boolean.TRUE, crossTilesCard.checkGoalSatisfied(bksComplete));
         assertEquals(Boolean.TRUE, crossTilesCard.checkGoalSatisfied(bksCats));
         assertEquals(Boolean.FALSE, crossTilesCard.checkGoalSatisfied(bksCorners));
@@ -243,7 +243,7 @@ public class CommonGoalCardTest {
     }
 
     @Test
-    void DiagonalTilesTest() {
+    void DiagonalTilesTest() throws WrongArgumentException {
         assertEquals(Boolean.FALSE, diagonalTilesCard.checkGoalSatisfied(bksComplete));
         assertEquals(Boolean.TRUE, diagonalTilesCard.checkGoalSatisfied(bksCats));
         assertEquals(Boolean.FALSE, diagonalTilesCard.checkGoalSatisfied(bksCorners));
@@ -256,7 +256,7 @@ public class CommonGoalCardTest {
     }
 
     @Test
-    void SquareTilesTest() {
+    void SquareTilesTest() throws WrongArgumentException {
         assertEquals(Boolean.FALSE, squareTilesCard.checkGoalSatisfied(bksComplete));
         assertEquals(Boolean.FALSE, squareTilesCard.checkGoalSatisfied(bksCats));
         assertEquals(Boolean.FALSE, squareTilesCard.checkGoalSatisfied(bksCorners));
@@ -268,7 +268,7 @@ public class CommonGoalCardTest {
     }
 
     @Test
-    void StairTilesTest() {
+    void StairTilesTest() throws WrongArgumentException {
         assertEquals(Boolean.FALSE, stairTilesCard.checkGoalSatisfied(bksComplete));
         assertEquals(Boolean.FALSE, stairTilesCard.checkGoalSatisfied(bksCats));
         assertEquals(Boolean.FALSE, stairTilesCard.checkGoalSatisfied(bksCorners));
@@ -280,7 +280,7 @@ public class CommonGoalCardTest {
     }
 
     @Test
-    void SameTypeGroupingsTest() {
+    void SameTypeGroupingsTest() throws WrongArgumentException {
         assertEquals(Boolean.TRUE, sameTypeGroupings_4x5.checkGoalSatisfied(bksComplete));
         assertEquals(Boolean.TRUE, sameTypeGroupings_2x3.checkGoalSatisfied(bksComplete));
         assertEquals(Boolean.FALSE, sameTypeGroupings_1x10.checkGoalSatisfied(bksComplete));
@@ -308,7 +308,7 @@ public class CommonGoalCardTest {
     }
 
     @Test
-    void SlightlyDifferentLinesTest () {
+    void SlightlyDifferentLinesTest () throws WrongArgumentException {
         assertEquals(Boolean.TRUE, slightlyDifferentLines_4row_1to3.checkGoalSatisfied(bksComplete));
         assertEquals(Boolean.FALSE, slightlyDifferentLines_2col_6to6.checkGoalSatisfied(bksComplete));
         assertEquals(Boolean.TRUE, slightlyDifferentLines_3row_2to3.checkGoalSatisfied(bksComplete));
