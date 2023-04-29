@@ -1,4 +1,9 @@
-package org.myshelfie.model;
+package org.myshelfie.network.messages.gameMessages;
+
+import org.myshelfie.model.Bookshelf;
+import org.myshelfie.model.ItemType;
+import org.myshelfie.model.Tile;
+import org.myshelfie.model.TileUnreachableException;
 
 import java.util.ArrayList;
 import java.util.List;

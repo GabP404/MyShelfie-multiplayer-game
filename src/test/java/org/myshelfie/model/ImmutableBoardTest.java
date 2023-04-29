@@ -1,8 +1,7 @@
 package org.myshelfie.model;
 
-import org.json.XML;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.myshelfie.network.messages.gameMessages.ImmutableBoard;
 
 import static org.junit.jupiter.api.Assertions.*;
 

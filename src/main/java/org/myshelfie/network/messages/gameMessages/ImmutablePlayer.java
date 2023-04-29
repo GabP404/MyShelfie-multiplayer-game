@@ -1,4 +1,9 @@
-package org.myshelfie.model;
+package org.myshelfie.network.messages.gameMessages;
+
+import org.myshelfie.model.PersonalGoalCard;
+import org.myshelfie.model.Player;
+import org.myshelfie.model.ScoringToken;
+import org.myshelfie.model.Tile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,8 +13,7 @@ public final class ImmutablePlayer {
     private final List<ScoringToken> commonGoalTokens;
     private final Boolean hasFinalToken;
     private final PersonalGoalCard personalGoal;
-    private final ImmutableBookshelf immutableBookshelf;
-
+    private final ImmutableBookshelf bookshelf;
     private final List<Tile> tilesPicked;
     private static int DIM_TILESPICKED = 3;
 
@@ -18,7 +22,7 @@ public final class ImmutablePlayer {
         this.commonGoalTokens = new ArrayList<>(p.getCommonGoalTokens());
         this.hasFinalToken = p.getHasFinalToken();
         this.personalGoal = p.getPersonalGoal();
-        this.immutableBookshelf = new ImmutableBookshelf(p.getBookshelf());
+        this.bookshelf = new ImmutableBookshelf(p.getBookshelf());
         this.tilesPicked = new ArrayList<>(p.getTilesPicked());
     }
 
@@ -38,8 +42,8 @@ public final class ImmutablePlayer {
         return personalGoal;
     }
 
-    public ImmutableBookshelf getImmutableBookshelf() {
-        return immutableBookshelf;
+    public ImmutableBookshelf getBookshelf() {
+        return bookshelf;
     }
 
     public List<Tile> getTilesPicked() {

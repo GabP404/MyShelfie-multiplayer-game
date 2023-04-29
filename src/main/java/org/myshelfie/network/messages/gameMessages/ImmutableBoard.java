@@ -1,4 +1,7 @@
-package org.myshelfie.model;
+package org.myshelfie.network.messages.gameMessages;
+
+import org.myshelfie.model.Board;
+import org.myshelfie.model.Tile;
 
 public final class ImmutableBoard {
     private static final int[][] mask = {

@@ -1,7 +1,7 @@
 package org.myshelfie.model;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.myshelfie.network.messages.gameMessages.ImmutablePlayer;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -23,7 +23,7 @@ class ImmutablePlayerTest {
 
         ImmutablePlayer x = new ImmutablePlayer(p);
         assertNotNull(x);
-        assertNotNull(x.getImmutableBookshelf());
+        assertNotNull(x.getBookshelf());
         assertFalse(x.getHasFinalToken());
         assertNotNull(x.getCommonGoalTokens());
         assertNotNull(x.getNickname());
