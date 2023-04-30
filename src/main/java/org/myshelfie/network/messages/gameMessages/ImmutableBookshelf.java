@@ -9,12 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class ImmutableBookshelf {
-    public static final int NUMROWS = 6;
-    public static final int NUMCOLUMNS = 5;
+    public final int NUMROWS;
+    public final int NUMCOLUMNS;
 
     private final Tile[][] tiles;
 
     public ImmutableBookshelf(Bookshelf b) {
+        this.NUMROWS = Bookshelf.NUMROWS;
+        this.NUMCOLUMNS = Bookshelf.NUMCOLUMNS;
         tiles = new Tile[NUMROWS][NUMCOLUMNS];
         for (int i = 0; i < NUMROWS; i++) {
             for (int j = 0; j < NUMCOLUMNS; j++) {

@@ -4,21 +4,11 @@ import org.myshelfie.model.Board;
 import org.myshelfie.model.Tile;
 
 public final class ImmutableBoard {
-    private static final int[][] mask = {
-            {5, 5, 5, 3, 4, 5, 5, 5, 5},
-            {5, 5, 5, 2, 2, 4, 5, 5, 5},
-            {5, 5, 3, 2, 2, 2, 3, 5, 5},
-            {5, 4, 2, 2, 2, 2, 2, 2, 3},
-            {4, 2, 2, 2, 2, 2, 2, 2, 4},
-            {3, 2, 2, 2, 2, 2, 2, 4, 5},
-            {5, 5, 3, 2, 2, 2, 3, 5, 5},
-            {5, 5, 5, 4, 2, 2, 5, 5, 5},
-            {5, 5, 5, 5, 4, 3, 5, 5, 5},
-    };
-    public static final int DIMBOARD = 9;
+    public final int DIMBOARD;
     private final Tile[][] boardTiles;
 
     public ImmutableBoard(Board board) {
+        this.DIMBOARD = Board.DIMBOARD;
         this.boardTiles = new Tile[DIMBOARD][DIMBOARD];
         for (int i = 0; i < DIMBOARD; i++) {
             for (int j = 0; j < DIMBOARD; j++) {
