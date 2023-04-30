@@ -7,7 +7,6 @@ import org.myshelfie.network.EventManager;
 import org.myshelfie.network.messages.commandMessages.CommandMessageWrapper;
 import org.myshelfie.network.messages.commandMessages.UserInputEvent;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
-import org.myshelfie.network.messages.gameMessages.WrongInputEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +52,6 @@ public class ServerImpl implements Server {
         // After being notified the Listener will send a message to the client containing the event and the ModelView obj
         // TODO: to handle multiple games, the registration will need to refer to a specific game
         eventManager.subscribe(GameEvent.class, new GameListener(this, client, this.model));
-        eventManager.subscribe(WrongInputEvent.class, new WrongInputListener(this, client));
     }
 
     /**
