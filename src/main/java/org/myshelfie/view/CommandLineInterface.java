@@ -1,8 +1,8 @@
 package org.myshelfie.view;
 
 import org.myshelfie.model.LocatedTile;
-import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.GameView;
+import org.myshelfie.network.messages.gameMessages.ServerEvent;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ public class CommandLineInterface implements Runnable {
 
     }
 
-    public void update(GameView msg, GameEvent ev) {
+    public void update(GameView msg, ServerEvent ev) {
         System.out.println("Received from server the event " + ev + "signaling a change in the model!");
         System.out.println("    Message payload: " + msg);
     }

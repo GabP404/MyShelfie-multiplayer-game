@@ -1,9 +1,9 @@
 package org.myshelfie.network.client;
 
 import org.myshelfie.network.EventManager;
+import org.myshelfie.network.messages.gameMessages.ServerEvent;
 import org.myshelfie.network.server.Server;
 import org.myshelfie.network.messages.commandMessages.UserInputEvent;
-import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.GameView;
 import org.myshelfie.view.CommandLineInterface;
 
@@ -25,11 +25,11 @@ public class ClientImpl extends Client implements Runnable {
 
     /**
      * Called by the server to propagate the model change to the view
-     * @param game    The resulting model view
-     * @param event   The causing event
+     * @param game  The resulting model view
+     * @param event The causing event
      */
     @Override
-    public void update(GameView game, GameEvent event) {
+    public void update(GameView game, ServerEvent event) {
         view.update(game, event);
     }
 

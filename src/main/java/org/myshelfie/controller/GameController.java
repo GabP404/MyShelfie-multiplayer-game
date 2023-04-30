@@ -3,6 +3,9 @@ package org.myshelfie.controller;
 import org.myshelfie.model.*;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.commandMessages.UserInputEvent;
+import org.myshelfie.network.messages.gameMessages.WrongInputEvent;
+import org.myshelfie.network.server.Server;
+import org.myshelfie.network.server.ServerImpl;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -125,11 +128,13 @@ public class GameController {
             try {
                 c.execute();
             }catch (WrongTurnException e) {
-
+                // FIXME: the information about the player that has generated is missing and
+                //  will be probably retrieved by the message
+                // ServerImpl.eventManager.notify(WrongInputEvent.WRONG_TURN, );
             }catch (InvalidCommand e) {
-
+                // ServerImpl.eventManager.notify(WrongInputEvent.WRONG_ACTION, );
             }catch (WrongArgumentException e){
-
+                // ServerImpl.eventManager.notify(WrongInputEvent.WRONG_ARGUMENT, );
             }
             nextState();
     }
