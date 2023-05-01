@@ -1,7 +1,7 @@
 package org.myshelfie.network.client;
 
 import org.myshelfie.network.Listener;
-import org.myshelfie.network.messages.commandMessages.UserInputEvent;
+import org.myshelfie.network.messages.commandMessages.*;
 import org.myshelfie.network.server.Server;
 import org.myshelfie.view.CommandLineInterface;
 
@@ -24,19 +24,21 @@ public class UserInputListener implements Listener<UserInputEvent> {
     @Override
     public void update(UserInputEvent ev, Object arg) {
         CommandLineInterface cli = client.getCLI();
-        /*
         // TODO: define how to precisely retrieve the data from the cli
-        CommandMessage m = switch (ev) {
+        CommandMessage m = null;
+        /*
+        m = switch (ev) {
             case SELECTED_TILES -> new PickedTilesCommandMessage(cli.getSelectedTiles());
             case SELECTED_BOOKSHELF_COLUMN -> new SelectedColumnMessage(cli.getSelectedColumn());
             case SELECTED_HAND_TILE -> new SelectedTileFromHandCommandMessage(cli.getSelectedTileFromHand());
             default ->
-                // TODO: decide whether to throw an exception or send a special kind of message
                     null;
-        };
+        };*/
         // send the message to the server
-        server.update(client, new CommandMessageWrapper(m, ev));
-
-         */
+        String serverResponse = server.update(client, new CommandMessageWrapper(m, ev));
+        // call CLI update method to show the error message
+        if (!serverResponse.equals("ok")) {
+            cli.update(serverResponse);
+        }
     }
 }

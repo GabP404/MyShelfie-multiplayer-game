@@ -16,5 +16,5 @@ public interface Server {
      * @param client  the client that generated the event
      * @param msg wrapped message received from the client
      */
-    public abstract void update(Client client, CommandMessageWrapper msg);
+    public abstract String update(Client client, CommandMessageWrapper msg);
 }

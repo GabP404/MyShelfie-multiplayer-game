@@ -29,9 +29,21 @@ public class CommandLineInterface implements Runnable {
 
     }
 
+    /**
+     * EXAMPLE update method to show GameView after a change in the model occurred
+     * @param msg
+     * @param ev
+     */
     public void update(GameView msg, GameEvent ev) {
         System.out.println("Received from server the event " + ev + "signaling a change in the model!");
         System.out.println("    Message payload: " + msg);
     }
 
+    /**
+     * EXAMPLE update method used to show a String msg (used to show error messages)
+     * @param msg
+     */
+    public void update(String msg) {
+        System.out.println(msg);
+    }
 }

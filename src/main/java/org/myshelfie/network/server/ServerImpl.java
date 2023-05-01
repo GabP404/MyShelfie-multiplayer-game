@@ -1,7 +1,10 @@
 package org.myshelfie.network.server;
 
 import org.myshelfie.controller.GameController;
+import org.myshelfie.controller.InvalidCommand;
+import org.myshelfie.controller.WrongTurnException;
 import org.myshelfie.model.Game;
+import org.myshelfie.model.WrongArgumentException;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.EventManager;
 import org.myshelfie.network.messages.commandMessages.CommandMessageWrapper;
@@ -61,7 +64,7 @@ public class ServerImpl implements Server {
      * @param msg wrapped message received from the client
      */
     @Override
-    public void update(Client client, CommandMessageWrapper msg) {
+    public String update(Client client, CommandMessageWrapper msg) {
         if (!clients.contains(client)) {
             throw new IllegalArgumentException("Client not registered");
         }
@@ -71,7 +74,17 @@ public class ServerImpl implements Server {
         UserInputEvent messageType = msg.getType();
         String messageCommand = msg.getMessage();
         // call the update on the controller
-        this.controller.executeCommand(messageCommand, messageType);
+
+        try {
+            this.controller.executeCommand(messageCommand, messageType);
+            return "ok";
+        }catch (WrongTurnException e) {
+            return "Wait for your turn to perform this action";
+        }catch (InvalidCommand e) {
+            return "You tried to perform the wrong action: " + e.getMessage();
+        }catch (WrongArgumentException e){
+            return "Your request has an invalid argument: " + e.getMessage();
+        }
     }
 }
 

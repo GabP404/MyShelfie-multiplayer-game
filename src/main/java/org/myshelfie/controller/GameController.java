@@ -115,34 +115,27 @@ public class GameController {
 
 
     //change firm of the method based
-    public void executeCommand(String command, UserInputEvent t) {
+    public void executeCommand(String command, UserInputEvent t) throws WrongTurnException, InvalidCommand, WrongArgumentException {
             Command c = null;
             switch (t) {
                 case SELECTED_BOOKSHELF_COLUMN -> c = new PickTilesCommand(game.getBoard(),game.getCurrPlayer() ,command,this.game.getModelState());
                 case SELECTED_TILES -> c = new SelectTileFromHandCommand(game.getCurrPlayer(), command,this.game.getModelState());
                 case SELECTED_HAND_TILE -> c = new SelectColumnCommand(game.getCurrPlayer(), command,this.game.getModelState());
+                default -> throw new InvalidCommand("Invalid command");
             }
-            try {
-                c.execute();
-            }catch (WrongTurnException e) {
-
-            }catch (InvalidCommand e) {
-
-            }catch (WrongArgumentException e){
-
-            }
+            c.execute();
             nextState();
     }
 
     private void checkState(UserInputEvent t) throws InvalidCommand{
         ModelState currentGameState = game.getModelState();
-        if(currentGameState == ModelState.CREATED_GAME) throw new InvalidCommand("Game is not started");
-        if(currentGameState == ModelState.WAITING_SELECTION_TILE && t != UserInputEvent.SELECTED_TILES) throw new InvalidCommand("Waiting for Tile Selection ");
-        if(currentGameState == ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN && t != UserInputEvent.SELECTED_BOOKSHELF_COLUMN) throw new InvalidCommand("Waiting for Column Selection ");
-        if(currentGameState == ModelState.END_GAME) throw new InvalidCommand("Game ended");
-        if(currentGameState == ModelState.WAITING_3_SELECTION_TILE_FROM_HAND && t != UserInputEvent.SELECTED_HAND_TILE) throw new InvalidCommand("Waiting for Tile Selection Hand ");
-        if(currentGameState == ModelState.WAITING_2_SELECTION_TILE_FROM_HAND && t != UserInputEvent.SELECTED_HAND_TILE) throw new InvalidCommand("Waiting for Tile Selection Hand ");
-        if(currentGameState == ModelState.WAITING_1_SELECTION_TILE_FROM_HAND && t != UserInputEvent.SELECTED_HAND_TILE) throw new InvalidCommand("Waiting for Tile Selection Hand ");
+        if(currentGameState == ModelState.CREATED_GAME) throw new InvalidCommand("game is not started");
+        if(currentGameState == ModelState.WAITING_SELECTION_TILE && t != UserInputEvent.SELECTED_TILES) throw new InvalidCommand("waiting for Tile Selection ");
+        if(currentGameState == ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN && t != UserInputEvent.SELECTED_BOOKSHELF_COLUMN) throw new InvalidCommand("waiting for Column Selection ");
+        if(currentGameState == ModelState.END_GAME) throw new InvalidCommand("game ended");
+        if(currentGameState == ModelState.WAITING_3_SELECTION_TILE_FROM_HAND && t != UserInputEvent.SELECTED_HAND_TILE) throw new InvalidCommand("waiting for Tile Selection Hand ");
+        if(currentGameState == ModelState.WAITING_2_SELECTION_TILE_FROM_HAND && t != UserInputEvent.SELECTED_HAND_TILE) throw new InvalidCommand("waiting for Tile Selection Hand ");
+        if(currentGameState == ModelState.WAITING_1_SELECTION_TILE_FROM_HAND && t != UserInputEvent.SELECTED_HAND_TILE) throw new InvalidCommand("waiting for Tile Selection Hand ");
     }
 
 
