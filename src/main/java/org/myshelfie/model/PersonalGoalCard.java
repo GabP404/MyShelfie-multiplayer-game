@@ -26,15 +26,19 @@ public class PersonalGoalCard {
      * @param shelf The bookshelf
      * @return The number of points
      */
-    public int getPoints(Bookshelf shelf) throws WrongArgumentException {
+    public int getPoints(Bookshelf shelf) {
         int occurrences = 0;
         for (Pair<Pair<Integer, Integer>, Tile> c: constraints) {
             int col = c.getLeft().getLeft();
             int row = c.getLeft().getRight();
-            Tile t = shelf.getTile(row, col);
-            //Count the number of tiles that satisfy the constraint
-            if (t != null && t.getItemType() == c.getRight().getItemType()) {
-                occurrences += 1;
+            try {
+                Tile t = shelf.getTile(row, col);
+                //Count the number of tiles that satisfy the constraint
+                if (t != null && t.getItemType() == c.getRight().getItemType()) {
+                    occurrences += 1;
+                }
+            } catch (WrongArgumentException e) {
+                //Just do not add points
             }
         }
         return points_map.get(occurrences);

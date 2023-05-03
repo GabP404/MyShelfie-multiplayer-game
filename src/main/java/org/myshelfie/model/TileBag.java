@@ -1,10 +1,9 @@
 package org.myshelfie.model;
 
-import org.myshelfie.controller.Configuration;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.myshelfie.controller.Configuration;
 
 public class TileBag {
     private static final int TILEPERTYPE = Configuration.getTilesPerType();

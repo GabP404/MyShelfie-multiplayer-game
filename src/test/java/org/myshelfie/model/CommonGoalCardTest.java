@@ -202,7 +202,6 @@ public class CommonGoalCardTest {
         fillBookshelf(bksHollowCorner, hollowCorner);
 
         bksEmpty = new Bookshelf();
-
     }
 
     @Test

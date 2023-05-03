@@ -1,55 +1,32 @@
-package org.myshelfie.model;
+package org.myshelfie.network.messages.gameMessages;
 
-import org.myshelfie.controller.Configuration;
-import org.myshelfie.network.messages.gameMessages.GameEvent;
-import org.myshelfie.network.server.Server;
+import org.myshelfie.model.Bookshelf;
+import org.myshelfie.model.ItemType;
+import org.myshelfie.model.Tile;
+import org.myshelfie.model.WrongArgumentException;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.myshelfie.controller.Configuration;
 
-public class Bookshelf {
+public final class ImmutableBookshelf {
+    public final int NUMROWS;
+    public final int NUMCOLUMNS;
 
-    public static final int NUMROWS = Configuration.getBookshelfRows();
-    public static final int NUMCOLUMNS = Configuration.getBookshelfCols();
+    private final Tile[][] tiles;
 
-    private Tile[][] tiles;
-
-
-    /**
-     * Bookshelf constructor.
-     * It initializes an empty bookshelf.
-     */
-    public Bookshelf() {
+    public ImmutableBookshelf(Bookshelf b) {
+        this.NUMROWS = Bookshelf.NUMROWS;
+        this.NUMCOLUMNS = Bookshelf.NUMCOLUMNS;
         tiles = new Tile[NUMROWS][NUMCOLUMNS];
         for (int i = 0; i < NUMROWS; i++) {
             for (int j = 0; j < NUMCOLUMNS; j++) {
-                tiles[i][j] = null;
+                try {
+                    tiles[i][j] = b.getTile(i,j);
+                } catch (WrongArgumentException e) {
+                    e.printStackTrace();
+                }
             }
         }
-    }
-
-    /**
-     * Add a tile in a specific column of the bookshelf, if possible.
-     * @param t The tile
-     * @param c The index of the column (0 <= c < 5)
-     * @throws WrongArgumentException if the column is already full
-     */
-    public void insertTile(Tile t, int c) throws WrongArgumentException {
-        if (c < 0 || c >= NUMCOLUMNS)
-            throw new WrongArgumentException("Column selected is unreachable (out of bound)");
-        else if (tiles[0][c] != null)
-            throw new WrongArgumentException("This column is already full!");
-        else if (t == null)
-            throw new WrongArgumentException("Tile is null!");
-
-        int i = NUMROWS -1;
-        while (tiles[i][c] != null) {
-            i--;
-        }
-        tiles[i][c] = t;
-        // notify the server that the bookshelf has changed
-        Server.eventManager.notify(GameEvent.BOOKSHELF_UPDATE, null);
     }
 
     /**
@@ -62,18 +39,16 @@ public class Bookshelf {
     public Tile getTile(int r, int c) throws WrongArgumentException {
         if(r < 0 || r >= NUMROWS || c < 0 || c >= NUMCOLUMNS)
             throw new WrongArgumentException("Tile selected is unreachable (out of bound)");
-
         return tiles[r][c];
     }
+
 
     /**
      * Method that returns the height of a certain column of the bookshelf intended as the number of non-null tiles in it.
      * @param c Column of interest
      * @return The height of the column c inside this Bookshelf
      */
-    public int getHeight(int c) throws WrongArgumentException {
-        if (c < 0 || c >= NUMCOLUMNS)
-            throw new WrongArgumentException("Column selected is unreachable (out of bound)");
+    public int getHeight(int c){
         int r = 0;
         while (r < Bookshelf.NUMROWS && tiles[r][c] == null) {
             r++;
@@ -138,12 +113,5 @@ public class Bookshelf {
         return size;
     }
 
-    public boolean isFull() {
-        for(int i = 0; i < NUMROWS; i++) {
-            for(int j = 0; j < NUMCOLUMNS; j++) {
-                if(tiles[i][j] == null) return false;
-            }
-        }
-        return true;
-    }
+
 }

@@ -10,6 +10,11 @@ public class Tile {
         this.itemId = 1;
     }
 
+    public Tile(Tile t) {
+        this.itemType = t.getItemType();
+        this.itemId = t.getItemId();
+    }
+
     public Tile(ItemType itemType, int itemId) {
         this.itemType = itemType;
         this.itemId = itemId;
