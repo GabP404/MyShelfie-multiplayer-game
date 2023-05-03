@@ -47,7 +47,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
         super();
         this.game = game;
         this.clients = new ArrayList<>();
-        this.controller = new GameController(this.game);
+        this.controller = new GameController();
     }
 
     /**

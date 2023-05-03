@@ -1,12 +1,14 @@
 package org.myshelfie.controller;
 
 import org.myshelfie.model.*;
-import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.commandMessages.UserInputEvent;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class GameController {
@@ -75,7 +77,7 @@ public class GameController {
             return true;
         }
         if(numPlayersOnline == 1){
-            //start timer instead of end game
+            //TODO start timer instead of end game
             this.game.setModelState(ModelState.END_GAME);
             try {
                 this.game.setWinner(this.game.getPlayers().stream().filter(x -> x.isOnline()).collect(Collectors.toList()).get(0));
