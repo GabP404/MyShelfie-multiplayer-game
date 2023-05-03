@@ -11,22 +11,20 @@ import java.util.stream.Collectors;
 
 public class GameController {
     private Game game;
-    private List<Client> clients;
+    private List<String> nicknames;
 
     private int numPlayerGame;
 
-    private int rulesGame;
+    private int numGoalCards;
+    public GameController() {
+        this.nicknames = new ArrayList<>();
+    }
 
-    public GameController() {}
-
-    public GameController(Game game) {this.game = game;}
-
-    public void createGame(List<String> nicknames, int numCommonGoalCard) throws IOException, URISyntaxException {
-        int numPlayer = nicknames.size();
+    private void setupGame() throws IOException, URISyntaxException {
         CommonGoalDeck commonGoalDeck = CommonGoalDeck.getInstance();
         PersonalGoalDeck personalGoalDeck = PersonalGoalDeck.getInstance();
-        List<PersonalGoalCard> personalGoalCardsGame = personalGoalDeck.draw(numPlayer);
-        List<CommonGoalCard> commonGoalCards = commonGoalDeck.drawCommonGoalCard(numCommonGoalCard);
+        List<PersonalGoalCard> personalGoalCardsGame = personalGoalDeck.draw(numPlayerGame);
+        List<CommonGoalCard> commonGoalCards = commonGoalDeck.drawCommonGoalCard(numGoalCards);
         List<Player> players = new ArrayList<>();
         for (String nickname :
                 nicknames) {
@@ -34,10 +32,16 @@ public class GameController {
         }
         HashMap<CommonGoalCard,List<ScoringToken>> commonGoal = new HashMap<>();
         for (CommonGoalCard x : commonGoalCards) {
-            commonGoal.put(x, (List<ScoringToken>) createTokensCommonGoalCard(x.getId(),numPlayer));
+            commonGoal.put(x, (List<ScoringToken>) createTokensCommonGoalCard(x.getId(),numPlayerGame));
         }
         TileBag tileBag = new TileBag();
-        this.game = new Game(players, new Board(numPlayer),commonGoal,tileBag,ModelState.CREATED_GAME);
+        this.game = new Game(players, new Board(numPlayerGame),commonGoal,tileBag,ModelState.WAITING_SELECTION_TILE);
+    }
+
+    public void createGame(int numPlayerGame, int numGoalCards, String nickname) {
+        this.numPlayerGame = numPlayerGame;
+        this.numGoalCards = numGoalCards;
+        addPlayer(nickname);
     }
 
     private LinkedList<ScoringToken> createTokensCommonGoalCard(String id, int numPlayer) {
@@ -64,12 +68,6 @@ public class GameController {
         return tokens;
     }
 
-    public GameController(Game game, List<Client> clients) {
-        this.game = game;
-        this.clients = clients;
-    }
-
-
     private boolean checkEndGame() {
         int numPlayersOnline = (int) this.game.getPlayers().stream().filter(x -> x.isOnline()).count();
         if(numPlayersOnline == 0){
@@ -77,6 +75,7 @@ public class GameController {
             return true;
         }
         if(numPlayersOnline == 1){
+            //start timer instead of end game
             this.game.setModelState(ModelState.END_GAME);
             try {
                 this.game.setWinner(this.game.getPlayers().stream().filter(x -> x.isOnline()).collect(Collectors.toList()).get(0));
@@ -103,10 +102,6 @@ public class GameController {
         return false;
     }
 
-    public void getConnectionMessage() {
-        //setting player offline
-    }
-
     public void setOfflinePlayer(String nickname) {
         this.game.getPlayers().stream().filter(x -> x.getNickname().equals(nickname)).collect(Collectors.toList()).get(0).setOnline(false);
     }
@@ -131,7 +126,6 @@ public class GameController {
 
     private void checkState(UserInputEvent t) throws InvalidCommand{
         ModelState currentGameState = game.getModelState();
-        if(currentGameState == ModelState.CREATED_GAME) throw new InvalidCommand("game is not started");
         if(currentGameState == ModelState.WAITING_SELECTION_TILE && t != UserInputEvent.SELECTED_TILES) throw new InvalidCommand("waiting for Tile Selection ");
         if(currentGameState == ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN && t != UserInputEvent.SELECTED_BOOKSHELF_COLUMN) throw new InvalidCommand("waiting for Column Selection ");
         if(currentGameState == ModelState.END_GAME) throw new InvalidCommand("game ended");
@@ -140,14 +134,10 @@ public class GameController {
         if(currentGameState == ModelState.WAITING_1_SELECTION_TILE_FROM_HAND && t != UserInputEvent.SELECTED_HAND_TILE) throw new InvalidCommand("waiting for Tile Selection Hand ");
     }
 
-
     private void nextState() {
         ModelState currentGameState = game.getModelState();
         ModelState nextState = null;
         switch (currentGameState) {
-            case CREATED_GAME:
-                nextState = ModelState.WAITING_SELECTION_TILE;
-                break;
             case WAITING_SELECTION_TILE:
                 nextState = ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN;
                 break;
@@ -196,4 +186,32 @@ public class GameController {
         game.setModelState(nextState);
     }
 
+    public void addPlayer(String nickname) {
+        if (nicknames.contains(nickname)) return;
+        this.nicknames.add(nickname);
+        if(nicknames.size() == numPlayerGame) {
+            try {
+                setupGame();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public void removePlayer(String nickname) {
+        if(this.game == null)
+            this.nicknames.remove(nickname);
+    }
+
+    public void removeAllPlayer() {
+        this.nicknames = new ArrayList<>();
+    }
+
+    public void deleteGame() {
+        this.game = null;
+        this.numPlayerGame = 0;
+        this.numGoalCards = 0;
+    }
 }
