@@ -22,13 +22,13 @@ public class GameController {
 
     private int numGoalCards;
 
-
     public GameController(UUID uuid, int numPlayerGame, int numGoalCards) {
         this.gameUuid = uuid;
         this.nicknames = new ArrayList<>();
         this.numPlayerGame = numPlayerGame;
         this.numGoalCards = numGoalCards;
     }
+
 
     private void setupGame() throws IOException, URISyntaxException {
         CommonGoalDeck commonGoalDeck = CommonGoalDeck.getInstance();
@@ -78,6 +78,7 @@ public class GameController {
         return tokens;
     }
 
+
     private boolean checkEndGame() {
         int numPlayersOnline = (int) this.game.getPlayers().stream().filter(x -> x.isOnline()).count();
         if(numPlayersOnline == 0){
@@ -120,8 +121,6 @@ public class GameController {
         this.game.getPlayers().stream().filter(x -> x.getNickname().equals(nickname)).collect(Collectors.toList()).get(0).setOnline(true);
     }
 
-
-    //change firm of the method based
     public void executeCommand(CommandMessage command, UserInputEvent t) {
         Command c = null;
         try {
@@ -238,6 +237,10 @@ public class GameController {
         return game;
     }
 
+    public UUID getGameUuid() {
+        return gameUuid;
+    }
+
     public List<String> getNicknames() {
         return nicknames;
     }
@@ -247,11 +250,13 @@ public class GameController {
         return numGoalCards;
     }
 
-    public UUID getGameUuid() {
-        return gameUuid;
-    }
 
     public int getNumPlayerGame() {
         return numPlayerGame;
+    }
+
+    public boolean isGameCreated() {
+        if (game == null) return false;
+        return true;
     }
 }

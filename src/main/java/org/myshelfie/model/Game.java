@@ -148,5 +148,7 @@ public class Game {
         this.winner = winner;
     }
 
-
+    public UUID getUuid() {
+        return uuid;
+    }
 }
