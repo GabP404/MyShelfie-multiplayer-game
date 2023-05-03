@@ -18,10 +18,10 @@ public class UserInputListener implements Listener<UserInputEvent> {
      * Creates the appropriate message, wraps it and sends it to the server.
      *
      * @param ev  The event that was fired. NOTE: This must be an element of an enumeration!
-     * @param arg Message to be sent to the server
+     * @param args UNUSED
      */
     @Override
-    public void update(UserInputEvent ev) {
+    public void update(UserInputEvent ev, Object... args) {
         // TODO: define how to precisely retrieve the data from the cli
         CommandMessage m = switch (ev) {
             //case SELECTED_TILES -> new PickedTilesCommandMessage(cli.getSelectedTiles());

@@ -26,19 +26,30 @@ public class GameListener implements Listener<GameEvent> {
         this.client = client;
         this.listenedGame = listenedGame;
     }
+
     /**
      * Send to the client the (immutable) game after a change.
      *
      * @param ev  The event that has been emitted
      */
     @Override
-    public void update(GameEvent ev) {
+    public void update(GameEvent ev, Object... args) {
+        //Create the message to be sent
+        Object message = null;
+        if (ev == GameEvent.ERROR) {
+            message = (String) args[0];
+        } else {
+            message = new GameView(this.listenedGame);
+        }
+
+        //Send the message to the client
         if (this.listenedGame == null)
             return; //The game hasn't been set yet
-        if (client.isRMI())
-            client.update(new GameView(this.listenedGame), ev);
+        if (client.isRMI()) {
+            client.update(message, ev);
+        }
         else {
-            EventWrapper ew = new EventWrapper(new GameView(this.listenedGame), ev);
+            EventWrapper ew = new EventWrapper(message, ev);
             Socket clientSocket = client.getClientSocket();
             server.sendTo(clientSocket, ew);
         }
