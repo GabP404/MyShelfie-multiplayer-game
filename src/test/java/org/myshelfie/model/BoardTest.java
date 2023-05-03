@@ -16,7 +16,11 @@ public class BoardTest {
     public void testRefillBoard() {
         TileBag bag = new TileBag();
         Board board = new Board(4);
-        board.refillBoard(4, bag);
+        try {
+            board.refillBoard(4, bag);
+        } catch (WrongArgumentException e) {
+            fail("Exception thrown");
+        }
         assertNull(board.getTile(0, 0));
         assertNotNull(board.getTile(0, 3));
         assertNotNull(board.getTile(0, 4));
@@ -40,7 +44,11 @@ public class BoardTest {
         board.setTile(4,5,null);
         board.setTile(5,4,null);
         board.setTile(5,5,null);
-        board.refillBoard(4, bag);
+        try {
+            board.refillBoard(4, bag);
+        } catch (WrongArgumentException e) {
+            fail("Exception thrown");
+        }
         assertFalse(board.isRefillNeeded());
     }
 

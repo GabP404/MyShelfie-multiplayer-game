@@ -1,27 +1,22 @@
 package org.myshelfie.model;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
+
 import org.junit.jupiter.api.Test;
 import org.myshelfie.model.util.Pair;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 
 class PlayerTest {
 
     @Test
-    public void testConstructorAndGetterPlayer() throws IOException, URISyntaxException {
-        PersonalGoalDeck pgc = PersonalGoalDeck.getInstance();
-        List<PersonalGoalCard> pgcGame = pgc.draw(1);
-        PersonalGoalCard pg = pgcGame.get(0);
+    public void testConstructorAndGetterPlayer() {
+        Pair<Pair<Integer,Integer>,Tile> p2 = new Pair<>(new Pair<>(0,0),new Tile(ItemType.BOOK));
+        List<Pair<Pair<Integer,Integer>,Tile>> lp = new ArrayList<>();
+        lp.add(p2);
+        PersonalGoalCard pg = new PersonalGoalCard(lp);
         String nick = "User101";
         Player p = new Player(nick,pg);
         assertNotNull(p);
@@ -33,12 +28,12 @@ class PlayerTest {
         assertNotNull(p.getPersonalGoal());
         p.addScoringToken(new ScoringToken(8,"1"));
         p.addScoringToken(new ScoringToken(4,"2"));
-        assertTrue(p.getPointsScoringTokens() == 12);
+        assertEquals(12, p.getPointsScoringTokens());
     }
 
 
     @Test
-    public void testAddTilesPickedAndRemovedTilesPicked() throws TileInsertionException {
+    public void testAddTilesPickedAndRemovedTilesPicked()  {
         Pair<Pair<Integer,Integer>,Tile> p2 = new Pair<>(new Pair<>(0,0),new Tile(ItemType.BOOK));
         List<Pair<Pair<Integer,Integer>,Tile>> lp = new ArrayList<>();
         lp.add(p2);
@@ -48,9 +43,18 @@ class PlayerTest {
         assertTrue(p.getTilesPicked().isEmpty());
         Tile t1 = new Tile(ItemType.BOOK);
 
-        p.addTilesPicked(t1);
+        try {
+            p.addTilesPicked(t1);
+        } catch (WrongArgumentException e) {
+            fail("Exception thrown" + e.getMessage());
+        }
         assertTrue(p.getTilesPicked().contains(t1));
-        p.removeTilesPicked(t1);
+
+        try {
+            p.removeTilesPicked(t1);
+        } catch (WrongArgumentException e) {
+            fail("Exception thrown" + e.getMessage());
+        }
         assertFalse(p.getTilesPicked().contains(t1));
 /*
         p.removeTilesPicked(t);
@@ -76,11 +80,11 @@ class PlayerTest {
         t.add(t1);
         t.add(t2);
         p.setTilesPicked(t);
-        assertTrue(p.getTilesPicked().get(0).equals(t1));
-        assertTrue(p.getTilesPicked().get(1).equals(t2));
+        assertEquals(p.getTilesPicked().get(0), t1);
+        assertEquals(p.getTilesPicked().get(1), t2);
         t.remove(t1);
-        assertFalse(p.getTilesPicked().get(0).equals(t1));
-        assertTrue(p.getTilesPicked().get(0).equals(t2));
+        assertNotEquals(p.getTilesPicked().get(0), t1);
+        assertEquals(p.getTilesPicked().get(0), t2);
     }
 
 

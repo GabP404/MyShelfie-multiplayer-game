@@ -1,4 +1,7 @@
 package org.myshelfie.model;
+import org.myshelfie.network.server.Server;
+import org.myshelfie.network.messages.gameMessages.GameEvent;
+
 import java.util.*;
 
 public class Game {
@@ -9,12 +12,22 @@ public class Game {
     private TileBag tileBag;
     private boolean playing;
 
-    public Game(List<Player> players, Board board, HashMap<CommonGoalCard,List<ScoringToken>> commonGoals, TileBag tileBag) {
+    private ModelState modelState;
+
+    private Player winner;
+
+    public Game(List<Player> players, Board board, HashMap<CommonGoalCard,List<ScoringToken>> commonGoals, TileBag tileBag, ModelState modelState) {
         this.players = players;
         this.board = board;
         this.commonGoals = commonGoals;
         this.tileBag = tileBag;
         this.currPlayer = players.get(0);
+        this.modelState = modelState;
+        this.winner = null;
+        suspendGame();
+    }
+
+    public Game() {
         suspendGame();
     }
 
@@ -54,19 +67,48 @@ public class Game {
         return players.get(pos + 1);
     }
 
-    public ScoringToken popTopScoringToken(CommonGoalCard c) {
+    public ScoringToken popTopScoringToken(CommonGoalCard c) throws WrongArgumentException {
         LinkedList<ScoringToken> x = (LinkedList<ScoringToken>) commonGoals.get(c);
-        return x.removeFirst();
+        if (x == null)
+            throw new WrongArgumentException("CommonGoalCard not found");
+        ScoringToken scoringToken = x.removeFirst();
+        // notify the server that the token stack has changed
+        Server.eventManager.notify(GameEvent.TOKEN_UPDATE, null);
+        return scoringToken;
     }
-    public ScoringToken getTopScoringToken(CommonGoalCard c) {
+    public ScoringToken getTopScoringToken(CommonGoalCard c) throws WrongArgumentException{
         LinkedList<ScoringToken> x = (LinkedList<ScoringToken>) commonGoals.get(c);
+        if (x == null)
+            throw new WrongArgumentException("CommonGoalCard not found");
         return x.getFirst();
     }
     public boolean isPlaying() {
         return playing;
     }
-    public void setCurrPlayer(Player currPlayer) {
+
+    public void setCurrPlayer(Player currPlayer) throws WrongArgumentException{
+        if (currPlayer == null || !players.contains(currPlayer))
+            throw new WrongArgumentException("Player not found");
         this.currPlayer = currPlayer;
     }
+
+    public ModelState getModelState() {
+        return modelState;
+    }
+
+    public void setModelState(ModelState modelState) {
+        this.modelState = modelState;
+    }
+
+    public Player getWinner() {
+        return winner;
+    }
+
+    public void setWinner(Player winner) throws WrongArgumentException {
+        if (currPlayer == null || !players.contains(currPlayer))
+            throw new WrongArgumentException("Player not found");
+        this.winner = winner;
+    }
+
 
 }

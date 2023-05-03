@@ -34,7 +34,7 @@ public class Configuration {
 
     /**
      * Initialize the deck of personal goal cards from the specification file.
-     * The file contains a list of constratint for each card.
+     * The file contains a list of constraint for each card.
      * The file has this format:
      * "personal_goal_cards": {
      *  "cards": [

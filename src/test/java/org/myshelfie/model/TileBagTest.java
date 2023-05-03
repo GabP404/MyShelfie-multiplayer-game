@@ -8,6 +8,8 @@ package org.myshelfie.model;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 public class TileBagTest {
 
     @Test
@@ -19,7 +21,12 @@ public class TileBagTest {
     @Test
     public void testDrawItemTile() {
         TileBag tileBag = new TileBag();
-        Tile drawnTile = tileBag.drawItemTile();
+        Tile drawnTile = null;
+        try {
+            drawnTile = tileBag.drawItemTile();
+        } catch (WrongArgumentException e) {
+            fail("Exception thrown: " + e.getMessage());
+        }
         Assertions.assertNotNull(drawnTile);
     }
 
@@ -30,7 +37,11 @@ public class TileBagTest {
         Assertions.assertEquals(expectedSize, tileBag.getSize());
 
         for(int i = 0; i < expectedSize; ++i) {
-            tileBag.drawItemTile();
+            try {
+                tileBag.drawItemTile();
+            } catch (WrongArgumentException e) {
+                fail("Exception thrown: " + e.getMessage());
+            }
         }
 
         Assertions.assertEquals(0, tileBag.getSize());

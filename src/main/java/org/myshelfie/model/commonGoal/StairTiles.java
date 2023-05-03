@@ -1,8 +1,8 @@
 package org.myshelfie.model.commonGoal;
 
-import org.myshelfie.model.*;
-
-import java.util.ArrayDeque;
+import org.myshelfie.model.Bookshelf;
+import org.myshelfie.model.CommonGoalCard;
+import org.myshelfie.model.WrongArgumentException;
 
 /**
  * Five columns of increasing or decreasing height. Starting from the first column on
@@ -16,7 +16,7 @@ public class StairTiles extends CommonGoalCard {
     }
 
     @Override
-    public Boolean checkGoalSatisfied(Bookshelf bookshelf) {
+    public Boolean checkGoalSatisfied(Bookshelf bookshelf) throws WrongArgumentException{
         //checking the stair
 
         int pre;    //height of the precedent column in the stair

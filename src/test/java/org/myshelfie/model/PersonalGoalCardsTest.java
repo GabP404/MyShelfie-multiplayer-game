@@ -24,9 +24,9 @@ public class PersonalGoalCardsTest {
         }
     }
 
-    @DisplayName("Checking if PersonalGoal is satified or not")
+    @DisplayName("Checking if PersonalGoal is satisfied or not")
     @Test
-    protected void checkGoal() throws IOException, URISyntaxException {
+    protected void checkGoal() throws IOException, URISyntaxException, WrongArgumentException {
         Bookshelf b = new Bookshelf();
         PersonalGoalDeck deck = PersonalGoalDeck.getInstance();
         PersonalGoalCard card = deck.draw(1).get(0);

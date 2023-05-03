@@ -1,8 +1,9 @@
 package org.myshelfie.model.commonGoal;
 
-import org.myshelfie.model.*;
-
-import java.util.ArrayDeque;
+import org.myshelfie.model.Bookshelf;
+import org.myshelfie.model.CommonGoalCard;
+import org.myshelfie.model.Tile;
+import org.myshelfie.model.WrongArgumentException;
 
 /**
  * Four tiles of the same type in the four corners of the bookshelf.
@@ -14,7 +15,7 @@ public class EqualCorners extends CommonGoalCard {
     }
 
     @Override
-    public Boolean checkGoalSatisfied(Bookshelf bookshelf) {
+    public Boolean checkGoalSatisfied(Bookshelf bookshelf) throws WrongArgumentException{
         //ItemType typesupp;
         Tile tilesupp;
         //check top left corner != null

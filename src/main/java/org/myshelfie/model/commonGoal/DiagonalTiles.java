@@ -1,8 +1,9 @@
 package org.myshelfie.model.commonGoal;
 
-import org.myshelfie.model.*;
-
-import java.util.ArrayDeque;
+import org.myshelfie.model.Bookshelf;
+import org.myshelfie.model.CommonGoalCard;
+import org.myshelfie.model.Tile;
+import org.myshelfie.model.WrongArgumentException;
 
 /**
  * Five tiles of the same type forming a diagonal.
@@ -15,7 +16,7 @@ public class DiagonalTiles extends CommonGoalCard {
     }
 
     @Override
-    public Boolean checkGoalSatisfied(Bookshelf bookshelf) {
+    public Boolean checkGoalSatisfied(Bookshelf bookshelf) throws WrongArgumentException{
         /*
             checking descending diagonals
          */
@@ -37,7 +38,7 @@ public class DiagonalTiles extends CommonGoalCard {
         return Boolean.FALSE;
     }
 
-    private Boolean checkDiagonal(Bookshelf b, int r, int c, int inclination) {
+    private Boolean checkDiagonal(Bookshelf b, int r, int c, int inclination) throws WrongArgumentException{
 
         Tile tileSupp;
         Tile tileCurrent;

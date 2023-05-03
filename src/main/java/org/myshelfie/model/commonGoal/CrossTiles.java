@@ -1,8 +1,9 @@
 package org.myshelfie.model.commonGoal;
 
-import org.myshelfie.model.*;
-
-import java.util.ArrayDeque;
+import org.myshelfie.model.Bookshelf;
+import org.myshelfie.model.CommonGoalCard;
+import org.myshelfie.model.Tile;
+import org.myshelfie.model.WrongArgumentException;
 
 /**
  * Five tiles of the same type forming an X.
@@ -15,7 +16,7 @@ public class CrossTiles extends CommonGoalCard {
     }
 
     @Override
-    public Boolean checkGoalSatisfied(Bookshelf bookshelf) {
+    public Boolean checkGoalSatisfied(Bookshelf bookshelf) throws WrongArgumentException {
 
         Tile tileSupp;
         //ItemType typesupp;

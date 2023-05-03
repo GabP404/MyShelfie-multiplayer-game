@@ -1,8 +1,5 @@
 package org.myshelfie.model;
 
-import java.util.ArrayDeque;
-
-
 public abstract class CommonGoalCard {
     private String id;
 
@@ -10,7 +7,7 @@ public abstract class CommonGoalCard {
         this.id = id;
     }
 
-    public abstract Boolean checkGoalSatisfied(Bookshelf bookshelf);
+    public abstract Boolean checkGoalSatisfied(Bookshelf bookshelf) throws WrongArgumentException;
 
     public String getId() {
         return id;

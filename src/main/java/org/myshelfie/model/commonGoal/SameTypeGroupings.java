@@ -1,8 +1,9 @@
 package org.myshelfie.model.commonGoal;
 
-import org.myshelfie.model.*;
-
-import java.util.ArrayDeque;
+import org.myshelfie.model.Bookshelf;
+import org.myshelfie.model.CommonGoalCard;
+import org.myshelfie.model.Tile;
+import org.myshelfie.model.WrongArgumentException;
 
 /**
  *  - card 1: Six groups each containing at least 2 tiles of the same type. The tiles of one group can be different from those of another group.
@@ -31,7 +32,7 @@ public class SameTypeGroupings extends CommonGoalCard {
      * @return Boolean TRUE whether the constraint is satisfied, FALSE if not
      */
     @Override
-    public Boolean checkGoalSatisfied(Bookshelf bookshelf) {
+    public Boolean checkGoalSatisfied(Bookshelf bookshelf) throws WrongArgumentException {
         boolean[][] visited = new boolean[Bookshelf.NUMROWS][Bookshelf.NUMCOLUMNS];
         int numGroupsFound = 0;
         for (int i = 0; i < Bookshelf.NUMROWS; i++) {

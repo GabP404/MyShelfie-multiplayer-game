@@ -1,5 +1,8 @@
 package org.myshelfie.model;
 
+import org.myshelfie.network.server.Server;
+import org.myshelfie.network.messages.gameMessages.GameEvent;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,8 +12,9 @@ public class Player {
     private Boolean hasFinalToken;
     private PersonalGoalCard personalGoal;
     private Bookshelf bookshelf;
-
     private List<Tile> tilesPicked;
+    private int selectedColumn;
+    private boolean online;
 
     private static int DIM_TILESPICKED = 3;
 
@@ -20,12 +24,14 @@ public class Player {
      * @param persGoal  The player's personal goal card
      */
     public Player(String nick, PersonalGoalCard persGoal) {
-        this.nickname = new String(nick);
-        this.commonGoalTokens = new ArrayList<ScoringToken>();
+        this.nickname = nick;
+        this.commonGoalTokens = new ArrayList<>();
         this.hasFinalToken = false;
         this.personalGoal = persGoal;
         this.bookshelf = new Bookshelf();
         this.tilesPicked = new ArrayList<Tile>();
+        this.selectedColumn = -1;
+        this.online = true;
     }
 
     public String getNickname() {
@@ -38,6 +44,8 @@ public class Player {
 
     public void setHasFinalToken(Boolean hasFinalToken) {
         this.hasFinalToken = hasFinalToken;
+        // notify the server that the final token has changed
+        Server.eventManager.notify(GameEvent.TOKEN_UPDATE,  null);
     }
 
     public PersonalGoalCard getPersonalGoal() {
@@ -74,8 +82,13 @@ public class Player {
         this.tilesPicked = tilesPicked;
     }
 
-    public void addTilesPicked(Tile t) throws TileInsertionException{
-        if(this.tilesPicked.size() == DIM_TILESPICKED) throw new TileInsertionException("maximum number of tiles picked reached");
+    public Tile getTilePicked(int index) throws WrongArgumentException {
+        if(index < 0 || index > this.tilesPicked.size()) throw new WrongArgumentException("Tile's index out of bound");
+        return this.tilesPicked.get(index);
+    }
+
+    public void addTilesPicked(Tile t) throws WrongArgumentException{
+        if(this.tilesPicked.size() == DIM_TILESPICKED) throw new WrongArgumentException("Maximum number of tiles picked reached");
         this.tilesPicked.add(t);
     }
 
@@ -91,14 +104,40 @@ public class Player {
         return x;
     }
 
-    public void removeTilesPicked(Tile t){
+    public void removeTilesPicked(Tile t) throws WrongArgumentException{
+        if (!this.tilesPicked.contains(t)) throw new WrongArgumentException("Tile not found");
         this.tilesPicked.remove(t);
     }
 
-    public void removeTilesPicked(List<Tile> tilesRemoved) {
+    public void removeTilesPicked(List<Tile> tilesRemoved) throws WrongArgumentException{
+        for(Tile t: tilesRemoved) {
+            if(!this.tilesPicked.contains(t)) throw new WrongArgumentException("Tile not found");
+        }
         for(Tile t: tilesRemoved) {
             this.tilesPicked.remove(t);
         }
     }
 
+    public int getSelectedColumn() {
+        return selectedColumn;
+    }
+
+    public void setSelectedColumn(int selectedColumn) throws WrongArgumentException {
+        if(selectedColumn < 0 || selectedColumn >= Bookshelf.NUMCOLUMNS) {
+            throw new WrongArgumentException("Column Out of range");
+        }
+        this.selectedColumn = selectedColumn;
+    }
+
+    public boolean isOnline() {
+        return online;
+    }
+
+    public void setOnline(boolean online) {
+        this.online = online;
+    }
+
+    public int getTotalPoints() throws WrongArgumentException{
+        return getPointsScoringTokens() + this.personalGoal.getPoints(this.bookshelf);
+    }
 }

@@ -1,5 +1,7 @@
 package org.myshelfie.model;
 
+import org.myshelfie.network.server.Server;
+import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.controller.Configuration;
 
 public class Board {
@@ -53,7 +55,7 @@ public class Board {
      * @param numPlayers The number of players
      * @param bag The bag of Tiles
      */
-    public void refillBoard(int numPlayers, TileBag bag) {
+    public void refillBoard(int numPlayers, TileBag bag) throws WrongArgumentException{
         for (int i = 0; i < DIMBOARD; i++) {
             for (int j = 0; j < DIMBOARD; j++) {
                 if (numPlayers >= mask[i][j] && boardTiles[i][j] == null) {
@@ -61,6 +63,8 @@ public class Board {
                 }
             }
         }
+        // notify the server that the board has changed
+        Server.eventManager.notify(GameEvent.BOARD_UPDATE, null);
     }
 
     /**
@@ -79,7 +83,7 @@ public class Board {
         return true;
     }
 
-    private boolean hasOneOrMoreFreeBorders(int row, int col) {
+    public boolean hasOneOrMoreFreeBorders(int row, int col) {
         return isFreeTileBox(row - 1, col) || isFreeTileBox(row + 1, col) ||
                 isFreeTileBox(row, col - 1) || isFreeTileBox(row, col + 1);
     }
@@ -93,6 +97,8 @@ public class Board {
 
     public void setTile(int x, int y, Tile t) {
         this.boardTiles[x][y] = t;
+        // notify the server that the board has changed
+        Server.eventManager.notify(GameEvent.BOARD_UPDATE, null);
     }
 
     public Tile getTile(int x, int y) {
