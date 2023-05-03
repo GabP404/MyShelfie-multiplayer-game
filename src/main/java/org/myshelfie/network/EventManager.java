@@ -46,13 +46,13 @@ public class EventManager {
      * @param event    The event that has been emitted
      * @param argument The argument to forward to the listeners
      */
-    public <E extends Enum<E>> void notify(E event, Object argument) {
+    public <E extends Enum<E>> void notify(E event) {
         List<Listener<?>> eventListeners = listeners.get(event.getClass());
         if (eventListeners != null) {
             for (Listener<?> listener : eventListeners) {
                 // TODO: try to avoid this cast if possible
                 Listener<E> typedListener = (Listener<E>) listener;
-                typedListener.update(event, argument);
+                typedListener.update(event);
             }
         }
     }

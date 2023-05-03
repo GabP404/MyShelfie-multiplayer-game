@@ -64,7 +64,7 @@ public class Board {
             }
         }
         // notify the server that the board has changed
-        Server.eventManager.notify(GameEvent.BOARD_UPDATE, null);
+        Server.eventManager.notify(GameEvent.BOARD_UPDATE);
     }
 
     /**
@@ -98,7 +98,7 @@ public class Board {
     public void setTile(int x, int y, Tile t) {
         this.boardTiles[x][y] = t;
         // notify the server that the board has changed
-        Server.eventManager.notify(GameEvent.BOARD_UPDATE, null);
+        Server.eventManager.notify(GameEvent.BOARD_UPDATE);
     }
 
     public Tile getTile(int x, int y) {

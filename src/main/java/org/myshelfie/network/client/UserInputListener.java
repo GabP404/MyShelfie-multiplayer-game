@@ -1,9 +1,10 @@
 package org.myshelfie.network.client;
 
 import org.myshelfie.network.Listener;
-import org.myshelfie.network.messages.commandMessages.*;
-import org.myshelfie.network.server.Server;
-import org.myshelfie.view.CommandLineInterface;
+import org.myshelfie.network.messages.commandMessages.CommandMessage;
+import org.myshelfie.network.messages.commandMessages.CommandMessageWrapper;
+import org.myshelfie.network.messages.commandMessages.SelectedColumnMessage;
+import org.myshelfie.network.messages.commandMessages.UserInputEvent;
 
 public class UserInputListener implements Listener<UserInputEvent> {
     private final Client client;
@@ -20,7 +21,7 @@ public class UserInputListener implements Listener<UserInputEvent> {
      * @param arg Message to be sent to the server
      */
     @Override
-    public void update(UserInputEvent ev, Object arg) {
+    public void update(UserInputEvent ev) {
         // TODO: define how to precisely retrieve the data from the cli
         CommandMessage m = switch (ev) {
             //case SELECTED_TILES -> new PickedTilesCommandMessage(cli.getSelectedTiles());

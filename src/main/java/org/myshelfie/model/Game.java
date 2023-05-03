@@ -73,7 +73,7 @@ public class Game {
             throw new WrongArgumentException("CommonGoalCard not found");
         ScoringToken scoringToken = x.removeFirst();
         // notify the server that the token stack has changed
-        Server.eventManager.notify(GameEvent.TOKEN_UPDATE, null);
+        Server.eventManager.notify(GameEvent.TOKEN_UPDATE);
         return scoringToken;
     }
     public ScoringToken getTopScoringToken(CommonGoalCard c) throws WrongArgumentException{

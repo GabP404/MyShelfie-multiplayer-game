@@ -30,10 +30,11 @@ public class GameListener implements Listener<GameEvent> {
      * Send to the client the (immutable) game after a change.
      *
      * @param ev  The event that has been emitted
-     * @param arg In this case the argument is not used TODO: maybe it can be set as an optional parameter
      */
     @Override
-    public void update(GameEvent ev, Object arg) {
+    public void update(GameEvent ev) {
+        if (this.listenedGame == null)
+            return; //The game hasn't been set yet
         if (client.isRMI())
             client.update(new GameView(this.listenedGame), ev);
         else {
