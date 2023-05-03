@@ -1,5 +1,6 @@
 package org.myshelfie.controller;
 
+import org.myshelfie.model.Game;
 import org.myshelfie.model.PersonalGoalCard;
 import org.myshelfie.model.PersonalGoalDeck;
 
@@ -32,7 +33,7 @@ public class LobbyController {
         gameControllers.add(gameController);
     }
 
-    public void addPlayerToLobby(String nickname, UUID uuid) {
+    public void addPlayerToLobby(String nickname, UUID uuid) throws IOException, URISyntaxException {
         GameController g = (GameController) gameControllers.stream().filter(x -> x.getGameUuid().equals(uuid));
         // if (g == null) throws exception
         g.addPlayer(nickname);
@@ -45,6 +46,7 @@ public class LobbyController {
                 throw new RuntimeException(e);
             }
         }
+        checkPlayer(g);
     }
 
     //remove player lobby
@@ -53,11 +55,19 @@ public class LobbyController {
         gameControllers.remove(g);
     }
 
-    public void checkPlayer() {
-       //check gameController with 0 players inside
-        //deleteGame();
+    private void checkPlayer(GameController g) throws IOException, URISyntaxException {
+        if(g.getNicknames().size() == g.getNumPlayerGame()) {
+            g.createGame();
+        }
     }
 
-    public void removePlayerLobby() {}
+    public void removePlayerLobby(String nickname, UUID uuid) {
+        for (GameController g :
+                gameControllers) {
+            if(g.getGameUuid() == uuid && !g.isGameCreated()) {
+                g.getNicknames().remove(nickname);
+            }
+        }
+    }
 
 }
