@@ -5,6 +5,8 @@ import org.myshelfie.network.messages.gameMessages.GameEvent;
 import java.util.*;
 
 public class Game {
+
+    private UUID uuid;
     private Player currPlayer;
     private List<Player> players;
     private Board board;

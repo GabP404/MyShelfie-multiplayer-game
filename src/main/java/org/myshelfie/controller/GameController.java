@@ -12,14 +12,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class GameController {
+
+    private UUID gameUuid;
+
     private Game game;
     private List<String> nicknames;
 
     private int numPlayerGame;
 
     private int numGoalCards;
-    public GameController() {
+
+
+    public GameController(UUID uuid, int numPlayerGame, int numGoalCards) {
+        this.gameUuid = uuid;
         this.nicknames = new ArrayList<>();
+        this.numPlayerGame = numPlayerGame;
+        this.numGoalCards = numGoalCards;
     }
 
     private void setupGame() throws IOException, URISyntaxException {
@@ -234,11 +242,16 @@ public class GameController {
         return nicknames;
     }
 
-    public int getNumPlayerGame() {
-        return numPlayerGame;
-    }
 
     public int getNumGoalCards() {
         return numGoalCards;
+    }
+
+    public UUID getGameUuid() {
+        return gameUuid;
+    }
+
+    public int getNumPlayerGame() {
+        return numPlayerGame;
     }
 }
