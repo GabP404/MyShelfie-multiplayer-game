@@ -1,12 +1,12 @@
 package org.myshelfie.controller;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.myshelfie.model.*;
+import org.myshelfie.network.messages.commandMessages.PickedTilesCommandMessage;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class PickTilesCommand implements Command {
     private Board b;
@@ -23,24 +23,24 @@ public class PickTilesCommand implements Command {
     /**
      * Deserialize the command
      * @param b Board of the game
-     * @param serial Serialized version of the parameters
+     * @param currPlayer Current player
+     * @param command CommandMessage to deserialize
+     * @param currentModelState Current model state
      */
-    public PickTilesCommand(Board b, Player currPlayer, String serial, ModelState currentModelState) {
+    public PickTilesCommand(Board b, Player currPlayer, PickedTilesCommandMessage command, ModelState currentModelState) {
         this.b = b;
         this.currPlayer = currPlayer;
 
-        JSONObject jo = new JSONObject(serial);
-        nickname = jo.getString("nickname");
+        nickname = command.getNickname();
 
-        JSONArray ja = jo.getJSONArray("coordinates");
-        for (int i = 0; i < ja.length(); i++) {
-            JSONObject tilesCoordinate = ja.getJSONObject(i);
-            int row = tilesCoordinate.getInt("row");
-            int col = tilesCoordinate.getInt("col");
-            tiles.add(new LocatedTile(b.getTile(row, col).getItemType(), row, col));
-        }
+        this.tiles = command.getTiles().stream().map(
+                t -> new LocatedTile(
+                        b.getTile(t.getLeft(), t.getRight()).getItemType(),
+                        t.getLeft(),
+                        t.getRight()
+                )
+        ).collect(Collectors.toSet());
         this.currentModelState = currentModelState;
-
     }
 
     public boolean isCellSelectable(int row, int col) {
@@ -112,7 +112,7 @@ public class PickTilesCommand implements Command {
 
     public void execute() throws  WrongTurnException, InvalidCommand, WrongArgumentException {
         if(!currPlayer.getNickname().equals(nickname)) {
-            throw new WrongTurnException("Wrong player turn");
+            throw new WrongTurnException();
         }
         if(currentModelState == ModelState.WAITING_SELECTION_TILE) throw new InvalidCommand("Waiting for Tile Selection ");
 

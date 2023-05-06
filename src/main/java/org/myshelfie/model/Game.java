@@ -15,6 +15,7 @@ public class Game {
     private ModelState modelState;
 
     private Player winner;
+    private Map<String, Boolean> errorState;
 
     public Game(List<Player> players, Board board, HashMap<CommonGoalCard,List<ScoringToken>> commonGoals, TileBag tileBag, ModelState modelState) {
         this.players = players;
@@ -24,6 +25,8 @@ public class Game {
         this.currPlayer = players.get(0);
         this.modelState = modelState;
         this.winner = null;
+        this.errorState = new HashMap<>();
+        players.forEach( (player) -> errorState.put(player.getNickname(), false) );
         suspendGame();
     }
 
@@ -65,6 +68,34 @@ public class Game {
         int pos = players.indexOf(currPlayer);
         if( pos == players.size() - 1) return players.get(0);
         return players.get(pos + 1);
+    }
+
+    public Boolean getErrorState(String nickname) {
+        Boolean res = errorState.get(nickname);
+        if (res == null)
+            return false;
+        return res;
+    }
+
+    /**
+     * Set the error state for a player and notify the server adding the error message
+     * @param nickname The nickname of the player
+     * @param errorMessage The error message that will be incapsulated in the message
+     */
+    public void setErrorState(String nickname, String errorMessage) {
+        resetErrorState();
+        // if the nickname belongs to one of the players, set the error state to true
+        if (players.stream().anyMatch( (player) -> player.getNickname().equals(nickname) )) {
+            this.errorState.put(nickname, true);
+            Server.eventManager.notify(GameEvent.ERROR, errorMessage);
+        }
+    }
+
+    /**
+     * Reset the error state of all the players
+     */
+    public void resetErrorState() {
+        players.forEach( (player) -> errorState.put(player.getNickname(), false) );
     }
 
     public ScoringToken popTopScoringToken(CommonGoalCard c) throws WrongArgumentException {
