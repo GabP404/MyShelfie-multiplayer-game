@@ -52,6 +52,14 @@ public class BoardTest {
         assertFalse(board.isRefillNeeded());
     }
 
+   @Test
+    public void testRemoveTile() {
+        Board board = new Board(4);
+        board.setTile(4,4,new Tile(ItemType.BOOK));
+        Tile t = board.removeTile(4,4);
+        assert t != null;
+    }
+
     @Test
     public void testSetAndGetTile() {
         Board board = new Board();

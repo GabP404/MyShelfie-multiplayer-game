@@ -4,6 +4,7 @@ import org.myshelfie.model.*;
 import org.myshelfie.network.messages.commandMessages.PickedTilesCommandMessage;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,6 +31,7 @@ public class PickTilesCommand implements Command {
     public PickTilesCommand(Board b, Player currPlayer, PickedTilesCommandMessage command, ModelState currentModelState) {
         this.b = b;
         this.currPlayer = currPlayer;
+        tiles = new HashSet<>();
 
         nickname = command.getNickname();
 
@@ -114,7 +116,7 @@ public class PickTilesCommand implements Command {
         if(!currPlayer.getNickname().equals(nickname)) {
             throw new WrongTurnException();
         }
-        if(currentModelState == ModelState.WAITING_SELECTION_TILE) throw new InvalidCommand("Waiting for Tile Selection ");
+        if(currentModelState != ModelState.WAITING_SELECTION_TILE) throw new InvalidCommand("Waiting for Tile Selection ");
 
         if (!isTilesGroupSelectable(b, tiles))
             throw new WrongArgumentException("The chosen group of tiles is not selectable!");

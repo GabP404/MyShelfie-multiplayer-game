@@ -27,6 +27,11 @@ public class Game {
         this.winner = null;
         this.errorState = new HashMap<>();
         players.forEach( (player) -> errorState.put(player.getNickname(), false) );
+        try {
+            this.board.refillBoard(this.players.size(), tileBag);
+        } catch (WrongArgumentException e) {
+            throw new RuntimeException(e);
+        }
         suspendGame();
     }
 

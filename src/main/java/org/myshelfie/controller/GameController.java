@@ -225,4 +225,20 @@ public class GameController {
         this.numPlayerGame = 0;
         this.numGoalCards = 0;
     }
+
+    public Game getGame() {
+        return game;
+    }
+
+    public List<String> getNicknames() {
+        return nicknames;
+    }
+
+    public int getNumPlayerGame() {
+        return numPlayerGame;
+    }
+
+    public int getNumGoalCards() {
+        return numGoalCards;
+    }
 }
