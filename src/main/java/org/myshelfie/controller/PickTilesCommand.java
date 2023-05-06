@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import org.myshelfie.model.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -28,6 +29,7 @@ public class PickTilesCommand implements Command {
     public PickTilesCommand(Board b, Player currPlayer, String serial, ModelState currentModelState) {
         this.b = b;
         this.currPlayer = currPlayer;
+        tiles = new HashSet<>();
 
         JSONObject jo = new JSONObject(serial);
         nickname = jo.getString("nickname");
@@ -114,7 +116,7 @@ public class PickTilesCommand implements Command {
         if(!currPlayer.getNickname().equals(nickname)) {
             throw new WrongTurnException("Wrong player turn");
         }
-        if(currentModelState == ModelState.WAITING_SELECTION_TILE) throw new InvalidCommand("Waiting for Tile Selection ");
+        if(currentModelState != ModelState.WAITING_SELECTION_TILE) throw new InvalidCommand("Waiting for Tile Selection ");
 
         if (!isTilesGroupSelectable(b, tiles))
             throw new WrongArgumentException("The chosen group of tiles is not selectable!");

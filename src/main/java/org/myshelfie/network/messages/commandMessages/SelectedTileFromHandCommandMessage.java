@@ -27,7 +27,7 @@ public class SelectedTileFromHandCommandMessage extends CommandMessage {
         JSONObject jo = new JSONObject();
         jo.put("nickname", nickname);
         jo.put("index", index);
-        jo.put("tileType", tileType);
+        jo.put("itemType", tileType);
         return jo.toString();
     }
 }

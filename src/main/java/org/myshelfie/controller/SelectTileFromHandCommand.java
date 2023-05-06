@@ -16,7 +16,7 @@ public class SelectTileFromHandCommand implements Command {
         JSONObject jo = new JSONObject(serial);
         nickname = jo.getString("nickname");
         index = jo.getInt("index");
-        itemType = (ItemType) jo.get("itemType");
+        itemType = ItemType.valueOf(jo.getString("itemType"));
         this.currentModelState = currentModelState;
 
     }

@@ -27,7 +27,7 @@ public class SelectColumnCommand implements Command {
         if(!currPlayer.getNickname().equals(nickname)) {
             throw new WrongTurnException("Wrong player turn");
         }
-        if(currentModelState == ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN) throw new InvalidCommand("Waiting for Column Selection ");
+        if(currentModelState != ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN) throw new InvalidCommand("Waiting for Column Selection ");
         currPlayer.setSelectedColumn(selectedColumn);
     }
 }
