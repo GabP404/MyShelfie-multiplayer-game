@@ -33,7 +33,7 @@ public class GameTest {
         }
         TileBag tb = new TileBag();
 
-        this.g1 = new Game(players,new Board(numPlayer),commonGoal,tb,ModelState.CREATED_GAME);
+        this.g1 = new Game(players,new Board(numPlayer),commonGoal,tb,ModelState.WAITING_SELECTION_TILE);
         assertNotNull(g1);
         assertNotNull(g1.getPlayers());
         assertNotNull(g1.getBoard());
