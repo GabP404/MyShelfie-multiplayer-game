@@ -14,7 +14,7 @@ public interface ServerRMIInterface extends Remote {
      * @param client  the client that generated the event
      * @param msg wrapped message received from the client
      */
-    EventWrapper update(Client client, CommandMessageWrapper msg) throws RemoteException;
+    void update(Client client, CommandMessageWrapper msg) throws RemoteException;
 
     /**
      * Register a client to the server
