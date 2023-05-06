@@ -3,7 +3,9 @@ package org.myshelfie.network.messages.gameMessages;
 import org.myshelfie.model.Board;
 import org.myshelfie.model.Tile;
 
-public final class ImmutableBoard {
+import java.io.Serializable;
+
+public final class ImmutableBoard implements Serializable {
     public final int DIMBOARD;
     private final Tile[][] boardTiles;
 

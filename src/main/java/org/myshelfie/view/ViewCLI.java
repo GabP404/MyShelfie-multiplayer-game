@@ -1,18 +1,18 @@
 package org.myshelfie.view;
 
 import org.myshelfie.model.*;
-import org.myshelfie.network.EventManager;
-import org.myshelfie.network.client.ClientImpl;
-import org.myshelfie.network.messages.commandMessages.UserInputEventType;
-import org.myshelfie.network.messages.gameMessages.GameEventType;
+import org.myshelfie.network.client.Client;
+import org.myshelfie.network.messages.commandMessages.UserInputEvent;
+import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.GameView;
+import org.myshelfie.network.messages.gameMessages.ImmutablePlayer;
 
 import java.util.*;
 
 import static org.myshelfie.view.Color.*;
 import static org.myshelfie.view.Color.BLUE;
 
-public class CommandLineInterface implements Runnable {
+public class ViewCLI implements View, Runnable {
     private static final int boardOffsetX = 10;
     private static final int boardOffsetY = 15;
     private static final int bookshelfOffsetX = 40;
@@ -36,7 +36,7 @@ public class CommandLineInterface implements Runnable {
 
     private GameView game;
 
-    public CommandLineInterface(String nick) {
+    public ViewCLI(String nick) {
         selectedColumn = -1;
         selectedHandIndex = -1;
         nickname = nick;
@@ -44,29 +44,37 @@ public class CommandLineInterface implements Runnable {
 
     }
 
-    public void update(GameView msg, GameEventType ev) {
+    public void update(GameView msg, GameEvent ev) {
 
         clear();
         switch (ev)
         {
-            //work in progress
+            // TODO: work in progress
             case BOARD_UPDATE -> selectedTiles.clear();
         }
         game = msg;
         printAll();
         setCursor(inputOffsetX, inputOffsetY);
-        //System.out.println("Received from server the event " + ev + "signaling a change in the model!");
-        //System.out.println("    Message payload: " + msg);
+        // System.out.println("Received from server the event " + ev + "signaling a change in the model!");
+        // System.out.println("    Message payload: " + msg);
     }
 
     @Override
     public void run() {
-        Scanner scanner = new Scanner(System.in);
-
-        clearRow(inputOffsetX, inputOffsetY);
-        setCursor(inputOffsetX, inputOffsetY);
-        String userCommand = scanner.nextLine();
-        parseInput(userCommand);
+        Thread t = new Thread(() -> {
+            try {
+                Scanner scanner = new Scanner(System.in);
+                while (true) {
+                    clearRow(inputOffsetX, inputOffsetY);
+                    setCursor(inputOffsetX, inputOffsetY);
+                    String userCommand = scanner.nextLine();
+                    parseInput(userCommand);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        t.start();
     }
 
 
@@ -266,7 +274,7 @@ public class CommandLineInterface implements Runnable {
 
     private void confirmSelection()
     {
-        ClientImpl.eventManager.notify(UserInputEventType.SELECTED_TILES);
+        Client.eventManager.notify(UserInputEvent.SELECTED_TILES, selectedTiles);
     }
 
     private boolean selectColumn(int c)
@@ -277,7 +285,7 @@ public class CommandLineInterface implements Runnable {
             return false;
         }
         selectedColumn = c;
-        ClientImpl.eventManager.notify(UserInputEventType.SELECTED_BOOKSHELF_COLUMN);
+        Client.eventManager.notify(UserInputEvent.SELECTED_BOOKSHELF_COLUMN, selectedColumn);
         return true;
     }
 
@@ -289,7 +297,7 @@ public class CommandLineInterface implements Runnable {
             return false;
         }
         selectedHandIndex = index;
-        ClientImpl.eventManager.notify(UserInputEventType.SELECTED_HAND_TILE);
+        Client.eventManager.notify(UserInputEvent.SELECTED_HAND_TILE, selectedHandIndex);
         return true;
 
     }
@@ -394,14 +402,18 @@ public class CommandLineInterface implements Runnable {
             {
                 if(j == 0)
                     print(String.valueOf(i), bookshelfOffsetX + (numPlayer*bookshelvesDistance)-1,bookshelfOffsetY+i,false);
-                if(game.getPlayers().get(numPlayer).getImmutableBookshelf().getTile(i, j) != null)
-                {
-                    String c = getColorFromTile(game.getPlayers().get(numPlayer).getImmutableBookshelf().getTile(i, j)) + "■";
-                    print(c, bookshelfOffsetX+j + (numPlayer*bookshelvesDistance),bookshelfOffsetY+i,false);
-                }
-                else
-                {
-                    print(" ", bookshelfOffsetX+j + (numPlayer*bookshelvesDistance), bookshelfOffsetY+i, false);
+                try {
+                    if(game.getPlayers().get(numPlayer).getBookshelf().getTile(i, j) != null)
+                    {
+                        String c = getColorFromTile(game.getPlayers().get(numPlayer).getBookshelf().getTile(i, j)) + "■";
+                        print(c, bookshelfOffsetX+j + (numPlayer*bookshelvesDistance),bookshelfOffsetY+i,false);
+                    }
+                    else
+                    {
+                        print(" ", bookshelfOffsetX+j + (numPlayer*bookshelvesDistance), bookshelfOffsetY+i, false);
+                    }
+                } catch (WrongArgumentException e) {
+                    throw new RuntimeException(e);
                 }
             }
         }

@@ -2,12 +2,12 @@ package org.myshelfie.network.client;
 
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.GameView;
-import org.myshelfie.view.CommandLineInterface;
+import org.myshelfie.view.ViewCLI;
 
 import java.rmi.RemoteException;
 
 public class ClientCLI extends Client implements Runnable {
-    private CommandLineInterface view;
+    private ViewCLI view;
 
     /**
      * Create a new client and register it to the server, establish a listening relationship between the view and the server
@@ -16,7 +16,7 @@ public class ClientCLI extends Client implements Runnable {
      */
     public ClientCLI(String nickName, boolean isRMI) throws RemoteException {
         super(nickName, isRMI);
-        view = new CommandLineInterface(nickName);
+        view = new ViewCLI(nickName);
     }
 
     /**

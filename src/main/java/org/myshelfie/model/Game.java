@@ -15,7 +15,10 @@ public class Game {
     private ModelState modelState;
 
     private Player winner;
-    private Map<String, Boolean> errorState;
+    /**
+     * errorState maps every player nickname to a corresponding (possible) error message
+     */
+    private Map<String, String> errorState;
 
     public Game(List<Player> players, Board board, HashMap<CommonGoalCard,List<ScoringToken>> commonGoals, TileBag tileBag, ModelState modelState) {
         this.players = players;
@@ -26,7 +29,7 @@ public class Game {
         this.modelState = modelState;
         this.winner = null;
         this.errorState = new HashMap<>();
-        players.forEach( (player) -> errorState.put(player.getNickname(), false) );
+        players.forEach( (player) -> errorState.put(player.getNickname(), null) );
         try {
             this.board.refillBoard(this.players.size(), tileBag);
         } catch (WrongArgumentException e) {
@@ -75,10 +78,10 @@ public class Game {
         return players.get(pos + 1);
     }
 
-    public Boolean getErrorState(String nickname) {
-        Boolean res = errorState.get(nickname);
+    public String getErrorState(String nickname) {
+        String res = errorState.get(nickname);
         if (res == null)
-            return false;
+            return null;
         return res;
     }
 
@@ -91,8 +94,8 @@ public class Game {
         resetErrorState();
         // if the nickname belongs to one of the players, set the error state to true
         if (players.stream().anyMatch( (player) -> player.getNickname().equals(nickname) )) {
-            this.errorState.put(nickname, true);
-            Server.eventManager.notify(GameEvent.ERROR, errorMessage);
+            this.errorState.put(nickname, errorMessage);
+            Server.eventManager.notify(GameEvent.ERROR);
         }
     }
 
@@ -100,7 +103,7 @@ public class Game {
      * Reset the error state of all the players
      */
     public void resetErrorState() {
-        players.forEach( (player) -> errorState.put(player.getNickname(), false) );
+        players.forEach( (player) -> errorState.put(player.getNickname(), null) );
     }
 
     public ScoringToken popTopScoringToken(CommonGoalCard c) throws WrongArgumentException {

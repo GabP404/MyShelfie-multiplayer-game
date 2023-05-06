@@ -1,25 +1,26 @@
 package org.myshelfie;
 
 import org.myshelfie.model.*;
-import org.myshelfie.network.client.Client;
-import org.myshelfie.network.client.ClientImpl;
+import org.myshelfie.network.client.ClientCLI;
 import org.myshelfie.network.server.Server;
-import org.myshelfie.network.server.ServerImpl;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
+import java.rmi.RemoteException;
 import java.util.*;
 
-import static org.myshelfie.view.CommandLineInterface.*;
+import static org.myshelfie.model.ModelState.WAITING_SELECTION_TILE;
 
 public class TestCLI implements Runnable {
 
     private Game game;
-    private Server server;
-    private ClientImpl client;
+    private static Server server;
+
+    private static Thread serverThread;
+    private ClientCLI client;
 
     @Override
     public void run() {
+        ModelState modelState;
+        modelState = WAITING_SELECTION_TILE;
         int standard_game = 2;
         int numPlayer = 2;
         CommonGoalDeck cgd = CommonGoalDeck.getInstance();
@@ -34,29 +35,42 @@ public class TestCLI implements Runnable {
         }
         TileBag tb = new TileBag();
 
-        game = new Game(players, new Board(numPlayer), commonGoal, tb);
-        server = new ServerImpl(game);
-        client = new ClientImpl(server, "test1");
+        game = new Game(players, new Board(numPlayer), commonGoal, tb, modelState);
 
-        Thread t = new Thread(() -> {
+
+        Object lock = new Object();
+        serverThread = new Thread(() -> {
             try {
-
-                Scanner scanner = new Scanner(System.in);
-                while (true) {
-                    //if (System.in.available()>0) {
-                        clearRow(inputOffsetX, inputOffsetY);
-                        setCursor(inputOffsetX, inputOffsetY);
-                        String userCommand = scanner.nextLine();
-                        client.parseInput(userCommand);
-                    //}
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+                server = new Server(game);
+                server.startServer(lock);
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
             }
         });
-        t.start();
+        serverThread.start();
+        synchronized (lock) {
+            try {
+                lock.wait(1000);
+            } catch (InterruptedException e) {
+                System.out.println("Server thread interrupted");
+                throw new RuntimeException(e);
+            }
+        }
 
-        game.getBoard().refillBoard(2, new TileBag());
+
+        try {
+            client = new ClientCLI("test1", true);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+
+        client.run();
+
+        try {
+            game.getBoard().refillBoard(2, new TileBag());
+        } catch (WrongArgumentException e) {
+            throw new RuntimeException(e);
+        }
 
         try {
             Thread.sleep(10000);
@@ -66,10 +80,9 @@ public class TestCLI implements Runnable {
 
         try {
             game.getPlayers().get(0).getBookshelf().insertTile(new Tile(ItemType.CAT), 1);
-        } catch (TileInsertionException e) {
+        } catch (WrongArgumentException e) {
             throw new RuntimeException(e);
         }
-        //System.out.println("PASSSAAAAAA");
     }
 
 

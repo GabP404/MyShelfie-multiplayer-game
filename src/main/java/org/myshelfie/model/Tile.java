@@ -1,6 +1,8 @@
 package org.myshelfie.model;
 
-public class Tile {
+import java.io.Serializable;
+
+public class Tile  implements Serializable {
     private ItemType itemType;
     private int itemId;
 

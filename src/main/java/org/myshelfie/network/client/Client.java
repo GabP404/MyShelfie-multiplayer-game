@@ -115,6 +115,7 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface {
     public Client(ClientRMIInterface rmiInterface) throws RemoteException {
         super();
         this.nickname = rmiInterface.getNickname();
+        this.isRMI = true;
     }
 
     public Client getClientInstance() {
