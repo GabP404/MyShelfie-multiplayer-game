@@ -39,7 +39,6 @@ public class GameController {
         TileBag tileBag = new TileBag();
         this.game = new Game(players, new Board(numPlayerGame),commonGoal,tileBag,ModelState.WAITING_SELECTION_TILE);
     }
-
     public void createGame(int numPlayerGame, int numGoalCards, String nickname) {
         this.numPlayerGame = numPlayerGame;
         this.numGoalCards = numGoalCards;
@@ -117,9 +116,9 @@ public class GameController {
     public void executeCommand(String command, UserInputEvent t) throws WrongTurnException, InvalidCommand, WrongArgumentException {
             Command c = null;
             switch (t) {
-                case SELECTED_BOOKSHELF_COLUMN -> c = new PickTilesCommand(game.getBoard(),game.getCurrPlayer() ,command,this.game.getModelState());
-                case SELECTED_TILES -> c = new SelectTileFromHandCommand(game.getCurrPlayer(), command,this.game.getModelState());
-                case SELECTED_HAND_TILE -> c = new SelectColumnCommand(game.getCurrPlayer(), command,this.game.getModelState());
+                case SELECTED_TILES -> c = new PickTilesCommand(game.getBoard(),game.getCurrPlayer() ,command,this.game.getModelState());
+                case SELECTED_HAND_TILE -> c = new SelectTileFromHandCommand(game.getCurrPlayer(), command,this.game.getModelState());
+                case SELECTED_BOOKSHELF_COLUMN-> c = new SelectColumnCommand(game.getCurrPlayer(), command,this.game.getModelState());
                 default -> throw new InvalidCommand("Invalid command");
             }
             c.execute();
@@ -215,5 +214,21 @@ public class GameController {
         this.game = null;
         this.numPlayerGame = 0;
         this.numGoalCards = 0;
+    }
+
+    public Game getGame() {
+        return game;
+    }
+
+    public List<String> getNicknames() {
+        return nicknames;
+    }
+
+    public int getNumPlayerGame() {
+        return numPlayerGame;
+    }
+
+    public int getNumGoalCards() {
+        return numGoalCards;
     }
 }

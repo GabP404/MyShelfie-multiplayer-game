@@ -24,6 +24,11 @@ public class Game {
         this.currPlayer = players.get(0);
         this.modelState = modelState;
         this.winner = null;
+        try {
+            this.board.refillBoard(this.players.size(), tileBag);
+        } catch (WrongArgumentException e) {
+            throw new RuntimeException(e);
+        }
         suspendGame();
     }
 
