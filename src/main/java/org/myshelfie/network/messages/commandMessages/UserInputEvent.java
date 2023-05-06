@@ -19,5 +19,6 @@ public enum UserInputEvent {
     /**
      * Message to be sent to the chat
      */
-    CHAT_MESSAGE
+    CREATE_GAME,
+    JOIN_GAME,
 }

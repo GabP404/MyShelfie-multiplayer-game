@@ -15,6 +15,7 @@ import java.net.Socket;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.UUID;
 
 public class Client extends UnicastRemoteObject implements ClientRMIInterface {
     protected String nickname;
@@ -32,12 +33,10 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface {
 
     /**
      * Constructor used by the server to create a Client based on the nickname received via socket
-     * @param nickname
      * @throws RemoteException
      */
-    public Client(String nickname) throws RemoteException {
+    public Client() throws RemoteException {
         super();
-        this.nickname = nickname;
         this.isRMI = false;
     }
 
@@ -69,6 +68,11 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface {
         }
         // Subscribe a new UserInputListener that listen to changes in the view and forward events adding message to the server
         eventManager.subscribe(UserInputEvent.class, new UserInputListener(this));
+    }
+
+    public UUID getGameUUID() {
+        //TODO this.view.getGameUUID();
+        return new UUID(0, 0);
     }
 
     class SocketServerListener extends Thread {
@@ -152,6 +156,10 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface {
 
     public String getNickname() {
         return nickname;
+    }
+
+    public void setNickname(String nickname) {
+    	this.nickname = nickname;
     }
 
     public boolean isRMI() {

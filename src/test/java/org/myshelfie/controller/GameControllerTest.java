@@ -1,6 +1,7 @@
 package org.myshelfie.controller;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.myshelfie.model.*;
 import org.myshelfie.network.messages.commandMessages.*;
@@ -8,17 +9,20 @@ import org.myshelfie.network.messages.commandMessages.*;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class GameControllerTest {
 
     static GameController gameController;
+
+    static UUID gameUUID = UUID.randomUUID();
 
     @BeforeAll
     public static void setup() {
         gameController = new GameController();
     }
 
-    @Test
+    @BeforeEach
     public void testCreatingGame() {
         int numPlayerGame = 4;
         int numGoalCard = 2;
@@ -39,7 +43,7 @@ public class GameControllerTest {
 
     @Test
     public void testExecuteCommandPickTilesCommand() throws InvalidCommand, WrongTurnException, WrongArgumentException {
-        testCreatingGame();
+        //Try selecting a list of tiles: (0, 3) and (0, 4)
         assertNotNull(gameController.getGame());
         Game game = gameController.getGame();
         List<LocatedTile> tiles = new ArrayList<>();
@@ -50,8 +54,8 @@ public class GameControllerTest {
         assertNotNull(tiles.get(0));
         assertNotNull(tiles.get(1));
 
-
-        PickedTilesCommandMessage m = new PickedTilesCommandMessage("User1", tiles);
+        // Select and execute the tiles from the board
+        PickedTilesCommandMessage m = new PickedTilesCommandMessage("User1", gameUUID, tiles);
         CommandMessageWrapper wrapper = new CommandMessageWrapper(m, UserInputEvent.SELECTED_TILES);
         UserInputEvent messageType = wrapper.getType();
         CommandMessage messageCommand = wrapper.getMessage();
@@ -61,7 +65,7 @@ public class GameControllerTest {
         assertEquals(game.getModelState(),ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN);
 
 
-        SelectedColumnMessage scm = new SelectedColumnMessage("User1", 0);
+        SelectedColumnMessage scm = new SelectedColumnMessage("User1", gameUUID, 0);
         wrapper = new CommandMessageWrapper(scm, UserInputEvent.SELECTED_BOOKSHELF_COLUMN);
         messageType = wrapper.getType();
         messageCommand = wrapper.getMessage();
@@ -70,7 +74,7 @@ public class GameControllerTest {
         assertEquals(game.getCurrPlayer().getSelectedColumn(),0);
 
         List<Tile> x = game.getCurrPlayer().getTilesPicked();
-        SelectedTileFromHandCommandMessage stfhc = new SelectedTileFromHandCommandMessage("User1",0, x.get(1).getItemType());
+        SelectedTileFromHandCommandMessage stfhc = new SelectedTileFromHandCommandMessage("User1",gameUUID, 0, x.get(1).getItemType());
         wrapper = new CommandMessageWrapper(stfhc, UserInputEvent.SELECTED_HAND_TILE);
         messageType = wrapper.getType();
         messageCommand = wrapper.getMessage();
@@ -79,7 +83,7 @@ public class GameControllerTest {
 
 
         Player p = game.getCurrPlayer();
-        SelectedTileFromHandCommandMessage stfhc2 = new SelectedTileFromHandCommandMessage("User1",0, x.get(0).getItemType());
+        SelectedTileFromHandCommandMessage stfhc2 = new SelectedTileFromHandCommandMessage("User1", gameUUID, 0, x.get(0).getItemType());
         wrapper = new CommandMessageWrapper(stfhc2, UserInputEvent.SELECTED_HAND_TILE);
         messageType = wrapper.getType();
         messageCommand = wrapper.getMessage();

@@ -3,6 +3,7 @@ package org.myshelfie.network.messages.commandMessages;
 import org.myshelfie.model.ItemType;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 /**
  * This class represents the command sent to the server to choose which tile the player wants to put in the
@@ -17,8 +18,8 @@ public class SelectedTileFromHandCommandMessage extends CommandMessage implement
      * @param index     The index of the tile in the player's current hand
      * @param tileType  The type of the tile (just to make sure)
      */
-    public SelectedTileFromHandCommandMessage(String nickname, int index, ItemType tileType) {
-        super(nickname);
+    public SelectedTileFromHandCommandMessage(String nickname, UUID gameUUID, int index, ItemType tileType) {
+        super(nickname, gameUUID);
         this.index = index;
         this.tileType = tileType;
     }

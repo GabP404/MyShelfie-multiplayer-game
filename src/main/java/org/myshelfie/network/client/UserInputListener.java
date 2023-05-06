@@ -26,7 +26,7 @@ public class UserInputListener implements Listener<UserInputEvent> {
         CommandMessage m = switch (ev) {
             //case SELECTED_TILES -> new PickedTilesCommandMessage(cli.getSelectedTiles());
             //case SELECTED_BOOKSHELF_COLUMN -> new SelectedColumnMessage(cli.getSelectedColumn());
-            case SELECTED_BOOKSHELF_COLUMN -> new SelectedColumnMessage(client.getNickname(), 2); //DEMO MESSAGE
+            case SELECTED_BOOKSHELF_COLUMN -> new SelectedColumnMessage(client.getNickname(), client.getGameUUID(),  2); //DEMO MESSAGE
             //case SELECTED_HAND_TILE -> new SelectedTileFromHandCommandMessage(cli.getSelectedTileFromHand());
             default -> throw new RuntimeException("Unexpected value: " + ev);
         };
