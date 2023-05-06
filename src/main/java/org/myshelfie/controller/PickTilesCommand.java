@@ -105,7 +105,7 @@ public class PickTilesCommand implements Command {
             l = chosen.stream().map(LocatedTile::getRow).toList();
 
         for (int i = 0; i < l.size() - 1; i++) {
-            if (l.get(i + 1) - l.get(i) != 1)
+            if (Math.abs(l.get(i + 1) - l.get(i)) != 1)
                 return false;
         }
         return true;
