@@ -8,15 +8,13 @@ import org.myshelfie.model.WrongArgumentException;
 import org.myshelfie.network.EventManager;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.client.ClientRMIInterface;
+import org.myshelfie.network.messages.commandMessages.CommandMessage;
 import org.myshelfie.network.messages.commandMessages.CommandMessageWrapper;
 import org.myshelfie.network.messages.commandMessages.UserInputEvent;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.EventWrapper;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -114,7 +112,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
 
         // unwrap the message
         UserInputEvent messageType = msg.getType();
-        String messageCommand = msg.getMessage();
+        CommandMessage messageCommand = msg.getMessage();
         // call the update on the controller
         try {
             this.controller.executeCommand(messageCommand, messageType);
@@ -256,13 +254,13 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
         // Thread function that will handle the client requests
         public void run() {
             try {
-                // Create a new input stream to read from the client socket
-                BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                // Create a new input stream to read serialized objects from the client socket
+                ObjectInputStream input = new ObjectInputStream(clientSocket.getInputStream());
 
                 // Loop to handle multiple client requests
                 while (true) {
-                    // Read a request from the client
-                    String request = input.readLine();
+                    // Read a request from the client, sent as a serialized CommandMessageWrapper
+                    CommandMessageWrapper request = (CommandMessageWrapper) input.readObject();
                     // If the request is null, the client has disconnected
                     if (request == null) {
                         //TODO handle disconnection
@@ -271,7 +269,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                     }
 
                     // Handle the request
-                    EventWrapper response = Server.this.update(this.client, new CommandMessageWrapper(request));
+                    EventWrapper response = Server.this.update(this.client, request);
                     Server.this.sendTo(clientSocket, response);
                 }
 
@@ -281,6 +279,8 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
             } catch (IOException e) {
                 System.err.println("Exception: " + e.getMessage());
                 e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
             }
         }
     }

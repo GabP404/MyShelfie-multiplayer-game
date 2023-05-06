@@ -1,7 +1,7 @@
 package org.myshelfie.controller;
 
 import org.myshelfie.model.*;
-import org.myshelfie.network.messages.commandMessages.UserInputEvent;
+import org.myshelfie.network.messages.commandMessages.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -114,12 +114,12 @@ public class GameController {
 
 
     //change firm of the method based
-    public void executeCommand(String command, UserInputEvent t) throws WrongTurnException, InvalidCommand, WrongArgumentException {
+    public void executeCommand(CommandMessage command, UserInputEvent t) throws WrongTurnException, InvalidCommand, WrongArgumentException {
             Command c = null;
             switch (t) {
-                case SELECTED_BOOKSHELF_COLUMN -> c = new PickTilesCommand(game.getBoard(),game.getCurrPlayer() ,command,this.game.getModelState());
-                case SELECTED_TILES -> c = new SelectTileFromHandCommand(game.getCurrPlayer(), command,this.game.getModelState());
-                case SELECTED_HAND_TILE -> c = new SelectColumnCommand(game.getCurrPlayer(), command,this.game.getModelState());
+                case SELECTED_TILES -> c = new PickTilesCommand(game.getBoard(),game.getCurrPlayer(), (PickedTilesCommandMessage) command, this.game.getModelState());
+                case SELECTED_HAND_TILE -> c = new SelectTileFromHandCommand(game.getCurrPlayer(), (SelectedTileFromHandCommandMessage) command, this.game.getModelState());
+                case SELECTED_BOOKSHELF_COLUMN -> c = new SelectColumnCommand(game.getCurrPlayer(), (SelectedColumnMessage) command, this.game.getModelState());
                 default -> throw new InvalidCommand("Invalid command");
             }
             c.execute();

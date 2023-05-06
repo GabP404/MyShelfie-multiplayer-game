@@ -1,7 +1,10 @@
 package org.myshelfie.controller;
 
-import org.json.JSONObject;
-import org.myshelfie.model.*;
+import org.myshelfie.model.ItemType;
+import org.myshelfie.model.ModelState;
+import org.myshelfie.model.Player;
+import org.myshelfie.model.WrongArgumentException;
+import org.myshelfie.network.messages.commandMessages.SelectedTileFromHandCommandMessage;
 
 public class SelectTileFromHandCommand implements Command {
     private final String nickname;
@@ -11,14 +14,12 @@ public class SelectTileFromHandCommand implements Command {
     private final ItemType itemType;
     private ModelState currentModelState;
 
-    public SelectTileFromHandCommand(Player currPlayer, String serial, ModelState currentModelState) {
+    public SelectTileFromHandCommand(Player currPlayer, SelectedTileFromHandCommandMessage command, ModelState currentModelState) {
         this.currPlayer = currPlayer;
-        JSONObject jo = new JSONObject(serial);
-        nickname = jo.getString("nickname");
-        index = jo.getInt("index");
-        itemType = (ItemType) jo.get("itemType");
+        nickname = command.getNickname();
+        index = command.getIndex();
+        itemType = command.getTileType();
         this.currentModelState = currentModelState;
-
     }
 
     public void execute() throws InvalidCommand, WrongTurnException, WrongArgumentException {

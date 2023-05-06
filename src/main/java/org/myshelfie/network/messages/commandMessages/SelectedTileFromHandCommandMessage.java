@@ -1,13 +1,14 @@
 package org.myshelfie.network.messages.commandMessages;
 
-import org.json.JSONObject;
 import org.myshelfie.model.ItemType;
+
+import java.io.Serializable;
 
 /**
  * This class represents the command sent to the server to choose which tile the player wants to put in the
  * selected column (amongst the ones present in their hand)
  */
-public class SelectedTileFromHandCommandMessage extends CommandMessage {
+public class SelectedTileFromHandCommandMessage extends CommandMessage implements Serializable {
     private final int index;
     private final ItemType tileType;
 
@@ -22,12 +23,11 @@ public class SelectedTileFromHandCommandMessage extends CommandMessage {
         this.tileType = tileType;
     }
 
-    @Override
-    public String toString() {
-        JSONObject jo = new JSONObject();
-        jo.put("nickname", nickname);
-        jo.put("index", index);
-        jo.put("tileType", tileType);
-        return jo.toString();
+    public int getIndex() {
+        return index;
+    }
+
+    public ItemType getTileType() {
+        return tileType;
     }
 }

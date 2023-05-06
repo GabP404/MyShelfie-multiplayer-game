@@ -9,6 +9,7 @@ import org.myshelfie.network.server.ServerRMIInterface;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.rmi.Naming;
@@ -142,10 +143,10 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface {
                 throw new RuntimeException(e);
             }
         } else {
-            // Send a message to the server using the socket
+            // Send a serialized message to the server using the socket
             try {
-                PrintWriter output = new PrintWriter(serverSocket.getOutputStream(), true);
-                output.println(msg.toString());
+                ObjectOutputStream output = new ObjectOutputStream(serverSocket.getOutputStream());
+                output.writeObject(msg);
 
                 //Get the string response from the server
                 ObjectInputStream input = new ObjectInputStream(serverSocket.getInputStream());

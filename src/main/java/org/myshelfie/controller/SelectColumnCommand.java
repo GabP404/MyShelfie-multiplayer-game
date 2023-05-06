@@ -1,9 +1,9 @@
 package org.myshelfie.controller;
 
-import org.json.JSONObject;
 import org.myshelfie.model.ModelState;
 import org.myshelfie.model.Player;
 import org.myshelfie.model.WrongArgumentException;
+import org.myshelfie.network.messages.commandMessages.SelectedColumnMessage;
 
 public class SelectColumnCommand implements Command {
     private Player currPlayer;
@@ -13,13 +13,14 @@ public class SelectColumnCommand implements Command {
     private ModelState currentModelState;
 
     /**
-     * @param serial JSON-serialized version of the selectedColumn parameter
+     * @param command  The command message sent by the client
+     * @param currPlayer The player who sent the command
+     * @param currentModelState The current model state
      */
-    public SelectColumnCommand(Player currPlayer, String serial, ModelState currentModelState) {
+    public SelectColumnCommand(Player currPlayer, SelectedColumnMessage command, ModelState currentModelState) {
         this.currPlayer = currPlayer;
-        JSONObject jo = new JSONObject(serial);
-        nickname = jo.getString("nickname");
-        selectedColumn = jo.getInt("col");
+        nickname = command.getNickname();
+        selectedColumn = command.getSelectedColumn();
         this.currentModelState = currentModelState;
     }
 
