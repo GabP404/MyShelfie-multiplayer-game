@@ -1,7 +1,7 @@
 package org.myshelfie;
 
 import org.myshelfie.model.*;
-import org.myshelfie.network.client.ClientCLI;
+import org.myshelfie.network.client.Client;
 import org.myshelfie.network.server.Server;
 
 import java.rmi.RemoteException;
@@ -15,7 +15,7 @@ public class TestCLI implements Runnable {
     private static Server server;
 
     private static Thread serverThread;
-    private ClientCLI client;
+    private Client client;
 
     @Override
     public void run() {
@@ -59,7 +59,7 @@ public class TestCLI implements Runnable {
 
 
         try {
-            client = new ClientCLI("test1", true);
+            client = new Client(true, false);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }

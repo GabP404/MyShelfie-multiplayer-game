@@ -176,7 +176,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                 String nickname = input.readLine();
 
                 //Create and register a new client
-                Client client = new Client(nickname);
+                Client client = new Client();
                 client.setClientSocket(clientSocket);
                 this.register(client);
                 // Create and start a new client handler thread

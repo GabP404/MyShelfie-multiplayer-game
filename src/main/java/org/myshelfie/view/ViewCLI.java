@@ -12,7 +12,7 @@ import java.util.*;
 import static org.myshelfie.view.Color.*;
 import static org.myshelfie.view.Color.BLUE;
 
-public class ViewCLI implements View, Runnable {
+public class ViewCLI implements View{
     private static final int boardOffsetX = 10;
     private static final int boardOffsetY = 15;
     private static final int bookshelfOffsetX = 40;
@@ -31,25 +31,46 @@ public class ViewCLI implements View, Runnable {
     private List<LocatedTile> selectedTiles;    // tiles selected from the board
     private int selectedColumn;
     private int selectedHandIndex;
-    private final String nickname;
-
+    private String nickname;
 
     private GameView game;
 
-    public ViewCLI(String nick) {
+    private Scanner scanner = new Scanner(System.in);
+
+
+    Thread threadNick = new Thread(() -> {
+        try {
+            firstClear();
+            print("Insert a Nickname ", 0, 0, false);
+            while (true) {
+                setCursor(0,1);
+                String suppNick = scanner.nextLine();
+                print("CONNECTING TO SERVER WITH NICKNAME "+ suppNick,10,10, false);
+                Thread.sleep(10000);
+                //send information to server
+                clear();
+                print("Try again ", 0, 0, false);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    });
+
+    public ViewCLI() {
         selectedColumn = -1;
         selectedHandIndex = -1;
-        nickname = nick;
         selectedTiles = new ArrayList<>();
 
     }
 
+    @Override
     public void update(GameView msg, GameEvent ev) {
 
         clear();
         switch (ev)
         {
-            // TODO: work in progress
+            // TODO: work in progress (on ev == GameEvent.ERROR print the string from msg.getErrorState(..,)
+            //  instead of printAll())
             case BOARD_UPDATE -> selectedTiles.clear();
         }
         game = msg;
@@ -61,9 +82,23 @@ public class ViewCLI implements View, Runnable {
 
     @Override
     public void run() {
+        threadNick.start();
+        try {
+            threadNick.join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        String nicknameAsk;
+        do {
+            nicknameAsk = scanner.nextLine();
+        }while (nicknameAsk != null);
+
+
+
         Thread t = new Thread(() -> {
             try {
-                Scanner scanner = new Scanner(System.in);
                 while (true) {
                     clearRow(inputOffsetX, inputOffsetY);
                     setCursor(inputOffsetX, inputOffsetY);
@@ -75,6 +110,12 @@ public class ViewCLI implements View, Runnable {
             }
         });
         t.start();
+    }
+
+    public void endNicknameThread()
+    {
+        if(threadNick.isAlive())
+            threadNick.interrupt();
     }
 
 

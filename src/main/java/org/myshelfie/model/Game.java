@@ -79,10 +79,7 @@ public class Game {
     }
 
     public String getErrorState(String nickname) {
-        String res = errorState.get(nickname);
-        if (res == null)
-            return null;
-        return res;
+        return errorState.get(nickname);
     }
 
     /**
