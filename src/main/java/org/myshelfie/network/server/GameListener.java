@@ -34,6 +34,10 @@ public class GameListener implements Listener<GameEvent> {
      */
     @Override
     public void update(GameEvent ev, Object... args) {
+        //Send the message to the client
+        if (this.listenedGame == null)
+            return; //The game hasn't been set yet
+
         //Create the message to be sent
         Object message = null;
         if (ev == GameEvent.ERROR) {
@@ -41,10 +45,6 @@ public class GameListener implements Listener<GameEvent> {
         } else {
             message = new GameView(this.listenedGame);
         }
-
-        //Send the message to the client
-        if (this.listenedGame == null)
-            return; //The game hasn't been set yet
         if (client.isRMI()) {
             client.update(message, ev);
         }
