@@ -54,7 +54,7 @@ public class GameControllerTest {
         PickedTilesCommandMessage m = new PickedTilesCommandMessage("User1", tiles);
         CommandMessageWrapper wrapper = new CommandMessageWrapper(m, UserInputEvent.SELECTED_TILES);
         UserInputEvent messageType = wrapper.getType();
-        String messageCommand = wrapper.getMessage();
+        CommandMessage messageCommand = wrapper.getMessage();
         gameController.executeCommand(messageCommand,messageType);
         assertNull(game.getBoard().getTile(0,3));
         assertNull(game.getBoard().getTile(0,4));
