@@ -36,7 +36,7 @@ public class Game {
         this.gameName = gameName;
     }
 
-    
+
     public Player getCurrPlayer() {
         return currPlayer;
     }

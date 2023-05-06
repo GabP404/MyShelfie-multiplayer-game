@@ -1,5 +1,5 @@
 package org.myshelfie.controller;
-import java.util.UUID;
+
 import org.myshelfie.model.*;
 import org.myshelfie.network.messages.commandMessages.*;
 
@@ -121,6 +121,8 @@ public class GameController {
         this.game.getPlayers().stream().filter(x -> x.getNickname().equals(nickname)).collect(Collectors.toList()).get(0).setOnline(true);
     }
 
+
+    //change firm of the method based
     public void executeCommand(CommandMessage command, UserInputEvent t) {
         Command c = null;
         try {
@@ -240,12 +242,6 @@ public class GameController {
     public List<String> getNicknames() {
         return nicknames;
     }
-
-
-    public int getNumGoalCards() {
-        return numGoalCards;
-    }
-
 
     public int getNumPlayerGame() {
         return numPlayerGame;
