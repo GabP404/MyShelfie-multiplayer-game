@@ -2,6 +2,7 @@ package org.myshelfie.model;
 import org.myshelfie.network.server.Server;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 
+import java.io.Serializable;
 import java.util.*;
 
 public class Game {

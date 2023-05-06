@@ -1,5 +1,6 @@
 package org.myshelfie.controller;
-
+import java.io.Serializable;
+import java.util.UUID;
 import org.myshelfie.model.*;
 import org.myshelfie.network.messages.commandMessages.*;
 
@@ -12,6 +13,29 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class GameController {
+    public static class GameDefinition implements Serializable {
+        private final String gameName;
+        private final int maxPlayers;
+        private final List<String> nicknames;
+
+        public GameDefinition(GameController gc) {
+            this.gameName = gc.getGameName();
+            this.maxPlayers = gc.getNumPlayerGame();
+            this.nicknames = new ArrayList<>(gc.getNicknames());
+        }
+
+        public String getGameName() {
+            return gameName;
+        }
+
+        public int getMaxPlayers() {
+            return maxPlayers;
+        }
+
+        public List<String> getNicknames() {
+            return nicknames;
+        }
+    }
 
     private String gameName;
 
@@ -121,8 +145,6 @@ public class GameController {
         this.game.getPlayers().stream().filter(x -> x.getNickname().equals(nickname)).collect(Collectors.toList()).get(0).setOnline(true);
     }
 
-
-    //change firm of the method based
     public void executeCommand(CommandMessage command, UserInputEvent t) {
         Command c = null;
         try {

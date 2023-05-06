@@ -2,6 +2,7 @@ package org.myshelfie.network.server;
 
 import org.myshelfie.controller.GameController;
 import org.myshelfie.controller.InvalidCommand;
+import org.myshelfie.controller.LobbyController;
 import org.myshelfie.controller.WrongTurnException;
 import org.myshelfie.model.Game;
 import org.myshelfie.model.WrongArgumentException;
@@ -29,7 +30,7 @@ import java.util.List;
 
 public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     private List<Client> clients;
-    private GameController controller;
+    private LobbyController controller;
     public static EventManager eventManager = new EventManager();
     private Game game;
     private String RMI_SERVER_NAME = "MinecraftServer";
@@ -37,13 +38,11 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
 
     /**
      * Overloaded constructor used for testing since it allows to initialize the Game object outside
-     * @param game Already initialized model
      */
-    public Server(Game game) throws RemoteException {
+    public Server() throws RemoteException {
         super();
-        this.game = game;
         this.clients = new ArrayList<>();
-        this.controller = new GameController();
+        this.controller = new LobbyController();
     }
 
     /**
@@ -259,7 +258,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                 } while (!inputValid);
 
                 // Send list of games
-                sendTo(clientSocket, Server.this.getGames());
+                sendTo(clientSocket, (Serializable) Server.this.getGames());
 
                 // Get CREATE or JOIN game message
                 inputValid = false;
@@ -311,7 +310,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
         }
     }
 
-    public List getGames() throws RemoteException {
+    public List<GameController.GameDefinition> getGames() throws RemoteException {
         return this.controller.getGames();
     }
 

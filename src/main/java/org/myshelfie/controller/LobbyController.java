@@ -23,7 +23,7 @@ public class LobbyController {
 
     private HashMap<String,GameController> gameControllers;
 
-    private LobbyController() {
+    public LobbyController() {
         gameControllers = new HashMap<>();
     }
 
@@ -48,6 +48,26 @@ public class LobbyController {
     public void removePlayerLobby(String nickname, String gameName) {
         GameController gameController = gameControllers.get(gameName);
         gameController.removePlayer(nickname);
+    }
+
+    public List<GameController.GameDefinition> getGames() {
+        ArrayList<GameController.GameDefinition> l = new ArrayList<>();
+        for (GameController g : gameControllers.values()) {
+            l.add(new GameController.GameDefinition(g));
+        }
+        return l;
+    }
+
+    public String createGame(CreateGameMessage message) throws IllegalArgumentException {
+        CreateGameCommand c = new CreateGameCommand(gameControllers, message);
+        c.execute();
+        return message.getGameName();
+    }
+
+    public String joinGame(JoinGameMessage message) throws IllegalArgumentException {
+        JoinGameCommand c = new JoinGameCommand(gameControllers, message);
+        c.execute();
+        return message.getGameName();
     }
 
 }
