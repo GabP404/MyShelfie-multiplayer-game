@@ -33,6 +33,11 @@ public class ClientImpl extends Client implements Runnable {
         view.update(game, event);
     }
 
+    public void parseInput(String s)
+    {
+        view.parseInput(s);
+    }
+
     @Override
     public void run() {
         view.run();

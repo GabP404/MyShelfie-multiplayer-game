@@ -1,6 +1,9 @@
 package org.myshelfie.view;
 
 import org.myshelfie.model.*;
+import org.myshelfie.network.EventManager;
+import org.myshelfie.network.client.ClientImpl;
+import org.myshelfie.network.messages.commandMessages.UserInputEventType;
 import org.myshelfie.network.messages.gameMessages.GameEventType;
 import org.myshelfie.network.messages.gameMessages.GameView;
 
@@ -19,80 +22,51 @@ public class CommandLineInterface implements Runnable {
     private static final int personalGoalOffsetX = 110;
     private static final int personalGoalOffsetY = 15;
     private static final int bookshelvesDistance = 15;
-    private static final int inputOffsetX = 3;
-    private static final int inputOffsetY = 30;
+    public static final int inputOffsetX = 3;
+    public static final int inputOffsetY = 30;
 
     private static final int errorOffsetX = 3;
     private static final int errorOffsetY = 33;
 
     private List<LocatedTile> selectedTiles;    // tiles selected from the board
     private int selectedColumn;
+    private int selectedHandIndex;
     private final String nickname;
 
 
-    private Game game;
+    private GameView game;
 
     public CommandLineInterface(String nick) {
         selectedColumn = -1;
-
-        //USE CONSTRUCTOR NICKNAME WHEN IMPLEMENTING
-        nickname = "test1";
-
-        //creating a game for testing
-
-        int numPlayer = 4;
-
-        List<Player> players = new ArrayList<>();
-        for (int i = 0; i < numPlayer; i++) {
-            players.add(new Player(("test" + i), null));
-        }
-        CommonGoalDeck cgd = CommonGoalDeck.getInstance();
-        List<CommonGoalCard> cgc = cgd.drawCommonGoalCard(2);
-        HashMap<CommonGoalCard, List<ScoringToken>> commonGoal = new HashMap<>();
-        for (CommonGoalCard x : cgc) {
-            commonGoal.put(x, (List<ScoringToken>) createTokensPersonalGoalCard(x.getId(), numPlayer));
-        }
-
-
-        TileBag tb = new TileBag();
-        game = new Game(players, new Board(numPlayer), commonGoal, tb);
-        this.selectedTiles = new ArrayList<>();
-
-        game.startGame();
-        game.getBoard().refillBoard(numPlayer, game.getTileBag());
-        try {
-            game.getPlayers().get(1).getBookshelf().insertTile(new Tile(ItemType.CAT), 1);
-            game.getPlayers().get(1).getBookshelf().insertTile(new Tile(ItemType.TROPHY), 1);
-            game.getPlayers().get(1).getBookshelf().insertTile(new Tile(ItemType.CAT), 2);
-            game.getPlayers().get(1).addTilesPicked(new Tile(ItemType.CAT));
-            game.getPlayers().get(1).addTilesPicked(new Tile(ItemType.PLANT));
-
-
-        } catch (TileInsertionException e) {
-            throw new RuntimeException(e);
-        }
+        selectedHandIndex = -1;
+        nickname = nick;
+        selectedTiles = new ArrayList<>();
 
     }
 
     public void update(GameView msg, GameEventType ev) {
-        System.out.println("Received from server the event " + ev + "signaling a change in the model!");
-        System.out.println("    Message payload: " + msg);
+
+        clear();
+        switch (ev)
+        {
+            //work in progress
+            case BOARD_UPDATE -> selectedTiles.clear();
+        }
+        game = msg;
+        printAll();
+        setCursor(inputOffsetX, inputOffsetY);
+        //System.out.println("Received from server the event " + ev + "signaling a change in the model!");
+        //System.out.println("    Message payload: " + msg);
     }
 
     @Override
     public void run() {
         Scanner scanner = new Scanner(System.in);
 
-        firstClear();
-        printAll();
-
-        while (true) {
-            clearRow(inputOffsetX, inputOffsetY);
-            setCursor(inputOffsetX, inputOffsetY);
-            String userCommand = scanner.nextLine();
-            parseInput(userCommand);
-            printAll();
-        }
+        clearRow(inputOffsetX, inputOffsetY);
+        setCursor(inputOffsetX, inputOffsetY);
+        String userCommand = scanner.nextLine();
+        parseInput(userCommand);
     }
 
 
@@ -244,6 +218,7 @@ public class CommandLineInterface implements Runnable {
                 printError("COMMAND DOES NOT EXIST");
                 return;
         }
+        printAll();
         clearRow(errorOffsetX, errorOffsetY);
     }
 
@@ -291,12 +266,7 @@ public class CommandLineInterface implements Runnable {
 
     private void confirmSelection()
     {
-        for(LocatedTile t: selectedTiles)
-        {
-            //TODO: this is not the correct implementation, it's only for testing. FIX
-            game.getBoard().setTile(t.getRow(),t.getCol(),null);
-        }
-        selectedTiles.clear();
+        ClientImpl.eventManager.notify(UserInputEventType.SELECTED_TILES);
     }
 
     private boolean selectColumn(int c)
@@ -306,8 +276,8 @@ public class CommandLineInterface implements Runnable {
             printError("COLUMN NUMBER IS NOT VALID");
             return false;
         }
-        //TODO: this is not the correct implementation, it's only for testing. FIX
         selectedColumn = c;
+        ClientImpl.eventManager.notify(UserInputEventType.SELECTED_BOOKSHELF_COLUMN);
         return true;
     }
 
@@ -318,14 +288,8 @@ public class CommandLineInterface implements Runnable {
             printError("INDEX OF CARD IN HAND IS NOT VALID");
             return false;
         }
-        //TODO: this is not the correct implementation, it's only for testing. FIX
-        try {
-            game.getPlayers().get(myPlayerIndex()).getBookshelf().insertTile(game.getPlayers().get(myPlayerIndex()).getTilesPicked().get(index),selectedColumn);
-        } catch (TileInsertionException e) {
-            throw new RuntimeException(e);
-        }
-        game.getPlayers().get(myPlayerIndex()).getTilesPicked().remove(index);
-
+        selectedHandIndex = index;
+        ClientImpl.eventManager.notify(UserInputEventType.SELECTED_HAND_TILE);
         return true;
 
     }
@@ -362,26 +326,56 @@ public class CommandLineInterface implements Runnable {
                     }
 
                     String c;
-                    if(selected)
-                        c = BG_YELLOW.toString();
-                    else
-                        c = BG_GREEN.toString();
 
-                    c = c + BLACK.toString();
+                    //c = getColorFromTile(game.getBoard().getTile(i, j)) + BLACK.toString();
+                    c = getColorFromTile(game.getBoard().getTile(i, j));
+
+                    if(selected)
+                        c = c  + "█";
+                    else
+                        c = c + "■";
 
                     //String c = BG_GREEN.toString() + BLACK.toString();
-                    print(c + String.valueOf(game.getBoard().getTile(i, j).getItemType().name().charAt(0)), boardOffsetX+j,boardOffsetY+i,false);
+                    print(c, boardOffsetX+j,boardOffsetY+i,false);
                 }
                 else
                 {
-                    String c = BG_BRIGHT_BLUE.toString() + BLUE.toString();
-                    print(c + " ", boardOffsetX+j, boardOffsetY+i, false);
+                    String c = BG_GRAY1.toString();
+                    print(" ", boardOffsetX+j, boardOffsetY+i, false);
                 }
 
 
             }
         }
         print("012345678", boardOffsetX, bookshelfOffsetY+9, false);
+    }
+
+    private String getBGColorFromTile(Tile t)
+    {
+        switch (t.getItemType())
+        {
+            case CAT: return BG_GREEN.toString();
+            case BOOK: return BG_GRAY1.toString();
+            case PLANT: return BG_MAGENTA.toString();
+            case GAME: return BG_YELLOW.toString();
+            case FRAME: return BG_BLUE.toString();
+            case TROPHY: return BG_LIGHT_BLUE.toString();
+        }
+        return "";
+    }
+
+    private String getColorFromTile(Tile t)
+    {
+        switch (t.getItemType())
+        {
+            case CAT: return GREEN.toString();
+            case BOOK: return LIGHT_GRAY.toString();
+            case PLANT: return MAGENTA.toString();
+            case GAME: return YELLOW.toString();
+            case FRAME: return BLUE.toString();
+            case TROPHY: return CYAN.toString();
+        }
+        return "";
     }
 
     private void printError(String s)
@@ -400,15 +394,14 @@ public class CommandLineInterface implements Runnable {
             {
                 if(j == 0)
                     print(String.valueOf(i), bookshelfOffsetX + (numPlayer*bookshelvesDistance)-1,bookshelfOffsetY+i,false);
-                if(game.getPlayers().get(numPlayer).getBookshelf().getTile(i, j) != null)
+                if(game.getPlayers().get(numPlayer).getImmutableBookshelf().getTile(i, j) != null)
                 {
-                    String c = BG_GREEN.toString() + BLACK.toString();
-                    print(c + String.valueOf(game.getPlayers().get(numPlayer).getBookshelf().getTile(i, j).getItemType().name().charAt(0)), bookshelfOffsetX+j + (numPlayer*bookshelvesDistance),bookshelfOffsetY+i,false);
+                    String c = getColorFromTile(game.getPlayers().get(numPlayer).getImmutableBookshelf().getTile(i, j)) + "■";
+                    print(c, bookshelfOffsetX+j + (numPlayer*bookshelvesDistance),bookshelfOffsetY+i,false);
                 }
                 else
                 {
-                    String c = BG_BRIGHT_BLUE.toString() + BLUE.toString();
-                    print(c + " ", bookshelfOffsetX+j + (numPlayer*bookshelvesDistance), bookshelfOffsetY+i, false);
+                    print(" ", bookshelfOffsetX+j + (numPlayer*bookshelvesDistance), bookshelfOffsetY+i, false);
                 }
             }
         }
@@ -584,7 +577,7 @@ public class CommandLineInterface implements Runnable {
     private int myPlayerIndex()
     {
         int count = 0;
-        for(Player p : game.getPlayers())
+        for(ImmutablePlayer p : game.getPlayers())
         {
             if(p.getNickname().equals(nickname))
                 return count;
@@ -593,29 +586,20 @@ public class CommandLineInterface implements Runnable {
         return -1;
     }
 
-    //FOR TESTING...DELETE WHEN DONE
-    private LinkedList<ScoringToken> createTokensPersonalGoalCard(String id, int numPlayer) {
-        LinkedList<ScoringToken> tokens = new LinkedList<>();
-        switch (numPlayer) {
-            case 2:
-                tokens.add(new ScoringToken(8,id));
-                tokens.add(new ScoringToken(4,id));
-                break;
+    public List<LocatedTile> getSelectedTiles() {
+        return selectedTiles;
+    }
 
-            case 3:
-                tokens.add(new ScoringToken(8,id));
-                tokens.add(new ScoringToken(6,id));
-                tokens.add(new ScoringToken(4,id));
-                break;
+    public int getSelectedColumn() {
+        return selectedColumn;
+    }
 
-            case 4:
-                tokens.add(new ScoringToken(8,id));
-                tokens.add(new ScoringToken(6,id));
-                tokens.add(new ScoringToken(4,id));
-                tokens.add(new ScoringToken(2,id));
-                break;
-        }
-        return tokens;
+    public int getSelectedHandIndex() {
+        return selectedHandIndex;
+    }
+
+    public String getNickname() {
+        return nickname;
     }
 
 }

@@ -1,10 +1,8 @@
 package org.myshelfie.network.messages.gameMessages;
 
-import org.myshelfie.model.Board;
-import org.myshelfie.model.CommonGoalCard;
-import org.myshelfie.model.Game;
-import org.myshelfie.model.Player;
+import org.myshelfie.model.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.io.Serializable;
 
@@ -15,26 +13,30 @@ import java.io.Serializable;
 public class GameView implements Serializable {
     // TODO: understand if it's correct for this class to be mutable
     static final long serialVersionUID = 1L;
-    private final Player currPlayer;
-    private final List<Player> players;
+    private final ImmutablePlayer currPlayer;
+    private final List<ImmutablePlayer> players;
     private final List<CommonGoalCard> commonGoals;
-    private final Board board;
+    private final ImmutableBoard board;
 
     // TODO: add suspended game handling (also in the view)
     // private boolean playing;
 
     public GameView(Game model) {
-        this.currPlayer = model.getCurrPlayer();
+        this.currPlayer = new ImmutablePlayer(model.getCurrPlayer());
         this.commonGoals = model.getCommonGoals();
-        this.players = model.getPlayers();
-        this.board = model.getBoard();
+        this.players = new ArrayList<>();
+        for(Player p: model.getPlayers())
+        {
+            this.players.add(new ImmutablePlayer(p));
+        }
+        this.board = new ImmutableBoard(model.getBoard());
     }
 
-    public Player getCurrPlayer() {
+    public ImmutablePlayer getCurrPlayer() {
         return currPlayer;
     }
 
-    public List<Player> getPlayers() {
+    public List<ImmutablePlayer> getPlayers() {
         return players;
     }
 
@@ -42,7 +44,7 @@ public class GameView implements Serializable {
         return commonGoals;
     }
 
-    public Board getBoard() {
+    public ImmutableBoard getBoard() {
         return board;
     }
 }

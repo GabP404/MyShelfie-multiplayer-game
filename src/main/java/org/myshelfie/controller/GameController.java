@@ -11,7 +11,7 @@ public class GameController {
     private Game game;
     private List<Client> clients;
     public GameController() {
-        game = new Game();
+        //game = new Game();
     }
 
     public GameController(Game game) {

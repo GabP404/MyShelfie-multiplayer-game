@@ -1,7 +1,7 @@
 package org.myshelfie.network.client;
 
 import org.myshelfie.network.Listener;
-import org.myshelfie.network.messages.commandMessages.UserInputEventType;
+import org.myshelfie.network.messages.commandMessages.*;
 import org.myshelfie.network.server.Server;
 import org.myshelfie.view.CommandLineInterface;
 
@@ -22,12 +22,11 @@ public class UserInputListener implements Listener<UserInputEventType> {
     @Override
     public void update(UserInputEventType ev) {
         CommandLineInterface cli = client.getCLI();
-        /*
-        // TODO: define how to precisely retrieve the data from the cli
+
         CommandMessage m = switch (ev) {
-            case SELECTED_TILES -> new PickedTilesCommandMessage(cli.getSelectedTiles());
-            case SELECTED_BOOKSHELF_COLUMN -> new SelectedColumnMessage(cli.getSelectedColumn());
-            case SELECTED_HAND_TILE -> new SelectedTileFromHandCommandMessage(cli.getSelectedTileFromHand());
+            case SELECTED_TILES -> new PickedTilesCommandMessage(cli.getNickname(), cli.getSelectedTiles());
+            case SELECTED_BOOKSHELF_COLUMN -> new SelectedColumnMessage(cli.getNickname(),cli.getSelectedColumn());
+            case SELECTED_HAND_TILE -> new SelectedTileFromHandCommandMessage(cli.getNickname(), cli.getSelectedHandIndex(),null); //TODO: redundant
             default ->
                 // TODO: decide whether to throw an exception or send a special kind of message
                     null;
@@ -35,6 +34,6 @@ public class UserInputListener implements Listener<UserInputEventType> {
         // send the message to the server
         server.update(client, new CommandMessageWrapper(m, ev));
 
-         */
+
     }
 }
