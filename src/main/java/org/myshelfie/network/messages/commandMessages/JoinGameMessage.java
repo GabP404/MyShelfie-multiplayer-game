@@ -6,4 +6,5 @@ public class JoinGameMessage extends CommandMessage {
     public JoinGameMessage(String nickname, UUID uuid) {
         super(nickname, uuid);
     }
+
 }

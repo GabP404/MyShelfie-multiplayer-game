@@ -3,6 +3,10 @@ package org.myshelfie.controller;
 import org.myshelfie.model.Game;
 import org.myshelfie.model.PersonalGoalCard;
 import org.myshelfie.model.PersonalGoalDeck;
+import org.myshelfie.network.messages.commandMessages.CommandMessage;
+import org.myshelfie.network.messages.commandMessages.CreateGameMessage;
+import org.myshelfie.network.messages.commandMessages.JoinGameMessage;
+import org.myshelfie.network.messages.commandMessages.UserInputEvent;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -13,9 +17,11 @@ import java.util.UUID;
 
 public class LobbyController {
 
+
+    // TODO Disconnessione da lobby
     private static LobbyController single_istance;
 
-    private HashMap<UUID,GameController> gameControllers;
+    private HashMap<String,GameController> gameControllers;
 
     private LobbyController() {
         gameControllers = new HashMap<>();
@@ -27,28 +33,20 @@ public class LobbyController {
         }
         return single_istance;
     }
-
-    public void createNewGame(int numPlayerGame, int  numGoalCards, String nickname) {
-        UUID uuid = UUID.randomUUID();
-        GameController gameController = new GameController(uuid, numPlayerGame, numGoalCards);
-        gameController.addPlayer(nickname);
-        gameControllers.put(uuid,gameController);
+    public void executeCommand(CommandMessage command, UserInputEvent t) {
+        gameControllers.get(command.getGameName()).executeCommand(command, t);
     }
 
-    public void addPlayerToLobby(String nickname, UUID uuid) throws IOException, URISyntaxException {
-        GameController gameController = gameControllers.get(uuid);
-        gameController.addPlayer(nickname);
-    }
 
     //remove player lobby
-    public void deleteGame(UUID uuid) {
-        GameController gameController = gameControllers.get(uuid);
+    public void deleteGame(String gameName) {
+        GameController gameController = gameControllers.get(gameName);
         gameControllers.remove(gameController);
     }
 
 
-    public void removePlayerLobby(String nickname, UUID uuid) {
-        GameController gameController = gameControllers.get(uuid);
+    public void removePlayerLobby(String nickname, String gameName) {
+        GameController gameController = gameControllers.get(gameName);
         gameController.removePlayer(nickname);
     }
 

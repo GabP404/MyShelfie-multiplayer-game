@@ -6,20 +6,19 @@ import java.util.*;
 
 public class Game {
 
-    private UUID uuid;
+    private String gameName;;
     private Player currPlayer;
     private List<Player> players;
     private Board board;
     private HashMap<CommonGoalCard,List<ScoringToken>> commonGoals;
     private TileBag tileBag;
-    private boolean playing;
 
     private ModelState modelState;
 
     private Player winner;
     private Map<String, Boolean> errorState;
 
-    public Game(List<Player> players, Board board, HashMap<CommonGoalCard,List<ScoringToken>> commonGoals, TileBag tileBag, ModelState modelState) {
+    public Game(List<Player> players, Board board, HashMap<CommonGoalCard,List<ScoringToken>> commonGoals, TileBag tileBag, ModelState modelState, String gameName) {
         this.players = players;
         this.board = board;
         this.commonGoals = commonGoals;
@@ -34,21 +33,10 @@ public class Game {
         } catch (WrongArgumentException e) {
             throw new RuntimeException(e);
         }
-        suspendGame();
+        this.gameName = gameName;
     }
 
-    public Game() {
-        suspendGame();
-    }
-
-    public void startGame() {
-        playing = true;
-    }
-
-    public void suspendGame() {
-        playing = false;
-    }
-
+    
     public Player getCurrPlayer() {
         return currPlayer;
     }
@@ -120,9 +108,6 @@ public class Game {
             throw new WrongArgumentException("CommonGoalCard not found");
         return x.getFirst();
     }
-    public boolean isPlaying() {
-        return playing;
-    }
 
     public void setCurrPlayer(Player currPlayer) throws WrongArgumentException{
         if (currPlayer == null || !players.contains(currPlayer))
@@ -148,7 +133,7 @@ public class Game {
         this.winner = winner;
     }
 
-    public UUID getUuid() {
-        return uuid;
+    public String getGameName() {
+        return gameName;
     }
 }

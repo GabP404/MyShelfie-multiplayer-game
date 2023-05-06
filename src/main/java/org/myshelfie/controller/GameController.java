@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class GameController {
 
-    private UUID gameUuid;
+    private String gameName;
 
     private Game game;
     private List<String> nicknames;
@@ -22,8 +22,8 @@ public class GameController {
 
     private int numGoalCards;
 
-    public GameController(UUID uuid, int numPlayerGame, int numGoalCards) {
-        this.gameUuid = uuid;
+    public GameController(String gameName, int numPlayerGame, int numGoalCards) {
+        this.gameName = gameName;
         this.nicknames = new ArrayList<>();
         this.numPlayerGame = numPlayerGame;
         this.numGoalCards = numGoalCards;
@@ -45,7 +45,7 @@ public class GameController {
             commonGoal.put(x, (List<ScoringToken>) createTokensCommonGoalCard(x.getId(),numPlayerGame));
         }
         TileBag tileBag = new TileBag();
-        this.game = new Game(players, new Board(numPlayerGame),commonGoal,tileBag,ModelState.WAITING_SELECTION_TILE);
+        this.game = new Game(players, new Board(numPlayerGame),commonGoal,tileBag,ModelState.WAITING_SELECTION_TILE,gameName);
     }
 
     public void createGame(int numPlayerGame, int numGoalCards, String nickname) {
@@ -237,10 +237,6 @@ public class GameController {
         return game;
     }
 
-    public UUID getGameUuid() {
-        return gameUuid;
-    }
-
     public List<String> getNicknames() {
         return nicknames;
     }
@@ -258,5 +254,9 @@ public class GameController {
     public boolean isGameCreated() {
         if (game == null) return false;
         return true;
+    }
+
+    public String getGameName() {
+        return gameName;
     }
 }
