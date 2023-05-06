@@ -1,27 +1,25 @@
 package org.myshelfie.network.messages.commandMessages;
 
-import java.util.UUID;
-
 abstract public class CommandMessage {
 
     protected final String nickname;
-    protected UUID gameUUID;
+    protected String gameName;
 
     public CommandMessage(String nickname) {
         this.nickname = nickname;
-        this.gameUUID = null;
+        this.gameName = null;
     }
 
-    public CommandMessage(String nickname, UUID gameUUID) {
+    public CommandMessage(String nickname, String gameName) {
         this.nickname = nickname;
-        this.gameUUID = gameUUID;
+        this.gameName = gameName;
     }
 
     public String getNickname() {
         return nickname;
     }
 
-    public UUID getGameUUID() {
-        return gameUUID;
+    public String getGameName() {
+        return gameName;
     }
 }

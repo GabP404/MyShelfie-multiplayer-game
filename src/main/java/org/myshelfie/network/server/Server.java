@@ -8,9 +8,7 @@ import org.myshelfie.model.WrongArgumentException;
 import org.myshelfie.network.EventManager;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.client.ClientRMIInterface;
-import org.myshelfie.network.messages.commandMessages.CommandMessage;
-import org.myshelfie.network.messages.commandMessages.CommandMessageWrapper;
-import org.myshelfie.network.messages.commandMessages.UserInputEvent;
+import org.myshelfie.network.messages.commandMessages.*;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.EventWrapper;
 
@@ -62,7 +60,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
      * Register a client to the server
      * @param client the client to register
      */
-    public void register(Client client) {
+    public void register(Client client) throws IllegalArgumentException {
         //Throws an exception if there is already a client with the same nickname
         if (this.clients.stream().anyMatch(c -> c.getNickname().equals(client.getNickname()))) {
             throw new IllegalArgumentException("Nickname already taken");
@@ -171,14 +169,9 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                     return;
                 }
 
-                //Get client nickname
-                BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                String nickname = input.readLine();
-
                 //Create and register a new client
-                Client client = new Client(nickname);
+                Client client = new Client();
                 client.setClientSocket(clientSocket);
-                this.register(client);
                 // Create and start a new client handler thread
                 Thread clientHandler = new SocketClientHandler(clientSocket, client);
                 clientHandler.start();
@@ -224,11 +217,11 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
      * Method to send a message to a client
      * @param clientSocket
      */
-    public void sendTo(Socket clientSocket, EventWrapper ew) {
-        ObjectOutputStream output = null;
+    public void sendTo(Socket clientSocket, Serializable message) {
+        ObjectOutputStream output;
         try {
             output = new ObjectOutputStream(clientSocket.getOutputStream());
-            output.writeObject(ew);
+            output.writeObject(message);
             output.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -251,6 +244,45 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
             try {
                 // Create a new input stream to read serialized objects from the client socket
                 ObjectInputStream input = new ObjectInputStream(clientSocket.getInputStream());
+
+                //Get client nickname
+                boolean inputValid = false;
+                do {
+                    String nickname = input.readObject().toString();
+                    client.setNickname(nickname);
+                    try {
+                        Server.this.register(client);
+                        inputValid = true;
+                    } catch (IllegalArgumentException e) {
+                        sendTo(clientSocket, "Nickname already taken!");
+                    }
+                } while (!inputValid);
+
+                // Send list of games
+                sendTo(clientSocket, Server.this.getGames());
+
+                // Get CREATE or JOIN game message
+                inputValid = false;
+                String gameID = null;
+                do {
+                    CommandMessageWrapper message = (CommandMessageWrapper) input.readObject();
+                    try {
+                        if (message.getType() == UserInputEvent.CREATE_GAME) {
+                            gameID = Server.this.createGame((CreateGameMessage) message.getMessage());
+                            inputValid = true;
+                        } else if (message.getType() == UserInputEvent.JOIN_GAME) {
+                            gameID = Server.this.joinGame((JoinGameMessage) message.getMessage());
+                            inputValid = true;
+                        } else {
+                            throw new IllegalArgumentException("Invalid message type");
+                        }
+                    } catch (IllegalArgumentException e) {
+                        sendTo(clientSocket, e.getMessage());
+                    }
+                } while (!inputValid);
+
+                // Send game UUID to client
+                sendTo(clientSocket, gameID);
 
                 // Loop to handle multiple client requests
                 while (true) {
@@ -276,6 +308,26 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    public List getGames() throws RemoteException {
+        return this.controller.getGames();
+    }
+
+    public String createGame(CreateGameMessage message) throws RemoteException {
+        try {
+            return this.controller.createGame(message);
+        } catch (IllegalArgumentException e) {
+            throw new RemoteException(e.getMessage());
+        }
+    }
+
+    public String joinGame(JoinGameMessage message) throws RemoteException {
+        try {
+            return this.controller.joinGame(message);
+        } catch (IllegalArgumentException e) {
+            throw new RemoteException(e.getMessage());
         }
     }
 }

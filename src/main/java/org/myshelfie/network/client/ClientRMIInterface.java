@@ -1,9 +1,12 @@
 package org.myshelfie.network.client;
 
+import org.myshelfie.network.messages.commandMessages.CreateGameMessage;
+import org.myshelfie.network.messages.commandMessages.JoinGameMessage;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.UUID;
 
 public interface ClientRMIInterface extends Remote {
     /**

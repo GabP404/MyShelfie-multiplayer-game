@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
  * Unit tests for the CommandMessages classes
  */
 public class CommandMessagesTest {
-    static UUID uuid = UUID.randomUUID();
+    static String uuid = "ciaociaobimba";
 
     @Test
     public void testPickedTilesCommandMessage() {

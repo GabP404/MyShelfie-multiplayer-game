@@ -38,6 +38,8 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface {
     public Client() throws RemoteException {
         super();
         this.isRMI = false;
+
+        //set nickname
     }
 
     public Client(String nickName, boolean isRMI) throws RemoteException {
@@ -70,9 +72,9 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface {
         eventManager.subscribe(UserInputEvent.class, new UserInputListener(this));
     }
 
-    public UUID getGameUUID() {
-        //TODO this.view.getGameUUID();
-        return new UUID(0, 0);
+    public String getGameName() {
+        //TODO this.view.getGameString();
+        return "";
     }
 
     class SocketServerListener extends Thread {

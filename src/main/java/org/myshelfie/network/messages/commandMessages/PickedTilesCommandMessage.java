@@ -18,8 +18,8 @@ public class PickedTilesCommandMessage extends CommandMessage implements Seriali
      * @param nickname    Nickname of the player sending the message
      * @param tiles       List of the chosen tiles
      */
-    public PickedTilesCommandMessage(String nickname, UUID gameUUID, List<LocatedTile> tiles) {
-        super(nickname, gameUUID);
+    public PickedTilesCommandMessage(String nickname, String gameName, List<LocatedTile> tiles) {
+        super(nickname, gameName);
         this.tiles = tiles.stream().map(t -> new Pair<Integer, Integer>(t.getRow(), t.getCol())).toList();
     }
 

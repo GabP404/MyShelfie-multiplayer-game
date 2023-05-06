@@ -15,7 +15,7 @@ public class GameControllerTest {
 
     static GameController gameController;
 
-    static UUID gameUUID = UUID.randomUUID();
+    static String gameName = "gamename";
 
     @BeforeAll
     public static void setup() {
@@ -55,7 +55,7 @@ public class GameControllerTest {
         assertNotNull(tiles.get(1));
 
         // Select and execute the tiles from the board
-        PickedTilesCommandMessage m = new PickedTilesCommandMessage("User1", gameUUID, tiles);
+        PickedTilesCommandMessage m = new PickedTilesCommandMessage("User1", gameName, tiles);
         CommandMessageWrapper wrapper = new CommandMessageWrapper(m, UserInputEvent.SELECTED_TILES);
         UserInputEvent messageType = wrapper.getType();
         CommandMessage messageCommand = wrapper.getMessage();
@@ -65,7 +65,7 @@ public class GameControllerTest {
         assertEquals(game.getModelState(),ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN);
 
 
-        SelectedColumnMessage scm = new SelectedColumnMessage("User1", gameUUID, 0);
+        SelectedColumnMessage scm = new SelectedColumnMessage("User1", gameName, 0);
         wrapper = new CommandMessageWrapper(scm, UserInputEvent.SELECTED_BOOKSHELF_COLUMN);
         messageType = wrapper.getType();
         messageCommand = wrapper.getMessage();
@@ -74,7 +74,7 @@ public class GameControllerTest {
         assertEquals(game.getCurrPlayer().getSelectedColumn(),0);
 
         List<Tile> x = game.getCurrPlayer().getTilesPicked();
-        SelectedTileFromHandCommandMessage stfhc = new SelectedTileFromHandCommandMessage("User1",gameUUID, 0, x.get(1).getItemType());
+        SelectedTileFromHandCommandMessage stfhc = new SelectedTileFromHandCommandMessage("User1",gameName, 0, x.get(1).getItemType());
         wrapper = new CommandMessageWrapper(stfhc, UserInputEvent.SELECTED_HAND_TILE);
         messageType = wrapper.getType();
         messageCommand = wrapper.getMessage();
@@ -83,7 +83,7 @@ public class GameControllerTest {
 
 
         Player p = game.getCurrPlayer();
-        SelectedTileFromHandCommandMessage stfhc2 = new SelectedTileFromHandCommandMessage("User1", gameUUID, 0, x.get(0).getItemType());
+        SelectedTileFromHandCommandMessage stfhc2 = new SelectedTileFromHandCommandMessage("User1", gameName, 0, x.get(0).getItemType());
         wrapper = new CommandMessageWrapper(stfhc2, UserInputEvent.SELECTED_HAND_TILE);
         messageType = wrapper.getType();
         messageCommand = wrapper.getMessage();

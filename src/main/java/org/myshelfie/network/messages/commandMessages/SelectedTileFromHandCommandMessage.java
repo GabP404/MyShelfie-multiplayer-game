@@ -18,8 +18,8 @@ public class SelectedTileFromHandCommandMessage extends CommandMessage implement
      * @param index     The index of the tile in the player's current hand
      * @param tileType  The type of the tile (just to make sure)
      */
-    public SelectedTileFromHandCommandMessage(String nickname, UUID gameUUID, int index, ItemType tileType) {
-        super(nickname, gameUUID);
+    public SelectedTileFromHandCommandMessage(String nickname, String gameName, int index, ItemType tileType) {
+        super(nickname, gameName);
         this.index = index;
         this.tileType = tileType;
     }
