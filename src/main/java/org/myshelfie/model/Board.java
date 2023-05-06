@@ -104,4 +104,10 @@ public class Board {
     public Tile getTile(int x, int y) {
         return this.boardTiles[x][y];
     }
+
+    public Tile removeTile(int x, int y) {
+        Tile t = this.boardTiles[x][y];
+        this.boardTiles[x][y] = null;
+        return t;
+    }
 }
