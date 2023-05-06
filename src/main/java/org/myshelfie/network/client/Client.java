@@ -132,12 +132,9 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface {
     public void updateServer(CommandMessageWrapper msg) {
         if (isRMI) {
             try {
-                EventWrapper response = rmiServer.update(this, msg);
-                if (response.getType() == GameEvent.ERROR) {
-                    throw new RuntimeException((String) response.getMessage());
-                } else {
-                    System.out.println("Correctly sent update to server: " + msg.toString());
-                }
+                // Send command message to the server using RMI. Any possible error is handled by the server
+                // so there is no need to wait for a server response
+                rmiServer.update(this, msg);
             } catch (RemoteException e) {
                 throw new RuntimeException(e);
             }
@@ -146,16 +143,7 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface {
             try {
                 PrintWriter output = new PrintWriter(serverSocket.getOutputStream(), true);
                 output.println(msg.toString());
-
-                //Get the string response from the server
-                ObjectInputStream input = new ObjectInputStream(serverSocket.getInputStream());
-                EventWrapper response = (EventWrapper) input.readObject();
-                if (response.getType() == GameEvent.ERROR) {
-                    throw new RuntimeException((String) response.getMessage());
-                } else {
-                    System.out.println("Correctly sent update to server: " + msg.toString());
-                }
-            } catch (IOException | ClassNotFoundException e) {
+            } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }

@@ -106,7 +106,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
      * @param msg wrapped message received from the client
      */
     @Override
-    public EventWrapper update(Client client, CommandMessageWrapper msg) {
+    public void update(Client client, CommandMessageWrapper msg) {
         if (!clients.contains(client)) {
             throw new IllegalArgumentException("Client not registered");
         }
@@ -116,12 +116,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
         UserInputEvent messageType = msg.getType();
         String messageCommand = msg.getMessage();
         // call the update on the controller
-        try {
-            this.controller.executeCommand(messageCommand, messageType);
-        } catch (WrongTurnException | InvalidCommand | WrongArgumentException e) {
-            return new EventWrapper(e.getMessage(), GameEvent.ERROR);
-        }
-        return new EventWrapper(null, GameEvent.RESPONSE_OK);
+        this.controller.executeCommand(messageCommand, messageType);
     }
 
     // Method to start the server
@@ -271,8 +266,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                     }
 
                     // Handle the request
-                    EventWrapper response = Server.this.update(this.client, new CommandMessageWrapper(request));
-                    Server.this.sendTo(clientSocket, response);
+                    Server.this.update(this.client, new CommandMessageWrapper(request));
                 }
 
                 // Close the client socket and unregister the client

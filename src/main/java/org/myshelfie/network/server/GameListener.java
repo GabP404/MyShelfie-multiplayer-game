@@ -47,8 +47,7 @@ public class GameListener implements Listener<GameEvent> {
             return; //The game hasn't been set yet
         if (client.isRMI()) {
             client.update(message, ev);
-        }
-        else {
+        } else {
             EventWrapper ew = new EventWrapper(message, ev);
             Socket clientSocket = client.getClientSocket();
             server.sendTo(clientSocket, ew);

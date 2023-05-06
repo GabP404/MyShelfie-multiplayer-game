@@ -23,7 +23,7 @@ public class SelectTileFromHandCommand implements Command {
 
     public void execute() throws InvalidCommand, WrongTurnException, WrongArgumentException {
         if(!currPlayer.getNickname().equals(nickname)) {
-            throw new WrongTurnException("Wrong player turn");
+            throw new WrongTurnException();
         }
         if(currentModelState != ModelState.WAITING_3_SELECTION_TILE_FROM_HAND && currentModelState != ModelState.WAITING_2_SELECTION_TILE_FROM_HAND && currentModelState != ModelState.WAITING_1_SELECTION_TILE_FROM_HAND){
             throw new InvalidCommand("Waiting for Tile Selection Hand ");

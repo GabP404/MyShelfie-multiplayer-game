@@ -114,16 +114,25 @@ public class GameController {
 
 
     //change firm of the method based
-    public void executeCommand(String command, UserInputEvent t) throws WrongTurnException, InvalidCommand, WrongArgumentException {
+    public void executeCommand(String command, UserInputEvent t) {
             Command c = null;
-            switch (t) {
-                case SELECTED_BOOKSHELF_COLUMN -> c = new PickTilesCommand(game.getBoard(),game.getCurrPlayer() ,command,this.game.getModelState());
-                case SELECTED_TILES -> c = new SelectTileFromHandCommand(game.getCurrPlayer(), command,this.game.getModelState());
-                case SELECTED_HAND_TILE -> c = new SelectColumnCommand(game.getCurrPlayer(), command,this.game.getModelState());
-                default -> throw new InvalidCommand("Invalid command");
+            try {
+                switch (t) {
+                    case SELECTED_BOOKSHELF_COLUMN -> c = new PickTilesCommand(game.getBoard(), game.getCurrPlayer(), command, this.game.getModelState());
+                    case SELECTED_TILES -> c = new SelectTileFromHandCommand(game.getCurrPlayer(), command, this.game.getModelState());
+                    case SELECTED_HAND_TILE -> c = new SelectColumnCommand(game.getCurrPlayer(), command, this.game.getModelState());
+                    default -> throw new InvalidCommand();
+                }
+                c.execute();
+                game.resetErrorState();
+                nextState();
+            }catch (WrongTurnException e) {
+                game.setErrorState(command.getNickname(), "Wait for your turn to perform this action. " + e.getMessage());
+            }catch (InvalidCommand e) {
+                game.setErrorState(command.getNickname(), "You tried to perform the wrong action: " + e.getMessage());
+            }catch (WrongArgumentException e){
+                game.setErrorState(command.getNickname(), "Your request has an invalid argument: " + e.getMessage());
             }
-            c.execute();
-            nextState();
     }
 
     private void checkState(UserInputEvent t) throws InvalidCommand{

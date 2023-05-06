@@ -25,7 +25,7 @@ public class SelectColumnCommand implements Command {
 
     public void execute() throws WrongTurnException, InvalidCommand, WrongArgumentException {
         if(!currPlayer.getNickname().equals(nickname)) {
-            throw new WrongTurnException("Wrong player turn");
+            throw new WrongTurnException();
         }
         if(currentModelState == ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN) throw new InvalidCommand("Waiting for Column Selection ");
         currPlayer.setSelectedColumn(selectedColumn);

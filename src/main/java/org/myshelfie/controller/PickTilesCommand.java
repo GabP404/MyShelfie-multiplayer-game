@@ -112,7 +112,7 @@ public class PickTilesCommand implements Command {
 
     public void execute() throws  WrongTurnException, InvalidCommand, WrongArgumentException {
         if(!currPlayer.getNickname().equals(nickname)) {
-            throw new WrongTurnException("Wrong player turn");
+            throw new WrongTurnException();
         }
         if(currentModelState == ModelState.WAITING_SELECTION_TILE) throw new InvalidCommand("Waiting for Tile Selection ");
 
