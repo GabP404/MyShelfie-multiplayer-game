@@ -5,7 +5,10 @@ import org.myshelfie.network.messages.commandMessages.CommandMessageWrapper;
 import org.myshelfie.network.messages.commandMessages.UserInputEvent;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.EventWrapper;
+import org.myshelfie.network.messages.gameMessages.GameView;
 import org.myshelfie.network.server.ServerRMIInterface;
+import org.myshelfie.view.View;
+import org.myshelfie.view.ViewCLI;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -17,7 +20,8 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.UUID;
 
-public class Client extends UnicastRemoteObject implements ClientRMIInterface {
+public class Client extends UnicastRemoteObject implements ClientRMIInterface, Runnable{
+
     protected String nickname;
     protected static final String SERVER_ADDRESS = "localhost";
     protected static final int SERVER_PORT = 1234;
@@ -30,6 +34,7 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface {
 
     protected Socket clientSocket;
     public static EventManager eventManager = new EventManager();
+    private View view;
 
     /**
      * Constructor used by the server to create a Client based on the nickname received via socket
@@ -42,14 +47,19 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface {
         //set nickname
     }
 
-    public Client(String nickName, boolean isRMI) throws RemoteException {
+    public Client(boolean isRMI, boolean isGUI) throws RemoteException {
         this.isRMI = isRMI;
-        this.nickname = nickName;
+        if (isGUI) {
+            // TODO: implement GUI
+        } else {
+            this.view = new ViewCLI();
+        }
+
+        // connect
         if (isRMI) {
             try {
                 // Look up the server object in the RMI registry
                 rmiServer = (ServerRMIInterface) Naming.lookup("//localhost/" + RMI_SERVER_NAME);
-                rmiServer.register(this);
             } catch (Exception e) {
                 System.err.println("Exception: " + e.getMessage());
                 e.printStackTrace();
@@ -58,8 +68,6 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface {
             try {
                 // Create a new socket and connect to the server
                 this.serverSocket = new Socket(SERVER_ADDRESS, SERVER_PORT);
-                PrintWriter output = new PrintWriter(serverSocket.getOutputStream(), true);
-                output.println(nickName);
 
                 // Create and start a new thread that constantly listens for messages from the server
                 Thread serverListener = new SocketServerListener(serverSocket);
@@ -120,7 +128,7 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface {
 
     public Client(ClientRMIInterface rmiInterface) throws RemoteException {
         super();
-        this.nickname = rmiInterface.getNickname();
+        this.isRMI = true;
     }
 
     public Client getClientInstance() {
@@ -132,8 +140,15 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface {
      * @param argument GameView in case of a model change, String in case of an error
      * @param ev Type of the information received
      */
-    public void update(Object argument, GameEvent ev) {
-        System.out.println("Received update from server: " + argument.toString() + " " + ev.toString());
+    @Override
+    public void update(GameView argument, GameEvent ev) {
+        view.update(argument, ev);
+    }
+
+    @Override
+    public void run()
+    {
+        view.run();
     }
 
     public void updateServer(CommandMessageWrapper msg) {

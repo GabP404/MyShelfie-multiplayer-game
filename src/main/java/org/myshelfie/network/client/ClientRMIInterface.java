@@ -3,6 +3,7 @@ package org.myshelfie.network.client;
 import org.myshelfie.network.messages.commandMessages.CreateGameMessage;
 import org.myshelfie.network.messages.commandMessages.JoinGameMessage;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
+import org.myshelfie.network.messages.gameMessages.GameView;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -14,7 +15,7 @@ public interface ClientRMIInterface extends Remote {
      * @param argument GameView in case of a model change, String in case of an error
      * @param ev Type of the information received
      */
-    void update(Object argument, GameEvent ev) throws RemoteException;
+    void update(GameView argument, GameEvent ev) throws RemoteException;
 
     /**
      * Returns a Client instance that can be registered on the server

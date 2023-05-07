@@ -1,6 +1,8 @@
 package org.myshelfie.model;
 
-public class ScoringToken {
+import java.io.Serializable;
+
+public class ScoringToken implements Serializable {
     private Integer points;
     private String CommonGoalId;
 

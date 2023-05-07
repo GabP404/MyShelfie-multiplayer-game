@@ -5,10 +5,11 @@ import org.myshelfie.model.Player;
 import org.myshelfie.model.ScoringToken;
 import org.myshelfie.model.Tile;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class ImmutablePlayer {
+public final class ImmutablePlayer  implements Serializable {
     private final String nickname;
     private final List<ScoringToken> commonGoalTokens;
     private final Boolean hasFinalToken;

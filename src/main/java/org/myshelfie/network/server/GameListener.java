@@ -39,12 +39,8 @@ public class GameListener implements Listener<GameEvent> {
             return; //The game hasn't been set yet
 
         //Create the message to be sent
-        Object message = null;
-        if (ev == GameEvent.ERROR) {
-            message = (String) args[0];
-        } else {
-            message = new GameView(this.listenedGame);
-        }
+        GameView message = new GameView(this.listenedGame);
+
         if (client.isRMI()) {
             client.update(message, ev);
         } else {

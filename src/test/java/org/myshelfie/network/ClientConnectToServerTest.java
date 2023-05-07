@@ -50,7 +50,7 @@ public class ClientConnectToServerTest {
     public void testClientRMIConnectToServer() {
         String nickname = "RMITest";
         try {
-            Client clientRMI = new Client(nickname, true);
+            Client clientRMI = new Client(true, false);
             assertInstanceOf(Client.class, clientRMI);
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -68,7 +68,7 @@ public class ClientConnectToServerTest {
     @Test
     public void testClientSocketConnectToServer() throws RemoteException {
         String nickname = "SocketTest";
-        Client clientSocket = new Client(nickname, false);
+        Client clientSocket = new Client( false, false);
         assertInstanceOf(Client.class, clientSocket);
     }
 }
