@@ -68,17 +68,29 @@ public class ViewCLI implements View{
     public void update(GameView msg, GameEvent ev) {
 
         clear();
-        switch (ev)
-        {
-            // TODO: work in progress (on ev == GameEvent.ERROR print the string from msg.getErrorState(..,)
-            //  instead of printAll())
-            case BOARD_UPDATE -> selectedTiles.clear();
-        }
         game = msg;
         printAll();
+        if (ev == GameEvent.ERROR) {
+            if (game.getErrorState(nickname) != null) {
+                printError(game.getErrorState(nickname));
+            }
+        }
+        switch(game.getModelState())
+        {
+            case WAITING_SELECTION_TILE -> {
+                selectedColumn = -1;
+                selectedHandIndex = -1;
+            }
+            case WAITING_SELECTION_BOOKSHELF_COLUMN -> {
+                selectedTiles.clear();
+                selectedHandIndex = -1;
+            }
+            case WAITING_1_SELECTION_TILE_FROM_HAND, WAITING_2_SELECTION_TILE_FROM_HAND, WAITING_3_SELECTION_TILE_FROM_HAND -> {
+                selectedTiles.clear();
+            }
+        }
+
         setCursor(inputOffsetX, inputOffsetY);
-        // System.out.println("Received from server the event " + ev + "signaling a change in the model!");
-        // System.out.println("    Message payload: " + msg);
     }
 
     @Override
