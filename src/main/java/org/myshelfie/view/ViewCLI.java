@@ -46,6 +46,7 @@ public class ViewCLI implements View{
                 setCursor(0,1);
                 String suppNick = scanner.nextLine();
                 print("CONNECTING TO SERVER WITH NICKNAME "+ suppNick,10,10, false);
+                //Client.eventManager.notify(UserInputEvent.NICKNAME, suppNick);
                 Thread.sleep(10000);
                 //send information to server
                 clear();
@@ -88,13 +89,6 @@ public class ViewCLI implements View{
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-
-
-        String nicknameAsk;
-        do {
-            nicknameAsk = scanner.nextLine();
-        }while (nicknameAsk != null);
-
 
 
         Thread t = new Thread(() -> {
