@@ -7,6 +7,9 @@ import org.myshelfie.model.*;
 import org.myshelfie.network.messages.commandMessages.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -19,10 +22,10 @@ public class GameControllerTest {
 
     @BeforeAll
     public static void setup() {
-        gameController = new GameController();
+        gameController = new GameController("testGame", 4, 2);
     }
 
-    @BeforeEach
+    @Test
     public void testCreatingGame() {
         int numPlayerGame = 4;
         int numGoalCard = 2;
@@ -31,9 +34,13 @@ public class GameControllerTest {
         nicknames.add("User2");
         nicknames.add("User3");
         nicknames.add("User4");
-        gameController.createGame(numPlayerGame,numGoalCard,nicknames.get(0));
-        for (int i = 1; i < nicknames.size(); i++) {
-            gameController.addPlayer(nicknames.get(i));
+        for (String nickname : nicknames) {
+            gameController.addPlayer(nickname);
+        }
+        try {
+            gameController.setupGame();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         assertNotNull(gameController.getGame());
         assertEquals(gameController.getGame().getPlayers().size(), numPlayerGame);

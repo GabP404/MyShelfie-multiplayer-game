@@ -8,6 +8,7 @@ import org.myshelfie.network.messages.gameMessages.EventWrapper;
 import org.myshelfie.network.messages.gameMessages.GameView;
 
 import java.net.Socket;
+import java.rmi.RemoteException;
 
 public class GameListener implements Listener<GameEvent> {
     private final Server server;
@@ -27,6 +28,10 @@ public class GameListener implements Listener<GameEvent> {
         this.listenedGame = listenedGame;
     }
 
+    public void setListenedGame(Game listenedGame) {
+        this.listenedGame = listenedGame;
+    }
+
     /**
      * Send to the client the (immutable) game after a change.
      *
@@ -42,7 +47,11 @@ public class GameListener implements Listener<GameEvent> {
         GameView message = new GameView(this.listenedGame);
 
         if (client.isRMI()) {
-            client.update(message, ev);
+            try {
+                client.updateRMI(message, ev);
+            } catch (RemoteException e) {
+                System.out.println(e.getMessage());
+            }
         } else {
             EventWrapper ew = new EventWrapper(message, ev);
             Socket clientSocket = client.getClientSocket();

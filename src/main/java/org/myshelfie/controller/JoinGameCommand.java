@@ -25,11 +25,9 @@ public class JoinGameCommand implements Command{
     public void execute() throws IllegalArgumentException {
         if(!gameControllers.containsKey(gameName))
             throw new IllegalArgumentException("Game not found");
-        if(gameControllers.get(gameName).isGameCreated())
+        if(!gameControllers.get(gameName).isGameCreated())
             throw new IllegalArgumentException("Game not joinable");
         GameController gameController = gameControllers.get(gameName);
         gameController.addPlayer(nickname);
     }
-
-
 }

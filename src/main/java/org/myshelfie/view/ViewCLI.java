@@ -27,6 +27,7 @@ public class ViewCLI implements View{
 
     private static final int errorOffsetX = 3;
     private static final int errorOffsetY = 33;
+    private Client client = null;
 
     private List<LocatedTile> selectedTiles;    // tiles selected from the board
     private int selectedColumn;
@@ -45,8 +46,8 @@ public class ViewCLI implements View{
             while (true) {
                 setCursor(0,1);
                 String suppNick = scanner.nextLine();
-                print("CONNECTING TO SERVER WITH NICKNAME "+ suppNick,10,10, false);
-                //Client.eventManager.notify(UserInputEvent.NICKNAME, suppNick);
+                print("CONNECTING TO SERVER WITH NICKNAME "+ suppNick,10,10,    false);
+                this.client.eventManager.notify(UserInputEvent.NICKNAME, suppNick);
                 Thread.sleep(10000);
                 //send information to server
                 clear();
@@ -57,11 +58,49 @@ public class ViewCLI implements View{
         }
     });
 
-    public ViewCLI() {
+    Thread threadCreateGame = new Thread(() -> {
+        try {
+            firstClear();
+            print("Insert a Game name ", 0, 0, false);
+            while (true) {
+                setCursor(0,1);
+                String gameName = scanner.nextLine();
+                print("Creating game: "+ gameName,10,10,    true);
+                this.client.eventManager.notify(UserInputEvent.CREATE_GAME, gameName);
+                Thread.sleep(10000);
+                //send information to server
+                clear();
+                print("Try again ", 0, 0, false);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    });
+
+    Thread threadJoinGame = new Thread(() -> {
+        try {
+            firstClear();
+            print("Insert a Game name ", 0, 0, false);
+            while (true) {
+                setCursor(0,1);
+                String gameName = scanner.nextLine();
+                print("joining game: "+ gameName,10,10,    true);
+                this.client.eventManager.notify(UserInputEvent.JOIN_GAME, gameName);
+                Thread.sleep(10000);
+                //send information to server
+                clear();
+                print("Try again ", 0, 0, false);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    });
+
+    public ViewCLI(Client client) {
         selectedColumn = -1;
         selectedHandIndex = -1;
         selectedTiles = new ArrayList<>();
-
+        this.client = client;
     }
 
     @Override
@@ -90,6 +129,32 @@ public class ViewCLI implements View{
             throw new RuntimeException(e);
         }
 
+        String choice = null;
+        choice = scanner.nextLine();
+        if(choice.equals("create"))
+        {
+            threadCreateGame.start();
+            try {
+                threadCreateGame.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+        else if(choice.equals("join"))
+        {
+            threadJoinGame.start();
+            try {
+                threadJoinGame.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        else
+        {
+            System.out.println("Wrong choice");
+        }
+
 
         Thread t = new Thread(() -> {
             try {
@@ -106,10 +171,32 @@ public class ViewCLI implements View{
         t.start();
     }
 
+    @Override
     public void endNicknameThread()
     {
         if(threadNick.isAlive())
             threadNick.interrupt();
+    }
+
+    @Override
+    public void endCreateGameThread()
+    {
+        if(threadCreateGame.isAlive())
+            threadCreateGame.interrupt();
+    }
+
+    @Override
+    public void endJoinGameThread()
+    {
+        if(threadCreateGame.isAlive())
+            threadCreateGame.interrupt();
+    }
+
+    @Override
+    public String getGameName() {
+        if (game == null)
+            return null;
+        return game.getGameName();
     }
 
 
@@ -309,7 +396,7 @@ public class ViewCLI implements View{
 
     private void confirmSelection()
     {
-        Client.eventManager.notify(UserInputEvent.SELECTED_TILES, selectedTiles);
+        this.client.eventManager.notify(UserInputEvent.SELECTED_TILES, selectedTiles);
     }
 
     private boolean selectColumn(int c)
@@ -320,7 +407,7 @@ public class ViewCLI implements View{
             return false;
         }
         selectedColumn = c;
-        Client.eventManager.notify(UserInputEvent.SELECTED_BOOKSHELF_COLUMN, selectedColumn);
+        this.client.eventManager.notify(UserInputEvent.SELECTED_BOOKSHELF_COLUMN, selectedColumn);
         return true;
     }
 
@@ -332,7 +419,7 @@ public class ViewCLI implements View{
             return false;
         }
         selectedHandIndex = index;
-        Client.eventManager.notify(UserInputEvent.SELECTED_HAND_TILE, selectedHandIndex);
+        this.client.eventManager.notify(UserInputEvent.SELECTED_HAND_TILE, selectedHandIndex);
         return true;
 
     }

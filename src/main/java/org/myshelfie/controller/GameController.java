@@ -3,6 +3,9 @@ import java.io.Serializable;
 import java.util.UUID;
 import org.myshelfie.model.*;
 import org.myshelfie.network.messages.commandMessages.*;
+import org.myshelfie.network.messages.gameMessages.GameEvent;
+import org.myshelfie.network.server.GameListener;
+import org.myshelfie.network.server.Server;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -51,10 +54,11 @@ public class GameController {
         this.nicknames = new ArrayList<>();
         this.numPlayerGame = numPlayerGame;
         this.numGoalCards = numGoalCards;
+        this.game = new Game();
     }
 
 
-    private void setupGame() throws IOException, URISyntaxException {
+    public void setupGame() throws IOException, URISyntaxException {
         CommonGoalDeck commonGoalDeck = CommonGoalDeck.getInstance();
         PersonalGoalDeck personalGoalDeck = PersonalGoalDeck.getInstance();
         List<PersonalGoalCard> personalGoalCardsGame = personalGoalDeck.draw(numPlayerGame);
@@ -69,13 +73,14 @@ public class GameController {
             commonGoal.put(x, (List<ScoringToken>) createTokensCommonGoalCard(x.getId(),numPlayerGame));
         }
         TileBag tileBag = new TileBag();
-        this.game = new Game(players, new Board(numPlayerGame),commonGoal,tileBag,ModelState.WAITING_SELECTION_TILE,gameName);
-    }
 
-    public void createGame(int numPlayerGame, int numGoalCards, String nickname) {
-        this.numPlayerGame = numPlayerGame;
-        this.numGoalCards = numGoalCards;
-        addPlayer(nickname);
+        this.game.setupGame(players, new Board(numPlayerGame),commonGoal,tileBag,ModelState.WAITING_SELECTION_TILE,gameName);
+
+        try {
+            this.game.getBoard().refillBoard(this.getNumPlayerGame(), this.game.getTileBag());
+        } catch (WrongArgumentException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private LinkedList<ScoringToken> createTokensCommonGoalCard(String id, int numPlayer) {
@@ -228,18 +233,10 @@ public class GameController {
         game.setModelState(nextState);
     }
 
-    public void addPlayer(String nickname) {
-        if (nicknames.contains(nickname)) return;
+    public void addPlayer(String nickname) throws IllegalArgumentException{
+        if (nicknames.contains(nickname))
+            throw new IllegalArgumentException("Player already exists in the game");
         this.nicknames.add(nickname);
-        if(nicknames.size() == numPlayerGame) {
-            try {
-                setupGame();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (URISyntaxException e) {
-                throw new RuntimeException(e);
-            }
-        }
     }
 
     public void removePlayer(String nickname) {

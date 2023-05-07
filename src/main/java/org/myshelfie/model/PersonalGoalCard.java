@@ -2,13 +2,14 @@ package org.myshelfie.model;
 import org.myshelfie.model.util.Pair;
 import org.myshelfie.controller.Configuration;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Class that represents a personal goal card.
  */
-public class PersonalGoalCard {
+public class PersonalGoalCard implements Serializable {
 
     private List<Pair<Pair<Integer, Integer>, Tile>> constraints;
     private static final Map<Integer, Integer> points_map = Configuration.getPersonalGoalPoints();

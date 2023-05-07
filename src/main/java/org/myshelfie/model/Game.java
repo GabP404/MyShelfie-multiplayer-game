@@ -22,7 +22,12 @@ public class Game {
      */
     private Map<String, String> errorState;
 
-    public Game(List<Player> players, Board board, HashMap<CommonGoalCard,List<ScoringToken>> commonGoals, TileBag tileBag, ModelState modelState, String gameName) {
+    private boolean playing;
+    public Game() {
+
+    }
+
+    public void setupGame(List<Player> players, Board board, HashMap<CommonGoalCard,List<ScoringToken>> commonGoals, TileBag tileBag, ModelState modelState, String gameName) {
         this.players = players;
         this.board = board;
         this.commonGoals = commonGoals;
@@ -32,12 +37,9 @@ public class Game {
         this.winner = null;
         this.errorState = new HashMap<>();
         players.forEach( (player) -> errorState.put(player.getNickname(), null) );
-        try {
-            this.board.refillBoard(this.players.size(), tileBag);
-        } catch (WrongArgumentException e) {
-            throw new RuntimeException(e);
-        }
+
         this.gameName = gameName;
+        this.playing = true;
     }
 
 
@@ -136,5 +138,15 @@ public class Game {
 
     public String getGameName() {
         return gameName;
+    }
+
+    public boolean isPlaying() {
+        return playing;
+    }
+
+    public void setPlaying(boolean playing) {
+        // TODO: to handle player's disconnection a notify with a specific event will be required
+        //  (also for the setter of Player's online attribute)
+        this.playing = playing;
     }
 }

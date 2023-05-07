@@ -1,6 +1,8 @@
 package org.myshelfie.network.messages.commandMessages;
 
-abstract public class CommandMessage {
+import java.io.Serializable;
+
+abstract public class CommandMessage implements Serializable {
 
     protected final String nickname;
     protected String gameName;

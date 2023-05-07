@@ -19,7 +19,7 @@ public class CreateGameCommand implements Command {
 
     private String gameName;
 
-    public  CreateGameCommand(HashMap<String,GameController> gameControllers, CreateGameMessage message){
+    public CreateGameCommand(HashMap<String,GameController> gameControllers, CreateGameMessage message){
         this.gameControllers = gameControllers;
         this.nickname = message.getNickname();
         this.numPlayerGame = message.getNumPlayers();
@@ -32,11 +32,7 @@ public class CreateGameCommand implements Command {
         if(gameControllers.containsKey(gameName))
             throw new IllegalArgumentException("Game already exists");
         GameController gameController = new GameController(gameName, numPlayerGame, numGoalCards);
-        gameController.addPlayer(nickname);
-        gameControllers.put(gameName,gameController);
+        gameControllers.put(gameName, gameController);
     }
-
-
-
 
 }

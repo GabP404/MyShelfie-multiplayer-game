@@ -12,4 +12,17 @@ public interface View extends Runnable {
      */
     void update(GameView msg, GameEvent ev);
     void run();
+
+    /**
+     * Method called to stop the thread that handles the nickname choice
+     */
+    void endNicknameThread();
+    void endCreateGameThread();
+    void endJoinGameThread();
+
+    /**
+     * Returns the name of the game the user is in
+     * @return
+     */
+    String getGameName();
 }

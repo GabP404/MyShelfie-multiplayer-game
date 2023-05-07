@@ -1,9 +1,7 @@
 package org.myshelfie.network.server;
 
 import org.myshelfie.controller.GameController;
-import org.myshelfie.controller.InvalidCommand;
 import org.myshelfie.controller.LobbyController;
-import org.myshelfie.controller.WrongTurnException;
 import org.myshelfie.model.Game;
 import org.myshelfie.model.WrongArgumentException;
 import org.myshelfie.network.EventManager;
@@ -11,7 +9,6 @@ import org.myshelfie.network.client.Client;
 import org.myshelfie.network.client.ClientRMIInterface;
 import org.myshelfie.network.messages.commandMessages.*;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
-import org.myshelfie.network.messages.gameMessages.EventWrapper;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -42,8 +39,14 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     public Server() throws RemoteException {
         super();
         this.clients = new ArrayList<>();
-        this.controller = new LobbyController();
+        this.controller = LobbyController.getInstance(this);
     }
+
+
+    public Client getClient(String nickname) {
+        return this.clients.stream().filter(c -> c.getNickname().equals(nickname)).findFirst().orElse(null);
+    }
+
 
     /**
      * Getter for the model that the server is using. This method is used in order to allow GameListener to send
@@ -65,9 +68,6 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
             throw new IllegalArgumentException("Nickname already taken");
         }
         this.clients.add(client);
-        // Subscribe a new GameListener that will be notified when a change in the model occurs.
-        // After being notified the Listener will send a message to the client containing the event and the ModelView obj
-        eventManager.subscribe(GameEvent.class, new GameListener(this, client, this.getGame()));
     }
 
     /**
@@ -112,6 +112,42 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
         CommandMessage messageCommand = msg.getMessage();
         // call the update on the controller
         this.controller.executeCommand(messageCommand, messageType);
+    }
+
+    /**
+     * Update of the server after a client send a message. This method forwards the message produced by the View (which is
+     * observed by the client) to the controller, specifying the client that generated the event.
+     * @param clientRMIInterface  the client that generated the event
+     * @param msg wrapped message received from the client
+     */
+    @Override
+    public Object updatePreGame(ClientRMIInterface clientRMIInterface, CommandMessageWrapper msg) throws RemoteException {
+        Client client = new Client(clientRMIInterface);
+        System.out.println("Server received event " + msg.getType());
+
+        try {
+            switch (msg.getType()) {
+                case CREATE_GAME -> {
+                    CreateGameMessage createGameMessage = (CreateGameMessage) msg.getMessage();
+                    return this.createGame(createGameMessage);
+                }
+                case JOIN_GAME -> {
+                    JoinGameMessage joinGameMessage = (JoinGameMessage) msg.getMessage();
+                    return this.joinGame(joinGameMessage);
+                }
+                case NICKNAME -> {
+                    NicknameMessage nicknameMessage = (NicknameMessage) msg.getMessage();
+                    client.setNickname(nicknameMessage.getNickname());
+                    this.register(client);
+                    System.out.println("Client " + client.getNickname() + " registered");
+                    return this.controller.getGames();
+                }
+                default -> throw new IllegalArgumentException("Wrong message type");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RemoteException(e.getMessage());
+        }
     }
 
     // Method to start the server
@@ -247,8 +283,8 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                 //Get client nickname
                 boolean inputValid = false;
                 do {
-                    String nickname = input.readObject().toString();
-                    client.setNickname(nickname);
+                    CommandMessageWrapper messageWrapper = (CommandMessageWrapper) input.readObject();
+                    client.setNickname(messageWrapper.getMessage().getNickname());
                     try {
                         Server.this.register(client);
                         inputValid = true;
@@ -262,16 +298,13 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
 
                 // Get CREATE or JOIN game message
                 inputValid = false;
-                String gameID = null;
                 do {
                     CommandMessageWrapper message = (CommandMessageWrapper) input.readObject();
                     try {
                         if (message.getType() == UserInputEvent.CREATE_GAME) {
-                            gameID = Server.this.createGame((CreateGameMessage) message.getMessage());
-                            inputValid = true;
+                            inputValid = Server.this.createGame((CreateGameMessage) message.getMessage());
                         } else if (message.getType() == UserInputEvent.JOIN_GAME) {
-                            gameID = Server.this.joinGame((JoinGameMessage) message.getMessage());
-                            inputValid = true;
+                            inputValid = Server.this.joinGame((JoinGameMessage) message.getMessage());
                         } else {
                             throw new IllegalArgumentException("Invalid message type");
                         }
@@ -280,10 +313,10 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                     }
                 } while (!inputValid);
 
-                // Send game UUID to client
-                sendTo(clientSocket, gameID);
+                // Send flag to signal the successful creation / join of the game
+                sendTo(clientSocket, inputValid);
 
-                // Loop to handle multiple client requests
+                // Wait for UserInputEvents related to the game
                 while (true) {
                     // Read a request from the client, sent as a serialized CommandMessageWrapper
                     CommandMessageWrapper request = (CommandMessageWrapper) input.readObject();
@@ -314,19 +347,21 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
         return this.controller.getGames();
     }
 
-    public String createGame(CreateGameMessage message) throws RemoteException {
+    public boolean createGame(CreateGameMessage message) throws RemoteException {
         try {
-            return this.controller.createGame(message);
+            this.controller.createGame(message);
+            return true;
         } catch (IllegalArgumentException e) {
-            throw new RemoteException(e.getMessage());
+            return false;
         }
     }
 
-    public String joinGame(JoinGameMessage message) throws RemoteException {
+    public boolean joinGame(JoinGameMessage message) throws RemoteException {
         try {
-            return this.controller.joinGame(message);
+            this.controller.joinGame(message);
+            return true;
         } catch (IllegalArgumentException e) {
-            throw new RemoteException(e.getMessage());
+            return false;
         }
     }
 }

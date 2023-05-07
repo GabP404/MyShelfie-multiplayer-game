@@ -24,12 +24,11 @@ public class ClientConnectToServerTest {
     private static Thread serverThread;
 
     @BeforeAll
-    public void setServerUp() {
+    public static void setServerUp() {
         Object lock = new Object();
         serverThread = new Thread(() -> {
             try {
-                Game game = null;
-                server = new Server(game);
+                server = new Server();
                 server.startServer(lock);
             } catch (RemoteException e) {
                 throw new RuntimeException(e);
@@ -61,6 +60,7 @@ public class ClientConnectToServerTest {
 
     @AfterAll
     public static void stopServerThread() throws InterruptedException {
+        System.out.println("Stopping server...");
         serverThread.interrupt();
         server.stopServer();
     }

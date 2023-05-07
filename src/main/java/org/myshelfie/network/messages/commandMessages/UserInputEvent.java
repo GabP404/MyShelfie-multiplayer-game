@@ -17,8 +17,15 @@ public enum UserInputEvent {
      */
     SELECTED_HAND_TILE,
     /**
-     * Message to be sent to the chat
+     * Message to create a new game
      */
     CREATE_GAME,
+    /**
+     * Message to join an existing game
+     */
     JOIN_GAME,
+    /**
+     * Message to send the nickname of the player
+     */
+    NICKNAME
 }

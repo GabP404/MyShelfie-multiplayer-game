@@ -35,13 +35,13 @@ public class TestCLI implements Runnable {
         }
         TileBag tb = new TileBag();
 
-        game = new Game(players, new Board(numPlayer), commonGoal, tb, modelState);
-
+        game = new Game();
+        game.setupGame(players, new Board(numPlayer), commonGoal, tb, modelState, "testGame");
 
         Object lock = new Object();
         serverThread = new Thread(() -> {
             try {
-                server = new Server(game);
+                server = new Server();
                 server.startServer(lock);
             } catch (RemoteException e) {
                 throw new RuntimeException(e);

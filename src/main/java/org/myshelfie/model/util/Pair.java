@@ -1,6 +1,8 @@
 package org.myshelfie.model.util;
 
-public class Pair<L,R> {
+import java.io.Serializable;
+
+public class Pair<L,R> implements Serializable {
     private final L left;
     private final R right;
 

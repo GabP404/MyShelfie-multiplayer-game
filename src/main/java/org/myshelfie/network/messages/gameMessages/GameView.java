@@ -22,6 +22,8 @@ public class GameView implements Serializable {
     private final List<CommonGoalCard> commonGoals;
     private final ImmutableBoard board;
     private final Map<String, String> errorState;
+
+    private final String gameName;
     public GameView(Game model) {
         this.currPlayer = new ImmutablePlayer(model.getCurrPlayer());
         this.commonGoals = model.getCommonGoals();
@@ -29,6 +31,7 @@ public class GameView implements Serializable {
         for(Player p: model.getPlayers()) {
             this.players.add(new ImmutablePlayer(p));
         }
+        this.gameName = model.getGameName();
         this.board = new ImmutableBoard(model.getBoard());
         this.errorState = new HashMap<>();
         players.forEach( (player) -> errorState.put(player.getNickname(), model.getErrorState(player.getNickname())) );
@@ -52,5 +55,9 @@ public class GameView implements Serializable {
 
     public ImmutableBoard getBoard() {
         return board;
+    }
+
+    public String getGameName() {
+        return gameName;
     }
 }

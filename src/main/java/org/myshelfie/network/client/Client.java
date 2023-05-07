@@ -29,12 +29,17 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
     protected static String RMI_SERVER_NAME = "MinecraftServer";
     ServerRMIInterface rmiServer;
     private Socket serverSocket;
+    private ObjectOutputStream output;
+    private ObjectInputStream input;
 
     protected boolean isRMI;
+    private ClientRMIInterface RMIInterface;
+    private Thread serverListener;
 
     protected Socket clientSocket;
-    public static EventManager eventManager = new EventManager();
+    public EventManager eventManager = new EventManager();
     private View view;
+    private String gameName;
 
     /**
      * Constructor used by the server to create a Client based on the nickname received via socket
@@ -43,8 +48,6 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
     public Client() throws RemoteException {
         super();
         this.isRMI = false;
-
-        //set nickname
     }
 
     public Client(boolean isRMI, boolean isGUI) throws RemoteException {
@@ -52,7 +55,7 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
         if (isGUI) {
             // TODO: implement GUI
         } else {
-            this.view = new ViewCLI();
+            this.view = new ViewCLI(this);
         }
 
         // connect
@@ -68,10 +71,10 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
             try {
                 // Create a new socket and connect to the server
                 this.serverSocket = new Socket(SERVER_ADDRESS, SERVER_PORT);
+                output = new ObjectOutputStream(serverSocket.getOutputStream());
 
                 // Create and start a new thread that constantly listens for messages from the server
-                Thread serverListener = new SocketServerListener(serverSocket);
-                serverListener.start();
+                serverListener = new SocketServerListener(serverSocket);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -80,9 +83,33 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
         eventManager.subscribe(UserInputEvent.class, new UserInputListener(this));
     }
 
+
+    public void endNicknameThread() {
+        view.endNicknameThread();
+    }
+
+    public void endCreateGameThread() {
+        view.endCreateGameThread();
+        if (!isRMI) {
+            try {
+                serverListener.start();
+            } catch (java.lang.IllegalThreadStateException e) {
+                // Should never be thrown, but if thrown, then thread was already started!
+            }
+        }
+    }
+    public void endJoinGameThread() {
+        view.endJoinGameThread();
+        if (!isRMI) {
+            try {
+                serverListener.start();
+            } catch (java.lang.IllegalThreadStateException e) {
+                // Should never be thrown, but if thrown, then thread was already started!
+            }
+        }
+    }
     public String getGameName() {
-        //TODO this.view.getGameString();
-        return "";
+        return view.getGameName();
     }
 
     class SocketServerListener extends Thread {
@@ -96,13 +123,11 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
         // Thread function that will handle the client requests
         public void run() {
             try {
-                // Create a new input stream to read from the server socket
-                ObjectInputStream input = new ObjectInputStream(serverSocket.getInputStream());
-
                 // Loop to handle every server message
                 while (true) {
                     try {
                         // Read the message from the server
+                        input = new ObjectInputStream(serverSocket.getInputStream());
                         EventWrapper ew = (EventWrapper) input.readObject();
                         // If the request is null, the client has disconnected
                         if (ew == null) {
@@ -128,7 +153,12 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
 
     public Client(ClientRMIInterface rmiInterface) throws RemoteException {
         super();
+        this.RMIInterface = rmiInterface;
         this.isRMI = true;
+    }
+
+    public View getView() {
+        return this.view;
     }
 
     public Client getClientInstance() {
@@ -141,8 +171,12 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
      * @param ev Type of the information received
      */
     @Override
-    public void update(GameView argument, GameEvent ev) {
+    public void update(GameView argument, GameEvent ev) throws RemoteException {
         view.update(argument, ev);
+    }
+
+    public void updateRMI(GameView argument, GameEvent ev) throws RemoteException {
+        this.RMIInterface.update(argument, ev);
     }
 
     @Override
@@ -166,6 +200,31 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
                 ObjectOutputStream output = new ObjectOutputStream(serverSocket.getOutputStream());
                 output.writeObject(msg);
             } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    /**
+     * Update the server during pre-game session by handling separetely RMI and Socket
+     * @param msg Message containing information about the event (NICKNAME, CREATE_GAME or JOIN_GAME)
+     * @return Server response, whose type depends on the type of event
+     */
+    public Object updateServerPreGame(CommandMessageWrapper msg) {
+        if (isRMI) {
+            try {
+                return rmiServer.updatePreGame(this, msg);
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            // Send a serialized message to the server using the socket
+            try {
+                output.writeObject(msg);
+
+                input = new ObjectInputStream(serverSocket.getInputStream());
+                return input.readObject();
+            } catch (IOException | ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
         }
