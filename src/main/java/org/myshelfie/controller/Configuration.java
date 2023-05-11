@@ -157,4 +157,26 @@ public class Configuration {
         JSONObject jo = getJSON().getJSONObject("tile_bag");
         return jo.getInt("tiles_per_type");
     }
+
+
+    /**
+     * Get the timeout of the timer in order to handle the disconnection of a player
+     * @return The timeout of the timer in millisecond
+     */
+    static public int getTimerTimeout() {
+        return getJSON().getInt("timer_timeout");
+    }
+
+    /**
+     * Get the points that a player gets for a group of adjacent tiles of the same type
+     * @return Mapping between the number of tiles of the same type adjacent and the number of points
+     */
+    static public HashMap<Integer, Integer> getMapPointsGroup() {
+        JSONObject JSONPoints = getJSON().getJSONObject("map_points_group");
+        HashMap<Integer, Integer> points = new HashMap<>();
+        for (String key : JSONPoints.keySet()) {
+            points.put(Integer.parseInt(key), JSONPoints.getInt(key));
+        }
+        return points;
+    }
 }

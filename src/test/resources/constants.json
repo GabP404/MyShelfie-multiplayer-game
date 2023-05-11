@@ -295,5 +295,15 @@
   "final_points": 2,
   "tile_bag": {
     "tiles_per_type": 22
-  }
+  },
+  "map_points_group": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 2,
+    "4": 3,
+    "5": 5,
+    "6": 8
+  },
+  "timer_timeout": 60000
 }
