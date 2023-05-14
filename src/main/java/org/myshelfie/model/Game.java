@@ -136,6 +136,10 @@ public class Game {
         this.winner = winner;
     }
 
+    public int getNumOnlinePlayers() {
+        return (int) players.stream().filter( (player) -> player.isOnline() ).count();
+    }
+
     public String getGameName() {
         return gameName;
     }

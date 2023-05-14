@@ -1,6 +1,7 @@
 package org.myshelfie.controller;
 import java.io.Serializable;
-import java.util.UUID;
+import java.util.*;
+
 import org.myshelfie.model.*;
 import org.myshelfie.network.messages.commandMessages.*;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
@@ -9,10 +10,6 @@ import org.myshelfie.network.server.Server;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class GameController {
@@ -20,6 +17,8 @@ public class GameController {
         private final String gameName;
         private final int maxPlayers;
         private final List<String> nicknames;
+
+
 
         public GameDefinition(GameController gc) {
             this.gameName = gc.getGameName();
@@ -38,7 +37,43 @@ public class GameController {
         public List<String> getNicknames() {
             return nicknames;
         }
+
     }
+    private Timer timer;
+
+    private int timeout;
+    private boolean isRunning;
+
+    public void startTimer() {
+        timer = new Timer();
+        timer.schedule(new GameTimerTask(), this.timeout); // 1 minute = 60,000 milliseconds
+        isRunning = true;
+    }
+
+    public void stopTimer() {
+        if (timer != null) {
+            timer.cancel();
+            isRunning = false;
+        }
+    }
+
+    public boolean isTimerRunning() {
+        return isRunning;
+    }
+
+    private class GameTimerTask extends TimerTask {
+        @Override
+        public void run() {
+            endGame();
+            try {
+                getGame().setWinner(getGame().getPlayers().stream().filter(x -> x.isOnline()).collect(Collectors.toList()).get(0));
+            } catch (WrongArgumentException e) {
+                throw new RuntimeException(e);
+            }
+            isRunning = false;
+        }
+    }
+
 
     private String gameName;
 
@@ -54,9 +89,9 @@ public class GameController {
         this.nicknames = new ArrayList<>();
         this.numPlayerGame = numPlayerGame;
         this.numGoalCards = numGoalCards;
+        this.timeout = Configuration.getTimerTimeout();
         this.game = new Game();
     }
-
 
     public void setupGame() throws IOException, URISyntaxException {
         CommonGoalDeck commonGoalDeck = CommonGoalDeck.getInstance();
@@ -108,46 +143,54 @@ public class GameController {
     }
 
 
-    private boolean checkEndGame() {
-        int numPlayersOnline = (int) this.game.getPlayers().stream().filter(x -> x.isOnline()).count();
-        if(numPlayersOnline == 0){
-            this.game.setModelState(ModelState.END_GAME);
-            return true;
-        }
-        if(numPlayersOnline == 1){
-            //TODO start timer instead of end game
-            this.game.setModelState(ModelState.END_GAME);
+    private void endGame() {
+        this.game.setModelState(ModelState.END_GAME);
+    }
+
+    private void checkWinner() {
+        Player p = this.game.getPlayers().stream().reduce( (a, b) -> {
             try {
-                this.game.setWinner(this.game.getPlayers().stream().filter(x -> x.isOnline()).collect(Collectors.toList()).get(0));
+                return a.getTotalPoints() > b.getTotalPoints() ? a:b;
             } catch (WrongArgumentException e) {
                 throw new RuntimeException(e);
             }
-            return true;
+        }).orElse(null);
+        try {
+            this.game.setWinner(p);
+        } catch (WrongArgumentException e) {
+            throw new RuntimeException(e);
         }
+    }
+
+    private boolean checkEndGameBookShelfFull() {
         if(this.game.getPlayers().stream().filter(x -> x.getBookshelf().isFull()).count() > 0) {
-            this.game.setModelState(ModelState.END_GAME);
-            Player p = this.game.getPlayers().stream().reduce( (a, b) -> {
-                try {
-                    return a.getTotalPoints() > b.getTotalPoints() ? a:b;
-                } catch (WrongArgumentException e) {
-                    throw new RuntimeException(e);
-                }
-            }).orElse(null);
-            try {
-                this.game.setWinner(p);
-            } catch (WrongArgumentException e) {
-                throw new RuntimeException(e);
-            }
+            this.game.getCurrPlayer().setHasFinalToken(true);
+            endGame();
+            checkWinner();
+            return true;
         }
         return false;
     }
 
-    public void setOfflinePlayer(String nickname) {
+
+    public void setPlayerOffline(String nickname) {
         this.game.getPlayers().stream().filter(x -> x.getNickname().equals(nickname)).collect(Collectors.toList()).get(0).setOnline(false);
+        checkPlayersOnline();
     }
 
     public void setOnlinePlayer(String nickname) {
         this.game.getPlayers().stream().filter(x -> x.getNickname().equals(nickname)).collect(Collectors.toList()).get(0).setOnline(true);
+        if(game.getNumOnlinePlayers() > 1) {
+            if(isTimerRunning())
+                stopTimer();
+        }
+    }
+
+    private void checkPlayersOnline() {
+        switch (this.game.getNumOnlinePlayers()) {
+            case 0 -> endGame();
+            case 1 -> startTimer();
+        }
     }
 
     public void executeCommand(CommandMessage command, UserInputEvent t) {
@@ -195,7 +238,7 @@ public class GameController {
                 nextState = ModelState.WAITING_1_SELECTION_TILE_FROM_HAND;
                 break;
             case WAITING_1_SELECTION_TILE_FROM_HAND:
-                if(checkEndGame()) {
+                if(checkEndGameBookShelfFull()) {
                     nextState = ModelState.END_GAME;
                 }else {
                     try {
