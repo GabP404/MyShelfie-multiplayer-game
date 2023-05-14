@@ -1,9 +1,11 @@
 package org.myshelfie.model;
 
+import org.myshelfie.controller.Configuration;
 import org.myshelfie.network.server.Server;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Player {
@@ -95,13 +97,28 @@ public class Player {
     /**
      * @return number of points earnt from ScoringTokens
      */
-    public int getPointsScoringTokens() {
-        int x = 0;
+    public int getPublicPoints() {
+        int points_scoringToken = 0;
         for (ScoringToken s :
                 this.commonGoalTokens) {
-            x+= s.getPoints();
+            points_scoringToken= s.getPoints();
         }
-        return x;
+        HashMap<Integer,Integer> mapping = Configuration.getMapPointsGroup();
+        int points_group = 0;
+        List<Integer> groups = this.bookshelf.getAdjacentSizes();
+        int maxKey = Integer.MIN_VALUE;
+
+        for (int key : mapping.keySet()) {
+            if (key > maxKey) {
+                maxKey = key;
+            }
+        }
+        for (Integer g :
+                groups) {
+            if(g > maxKey) points_group += mapping.get(maxKey);
+            else points_group += mapping.get(g);
+        }
+        return points_scoringToken + points_group;
     }
 
     public void removeTilesPicked(Tile t) throws WrongArgumentException{
@@ -138,6 +155,8 @@ public class Player {
     }
 
     public int getTotalPoints() throws WrongArgumentException{
-        return getPointsScoringTokens() + this.personalGoal.getPoints(this.bookshelf);
+
+
+        return getPublicPoints() + this.personalGoal.getPoints(this.bookshelf) +  (this.hasFinalToken ? 1 : 0);
     }
 }

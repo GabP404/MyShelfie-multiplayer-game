@@ -28,7 +28,7 @@ class PlayerTest {
         assertNotNull(p.getPersonalGoal());
         p.addScoringToken(new ScoringToken(8,"1"));
         p.addScoringToken(new ScoringToken(4,"2"));
-        assertEquals(12, p.getPointsScoringTokens());
+        assertEquals(12, p.getPublicPoints());
     }
 
 
