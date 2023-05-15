@@ -25,4 +25,6 @@ public interface View extends Runnable {
      * @return
      */
     String getGameName();
+
+    GameView getGameView();
 }

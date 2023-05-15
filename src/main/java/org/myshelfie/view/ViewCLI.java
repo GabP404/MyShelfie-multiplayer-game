@@ -38,7 +38,11 @@ public class ViewCLI implements View{
 
     private Scanner scanner = new Scanner(System.in);
 
-
+    // TODO: remove this method if it's used only for testing
+    @Override
+    public GameView getGameView() {
+        return game;
+    }
     Thread threadNick = new Thread(() -> {
         try {
             firstClear();
