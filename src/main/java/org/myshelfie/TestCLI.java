@@ -66,6 +66,7 @@ public class TestCLI implements Runnable {
 
         client.run();
 
+        /*
         try {
             game.getBoard().refillBoard(2, new TileBag());
         } catch (WrongArgumentException e) {
@@ -83,6 +84,7 @@ public class TestCLI implements Runnable {
         } catch (WrongArgumentException e) {
             throw new RuntimeException(e);
         }
+        */
     }
 
 
