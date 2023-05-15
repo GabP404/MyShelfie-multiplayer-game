@@ -15,7 +15,7 @@ public interface ServerRMIInterface extends Remote {
      * @param client  the client that generated the event
      * @param msg wrapped message received from the client
      */
-    void update(Client client, CommandMessageWrapper msg) throws RemoteException;
+    void update(ClientRMIInterface client, CommandMessageWrapper msg) throws RemoteException;
 
     /**
      * Update of the server inside the pre-game (connection / lobby creation) phase

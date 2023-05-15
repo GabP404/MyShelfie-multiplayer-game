@@ -205,8 +205,8 @@ public class ViewCLI implements View{
     @Override
     public void endJoinGameThread()
     {
-        if(threadCreateGame.isAlive())
-            threadCreateGame.interrupt();
+        if(threadJoinGame.isAlive())
+            threadJoinGame.interrupt();
     }
 
     @Override
@@ -449,6 +449,8 @@ public class ViewCLI implements View{
         printBoard();
         printAllBookshelves();
         printPersonalGoal();
+        if(game.getCurrPlayer().getNickname().equals(nickname))
+            print("e` il tuo turno!",boardOffsetX, boardOffsetY-2, false);
     }
 
     public void printBoard()

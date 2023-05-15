@@ -38,7 +38,7 @@ public class TestCLI implements Runnable {
         game = new Game();
         game.setupGame(players, new Board(numPlayer), commonGoal, tb, modelState, "testGame");
 
-        Object lock = new Object();
+        /*Object lock = new Object();
         serverThread = new Thread(() -> {
             try {
                 server = new Server();
@@ -55,11 +55,11 @@ public class TestCLI implements Runnable {
                 System.out.println("Server thread interrupted");
                 throw new RuntimeException(e);
             }
-        }
+        }*/
 
 
         try {
-            client = new Client(true, false);
+            client = new Client(false, false);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
