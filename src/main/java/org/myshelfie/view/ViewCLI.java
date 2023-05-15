@@ -44,11 +44,16 @@ public class ViewCLI implements View{
             firstClear();
             print("Insert a Nickname ", 0, 0, false);
             while (true) {
-                setCursor(0,1);
+                setCursor(10,10);
                 String suppNick = scanner.nextLine();
                 print("CONNECTING TO SERVER WITH NICKNAME "+ suppNick,10,10,    false);
                 this.client.eventManager.notify(UserInputEvent.NICKNAME, suppNick);
-                Thread.sleep(10000);
+                try {
+                    Thread.sleep(10000);
+                } catch ( InterruptedException e) {
+                    Thread.currentThread().interrupt(); // restore interrupted status
+                    break;
+                }
                 //send information to server
                 clear();
                 print("Try again ", 0, 0, false);
@@ -61,13 +66,19 @@ public class ViewCLI implements View{
     Thread threadCreateGame = new Thread(() -> {
         try {
             firstClear();
-            print("Insert a Game name ", 0, 0, false);
+            print("Insert a Game name, player number and true/false for semplified rules ", 0, 0, false);
             while (true) {
-                setCursor(0,1);
+                setCursor(10,10);
                 String gameName = scanner.nextLine();
+                String[] parts = gameName.split(" ");
                 print("Creating game: "+ gameName,10,10,    true);
-                this.client.eventManager.notify(UserInputEvent.CREATE_GAME, gameName);
-                Thread.sleep(10000);
+                this.client.eventManager.notify(UserInputEvent.CREATE_GAME, parts[0], Integer.parseInt(parts[1]), Boolean.valueOf(parts[2]));
+                try {
+                    Thread.sleep(10000);
+                } catch ( InterruptedException e) {
+                    Thread.currentThread().interrupt(); // restore interrupted status
+                    break;
+                }
                 //send information to server
                 clear();
                 print("Try again ", 0, 0, false);
@@ -82,11 +93,17 @@ public class ViewCLI implements View{
             firstClear();
             print("Insert a Game name ", 0, 0, false);
             while (true) {
-                setCursor(0,1);
+                setCursor(10,10);
                 String gameName = scanner.nextLine();
+                String[] parts = gameName.split(" ");
                 print("joining game: "+ gameName,10,10,    true);
-                this.client.eventManager.notify(UserInputEvent.JOIN_GAME, gameName);
-                Thread.sleep(10000);
+                this.client.eventManager.notify(UserInputEvent.JOIN_GAME, parts[0]);
+                try {
+                    Thread.sleep(10000);
+                } catch ( InterruptedException e) {
+                    Thread.currentThread().interrupt(); // restore interrupted status
+                    break;
+                }
                 //send information to server
                 clear();
                 print("Try again ", 0, 0, false);
@@ -188,8 +205,8 @@ public class ViewCLI implements View{
     @Override
     public void endJoinGameThread()
     {
-        if(threadCreateGame.isAlive())
-            threadCreateGame.interrupt();
+        if(threadJoinGame.isAlive())
+            threadJoinGame.interrupt();
     }
 
     @Override
@@ -432,6 +449,8 @@ public class ViewCLI implements View{
         printBoard();
         printAllBookshelves();
         printPersonalGoal();
+        if(game.getCurrPlayer().getNickname().equals(nickname))
+            print("e` il tuo turno!",boardOffsetX, boardOffsetY-2, false);
     }
 
     public void printBoard()

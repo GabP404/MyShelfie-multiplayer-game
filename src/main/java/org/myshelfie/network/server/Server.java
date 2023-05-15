@@ -3,14 +3,15 @@ package org.myshelfie.network.server;
 import org.myshelfie.controller.GameController;
 import org.myshelfie.controller.LobbyController;
 import org.myshelfie.model.Game;
-import org.myshelfie.model.WrongArgumentException;
 import org.myshelfie.network.EventManager;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.client.ClientRMIInterface;
 import org.myshelfie.network.messages.commandMessages.*;
-import org.myshelfie.network.messages.gameMessages.GameEvent;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -40,6 +41,17 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
         super();
         this.clients = new ArrayList<>();
         this.controller = LobbyController.getInstance(this);
+    }
+
+    public static void main( String[] args ) {
+        Object lock = new Object();
+        Server s = null;
+        try {
+            s = new Server();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+        s.startServer(lock);
     }
 
 
@@ -97,19 +109,22 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     /**
      * Update of the server after a client send a message. This method forwards the message produced by the View (which is
      * observed by the client) to the controller, specifying the client that generated the event.
-     * @param client  the client that generated the event
+     * @param clientRMIInterface  the client that generated the event
      * @param msg wrapped message received from the client
      */
     @Override
-    public void update(Client client, CommandMessageWrapper msg) {
-        if (!clients.contains(client)) {
-            throw new IllegalArgumentException("Client not registered");
-        }
+    public void update(ClientRMIInterface clientRMIInterface, CommandMessageWrapper msg) throws RemoteException {
+        Client client = new Client(clientRMIInterface);
+        //TODO: check nicknames
+        //if (!clients.contains(client)) {
+        //    throw new IllegalArgumentException("Client not registered");
+        //}
         // TODO: understand how to use information about the client that sent the message
 
         // unwrap the message
         UserInputEvent messageType = msg.getType();
         CommandMessage messageCommand = msg.getMessage();
+        System.out.println("RICEVUTO MESSAGGIO: " + messageType);
         // call the update on the controller
         this.controller.executeCommand(messageCommand, messageType);
     }

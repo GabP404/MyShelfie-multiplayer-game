@@ -3,8 +3,8 @@ package org.myshelfie.network.client;
 import org.myshelfie.network.EventManager;
 import org.myshelfie.network.messages.commandMessages.CommandMessageWrapper;
 import org.myshelfie.network.messages.commandMessages.UserInputEvent;
-import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.EventWrapper;
+import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.GameView;
 import org.myshelfie.network.server.ServerRMIInterface;
 import org.myshelfie.view.View;
@@ -13,12 +13,10 @@ import org.myshelfie.view.ViewCLI;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.UUID;
 
 public class Client extends UnicastRemoteObject implements ClientRMIInterface, Runnable{
 
@@ -62,7 +60,7 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
         if (isRMI) {
             try {
                 // Look up the server object in the RMI registry
-                rmiServer = (ServerRMIInterface) Naming.lookup("//localhost/" + RMI_SERVER_NAME);
+                rmiServer = (ServerRMIInterface) Naming.lookup("//" + SERVER_ADDRESS + "/" + RMI_SERVER_NAME);
             } catch (Exception e) {
                 System.err.println("Exception: " + e.getMessage());
                 e.printStackTrace();
@@ -197,7 +195,6 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
         } else {
             // Send a serialized message to the server using the socket
             try {
-                ObjectOutputStream output = new ObjectOutputStream(serverSocket.getOutputStream());
                 output.writeObject(msg);
             } catch (IOException e) {
                 throw new RuntimeException(e);
