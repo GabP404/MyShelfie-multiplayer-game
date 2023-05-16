@@ -44,4 +44,8 @@ public class PersonalGoalCard implements Serializable {
         }
         return points_map.get(occurrences);
     }
+
+    public List<Pair<Pair<Integer, Integer>, Tile>> getConstraints() {
+        return constraints;
+    }
 }

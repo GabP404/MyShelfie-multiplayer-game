@@ -1,6 +1,7 @@
 package org.myshelfie.view;
 
 import org.myshelfie.model.*;
+import org.myshelfie.model.util.Pair;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.commandMessages.UserInputEvent;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
@@ -45,9 +46,9 @@ public class ViewCLI implements View{
             print("Insert a Nickname ", 0, 0, false);
             while (true) {
                 setCursor(10,10);
-                String suppNick = scanner.nextLine();
-                print("CONNECTING TO SERVER WITH NICKNAME "+ suppNick,10,10,    false);
-                this.client.eventManager.notify(UserInputEvent.NICKNAME, suppNick);
+                nickname = scanner.nextLine();
+                print("CONNECTING TO SERVER WITH NICKNAME "+ nickname,10,10,    false);
+                this.client.eventManager.notify(UserInputEvent.NICKNAME, nickname);
                 try {
                     Thread.sleep(10000);
                 } catch ( InterruptedException e) {
@@ -65,7 +66,7 @@ public class ViewCLI implements View{
 
     Thread threadCreateGame = new Thread(() -> {
         try {
-            firstClear();
+            clear();
             print("Insert a Game name, player number and true/false for semplified rules ", 0, 0, false);
             while (true) {
                 setCursor(10,10);
@@ -90,7 +91,7 @@ public class ViewCLI implements View{
 
     Thread threadJoinGame = new Thread(() -> {
         try {
-            firstClear();
+            clear();
             print("Insert a Game name ", 0, 0, false);
             while (true) {
                 setCursor(10,10);
@@ -147,7 +148,13 @@ public class ViewCLI implements View{
         }
 
         String choice = null;
-        choice = scanner.nextLine();
+        do {
+            clear();
+            print("Do you want to create or join a game? [create/join]", 0, 0, false);
+            setCursor(10, 10);
+            choice = scanner.nextLine();
+        }while(!choice.equals("create") && !choice.equals("join"));
+
         if(choice.equals("create"))
         {
             threadCreateGame.start();
@@ -450,7 +457,7 @@ public class ViewCLI implements View{
         printAllBookshelves();
         printPersonalGoal();
         if(game.getCurrPlayer().getNickname().equals(nickname))
-            print("e` il tuo turno!",boardOffsetX, boardOffsetY-2, false);
+            print(MAGENTA + "È IL TUO TURNO!",boardOffsetX, boardOffsetY-4, false);
     }
 
     public void printBoard()
@@ -561,7 +568,7 @@ public class ViewCLI implements View{
         setCursor(bookshelfOffsetX + (numPlayer*bookshelvesDistance), bookshelfOffsetY + 6);
         for(int i = 0; i<Bookshelf.NUMCOLUMNS; i++)
         {
-            if(numPlayer == myPlayerIndex() && selectedColumn == i)
+            if(numPlayer == myPlayerIndex() && game.getCurrPlayer().getSelectedColumn() == i && game.getCurrPlayer().getNickname().equals(nickname))
             {
                 print(BG_YELLOW.toString() + i + RESET);
             }
@@ -690,7 +697,8 @@ public class ViewCLI implements View{
         setCursor(bookshelfOffsetX + (numPlayer*bookshelvesDistance), bookshelfOffsetY + 9);
         for(Tile t : game.getPlayers().get(numPlayer).getTilesPicked())
         {
-            print(String.valueOf(t.getItemType().name().charAt(0)+ " "));
+            print(getColorFromTile(t) + "■ " + RESET);
+            //print(String.valueOf(t.getItemType().name().charAt(0)+ " "));
         }
         //print("T T T", bookshelfOffsetX + (numPlayer*bookshelvesDistance), bookshelfOffsetY + 9, false);
     }
@@ -711,11 +719,20 @@ public class ViewCLI implements View{
             {
                 if(j == 0)
                     print(String.valueOf(i),personalGoalOffsetX-1,personalGoalOffsetY+i, false);
-                String c = BG_BRIGHT_BLUE.toString() + BLUE.toString();
-                print(c + " ", personalGoalOffsetX+j, personalGoalOffsetY+i, false);
+                //String c = BG_BRIGHT_BLUE.toString() + BLUE.toString();
+                //print(c + " ", personalGoalOffsetX+j, personalGoalOffsetY+i, false);
             }
         }
         print("01234", personalGoalOffsetX, personalGoalOffsetY+6, false);
+
+
+        List<Pair<Pair<Integer, Integer>, Tile>> constraints = game.getPlayers().get(myPlayerIndex()).getPersonalGoal().getConstraints();
+        for (Pair<Pair<Integer, Integer>, Tile> c: constraints) {
+            int col = c.getLeft().getLeft();
+            int row = c.getLeft().getRight();
+            print(getColorFromTile(c.getRight()) + "■" + RESET,personalGoalOffsetX + col, personalGoalOffsetY + row, false);
+        }
+        print("DIMENSIONE CONSTRAINTS PERSONALGOAL CARD: " + constraints.size(), 10, 10, false);
 
 
 

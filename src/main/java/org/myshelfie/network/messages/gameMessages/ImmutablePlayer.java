@@ -16,6 +16,7 @@ public final class ImmutablePlayer  implements Serializable {
     private final PersonalGoalCard personalGoal;
     private final ImmutableBookshelf bookshelf;
     private final List<Tile> tilesPicked;
+    private int selectedColumn;
     private static int DIM_TILESPICKED = 3;
 
     public ImmutablePlayer(Player p) {
@@ -25,6 +26,7 @@ public final class ImmutablePlayer  implements Serializable {
         this.personalGoal = p.getPersonalGoal();
         this.bookshelf = new ImmutableBookshelf(p.getBookshelf());
         this.tilesPicked = new ArrayList<>(p.getTilesPicked());
+        this.selectedColumn = p.getSelectedColumn();
     }
 
     public String getNickname() {
@@ -49,6 +51,10 @@ public final class ImmutablePlayer  implements Serializable {
 
     public List<Tile> getTilesPicked() {
         return new ArrayList<>(tilesPicked);
+    }
+
+    public int getSelectedColumn() {
+        return selectedColumn;
     }
 
 
