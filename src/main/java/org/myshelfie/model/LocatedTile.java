@@ -2,10 +2,12 @@ package org.myshelfie.model;
 
 import org.myshelfie.model.util.Pair;
 
+import java.io.Serializable;
+
 /**
  * This class extends Tile adding the information about the location of the tile in the bookshelf.
  */
-public class LocatedTile extends Tile{
+public class LocatedTile extends Tile implements Serializable {
     private int row;
     private int col;
 

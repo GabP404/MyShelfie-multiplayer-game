@@ -1,9 +1,11 @@
 package org.myshelfie.network.messages.commandMessages;
 
+import java.io.Serializable;
+
 /**
  * List of all the types of messages that can be sent from the client to the server.
  */
-public enum UserInputEvent {
+public enum UserInputEvent implements Serializable {
     /**
      * List of the selected tiles to take from the living room board
      */
