@@ -1,6 +1,5 @@
 package org.myshelfie.network.server;
 
-import org.myshelfie.TestCLI;
 import org.myshelfie.controller.GameController;
 import org.myshelfie.controller.LobbyController;
 import org.myshelfie.model.Game;

@@ -725,7 +725,6 @@ public class ViewCLI implements View{
         }
         print("01234", personalGoalOffsetX, personalGoalOffsetY+6, false);
 
-
         List<Pair<Pair<Integer, Integer>, Tile>> constraints = game.getPlayers().get(myPlayerIndex()).getPersonalGoal().getConstraints();
         for (Pair<Pair<Integer, Integer>, Tile> c: constraints) {
             int col = c.getLeft().getLeft();
