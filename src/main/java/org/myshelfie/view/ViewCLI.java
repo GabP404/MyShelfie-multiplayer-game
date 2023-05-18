@@ -67,7 +67,7 @@ public class ViewCLI implements View{
     Thread threadCreateGame = new Thread(() -> {
         try {
             clear();
-            print("Insert a Game name, player number and true/false for semplified rules ", 0, 0, false);
+            print("Insert a Game name, player number and true/false for simplified rules ", 0, 0, false);
             while (true) {
                 setCursor(10,10);
                 String gameName = scanner.nextLine();
@@ -771,4 +771,7 @@ public class ViewCLI implements View{
         return nickname;
     }
 
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
 }
