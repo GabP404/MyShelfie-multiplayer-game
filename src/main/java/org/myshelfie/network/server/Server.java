@@ -114,12 +114,11 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
      */
     @Override
     public void update(ClientRMIInterface clientRMIInterface, CommandMessageWrapper msg) throws RemoteException {
+        System.out.println("Server received event " + msg.getType());
         Client client = new Client(clientRMIInterface);
-        //TODO: check nicknames
-        //if (!clients.contains(client)) {
-        //    throw new IllegalArgumentException("Client not registered");
-        //}
-        // TODO: understand how to use information about the client that sent the message
+
+        // check if the client is registered looking at the list of clients' nicknames
+        clients.stream().map(Client::getNickname).filter(nickname -> nickname.equals(client.getNickname())).findFirst().orElseThrow(() -> new IllegalArgumentException("Client not registered"));
 
         // unwrap the message
         UserInputEvent messageType = msg.getType();

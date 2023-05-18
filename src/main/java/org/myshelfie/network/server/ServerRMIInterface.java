@@ -1,6 +1,5 @@
 package org.myshelfie.network.server;
 
-import org.myshelfie.network.client.Client;
 import org.myshelfie.network.client.ClientRMIInterface;
 import org.myshelfie.network.messages.commandMessages.CommandMessageWrapper;
 import org.myshelfie.network.messages.commandMessages.CreateGameMessage;
