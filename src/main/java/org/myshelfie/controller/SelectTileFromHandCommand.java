@@ -1,10 +1,10 @@
 package org.myshelfie.controller;
 
-import org.myshelfie.model.ItemType;
-import org.myshelfie.model.ModelState;
-import org.myshelfie.model.Player;
-import org.myshelfie.model.WrongArgumentException;
+import org.myshelfie.model.*;
 import org.myshelfie.network.messages.commandMessages.SelectedTileFromHandCommandMessage;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SelectTileFromHandCommand implements Command {
     private final String nickname;
@@ -30,7 +30,19 @@ public class SelectTileFromHandCommand implements Command {
             throw new InvalidCommand("Waiting for Tile Selection Hand ");
         }
 
-        currPlayer.getBookshelf().insertTile(currPlayer.getTilePicked(index), currPlayer.getSelectedColumn());
+        // Since the update message is sent to the player from the call to the notify method inside the insertTile method,
+        // we need the tile to be already removed from the hand before calling the insertTile method.
+        // To avoid removing the tile from the hand when an error occurs inside the insertTile method, we keep a copy of the
+        // selected tiles and if necessary restore it.
+        List<Tile> handCopy = new ArrayList<>(currPlayer.getTilesPicked());
         currPlayer.removeTilesPicked(currPlayer.getTilePicked(index));
+
+        try {
+            // NOTE: here we have to use the copy of the hand since the tile selected has already been removed from the player's hand
+            currPlayer.getBookshelf().insertTile(handCopy.get(index), currPlayer.getSelectedColumn());
+        } catch (WrongArgumentException e) {
+            currPlayer.setTilesPicked(handCopy);
+            throw new WrongArgumentException(e.getMessage());
+        }
     }
 }

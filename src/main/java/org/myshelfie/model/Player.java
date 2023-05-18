@@ -81,7 +81,7 @@ public class Player {
         return tilesPicked;
     }
     public void setTilesPicked(List<Tile> tilesPicked) {
-        this.tilesPicked = tilesPicked;
+        this.tilesPicked = new ArrayList<>(tilesPicked);
     }
 
     public Tile getTilePicked(int index) throws WrongArgumentException {
@@ -95,13 +95,12 @@ public class Player {
     }
 
     /**
-     * @return number of points earnt from ScoringTokens
+     * @return number of points earn from ScoringTokens
      */
     public int getPublicPoints() {
         int points_scoringToken = 0;
-        for (ScoringToken s :
-                this.commonGoalTokens) {
-            points_scoringToken= s.getPoints();
+        for (ScoringToken s : this.commonGoalTokens) {
+            points_scoringToken += s.getPoints();
         }
         HashMap<Integer,Integer> mapping = Configuration.getMapPointsGroup();
         int points_group = 0;
@@ -144,6 +143,7 @@ public class Player {
             throw new WrongArgumentException("Column Out of range");
         }
         this.selectedColumn = selectedColumn;
+        Server.eventManager.notify(GameEvent.BOOKSHELF_UPDATE);
     }
 
     public boolean isOnline() {

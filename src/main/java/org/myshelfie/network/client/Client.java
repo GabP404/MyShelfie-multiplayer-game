@@ -153,6 +153,7 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
         super();
         this.RMIInterface = rmiInterface;
         this.isRMI = true;
+        this.nickname = rmiInterface.getNickname();
     }
 
     public View getView() {

@@ -1,6 +1,7 @@
 package org.myshelfie.controller;
 
 import org.myshelfie.model.*;
+import org.myshelfie.model.util.Pair;
 import org.myshelfie.network.messages.commandMessages.PickedTilesCommandMessage;
 
 import java.util.ArrayList;
@@ -12,11 +13,11 @@ import java.util.stream.Collectors;
 public class PickTilesCommand implements Command {
     private Board b;
     private Player currPlayer;
-    private Set<LocatedTile> tiles;
+    private List<LocatedTile> tiles;
     private String nickname;
     private ModelState currentModelState;
 
-    public PickTilesCommand(Board b, Set<LocatedTile> tiles) {
+    public PickTilesCommand(Board b, List<LocatedTile> tiles) {
         this.b = b;
         this.tiles = tiles;
     }
@@ -28,20 +29,25 @@ public class PickTilesCommand implements Command {
      * @param command CommandMessage to deserialize
      * @param currentModelState Current model state
      */
-    public PickTilesCommand(Board b, Player currPlayer, PickedTilesCommandMessage command, ModelState currentModelState) {
+    public PickTilesCommand(Board b, Player currPlayer, PickedTilesCommandMessage command, ModelState currentModelState) throws WrongArgumentException{
         this.b = b;
         this.currPlayer = currPlayer;
-        tiles = new HashSet<>();
-
+        tiles = new ArrayList<>();
         nickname = command.getNickname();
+
+        for (Pair<Integer, Integer> t: command.getTiles()) {
+            if (b.getTile(t.getLeft(), t.getRight()) == null || t.getLeft() < 0 || t.getRight() < 0 || t.getRight()>=Bookshelf.NUMCOLUMNS || t.getLeft()>=Bookshelf.NUMROWS)
+                throw new WrongArgumentException("The tile at row " + t.getLeft() + " and column " + t.getRight() + " does not exist!");
+        }
 
         this.tiles = command.getTiles().stream().map(
                 t -> new LocatedTile(
                         b.getTile(t.getLeft(), t.getRight()).getItemType(),
+                        b.getTile(t.getLeft(), t.getRight()).getItemId(),
                         t.getLeft(),
                         t.getRight()
                 )
-        ).collect(Collectors.toSet());
+        ).collect(Collectors.toList());
         this.currentModelState = currentModelState;
     }
 
@@ -113,16 +119,17 @@ public class PickTilesCommand implements Command {
 
 
     public void execute() throws  WrongTurnException, InvalidCommand, WrongArgumentException {
-        if(!currPlayer.getNickname().equals(nickname)) {
+        if (!currPlayer.getNickname().equals(nickname))
             throw new WrongTurnException();
-        }
+        if (tiles.size() == 0)
+            throw new WrongArgumentException("You have to select at least one tile!");
         if(currentModelState != ModelState.WAITING_SELECTION_TILE) throw new InvalidCommand("Waiting for Tile Selection ");
 
-        if (!isTilesGroupSelectable(b, tiles))
+        Set<LocatedTile> tilesSet = new HashSet<>(tiles);
+        if (!isTilesGroupSelectable(b, tilesSet))
             throw new WrongArgumentException("The chosen group of tiles is not selectable!");
 
-        for (LocatedTile t: tiles)
-        {
+        for (LocatedTile t: tiles) {
             currPlayer.addTilesPicked(b.getTile(t.getRow(),t.getCol()));
             b.setTile(t.getRow(), t.getCol(), null);
         }
