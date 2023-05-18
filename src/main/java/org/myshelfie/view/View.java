@@ -26,6 +26,8 @@ public interface View extends Runnable {
      */
     String getGameName();
 
+    GameView getGameView();
+
     // Methods used for testing TODO: possibly remove
     void setNickname(String nickname);
 }

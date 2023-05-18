@@ -12,11 +12,11 @@ import java.util.stream.Collectors;
 public class PickTilesCommand implements Command {
     private Board b;
     private Player currPlayer;
-    private Set<LocatedTile> tiles;
+    private List<LocatedTile> tiles;
     private String nickname;
     private ModelState currentModelState;
 
-    public PickTilesCommand(Board b, Set<LocatedTile> tiles) {
+    public PickTilesCommand(Board b, List<LocatedTile> tiles) {
         this.b = b;
         this.tiles = tiles;
     }
@@ -31,17 +31,18 @@ public class PickTilesCommand implements Command {
     public PickTilesCommand(Board b, Player currPlayer, PickedTilesCommandMessage command, ModelState currentModelState) {
         this.b = b;
         this.currPlayer = currPlayer;
-        tiles = new HashSet<>();
+        tiles = new ArrayList<>();
 
         nickname = command.getNickname();
 
         this.tiles = command.getTiles().stream().map(
                 t -> new LocatedTile(
                         b.getTile(t.getLeft(), t.getRight()).getItemType(),
+                        b.getTile(t.getLeft(), t.getRight()).getItemId(),
                         t.getLeft(),
                         t.getRight()
                 )
-        ).collect(Collectors.toSet());
+        ).collect(Collectors.toList());
         this.currentModelState = currentModelState;
     }
 
@@ -118,11 +119,11 @@ public class PickTilesCommand implements Command {
         }
         if(currentModelState != ModelState.WAITING_SELECTION_TILE) throw new InvalidCommand("Waiting for Tile Selection ");
 
-        if (!isTilesGroupSelectable(b, tiles))
+        Set<LocatedTile> tilesSet = new HashSet<>(tiles);
+        if (!isTilesGroupSelectable(b, tilesSet))
             throw new WrongArgumentException("The chosen group of tiles is not selectable!");
 
-        for (LocatedTile t: tiles)
-        {
+        for (LocatedTile t: tiles) {
             currPlayer.addTilesPicked(b.getTile(t.getRow(),t.getCol()));
             b.setTile(t.getRow(), t.getCol(), null);
         }

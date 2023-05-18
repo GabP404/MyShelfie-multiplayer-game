@@ -223,6 +223,11 @@ public class ViewCLI implements View{
         return game.getGameName();
     }
 
+    @Override
+    public GameView getGameView() {
+        return game;
+    }
+
 
     public static synchronized void print(Object o) {
         System.out.print(o);

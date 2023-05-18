@@ -151,6 +151,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                 }
                 case NICKNAME -> {
                     NicknameMessage nicknameMessage = (NicknameMessage) msg.getMessage();
+                    // set the nickname of the client, but if the register fails, the nickname will be set again
                     client.setNickname(nicknameMessage.getNickname());
                     this.register(client);
                     System.out.println("Client " + client.getNickname() + " registered");
