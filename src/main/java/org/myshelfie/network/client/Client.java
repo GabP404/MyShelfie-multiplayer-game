@@ -2,6 +2,7 @@ package org.myshelfie.network.client;
 
 import org.myshelfie.network.EventManager;
 import org.myshelfie.network.messages.commandMessages.CommandMessageWrapper;
+import org.myshelfie.network.messages.commandMessages.HeartBeatMessage;
 import org.myshelfie.network.messages.commandMessages.UserInputEvent;
 import org.myshelfie.network.messages.gameMessages.EventWrapper;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
@@ -19,6 +20,10 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 public class Client extends UnicastRemoteObject implements ClientRMIInterface, Runnable{
+
+    // Add a heartbeat interval constant
+    private static final int HEARTBEAT_INTERVAL = 5000; // 5 seconds
+    private long lastHeartbeat = System.currentTimeMillis();
 
     protected String nickname;
     protected static final String SERVER_ADDRESS = "localhost";
@@ -110,6 +115,14 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
         return view.getGameName();
     }
 
+    public void setLastHeartbeat(long l) {
+        this.lastHeartbeat = l;
+    }
+
+    public long getLastHeartBeat() {
+        return this.lastHeartbeat;
+    }
+
     class SocketServerListener extends Thread {
         private Socket serverSocket;
 
@@ -177,6 +190,17 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
         this.RMIInterface.update(argument, ev);
     }
 
+    public void startHeartBeatThread() {
+        Thread heartbeatThread;
+        if (isRMI) {
+            heartbeatThread = new Thread(this::sendHeartbeatRMI);
+        } else {
+            heartbeatThread = new Thread(this::sendHeartbeatSocket);
+        }
+        heartbeatThread.start();
+        System.out.println("Heartbeat thread started!");
+    }
+
     @Override
     public void run()
     {
@@ -226,6 +250,45 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
             }
         }
     }
+
+    /**
+     * Send a heartbeat message to the server every HEARTBEAT_INTERVAL milliseconds.
+     * This calls the remote method heartbeat() of the server.
+     * This method is supposed to be run inside a dedicated thread.
+     */
+    private void sendHeartbeatRMI() {
+        while (true) {
+            try {
+                // Send a heartbeat message to the server using RMI
+                HeartBeatMessage msg = new HeartBeatMessage(this.nickname);
+                rmiServer.heartbeat(this, msg);
+                Thread.sleep(HEARTBEAT_INTERVAL);
+            } catch (RemoteException | InterruptedException e) {
+                // Handle exceptions as needed
+            }
+        }
+    }
+
+    /**
+     * Send a heartbeat message to the server every HEARTBEAT_INTERVAL milliseconds.
+     * This method should be used only by a "socket" client, and is supposed to be run inside a dedicated thread.
+     */
+    private void sendHeartbeatSocket() {
+        while (true) {
+            try {
+                // Send a heartbeat message to the server
+                CommandMessageWrapper heartbeatMsg = new CommandMessageWrapper(
+                        new HeartBeatMessage(this.nickname),
+                        UserInputEvent.HEARTBEAT
+                );
+                output.writeObject(heartbeatMsg);
+                Thread.sleep(HEARTBEAT_INTERVAL);
+            } catch (IOException | InterruptedException e) {
+                // Handle exceptions as needed
+            }
+        }
+    }
+
 
     public String getNickname() {
         return nickname;

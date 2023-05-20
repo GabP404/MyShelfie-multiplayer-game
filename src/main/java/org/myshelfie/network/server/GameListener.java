@@ -58,4 +58,8 @@ public class GameListener implements Listener<GameEvent> {
             server.sendTo(clientSocket, ew);
         }
     }
+
+    public Client getClient() {
+        return client;
+    }
 }

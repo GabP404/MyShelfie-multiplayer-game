@@ -123,6 +123,9 @@ public class ViewCLI implements View{
 
     @Override
     public void update(GameView msg, GameEvent ev) {
+        // End the threads to create/join a game, in case the gameView was received after a reconnection
+        this.endCreateGameThread();
+        this.endJoinGameThread();
 
         clear();
         switch (ev)

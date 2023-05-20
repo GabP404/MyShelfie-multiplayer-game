@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  *  This class is used to manage the listeners and the events.
@@ -26,6 +27,22 @@ public class EventManager {
         }
         List<Listener<?>> users = listeners.get(eventType);
         users.add(listener);
+    }
+
+    /**
+     * Return the first listener of a certain class that matches a function
+     * @param classToListen The class that is being listened
+     * @param func A function that returns true if the listener is the required one
+     * @return
+     */
+    public Listener<? extends Enum<?>> getListener(Class<? extends Enum<?>> classToListen, Function<Listener<? extends Enum<?>>, Boolean> func) {
+        List<Listener<? extends Enum<?>>> listened = listeners.get(classToListen);
+        for (Listener<? extends Enum<?>> l: listened) {
+            if (func.apply(l)) {
+                return l;
+            }
+        }
+        return null;
     }
 
     /**

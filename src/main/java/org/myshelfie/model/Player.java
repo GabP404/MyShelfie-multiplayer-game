@@ -152,11 +152,10 @@ public class Player {
 
     public void setOnline(boolean online) {
         this.online = online;
+        Server.eventManager.notify(GameEvent.PLAYER_ONLINE_UPDATE);
     }
 
     public int getTotalPoints() throws WrongArgumentException{
-
-
         return getPublicPoints() + this.personalGoal.getPoints(this.bookshelf) +  (this.hasFinalToken ? 1 : 0);
     }
 }

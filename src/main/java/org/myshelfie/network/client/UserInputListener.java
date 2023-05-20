@@ -30,6 +30,7 @@ public class UserInputListener implements Listener<UserInputEvent> {
                 );
                 client.setNickname((String) args[0]);
                 client.endNicknameThread(); // Stop the view thread that was waiting for the nickname
+                client.startHeartBeatThread();
             }
             case CREATE_GAME -> {
                 boolean successfulCreation = (boolean) client.updateServerPreGame(new CommandMessageWrapper(

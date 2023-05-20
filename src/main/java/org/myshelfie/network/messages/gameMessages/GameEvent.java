@@ -1,5 +1,5 @@
 package org.myshelfie.network.messages.gameMessages;
 
 public enum GameEvent {
-    BOOKSHELF_UPDATE, BOARD_UPDATE, TOKEN_UPDATE, ERROR
+    BOOKSHELF_UPDATE, BOARD_UPDATE, TOKEN_UPDATE, PLAYER_ONLINE_UPDATE, ERROR
 }
