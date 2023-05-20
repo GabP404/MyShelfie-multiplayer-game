@@ -1,8 +1,6 @@
 package org.myshelfie.controller;
 
 import org.myshelfie.model.Game;
-import org.myshelfie.model.PersonalGoalCard;
-import org.myshelfie.model.PersonalGoalDeck;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.commandMessages.CommandMessage;
 import org.myshelfie.network.messages.commandMessages.CreateGameMessage;
@@ -17,7 +15,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -25,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 public class LobbyController {
     private Server server;
 
-    // TODO Disconnessione da lobby
     private static LobbyController single_istance;
 
     private HashMap<String,GameController> gameControllers;
@@ -60,7 +56,7 @@ public class LobbyController {
     public void setPlayerOffline(String nickname) {
         for (GameController g : gameControllers.values()) {
             if (g.getNicknames().contains(nickname))
-            g.setPlayerOffline(nickname);
+                g.setPlayerOffline(nickname);
         }
     }
 
@@ -123,5 +119,89 @@ public class LobbyController {
 
     public Game retrieveGame(String gameName) {
         return gameControllers.get(gameName).getGame();
+    }
+
+    /**
+     * Returns the name of the game in which the player with that nickname is currently playing.
+     * @param nickname The nickname of the player.
+     * @return The name of the game in which the player with that nickname is currently playing.
+     */
+    public String getGameNameFromPlayerNickname(String nickname) {
+        for (GameController gameController : gameControllers.values()) {
+            if (gameController.getNicknames().contains(nickname)) {
+                return gameController.getGameName();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Handles the disconnection of a client: it sets the player offline if the game
+     * has already started, whereas it removes it from the lobby if the game has not, but
+     * the player has already joined the lobby.
+     * @param nickname The nickname of the player that has disconnected.
+     */
+    public void handleClientDisconnection(String nickname) {
+        String gameName = getGameNameFromPlayerNickname(nickname);
+        if (gameName == null) {
+            //The player had not joined any game or lobby,
+            //so there is nothing to do in the LobbyController.
+            return;
+        }
+
+        GameController gameController = gameControllers.get(gameName);
+        if (gameController.isGameCreated()) {
+            //The game has already started, so the player is set offline.
+            gameController.setPlayerOffline(nickname);
+        } else {
+            //The game has not started yet, so the player is removed from the lobby.
+            gameController.removePlayer(nickname);
+        }
+    }
+
+    /**
+     * Handles the reconnection of a client: if possible, it will add them back to the game,
+     * otherwise it will add them back to the lobby to which they were connected.
+     * If it is not possible to add the player back to the game, it will return false.
+     *
+     * @param nickname The nickname of the player that had disconnected.
+     */
+    public boolean handleClientReconnection(String nickname) {
+        String gameName = getGameNameFromPlayerNickname(nickname);
+        if (gameName == null) {
+            // No started game were found for the player, so there is nowhere to add it back to.
+            return false;
+        }
+
+        GameController gameController = gameControllers.get(gameName);
+        if (gameController.isGameCreated()) {
+            System.out.println("Player " + nickname + " reconnected to game " + gameName + "!");
+
+            // Subscribe the client to the event listener
+            Game gameToSubscribe = gameController.getGame();
+            Client client = server.getClient(nickname);
+            if (client == null) {
+                System.out.println("Client " + nickname + " not found!");
+                throw new RuntimeException("Client " + nickname + " not found!");
+            }
+            Server.eventManager.subscribe(GameEvent.class, new GameListener(this.server, client, gameToSubscribe));
+
+            //The game has already started, so the player is set back online after 1.5 seconds,
+            //and the GameView notify is automatically triggered to all the clients
+            try {
+                ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+                executorService.schedule(() -> {
+                        gameController.setOnlinePlayer(nickname);
+                }, 1500, TimeUnit.MILLISECONDS);
+
+                executorService.shutdown();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            return true;
+        }
+
+        //The game was not started yet, so no need to send a GameView Update
+        return false;
     }
 }

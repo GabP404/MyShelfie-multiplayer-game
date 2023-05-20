@@ -25,15 +25,21 @@ public class UserInputListener implements Listener<UserInputEvent> {
     public void update(UserInputEvent ev, Object... args) {
         switch (ev) {
             case NICKNAME -> {
-                Pair<Boolean, List<GameController.GameDefinition>> response = (Pair<Boolean, List<GameController.GameDefinition>>) client.updateServerPreGame(
+                Pair<ConnectingStatuses, List<GameController.GameDefinition>> response = (Pair<ConnectingStatuses, List<GameController.GameDefinition>>) client.updateServerPreGame(
                         new CommandMessageWrapper(new NicknameMessage((String) args[0]), ev)
                 );
-                if (response.getLeft()) {
-                    // TODO: set the list of games in the view so that they can be displayed!
+                client.setNickname((String) args[0]);
+                client.startHeartBeatThread();
+                if (response.getLeft() == ConnectingStatuses.CONFIRMED) {
                     client.getView().setAvailableGames(response.getRight());
-                    client.setNickname((String) args[0]);
                     System.out.println("Successfully set nickname to " + args[0]);
                     client.endNicknameThread(); // Stop the view thread that was waiting for the nickname
+                } else if (response.getLeft() == ConnectingStatuses.RECONNECTING) {
+                    System.out.println("Successfully set nickname to " + args[0]);
+                    client.getView().setReconnecting(true);
+                    System.out.println("Reconnected to a game!");
+                    client.endNicknameThread(); // Stop the view thread that was waiting for the nickname
+                    client.startServerListener();
                 } else {
                     System.out.println("Nickname " + args[0] + " already taken!");
                 }

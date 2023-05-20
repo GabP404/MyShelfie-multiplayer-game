@@ -39,6 +39,9 @@ public class GameListener implements Listener<GameEvent> {
      */
     @Override
     public void update(GameEvent ev, Object... args) {
+        System.out.print("Sending event: " + ev);
+        System.out.println(" to client: " + client.getNickname());
+
         //Send the message to the client
         if (this.listenedGame == null)
             return; //The game hasn't been set yet
@@ -57,5 +60,9 @@ public class GameListener implements Listener<GameEvent> {
             Socket clientSocket = client.getClientSocket();
             server.sendTo(clientSocket, ew);
         }
+    }
+
+    public Client getClient() {
+        return client;
     }
 }

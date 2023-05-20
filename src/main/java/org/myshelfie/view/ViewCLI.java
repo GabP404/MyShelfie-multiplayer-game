@@ -46,6 +46,8 @@ public class ViewCLI implements View{
 
     private GameView game;
 
+    private boolean reconnecting = false;
+
     private Scanner scanner = new Scanner(System.in);
 
     private List<GameController.GameDefinition> availableGames;
@@ -150,6 +152,10 @@ public class ViewCLI implements View{
     //handle messages from server
     @Override
     public void update(GameView msg, GameEvent ev) {
+        // End the threads to create/join a game, in case the gameView was received after a reconnection
+        this.endCreateGameThread();
+        this.endJoinGameThread();
+
         game = msg;
         clear();
         //if the game state is END_GAME print the ranking
@@ -181,39 +187,41 @@ public class ViewCLI implements View{
             throw new RuntimeException(e);
         }
 
-        String choice = null;
-        do {
-            clear();
-            printTitle();
-            print("Do you want to create or join a game? [create/join]", 0, 20, false);
-            setCursor(0, 22);
-            choice = scanner.nextLine();
-        }while(!choice.equals("create") && !choice.equals("join"));
+        if (!reconnecting) {
+            // Go through the whole "create or join" game phase
+            String choice = null;
+            do {
+                clear();
+                printTitle();
+                print("Do you want to create or join a game? [create/join]", 0, 0, false);
+                setCursor(0, 22);
+                choice = scanner.nextLine();
+            }while(!choice.equals("create") && !choice.equals("join"));
 
-        if(choice.equals("create"))
-        {
-            threadCreateGame.start();
-            try {
-                threadCreateGame.join();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            if(choice.equals("create"))
+            {
+                threadCreateGame.start();
+                try {
+                    threadCreateGame.join();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
             }
-
-        }
-        else if(choice.equals("join"))
-        {
-            threadJoinGame.start();
-            try {
-                threadJoinGame.join();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            else if(choice.equals("join"))
+            {
+                threadJoinGame.start();
+                try {
+                    threadJoinGame.join();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            else
+            {
+                System.out.println("Wrong choice");
             }
         }
-        else
-        {
-            System.out.println("Wrong choice");
-        }
-
 
         Thread t = new Thread(() -> {
             try {
@@ -942,5 +950,9 @@ public class ViewCLI implements View{
     @Override
     public void setAvailableGames(List<GameController.GameDefinition> availableGames) {
         this.availableGames = availableGames;
+    }
+
+    public void setReconnecting(boolean reconnecting) {
+        this.reconnecting = reconnecting;
     }
 }

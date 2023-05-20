@@ -30,6 +30,12 @@ public enum UserInputEvent implements Serializable {
      * Message to send the nickname of the player
      */
     NICKNAME,
+
+    /**
+     * Message to send a heartbeat to the server
+     */
+    HEARTBEAT,
+
     /**
      * Message to send to ask for available games
      */

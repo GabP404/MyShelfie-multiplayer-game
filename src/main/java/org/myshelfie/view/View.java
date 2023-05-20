@@ -34,4 +34,6 @@ public interface View extends Runnable {
     void setNickname(String nickname);
 
     void setAvailableGames(List<GameController.GameDefinition> availableGamesList);
+
+    void setReconnecting(boolean reconnecting);
 }
