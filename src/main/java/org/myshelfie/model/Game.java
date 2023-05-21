@@ -62,6 +62,10 @@ public class Game {
         );
         return x;
     }
+    public HashMap<CommonGoalCard,List<ScoringToken>> getCommonGoalsMap() {
+        return commonGoals;
+    }
+
     public TileBag getTileBag() {
         return tileBag;
     }
@@ -116,6 +120,7 @@ public class Game {
         if (currPlayer == null || !players.contains(currPlayer))
             throw new WrongArgumentException("Player not found");
         this.currPlayer = currPlayer;
+        Server.eventManager.notify(GameEvent.BOOKSHELF_UPDATE);
     }
 
     public ModelState getModelState() {
