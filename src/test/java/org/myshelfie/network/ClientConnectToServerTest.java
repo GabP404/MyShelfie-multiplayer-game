@@ -4,7 +4,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.myshelfie.model.Game;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.server.Server;
 
@@ -25,6 +24,12 @@ public class ClientConnectToServerTest {
 
     @BeforeAll
     public static void setServerUp() {
+        try {
+            stopServerThread();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
         Object lock = new Object();
         serverThread = new Thread(() -> {
             try {
@@ -37,7 +42,7 @@ public class ClientConnectToServerTest {
         serverThread.start();
         synchronized (lock) {
             try {
-                lock.wait(1000);
+                lock.wait();
             } catch (InterruptedException e) {
                 System.out.println("Server thread interrupted");
                 throw new RuntimeException(e);
@@ -60,9 +65,11 @@ public class ClientConnectToServerTest {
 
     @AfterAll
     public static void stopServerThread() throws InterruptedException {
-        System.out.println("Stopping server...");
-        serverThread.interrupt();
-        server.stopServer();
+        if (serverThread != null && serverThread.isAlive()) {
+            System.out.println("Stopping server...");
+            serverThread.interrupt();
+            server.stopServer();
+        }
     }
 
     @Test

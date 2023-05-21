@@ -1,5 +1,6 @@
 package org.myshelfie.network.client;
 
+import org.myshelfie.controller.Configuration;
 import org.myshelfie.network.EventManager;
 import org.myshelfie.network.messages.commandMessages.CommandMessageWrapper;
 import org.myshelfie.network.messages.commandMessages.HeartBeatMessage;
@@ -27,9 +28,9 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
 
     protected String nickname;
     protected static final String SERVER_ADDRESS = "localhost";
-    protected static final int SERVER_PORT = 1234;
+    protected static final int SERVER_PORT = Configuration.getServerPort();
 
-    protected static String RMI_SERVER_NAME = "MinecraftServer";
+    protected static String RMI_SERVER_NAME = Configuration.getRMIServerName();
     ServerRMIInterface rmiServer;
     private Socket serverSocket;
     private ObjectOutputStream output;

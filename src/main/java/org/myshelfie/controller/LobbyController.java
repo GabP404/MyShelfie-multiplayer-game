@@ -10,14 +10,9 @@ import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.server.GameListener;
 import org.myshelfie.network.server.Server;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class LobbyController {
     private Server server;
@@ -79,6 +74,10 @@ public class LobbyController {
         c.execute();
 
         Client client = server.getClient(message.getNickname());
+        if (client == null) {
+            System.out.println("Client not found!!!!1!!!!");
+            throw new IllegalArgumentException("Client not found");
+        }
         Game gameToSubscribe = gameControllers.get(message.getGameName()).getGame();
 
         // Add the player to the list of players inside the Game
@@ -92,25 +91,22 @@ public class LobbyController {
         JoinGameCommand c = new JoinGameCommand(gameControllers, message);
         c.execute();
 
+
         Client client = server.getClient(message.getNickname());
+        if (client == null) {
+            System.out.println("Client not found!!!!1!!!!");
+            throw new IllegalArgumentException("Client not found");
+        }
         GameController gameController = gameControllers.get(message.getGameName());
         Game gameToSubscribe = gameController.getGame();
         Server.eventManager.subscribe(GameEvent.class, new GameListener(this.server, client, gameToSubscribe));
 
+        System.out.println("Current players in game " + message.getGameName() + ": " + " (" + gameController.getNicknames().size() + "/" + gameController.getNumPlayerGame() + ")");
         if (gameController.getNicknames().size() == gameController.getNumPlayerGame()) {
             try {
-                ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-                executorService.schedule(() -> {
-                    try {
-                        System.out.println("Setting game " + message.getGameName() + " up...");
-                        gameController.setupGame();
-                        System.out.println("Game set up!");
-                    } catch (IOException | URISyntaxException e) {
-                        throw new RuntimeException(e);
-                    }
-                }, 2, TimeUnit.SECONDS);
-
-                executorService.shutdown();
+                System.out.println("Setting game " + message.getGameName() + " up...");
+                gameController.setupGame();
+                System.out.println("Game set up!");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

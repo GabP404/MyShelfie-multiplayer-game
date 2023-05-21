@@ -1,5 +1,6 @@
 package org.myshelfie.network.server;
 
+import org.myshelfie.controller.Configuration;
 import org.myshelfie.controller.GameController;
 import org.myshelfie.controller.LobbyController;
 import org.myshelfie.model.Game;
@@ -10,10 +11,7 @@ import org.myshelfie.network.messages.commandMessages.*;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
+import java.net.*;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -29,7 +27,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     private LobbyController controller;
     public static EventManager eventManager = new EventManager();
     private Game game;
-    private String RMI_SERVER_NAME = "MinecraftServer";
+    private String RMI_SERVER_NAME = Configuration.getRMIServerName();
     private ServerSocket serverSocket;
     private static final int HEARTBEAT_TIMEOUT = 10000; // 10 seconds
 
@@ -55,7 +53,12 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
 
 
     public Client getClient(String nickname) {
-        return this.clients.stream().filter(c -> c.getNickname().equals(nickname)).findFirst().orElse(null);
+        clients.forEach(c -> {
+            if (c.getNickname().equals(nickname)) {
+                System.out.println("The nickname is : " + c.getNickname() + " and the argument is " + nickname);
+            }
+        });
+        return clients.stream().filter(c -> c.getNickname().equals(nickname)).findFirst().orElse(null);
     }
 
 
@@ -219,7 +222,9 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     public void startSocketServer(Object lock) {
         try {
             synchronized (lock) {
-                serverSocket = new ServerSocket(1234);
+                serverSocket = new ServerSocket();
+                serverSocket.setReuseAddress(true);
+                serverSocket.bind(new InetSocketAddress(Configuration.getServerPort()));
                 // Create a new server socket
                 System.out.println("Server started with sockets.");
                 lock.notifyAll();

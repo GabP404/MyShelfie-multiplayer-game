@@ -179,4 +179,31 @@ public class Configuration {
         }
         return points;
     }
+
+    /**
+     * Get the address of the server (to be used both for socket and RMI)
+     * @return The address of the server
+     */
+    static public String getServerAddress() {
+        JSONObject jo = getJSON().getJSONObject("server");
+        return jo.getString("address");
+    }
+
+    /**
+     * Get the socket port of the server
+     * @return The socket port of the server
+     */
+    static public int getServerPort() {
+        JSONObject jo = getJSON().getJSONObject("server");
+        return jo.getInt("port");
+    }
+
+    /**
+     * Get the RMI name of the server
+     * @return  The RMI name of the server
+     */
+    static public String getRMIServerName() {
+        JSONObject jo = getJSON().getJSONObject("server");
+        return jo.getString("rmi_name");
+    }
 }
