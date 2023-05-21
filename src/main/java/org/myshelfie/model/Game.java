@@ -1,13 +1,12 @@
 package org.myshelfie.model;
-import org.myshelfie.network.server.Server;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
+import org.myshelfie.network.server.Server;
 
-import java.io.Serializable;
 import java.util.*;
 
 public class Game {
 
-    private String gameName;;
+    private String gameName;
     private Player currPlayer;
     private List<Player> players;
     private Board board;
@@ -90,10 +89,18 @@ public class Game {
     }
 
     /**
-     * Reset the error state of all the players
+     * Reset the error state of all the players. Send the notification only if at least one error state has been reset
      */
     public void resetErrorState() {
-        players.forEach( (player) -> errorState.put(player.getNickname(), null) );
+        int countReset = 0;
+        for (Player p : players) {
+            if (errorState.get(p.getNickname()) != null) {
+                errorState.put(p.getNickname(), null);
+                countReset++;
+            }
+        }
+        if (countReset > 0)
+            Server.eventManager.notify(GameEvent.ERROR_STATE_UPDATE);
     }
 
     public ScoringToken popTopScoringToken(CommonGoalCard c) throws WrongArgumentException {
@@ -116,6 +123,7 @@ public class Game {
         if (currPlayer == null || !players.contains(currPlayer))
             throw new WrongArgumentException("Player not found");
         this.currPlayer = currPlayer;
+        Server.eventManager.notify(GameEvent.CURR_PLAYER_UPDATE);
     }
 
     public ModelState getModelState() {
@@ -137,7 +145,7 @@ public class Game {
     }
 
     public int getNumOnlinePlayers() {
-        return (int) players.stream().filter( (player) -> player.isOnline() ).count();
+        return (int) players.stream().filter(Player::isOnline).count();
     }
 
     public String getGameName() {
