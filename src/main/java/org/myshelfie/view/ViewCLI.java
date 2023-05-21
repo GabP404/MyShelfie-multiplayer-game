@@ -309,6 +309,13 @@ public class ViewCLI implements View{
     }
 
     public void parseInput(String s) {
+        //if it's not the player turn return
+        if(!game.getCurrPlayer().getNickname().equals(nickname))
+        {
+            printError("IT'S NOT YOUR TURN");
+            return;
+        }
+
         String[] parts = s.split(" ");
 
         if (parts.length < 1) {
@@ -387,6 +394,11 @@ public class ViewCLI implements View{
                     return;
                 break;
             case "confirm", "c":
+                if(selectedTiles.isEmpty())
+                {
+                    printError("NO TILES SELECTED");
+                    return;
+                }
                 confirmSelection();
                 break;
             case "help", "h":
@@ -479,6 +491,7 @@ public class ViewCLI implements View{
         printCommonGoals();
         printBoard();
         printAllBookshelves();
+        printPoints();
         printPersonalGoal();
         if(game.getCurrPlayer().getNickname().equals(nickname))
             print(MAGENTA + "È IL TUO TURNO!",boardOffsetX, boardOffsetY-4, false);
@@ -567,7 +580,11 @@ public class ViewCLI implements View{
 
     private void printBookshelf(int numPlayer)
     {
-        print(game.getPlayers().get(numPlayer).getNickname(), bookshelfOffsetX + (numPlayer*bookshelvesDistance), bookshelfOffsetY-2, false);
+        String p = "";
+        if(game.getCurrPlayer().getNickname().equals(game.getPlayers().get(numPlayer).getNickname()))
+            p = GREEN.toString();
+
+        print(p + game.getPlayers().get(numPlayer).getNickname() + RESET, bookshelfOffsetX + (numPlayer*bookshelvesDistance), bookshelfOffsetY-2, false);
         for(int i = 0; i<Bookshelf.NUMROWS; i++)
         {
             for(int j = 0; j<Bookshelf.NUMCOLUMNS; j++)
@@ -696,6 +713,10 @@ public class ViewCLI implements View{
             default:
                 print("NOT YET IMPLEMENTED", commonGoalOffsetX+2 + (offset*60), commonGoalOffsetY + 2, false);
         }
+        //print the value of the top scoring token of the common goal card associed to the id
+        //TODO: get this to work
+        //print(game.getCommonGoalsMap().get(game.getCommonGoals().get(id)).get(0).getPoints().toString(), cordX + 35, cordY + 4, false);
+        print("8", cordX + 44, cordY + 4, false);
     }
 
     private void  printCommonGoalBoxes()
@@ -708,17 +729,18 @@ public class ViewCLI implements View{
             print(c + "║                                              ║", commonGoalOffsetX + (i*60), commonGoalOffsetY + 2, false);
             print(c + "║                                              ║", commonGoalOffsetX + (i*60), commonGoalOffsetY + 3, false);
             print(c + "║                                              ║", commonGoalOffsetX + (i*60), commonGoalOffsetY + 4, false);
-            print(c + "║                                              ║", commonGoalOffsetX + (i*60), commonGoalOffsetY + 5, false);
-            print(c + "╚══════════════════════════════════════════════╝", commonGoalOffsetX + (i*60), commonGoalOffsetY + 6, false);
+            print(c + "║                                           ╔═══╗", commonGoalOffsetX + (i*60), commonGoalOffsetY + 5, false);
+            print(c + "╚═══════════════════════════════════════════║   ║", commonGoalOffsetX + (i*60), commonGoalOffsetY + 6, false);
+            print(c + "                                            ╚═══╝", commonGoalOffsetX + (i*60), commonGoalOffsetY + 7, false);
         }
     }
 
     private void printHand(int numPlayer)
     {
         //erasing old hand on screen
-        setCursor(bookshelfOffsetX + (numPlayer*bookshelvesDistance), bookshelfOffsetY + 9);
+        setCursor(bookshelfOffsetX + (numPlayer*bookshelvesDistance) + 2, bookshelfOffsetY + 9);
         print("      ");
-        setCursor(bookshelfOffsetX + (numPlayer*bookshelvesDistance), bookshelfOffsetY + 9);
+        setCursor(bookshelfOffsetX + (numPlayer*bookshelvesDistance) + 2, bookshelfOffsetY + 9);
         for(Tile t : game.getPlayers().get(numPlayer).getTilesPicked())
         {
             print(getColorFromTile(t) + "■ " + RESET);
@@ -728,9 +750,17 @@ public class ViewCLI implements View{
     }
     private void printHandBox(int numPlayer)
     {
-        print("╔═══════╗", bookshelfOffsetX + (numPlayer*bookshelvesDistance) - 2, bookshelfOffsetY + 8, false);
-        print("║       ║", bookshelfOffsetX + (numPlayer*bookshelvesDistance) - 2, bookshelfOffsetY + 9, false);
-        print("╚═══════╝", bookshelfOffsetX + (numPlayer*bookshelvesDistance) - 2, bookshelfOffsetY + 10, false);
+        print("╔ hand ═╗", bookshelfOffsetX + (numPlayer*bookshelvesDistance), bookshelfOffsetY + 8, false);
+        print("║       ║", bookshelfOffsetX + (numPlayer*bookshelvesDistance), bookshelfOffsetY + 9, false);
+        print("╚═══════╝", bookshelfOffsetX + (numPlayer*bookshelvesDistance), bookshelfOffsetY + 10, false);
+    }
+
+    private void printPoints()
+    {
+        for(int i = 0; i < game.getPlayers().size(); i++)
+        {
+            print("points: " + game.getPlayers().get(i).getPointsScoringTokens(), bookshelfOffsetX + (i*bookshelvesDistance), bookshelfOffsetY + 12, false);
+        }
     }
 
     private void printPersonalGoal()
@@ -747,15 +777,15 @@ public class ViewCLI implements View{
                 //print(c + " ", personalGoalOffsetX+j, personalGoalOffsetY+i, false);
             }
         }
-        print("01234", personalGoalOffsetX, personalGoalOffsetY+6, false);
+        print("0 1 2 3 4", personalGoalOffsetX, personalGoalOffsetY+6, false);
 
         List<Pair<Pair<Integer, Integer>, Tile>> constraints = game.getPlayers().get(myPlayerIndex()).getPersonalGoal().getConstraints();
         for (Pair<Pair<Integer, Integer>, Tile> c: constraints) {
             int col = c.getLeft().getLeft();
             int row = c.getLeft().getRight();
-            print(getColorFromTile(c.getRight()) + "■" + RESET,personalGoalOffsetX + col, personalGoalOffsetY + row, false);
+            print(getColorFromTile(c.getRight()) + "■ " + RESET,personalGoalOffsetX + (col*2), personalGoalOffsetY + row, false);
         }
-        print("DIMENSIONE CONSTRAINTS PERSONALGOAL CARD: " + constraints.size(), 10, 10, false);
+        //print("DIMENSIONE CONSTRAINTS PERSONALGOAL CARD: " + constraints.size(), 10, 10, false);
 
 
 
