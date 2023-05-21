@@ -101,7 +101,7 @@ public class Player {
         int points_scoringToken = 0;
         for (ScoringToken s :
                 this.commonGoalTokens) {
-            points_scoringToken= s.getPoints();
+            points_scoringToken += s.getPoints();
         }
         HashMap<Integer,Integer> mapping = Configuration.getMapPointsGroup();
         int points_group = 0;
