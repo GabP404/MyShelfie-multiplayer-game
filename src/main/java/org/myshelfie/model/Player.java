@@ -123,6 +123,7 @@ public class Player {
     public void removeTilesPicked(Tile t) throws WrongArgumentException{
         if (!this.tilesPicked.contains(t)) throw new WrongArgumentException("Tile not found");
         this.tilesPicked.remove(t);
+        Server.eventManager.notify(GameEvent.BOOKSHELF_UPDATE);
     }
 
     public void removeTilesPicked(List<Tile> tilesRemoved) throws WrongArgumentException{

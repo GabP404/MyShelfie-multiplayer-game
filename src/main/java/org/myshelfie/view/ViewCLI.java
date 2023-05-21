@@ -22,8 +22,8 @@ public class ViewCLI implements View{
     private static final int commonGoalOffsetY = 2;
     private static final int personalGoalOffsetX = 110;
     private static final int personalGoalOffsetY = 15;
-    private static final int bookshelvesDistance = 15;
-    public static final int inputOffsetX = 3;
+    private static final int bookshelvesDistance = 18;
+    public static final int inputOffsetX = 0;
     public static final int inputOffsetY = 30;
 
     private static final int errorOffsetX = 3;
@@ -124,18 +124,20 @@ public class ViewCLI implements View{
     @Override
     public void update(GameView msg, GameEvent ev) {
 
+        game = msg;
         clear();
         switch (ev)
         {
-            // TODO: work in progress (on ev == GameEvent.ERROR print the string from msg.getErrorState(..,)
-            //  instead of printAll())
-            case BOARD_UPDATE -> selectedTiles.clear();
+            case ERROR:
+                if(game.getErrorState(nickname) != null)
+                    printError(game.getErrorState(nickname));
+                break;
+            case BOARD_UPDATE:
+                selectedTiles.clear();
+                break;
         }
-        game = msg;
         printAll();
         setCursor(inputOffsetX, inputOffsetY);
-        // System.out.println("Received from server the event " + ev + "signaling a change in the model!");
-        // System.out.println("    Message payload: " + msg);
     }
 
     @Override
@@ -320,6 +322,7 @@ public class ViewCLI implements View{
                             printError("ROW OR COLUMN NUMBERS ARE NOT CORRECT");
                             return;
                         }
+                        printBoard();
                         break;
                     case "column", "c":
                         if (parts.length != 3) {
@@ -352,6 +355,7 @@ public class ViewCLI implements View{
                             printError("ROW OR COLUMN NUMBERS ARE NOT CORRECT");
                             return;
                         }
+                        printBoard();
                         break;
                     case "column", "c":
                         //not sure if player should deselect column..
@@ -377,8 +381,8 @@ public class ViewCLI implements View{
                 printError("COMMAND DOES NOT EXIST");
                 return;
         }
-        printAll();
-        clearRow(errorOffsetX, errorOffsetY);
+        //printAll();
+        //clearRow(0, errorOffsetY);
     }
 
     private boolean selectTile(int r, int c) {
@@ -497,18 +501,18 @@ public class ViewCLI implements View{
                         c = c + "■";
 
                     //String c = BG_GREEN.toString() + BLACK.toString();
-                    print(c, boardOffsetX+j,boardOffsetY+i,false);
+                    print(c, boardOffsetX+(j*2),boardOffsetY+i,false);
                 }
                 else
                 {
-                    String c = BG_GRAY1.toString();
-                    print(" ", boardOffsetX+j, boardOffsetY+i, false);
+                    //String c = BG_GRAY1.toString();
+                    print(" ", boardOffsetX+(j*2), boardOffsetY+i, false);
                 }
 
 
             }
         }
-        print("012345678", boardOffsetX, bookshelfOffsetY+9, false);
+        print("0 1 2 3 4 5 6 7 8", boardOffsetX, bookshelfOffsetY+9, false);
     }
 
     private String getBGColorFromTile(Tile t)
@@ -558,12 +562,12 @@ public class ViewCLI implements View{
                 try {
                     if(game.getPlayers().get(numPlayer).getBookshelf().getTile(i, j) != null)
                     {
-                        String c = getColorFromTile(game.getPlayers().get(numPlayer).getBookshelf().getTile(i, j)) + "■";
-                        print(c, bookshelfOffsetX+j + (numPlayer*bookshelvesDistance),bookshelfOffsetY+i,false);
+                        String c = getColorFromTile(game.getPlayers().get(numPlayer).getBookshelf().getTile(i, j)) + "■ ";
+                        print(c, bookshelfOffsetX+(j*2) + (numPlayer*bookshelvesDistance),bookshelfOffsetY+i,false);
                     }
                     else
                     {
-                        print(" ", bookshelfOffsetX+j + (numPlayer*bookshelvesDistance), bookshelfOffsetY+i, false);
+                        print("  ", bookshelfOffsetX+(j*2) + (numPlayer*bookshelvesDistance), bookshelfOffsetY+i, false);
                     }
                 } catch (WrongArgumentException e) {
                     throw new RuntimeException(e);
@@ -575,10 +579,10 @@ public class ViewCLI implements View{
         {
             if(numPlayer == myPlayerIndex() && game.getCurrPlayer().getSelectedColumn() == i && game.getCurrPlayer().getNickname().equals(nickname))
             {
-                print(BG_YELLOW.toString() + i + RESET);
+                print(BG_YELLOW.toString() + i + RESET + " ");
             }
             else
-                print(i);
+                print(i + " ");
         }
     }
 
