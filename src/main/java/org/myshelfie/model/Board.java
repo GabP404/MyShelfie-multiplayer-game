@@ -110,4 +110,7 @@ public class Board {
         this.boardTiles[x][y] = null;
         return t;
     }
+    public int[][] getMask() {
+        return mask;
+    }
 }

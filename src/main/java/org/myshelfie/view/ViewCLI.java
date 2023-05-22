@@ -7,6 +7,7 @@ import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.commandMessages.UserInputEvent;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.GameView;
+import org.myshelfie.network.messages.gameMessages.ImmutableBoard;
 import org.myshelfie.network.messages.gameMessages.ImmutablePlayer;
 
 import java.util.*;
@@ -21,7 +22,7 @@ public class ViewCLI implements View{
     private static final int bookshelfOffsetY = 15;
     private static final int commonGoalOffsetX = 5;
     private static final int commonGoalOffsetY = 2;
-    private static final int personalGoalOffsetX = 110;
+    private static final int personalGoalOffsetX = 115;
     private static final int personalGoalOffsetY = 15;
     private static final int bookshelvesDistance = 18;
     public static final int inputOffsetX = 0;
@@ -500,47 +501,48 @@ public class ViewCLI implements View{
     public void printBoard()
     {
         print("BOARD: ",boardOffsetX, boardOffsetY-2,false);
+        print(BG_LIGHT_CYAN + "                      ",boardOffsetX - 2, boardOffsetY-1,false);
         for(int i = 0; i<Board.DIMBOARD; i++)
         {
             for(int j = 0; j<Board.DIMBOARD; j++)
             {
                 if(j == 0)
-                    print(String.valueOf(i), boardOffsetX+j-1,boardOffsetY+i,false);
+                    print(BG_LIGHT_CYAN.toString() + i + " ", boardOffsetX+j-2,boardOffsetY+i,false);
 
-                if(game.getBoard().getTile(i, j) != null)
-                {
-                    boolean selected = false;
-                    for(LocatedTile t : selectedTiles)
-                    {
-                        if(t.getRow() == i && t.getCol() == j)
-                        {
-                            selected = true;
-                        }
-                    }
-
-                    String c;
-
-                    //c = getColorFromTile(game.getBoard().getTile(i, j)) + BLACK.toString();
-                    c = getColorFromTile(game.getBoard().getTile(i, j));
-
-                    if(selected)
-                        c = c  + "█";
-                    else
-                        c = c + "■";
-
-                    //String c = BG_GREEN.toString() + BLACK.toString();
-                    print(c, boardOffsetX+(j*2),boardOffsetY+i,false);
-                }
+                if(ImmutableBoard.getMaskItem(i,j) > game.getPlayers().size())
+                    print(BG_LIGHT_CYAN + "  ", boardOffsetX+(j*2),boardOffsetY+i,false);
                 else
                 {
-                    //String c = BG_GRAY1.toString();
-                    print(" ", boardOffsetX+(j*2), boardOffsetY+i, false);
+                    if(game.getBoard().getTile(i, j) != null)
+                    {
+                        boolean selected = false;
+                        for(LocatedTile t : selectedTiles)
+                        {
+                            if(t.getRow() == i && t.getCol() == j)
+                            {
+                                selected = true;
+                            }
+                        }
+
+                        String c;
+                        c = BG_DARK_GRAY + getColorFromTile(game.getBoard().getTile(i, j));
+
+                        if(selected)
+                            c = c  + "█ ";
+                        else
+                            c = c + "■ ";
+
+                        print(c, boardOffsetX+(j*2),boardOffsetY+i,false);
+                    }
+                    else
+                    {
+                        print(BG_DARK_GRAY + "  ", boardOffsetX+(j*2), boardOffsetY+i, false);
+                    }
                 }
-
-
             }
+            print(BG_LIGHT_CYAN + "  ", boardOffsetX+(Board.DIMBOARD*2), boardOffsetY+i, false);
         }
-        print("0 1 2 3 4 5 6 7 8", boardOffsetX, bookshelfOffsetY+9, false);
+        print(BG_LIGHT_CYAN + "  0 1 2 3 4 5 6 7 8   ", boardOffsetX - 2, bookshelfOffsetY+9, false);
     }
 
     private String getBGColorFromTile(Tile t)
@@ -584,38 +586,42 @@ public class ViewCLI implements View{
         if(game.getCurrPlayer().getNickname().equals(game.getPlayers().get(numPlayer).getNickname()))
             p = GREEN.toString();
 
-        print(p + game.getPlayers().get(numPlayer).getNickname() + RESET, bookshelfOffsetX + (numPlayer*bookshelvesDistance), bookshelfOffsetY-2, false);
+        print(p + game.getPlayers().get(numPlayer).getNickname() + RESET, bookshelfOffsetX + (numPlayer*bookshelvesDistance), bookshelfOffsetY-3, false);
+        print(BG_LIGHT_BROWN + "              ", bookshelfOffsetX + (numPlayer*bookshelvesDistance) - 2, bookshelfOffsetY-1, false);
         for(int i = 0; i<Bookshelf.NUMROWS; i++)
         {
             for(int j = 0; j<Bookshelf.NUMCOLUMNS; j++)
             {
                 if(j == 0)
-                    print(String.valueOf(i), bookshelfOffsetX + (numPlayer*bookshelvesDistance)-1,bookshelfOffsetY+i,false);
+                    print(BG_LIGHT_BROWN + String.valueOf(i) + " ", bookshelfOffsetX + (numPlayer*bookshelvesDistance)-2,bookshelfOffsetY+i,false);
                 try {
                     if(game.getPlayers().get(numPlayer).getBookshelf().getTile(i, j) != null)
                     {
-                        String c = getColorFromTile(game.getPlayers().get(numPlayer).getBookshelf().getTile(i, j)) + "■ ";
+                        String c = BG_DARK_BROWN.toString() + getColorFromTile(game.getPlayers().get(numPlayer).getBookshelf().getTile(i, j)) + "■ ";
                         print(c, bookshelfOffsetX+(j*2) + (numPlayer*bookshelvesDistance),bookshelfOffsetY+i,false);
                     }
                     else
                     {
-                        print("  ", bookshelfOffsetX+(j*2) + (numPlayer*bookshelvesDistance), bookshelfOffsetY+i, false);
+                        print(BG_DARK_BROWN + "  ", bookshelfOffsetX+(j*2) + (numPlayer*bookshelvesDistance), bookshelfOffsetY+i, false);
                     }
                 } catch (WrongArgumentException e) {
                     throw new RuntimeException(e);
                 }
             }
+            print(BG_LIGHT_BROWN + "  ", bookshelfOffsetX+(Bookshelf.NUMCOLUMNS*2) + (numPlayer*bookshelvesDistance), bookshelfOffsetY+i, false);
         }
-        setCursor(bookshelfOffsetX + (numPlayer*bookshelvesDistance), bookshelfOffsetY + 6);
+        setCursor(bookshelfOffsetX + (numPlayer*bookshelvesDistance) - 2, bookshelfOffsetY + 6);
+        print(BG_LIGHT_BROWN + "  ");
         for(int i = 0; i<Bookshelf.NUMCOLUMNS; i++)
         {
             if(numPlayer == myPlayerIndex() && game.getCurrPlayer().getSelectedColumn() == i && game.getCurrPlayer().getNickname().equals(nickname))
             {
-                print(BG_YELLOW.toString() + i + RESET + " ");
+                print(BG_YELLOW.toString() + i + " " + RESET);
             }
             else
-                print(i + " ");
+                print(BG_LIGHT_BROWN.toString() + i + " ");
         }
+        print(BG_LIGHT_BROWN + "  ");
     }
 
     private void printAllBookshelves()

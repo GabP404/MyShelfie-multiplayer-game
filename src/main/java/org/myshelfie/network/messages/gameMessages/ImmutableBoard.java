@@ -1,15 +1,18 @@
 package org.myshelfie.network.messages.gameMessages;
 
+import org.myshelfie.controller.Configuration;
 import org.myshelfie.model.Board;
 import org.myshelfie.model.Tile;
 
 import java.io.Serializable;
 
 public final class ImmutableBoard implements Serializable {
+    private final static int[][] mask = Configuration.getBoardMask();
     public final int DIMBOARD;
     private final Tile[][] boardTiles;
 
     public ImmutableBoard(Board board) {
+
         this.DIMBOARD = Board.DIMBOARD;
         this.boardTiles = new Tile[DIMBOARD][DIMBOARD];
         for (int i = 0; i < DIMBOARD; i++) {
@@ -57,5 +60,7 @@ public final class ImmutableBoard implements Serializable {
         return this.boardTiles[x][y];
     }
 
-
+    public static int getMaskItem(int x, int y) {
+        return mask[x][y];
+    }
 }
