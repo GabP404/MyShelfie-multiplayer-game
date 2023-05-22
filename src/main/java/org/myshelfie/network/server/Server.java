@@ -2,7 +2,7 @@ package org.myshelfie.network.server;
 
 import org.myshelfie.controller.GameController;
 import org.myshelfie.controller.LobbyController;
-import org.myshelfie.model.Game;
+import org.myshelfie.model.util.Pair;
 import org.myshelfie.network.EventManager;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.client.ClientRMIInterface;
@@ -30,7 +30,6 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     private List<Client> clients;
     private LobbyController controller;
     public static EventManager eventManager = new EventManager();
-    private Game game;
     private String RMI_SERVER_NAME = "MinecraftServer";
     private ServerSocket serverSocket;
 
@@ -59,16 +58,6 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
         return this.clients.stream().filter(c -> c.getNickname().equals(nickname)).findFirst().orElse(null);
     }
 
-
-    /**
-     * Getter for the model that the server is using. This method is used in order to allow GameListener to send
-     * the updated modelView everytime a change occurs in the model.
-     * NOTE: this method will need to be parametric when we'll handle multiple games.
-     * @return The model used by the server
-     */
-    Game getGame() {
-        return game;
-    }
 
     /**
      * Register a client to the server
@@ -153,9 +142,14 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                     NicknameMessage nicknameMessage = (NicknameMessage) msg.getMessage();
                     // set the nickname of the client, but if the register fails, the nickname will be set again
                     client.setNickname(nicknameMessage.getNickname());
-                    this.register(client);
+                    try {
+                        this.register(client);
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Nickname already taken");
+                        return new Pair<Boolean, Object>(Boolean.FALSE, new ArrayList<>());
+                    }
                     System.out.println("Client " + client.getNickname() + " registered");
-                    return this.controller.getGames();
+                    return new Pair<Boolean, Object>(Boolean.TRUE, this.controller.getGames());
                 }
                 default -> throw new IllegalArgumentException("Wrong message type");
             }
@@ -297,6 +291,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
 
                 //Get client nickname
                 boolean inputValid = false;
+                Pair<Boolean, List<GameController.GameDefinition>> response;
                 do {
                     CommandMessageWrapper messageWrapper = (CommandMessageWrapper) input.readObject();
                     client.setNickname(messageWrapper.getMessage().getNickname());
@@ -304,12 +299,14 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                         Server.this.register(client);
                         inputValid = true;
                     } catch (IllegalArgumentException e) {
-                        sendTo(clientSocket, "Nickname already taken!");
+                        response = new Pair<>(Boolean.FALSE, new ArrayList<>());
+                        sendTo(clientSocket, response);
                     }
                 } while (!inputValid);
 
-                // Send list of games
-                sendTo(clientSocket, (Serializable) Server.this.getGames());
+                // Send confirm and list of games
+                response = new Pair<>(Boolean.TRUE, Server.this.getGames());
+                sendTo(clientSocket, response);
 
                 // Get CREATE or JOIN game message
                 inputValid = false;

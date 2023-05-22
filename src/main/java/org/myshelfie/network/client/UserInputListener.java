@@ -1,6 +1,7 @@
 package org.myshelfie.network.client;
 
 import org.myshelfie.controller.GameController;
+import org.myshelfie.model.util.Pair;
 import org.myshelfie.network.Listener;
 import org.myshelfie.network.messages.commandMessages.*;
 import org.myshelfie.network.messages.gameMessages.EventWrapper;
@@ -22,14 +23,19 @@ public class UserInputListener implements Listener<UserInputEvent> {
      */
     @Override
     public void update(UserInputEvent ev, Object... args) {
-        // TODO: handle in with a different update call to the server the case of a NICKNAME event
         switch (ev) {
             case NICKNAME -> {
-                List<GameController.GameDefinition> games = (List<GameController.GameDefinition>) client.updateServerPreGame(
+                Pair<Boolean, List<GameController.GameDefinition>> response = (Pair<Boolean, List<GameController.GameDefinition>>) client.updateServerPreGame(
                         new CommandMessageWrapper(new NicknameMessage((String) args[0]), ev)
                 );
-                client.setNickname((String) args[0]);
-                client.endNicknameThread(); // Stop the view thread that was waiting for the nickname
+                if (response.getLeft()) {
+                    // TODO: set the list of games in the view so that they can be displayed!
+                    client.setNickname((String) args[0]);
+                    System.out.println("Successfully set nickname to " + args[0]);
+                    client.endNicknameThread(); // Stop the view thread that was waiting for the nickname
+                } else {
+                    System.out.println("Nickname " + args[0] + " already taken!");
+                }
             }
             case CREATE_GAME -> {
                 boolean successfulCreation = (boolean) client.updateServerPreGame(new CommandMessageWrapper(
