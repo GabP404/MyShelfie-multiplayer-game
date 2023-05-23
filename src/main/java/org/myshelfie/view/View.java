@@ -1,7 +1,10 @@
 package org.myshelfie.view;
 
+import org.myshelfie.controller.GameController;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.GameView;
+
+import java.util.List;
 
 public interface View extends Runnable {
 
@@ -22,7 +25,6 @@ public interface View extends Runnable {
 
     /**
      * Returns the name of the game the user is in
-     * @return
      */
     String getGameName();
 
@@ -30,4 +32,6 @@ public interface View extends Runnable {
 
     // Methods used for testing TODO: possibly remove
     void setNickname(String nickname);
+
+    void setAvailableGames(List<GameController.GameDefinition> availableGamesList);
 }

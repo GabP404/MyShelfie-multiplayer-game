@@ -1,5 +1,6 @@
 package org.myshelfie.view;
 
+import org.myshelfie.controller.GameController;
 import org.myshelfie.model.*;
 import org.myshelfie.model.util.Pair;
 import org.myshelfie.network.client.Client;
@@ -39,6 +40,7 @@ public class ViewCLI implements View{
 
     private Scanner scanner = new Scanner(System.in);
 
+    private List<GameController.GameDefinition> availableGames;
 
     Thread threadNick = new Thread(() -> {
         try {
@@ -93,21 +95,30 @@ public class ViewCLI implements View{
         try {
             clear();
             print("Insert a Game name ", 0, 0, false);
+            print("Available games: ", 0, 10, false);
+            for (int i=0; i<this.availableGames.size(); i++) {
+                print(" -> " + this.availableGames.get(i).getGameName() + " " + this.availableGames.get(i).getMaxPlayers(), 0, 11+i, false);
+            }
             while (true) {
                 setCursor(10,10);
                 String gameName = scanner.nextLine();
                 String[] parts = gameName.split(" ");
-                print("joining game: "+ gameName,10,10,    true);
-                this.client.eventManager.notify(UserInputEvent.JOIN_GAME, parts[0]);
-                try {
-                    Thread.sleep(10000);
-                } catch ( InterruptedException e) {
-                    Thread.currentThread().interrupt(); // restore interrupted status
-                    break;
+                if (parts[0].toLowerCase().equals("refresh")) {
+                    this.client.eventManager.notify(UserInputEvent.REFRESH_AVAILABLE_GAMES);
+                } else {
+                    print("joining game: "+ gameName,10,10,    true);
+                    this.client.eventManager.notify(UserInputEvent.JOIN_GAME, parts[0]);
+                    try {
+                        Thread.sleep(10000);
+                    } catch ( InterruptedException e) {
+                        Thread.currentThread().interrupt(); // restore interrupted status
+                        break;
+                    }
+                    //send information to server
+                    clear();
+                    print("Try again ", 0, 0, false);
                 }
-                //send information to server
-                clear();
-                print("Try again ", 0, 0, false);
+
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -118,6 +129,7 @@ public class ViewCLI implements View{
         selectedColumn = -1;
         selectedHandIndex = -1;
         selectedTiles = new ArrayList<>();
+        availableGames = new ArrayList<>();
         this.client = client;
     }
 
@@ -778,5 +790,10 @@ public class ViewCLI implements View{
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    @Override
+    public void setAvailableGames(List<GameController.GameDefinition> availableGames) {
+        this.availableGames = availableGames;
     }
 }
