@@ -142,6 +142,20 @@ public class GameController {
         return tokens;
     }
 
+    public void updateEndTurn() throws WrongArgumentException {
+        if(game.getBoard().isRefillNeeded()) {
+            this.game.getBoard().refillBoard(this.getNumPlayerGame(), this.game.getTileBag());
+        }
+    }
+
+    public void CheckTokenAchievement() throws WrongArgumentException {
+        for(CommonGoalCard x: this.game.getCommonGoals()) {
+            if(x.checkGoalSatisfied(this.game.getCurrPlayer().getBookshelf())) {
+                this.game.getCurrPlayer().addScoringToken(this.game.popTopScoringToken(x));
+            }
+        }
+    }
+
 
     private void endGame() {
         this.game.setModelState(ModelState.END_GAME);
@@ -224,7 +238,7 @@ public class GameController {
         if(currentGameState == ModelState.WAITING_1_SELECTION_TILE_FROM_HAND && t != UserInputEvent.SELECTED_HAND_TILE) throw new InvalidCommand("waiting for Tile Selection Hand ");
     }
 
-    private void nextState() {
+    private void nextState() throws WrongArgumentException {
         ModelState currentGameState = game.getModelState();
         ModelState nextState = null;
         switch (currentGameState) {
@@ -232,12 +246,15 @@ public class GameController {
                 nextState = ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN;
                 break;
             case WAITING_3_SELECTION_TILE_FROM_HAND:
+                CheckTokenAchievement();
                 nextState = ModelState.WAITING_2_SELECTION_TILE_FROM_HAND;
                 break;
             case WAITING_2_SELECTION_TILE_FROM_HAND:
+                CheckTokenAchievement();
                 nextState = ModelState.WAITING_1_SELECTION_TILE_FROM_HAND;
                 break;
             case WAITING_1_SELECTION_TILE_FROM_HAND:
+                CheckTokenAchievement();
                 if(checkEndGameBookShelfFull()) {
                     nextState = ModelState.END_GAME;
                 }else {
@@ -253,6 +270,7 @@ public class GameController {
                             throw new RuntimeException(e);
                         }
                     }
+                    updateEndTurn();
                     nextState = ModelState.WAITING_SELECTION_TILE;
                 }
                 break;

@@ -5,7 +5,6 @@ import org.myshelfie.network.server.Server;
 import java.util.*;
 
 public class Game {
-
     private String gameName;
     private Player currPlayer;
     private List<Player> players;
