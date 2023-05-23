@@ -312,7 +312,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                 response = new Pair<>(Boolean.TRUE, Server.this.getGames());
                 sendTo(clientSocket, response);
 
-                // Get CREATE or JOIN game message
+                // Get CREATE or JOIN or REFRESH_AVAILABLE_GAMES game message
                 inputValid = false;
                 do {
                     CommandMessageWrapper message = (CommandMessageWrapper) input.readObject();
