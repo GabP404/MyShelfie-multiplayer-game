@@ -10,10 +10,19 @@
   <name>my_shelfie</name>
   <url>http://maven.apache.org</url>
 
+  <repositories>
+    <repository>
+      <id>gluon-nexus-repository</id>
+      <url>https://nexus.gluonhq.com/nexus/content/repositories/releases/</url>
+    </repository>
+  </repositories>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.target>19</maven.compiler.target>
     <maven.compiler.source>19</maven.compiler.source>
+    <javafx.version>19</javafx.version>
+    <javafx.maven.plugin.version>0.0.8</javafx.maven.plugin.version>
   </properties>
 
   <build>
@@ -30,11 +39,34 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.22.0</version>
         </plugin>
+
+        <plugin>
+          <groupId>org.openjfx</groupId>
+          <artifactId>javafx-maven-plugin</artifactId>
+          <version>${javafx.maven.plugin.version}</version>
+          <configuration>
+            <mainClass>org.myshelfie.view.ViewGUI</mainClass>
+          </configuration>
+        </plugin>
+
       </plugins>
     </pluginManagement>
   </build>
 
   <dependencies>
+
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
@@ -70,5 +102,13 @@
       <version>4.6.1</version>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>com.gluonhq</groupId>
+      <artifactId>charm-glisten</artifactId>
+      <version>6.0.2</version>
+    </dependency>
   </dependencies>
+
+
 </project>

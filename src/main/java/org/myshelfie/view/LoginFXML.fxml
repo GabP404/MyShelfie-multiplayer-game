@@ -12,7 +12,7 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
    <right>
-      <AnchorPane prefHeight="400.0" prefWidth="380.0" BorderPane.alignment="CENTER" />
+      <AnchorPane prefHeight="400.0" prefWidth="380.0" style="-fx-background-color: green;" BorderPane.alignment="CENTER" />
    </right>
    <left>
       <VBox alignment="CENTER" prefHeight="400.0" prefWidth="220.0" spacing="50.0" BorderPane.alignment="CENTER">
