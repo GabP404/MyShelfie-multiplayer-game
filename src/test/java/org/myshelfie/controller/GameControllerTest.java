@@ -20,15 +20,9 @@ public class GameControllerTest {
 
     static String gameName = "gamename";
 
-    @BeforeAll
-    public static void setup() {
+    @BeforeEach
+    public void setup() {
         gameController = new GameController("testGame", 4, 2);
-    }
-
-    @Test
-    public void testCreatingGame() {
-        int numPlayerGame = 4;
-        int numGoalCard = 2;
         List<String> nicknames = new ArrayList<>();
         nicknames.add("User1");
         nicknames.add("User2");
@@ -42,11 +36,7 @@ public class GameControllerTest {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        assertNotNull(gameController.getGame());
-        assertEquals(gameController.getGame().getPlayers().size(), numPlayerGame);
-        assertNotNull(gameController.getGame().getBoard());
     }
-
 
     @Test
     public void testExecuteCommandPickTilesCommand() throws InvalidCommand, WrongTurnException, WrongArgumentException {
@@ -100,6 +90,32 @@ public class GameControllerTest {
     }
 
 
+    @Test
+    public void testEndTurn() throws WrongArgumentException, IOException, URISyntaxException {
+        Tile x = null;
+        assertNotNull(gameController.getGame());
+        gameController.setupGame();
+        Game game = gameController.getGame();
+        for (int i = 0; i < Board.DIMBOARD - 1; i++) {
+            for (int j = 0; j < Board.DIMBOARD; j++) {
+                game.getBoard().removeTile(i,j);
+            }
+        }
+        assertNotNull(game.getBoard().getTile(Board.DIMBOARD - 1,4));
+        x = game.getBoard().removeTile(Board.DIMBOARD - 1,4);
+        game.getCurrPlayer().addTilesPicked(x);
+        game.setModelState(ModelState.WAITING_1_SELECTION_TILE_FROM_HAND);
+        game.getCurrPlayer().setSelectedColumn(0);
+        Player p = game.getCurrPlayer();
+        SelectedTileFromHandCommandMessage stfhc2 = new SelectedTileFromHandCommandMessage(p.getNickname(), gameName, 0, x.getItemType());
+        CommandMessageWrapper wrapper = new CommandMessageWrapper(stfhc2, UserInputEvent.SELECTED_HAND_TILE);
+        UserInputEvent messageType = wrapper.getType();
+        CommandMessage messageCommand = wrapper.getMessage();
+        assertTrue(game.getBoard().isRefillNeeded());
+        System.out.println(game.getBoard().isRefillNeeded());
+        gameController.executeCommand(messageCommand,messageType);
+        assertFalse(game.getBoard().isRefillNeeded());
+    }
 
 
 }
