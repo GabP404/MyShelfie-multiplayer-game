@@ -721,7 +721,7 @@ public class ViewCLI implements View{
         }
         //print the value of the top scoring token of the common goal card associed to the id
         //TODO: get this to work
-        print(game.getCommonGoalTokens(game.getCommonGoals().get(id).getId()).get(0).getPoints().toString(), cordX + 44, cordY + 4, false);
+        print(game.getCommonGoalTokens(String.valueOf(id)).get(0).getPoints().toString(), cordX + 44, cordY + 4, false);
         //print(game.getCommonGoalsMap().get(game.getCommonGoals().get(id)).get(0).getPoints().toString(), cordX + 35, cordY + 4, false);
         //print("8", cordX + 44, cordY + 4, false);
     }
