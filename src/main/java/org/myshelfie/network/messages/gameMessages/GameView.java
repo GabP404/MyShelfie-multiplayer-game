@@ -16,21 +16,20 @@ public class GameView implements Serializable {
     static final long serialVersionUID = 1L;
     private final ImmutablePlayer currPlayer;
     private final List<ImmutablePlayer> players;
-    //private final List<CommonGoalCard> commonGoals;
-    private HashMap<CommonGoalCard,List<ScoringToken>> commonGoals;
+    private final List<CommonGoalCard> commonGoals;
+    private final HashMap<String,List<ScoringToken>> commonGoalsTokens;
     private final ImmutableBoard board;
     private final Map<String, String> errorState;
 
     private final String gameName;
     public GameView(Game model) {
         this.currPlayer = new ImmutablePlayer(model.getCurrPlayer());
-
-
-        //copy hashmap in model common goals to this.commonGoals
-        this.commonGoals = new HashMap<>();
-        //for each element in model.commonGoals, add it to this.commonGoals
-        this.commonGoals.putAll(model.getCommonGoalsMap());
-
+        this.commonGoals = model.getCommonGoals();
+        this.commonGoalsTokens = new HashMap<>();
+        model.getCommonGoalsMap().forEach(
+                (key,value) -> this.commonGoalsTokens.put(key.getId(), new ArrayList<>(value))
+        );
+        // this.commonGoals.putAll(model.getCommonGoalsMap()); -> possible error here
         this.players = new ArrayList<>();
         for(Player p: model.getPlayers()) {
             this.players.add(new ImmutablePlayer(p));
@@ -54,15 +53,11 @@ public class GameView implements Serializable {
     }
 
     public List<CommonGoalCard> getCommonGoals() {
-        List<CommonGoalCard> x = new ArrayList<>();
-        commonGoals.forEach(
-                (key,value) -> x.add(key)
-        );
-        return x;
+        return new ArrayList<>(commonGoals);
     }
 
-    public HashMap<CommonGoalCard,List<ScoringToken>> getCommonGoalsMap() {
-        return commonGoals;
+    public List<ScoringToken> getCommonGoalTokens(String id) {
+        return commonGoalsTokens.get(id);
     }
 
     public ImmutableBoard getBoard() {
