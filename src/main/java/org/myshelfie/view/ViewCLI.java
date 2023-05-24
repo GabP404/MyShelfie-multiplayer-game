@@ -16,6 +16,10 @@ import static org.myshelfie.view.Color.*;
 import static org.myshelfie.view.Color.BLUE;
 
 public class ViewCLI implements View{
+    private static final int frameOffsetX = 10;
+    private static final int frameOffsetY = 4;
+    private static final int titleOffsetX = 20;
+    private static final int titleOffsetY = 8;
     private static final int boardOffsetX = 10;
     private static final int boardOffsetY = 15;
     private static final int bookshelfOffsetX = 40;
@@ -44,13 +48,14 @@ public class ViewCLI implements View{
     private List<GameController.GameDefinition> availableGames;
 
     Thread threadNick = new Thread(() -> {
+        firstClear();
         try {
-            firstClear();
-            print("Insert a Nickname ", 0, 0, false);
+            printTitle();
+            print("Insert a Nickname ", 0, 20, false);
             while (true) {
-                setCursor(10,10);
+                setCursor(0,22);
                 nickname = scanner.nextLine();
-                print("CONNECTING TO SERVER WITH NICKNAME "+ nickname,10,10,    false);
+                print("CONNECTING TO SERVER WITH NICKNAME "+ nickname,0,25,false);
                 this.client.eventManager.notify(UserInputEvent.NICKNAME, nickname);
                 try {
                     Thread.sleep(10000);
@@ -60,7 +65,7 @@ public class ViewCLI implements View{
                 }
                 //send information to server
                 clear();
-                print("Try again ", 0, 0, false);
+                print("Try again ", 0, 25, false);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -70,12 +75,13 @@ public class ViewCLI implements View{
     Thread threadCreateGame = new Thread(() -> {
         try {
             clear();
-            print("Insert a Game name, player number and true/false for simplified rules ", 0, 0, false);
             while (true) {
-                setCursor(10,10);
+                printTitle();
+                print("Insert a Game name, player number and true/false for simplified rules ", 0, 20, false);
+                setCursor(0,22);
                 String gameName = scanner.nextLine();
                 String[] parts = gameName.split(" ");
-                print("Creating game: "+ gameName,10,10,    true);
+                print("Creating game: "+ parts[0],0,25,false);
                 this.client.eventManager.notify(UserInputEvent.CREATE_GAME, parts[0], Integer.parseInt(parts[1]), Boolean.valueOf(parts[2]));
                 try {
                     Thread.sleep(10000);
@@ -85,7 +91,7 @@ public class ViewCLI implements View{
                 }
                 //send information to server
                 clear();
-                print("Try again ", 0, 0, false);
+                print("Try again ", 0, 25, false);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -96,6 +102,9 @@ public class ViewCLI implements View{
         try {
             clear();
             while (true) {
+                printTitle();
+                print("Insert a Game name ", 0, 20, false);
+                setCursor(0,22);
                 print("Insert a Game name ", 0, 0, false);
                 print("Available games: ", 0, 10, false);
                 for (int i=0; i<this.availableGames.size(); i++) {
@@ -168,8 +177,9 @@ public class ViewCLI implements View{
         String choice = null;
         do {
             clear();
-            print("Do you want to create or join a game? [create/join]", 0, 0, false);
-            setCursor(10, 10);
+            printTitle();
+            print("Do you want to create or join a game? [create/join]", 0, 20, false);
+            setCursor(0, 22);
             choice = scanner.nextLine();
         }while(!choice.equals("create") && !choice.equals("join"));
 
@@ -294,6 +304,28 @@ public class ViewCLI implements View{
         for (int i = 0; i < 150; i++) {
             clearRow(0, i);
         }
+    }
+
+    public static void printTitle()
+    {
+        String exteriorLine = BG_LIGHT_BROWN + "                                                                                                "+ RESET;
+        String exteriorLine2 = " " + BG_TITLE_FRAME + "                                                                                              " + RESET;
+        String middleLine = "  " + BG_TITLE_FRAME + " "+ BG_TITLE_FILL +"                                                                                         "+ BG_TITLE_FRAME +" " + RESET;
+        print(exteriorLine, frameOffsetX, frameOffsetY, false);
+        print(exteriorLine2, frameOffsetX, frameOffsetY + 1, false);
+        for(int i = 0; i < 10; i++){
+            print(middleLine, frameOffsetX, frameOffsetY + 2 + i, false);
+        }
+        print(exteriorLine2, frameOffsetX, frameOffsetY + 12, false);
+        print(exteriorLine, frameOffsetX, frameOffsetY + 13, false);
+
+        print(BG_TITLE_FILL + YELLOW.toString() +"███╗   ███╗██╗   ██╗    ███████╗██╗  ██╗███████╗██╗     ███████╗██╗███████╗", titleOffsetX, titleOffsetY, false);
+        print(BG_TITLE_FILL + YELLOW.toString() +"████╗ ████║╚██╗ ██╔╝    ██╔════╝██║  ██║██╔════╝██║     ██╔════╝██║██╔════╝", titleOffsetX, titleOffsetY + 1, false);
+        print(BG_TITLE_FILL + YELLOW.toString() +"██╔████╔██║ ╚████╔╝     ███████╗███████║█████╗  ██║     █████╗  ██║█████╗  ", titleOffsetX, titleOffsetY + 2, false);
+        print(BG_TITLE_FILL + YELLOW.toString() +"██║╚██╔╝██║  ╚██╔╝      ╚════██║██╔══██║██╔══╝  ██║     ██╔══╝  ██║██╔══╝  ", titleOffsetX, titleOffsetY + 3, false);
+        print(BG_TITLE_FILL + YELLOW.toString() +"██║ ╚═╝ ██║   ██║       ███████║██║  ██║███████╗███████╗██║     ██║███████╗", titleOffsetX, titleOffsetY + 4, false);
+        print(BG_TITLE_FILL + YELLOW.toString() +"╚═╝     ╚═╝   ╚═╝       ╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     ╚═╝╚══════╝", titleOffsetX, titleOffsetY + 5, false);
+
     }
 
     public static void printWin() {
