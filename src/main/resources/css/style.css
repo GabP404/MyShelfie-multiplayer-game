@@ -1,0 +1,7 @@
+.root {
+}
+
+.board {
+    -fx-background-image: url('../graphics/boards/livingroom.png');
+    -fx-background-size: cover, auto;
+}
