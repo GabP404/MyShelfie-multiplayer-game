@@ -30,6 +30,7 @@ public class UserInputListener implements Listener<UserInputEvent> {
                 );
                 if (response.getLeft()) {
                     // TODO: set the list of games in the view so that they can be displayed!
+                    client.getView().setAvailableGames(response.getRight());
                     client.setNickname((String) args[0]);
                     System.out.println("Successfully set nickname to " + args[0]);
                     client.endNicknameThread(); // Stop the view thread that was waiting for the nickname
@@ -79,6 +80,13 @@ public class UserInputListener implements Listener<UserInputEvent> {
                     }
                 }
 
+            }
+            case REFRESH_AVAILABLE_GAMES -> {
+                List<GameController.GameDefinition> games = (List<GameController.GameDefinition>) client.updateServerPreGame(new CommandMessageWrapper(
+                        new RefreshAvailableGamesMessage(client.getNickname()), ev)
+                );
+                // FIXME: the actual view should be updated here and the System.out should be removed!
+                client.getView().setAvailableGames(games);
             }
             default -> {
                 CommandMessage m = switch (ev) {

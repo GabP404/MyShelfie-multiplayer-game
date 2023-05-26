@@ -10,7 +10,7 @@ public class ClientApp {
 
         Client client;
         try {
-            client = new Client(true, false);
+            client = new Client(false, false);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }

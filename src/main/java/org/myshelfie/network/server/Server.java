@@ -151,6 +151,10 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                     System.out.println("Client " + client.getNickname() + " registered");
                     return new Pair<Boolean, Object>(Boolean.TRUE, this.controller.getGames());
                 }
+                case REFRESH_AVAILABLE_GAMES -> {
+                    // send the current list of games
+                    return this.controller.getGames();
+                }
                 default -> throw new IllegalArgumentException("Wrong message type");
             }
         } catch (Exception e) {
@@ -308,7 +312,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                 response = new Pair<>(Boolean.TRUE, Server.this.getGames());
                 sendTo(clientSocket, response);
 
-                // Get CREATE or JOIN game message
+                // Get CREATE or JOIN or REFRESH_AVAILABLE_GAMES game message
                 inputValid = false;
                 do {
                     CommandMessageWrapper message = (CommandMessageWrapper) input.readObject();
@@ -317,6 +321,9 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                             inputValid = Server.this.createGame((CreateGameMessage) message.getMessage());
                         } else if (message.getType() == UserInputEvent.JOIN_GAME) {
                             inputValid = Server.this.joinGame((JoinGameMessage) message.getMessage());
+                        } else if (message.getType() == UserInputEvent.REFRESH_AVAILABLE_GAMES) {
+                            // send the list of available games WITHOUT changing the inputValid flag
+                            sendTo(clientSocket, (Serializable) Server.this.getGames());
                         } else {
                             throw new IllegalArgumentException("Invalid message type");
                         }

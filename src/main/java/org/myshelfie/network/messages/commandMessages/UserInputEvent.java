@@ -29,5 +29,9 @@ public enum UserInputEvent implements Serializable {
     /**
      * Message to send the nickname of the player
      */
-    NICKNAME
+    NICKNAME,
+    /**
+     * Message to send to ask for available games
+     */
+    REFRESH_AVAILABLE_GAMES
 }
