@@ -107,14 +107,12 @@ public class ViewCLI implements View{
             while (true) {
                 printTitle();
                 print("Insert a Game name ", 0, 20, false);
-                setCursor(0,22);
-                print("Insert a Game name ", 0, 0, false);
-                print("Available games: ", 0, 10, false);
+                print("Available games: ", 50, 20, false);
                 for (int i=0; i<this.availableGames.size(); i++) {
-                    print(" -> " + this.availableGames.get(i).getGameName() + " " + this.availableGames.get(i).getNicknames().size() + "/" + this.availableGames.get(i).getMaxPlayers(), 0, 11+i, false);
+                    print(" -> " + this.availableGames.get(i).getGameName() + " " + this.availableGames.get(i).getNicknames().size() + "/" + this.availableGames.get(i).getMaxPlayers(), 50, 22+i, false);
                 }
 
-                setCursor(10,5);
+                setCursor(0,22);
                 String gameName = scanner.nextLine();
                 String[] parts = gameName.split(" ");
                 if (parts[0].toLowerCase().equals("refresh")) {
@@ -122,7 +120,7 @@ public class ViewCLI implements View{
                     Thread.sleep(250);
                     clear();
                 } else {
-                    print("joining game: "+ gameName,10,10,    true);
+                    print("joining game: "+ gameName,0,25,    true);
                     this.client.eventManager.notify(UserInputEvent.JOIN_GAME, parts[0]);
                     try {
                         Thread.sleep(10000);
@@ -132,7 +130,7 @@ public class ViewCLI implements View{
                     }
                     //send information to server
                     clear();
-                    print("Try again ", 10, 0, false);
+                    print("Try again ", 0, 25, false);
                 }
 
             }
