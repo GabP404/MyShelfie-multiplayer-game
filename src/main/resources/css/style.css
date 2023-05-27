@@ -5,3 +5,9 @@
     -fx-background-image: url('../graphics/boards/livingroom.png');
     -fx-background-size: cover, auto;
 }
+
+.my-bookshelf {
+    -fx-background-image: url('../graphics/boards/bookshelf.png');
+    -fx-background-color: #3d311a;
+    -fx-background-size: cover, auto;
+}
