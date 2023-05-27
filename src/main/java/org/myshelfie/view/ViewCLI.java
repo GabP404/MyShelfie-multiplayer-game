@@ -32,6 +32,9 @@ public class ViewCLI implements View{
     public static final int inputOffsetX = 0;
     public static final int inputOffsetY = 30;
 
+    public static final int rankingOffsetX = 10;
+    public static final int rankingOffsetY = 10;
+
     private static final int errorOffsetX = 3;
     private static final int errorOffsetY = 33;
     private Client client = null;
@@ -146,22 +149,28 @@ public class ViewCLI implements View{
         this.client = client;
     }
 
+    //handle messages from server
     @Override
     public void update(GameView msg, GameEvent ev) {
-
         game = msg;
         clear();
-        switch (ev)
+        //if the game state is END_GAME print the ranking
+        if(game.getModelState().equals(ModelState.END_GAME))
+            printEndGameScreen();
+        else    //else print the new gameView
         {
-            case ERROR:
-                if(game.getErrorState(nickname) != null)
-                    printError(game.getErrorState(nickname));
-                break;
-            case BOARD_UPDATE:
-                selectedTiles.clear();
-                break;
+            switch (ev)
+            {
+                case ERROR:
+                    if(game.getErrorState(nickname) != null)
+                        printError(game.getErrorState(nickname));
+                    break;
+                case BOARD_UPDATE:
+                    selectedTiles.clear();
+                    break;
+            }
+            printAll();
         }
-        printAll();
         setCursor(inputOffsetX, inputOffsetY);
     }
 
@@ -434,6 +443,15 @@ public class ViewCLI implements View{
                 }
                 confirmSelection();
                 break;
+            case "exit":
+                System.exit(0);
+                break;
+            case "play":
+                //TODO: implement play command
+                //this is only for testing, when the command is implemented it should be removed
+                clear();
+                printEndGameScreen();
+                break;
             case "help", "h":
                 //print possible commands
                 break;
@@ -514,6 +532,61 @@ public class ViewCLI implements View{
         selectedHandIndex = index;
         this.client.eventManager.notify(UserInputEvent.SELECTED_HAND_TILE, selectedHandIndex);
         return true;
+
+    }
+
+    //prints the end game score of all players
+    public void printEndGameScreen()
+    {
+        print("               CommonGoal          PersonalGoal          Bookshelf          End game          Total ", rankingOffsetX, rankingOffsetY - 1, false);
+        print("Nickname         points               points               points             token            points", rankingOffsetX, rankingOffsetY, false);
+
+        int playerNum = 1;
+        String playerRowPoints = "";
+
+        //sorts the players by points with the highest first
+        game.getPlayers().sort((p1, p2) -> {
+            try {
+                return p2.getTotalPoints() - p1.getTotalPoints();
+            } catch (WrongArgumentException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        //cycles through all players and prints their nickname and points
+        for(ImmutablePlayer p: game.getPlayers())
+        {
+            //if the player is the current player, print it in cyan
+            playerRowPoints = "";
+            if(p.getNickname().equals(nickname))
+                playerRowPoints = CYAN.toString();
+
+            try {
+                playerRowPoints += p.getNickname() + RESET ;
+                playerRowPoints += "              " + p.getPointsScoringTokens();
+                playerRowPoints += "                    " + p.getPersonalGoalPoints();
+                playerRowPoints += "                    " + p.getBookshelfPoints();
+                if(p.getHasFinalToken())
+                    playerRowPoints += GREEN.toString() + "                  ■";
+                else
+                    playerRowPoints += "                  ■";
+                playerRowPoints += "                " + p.getTotalPoints();
+
+
+            } catch (WrongArgumentException e) {
+                throw new RuntimeException(e);
+            }
+
+            print(playerRowPoints, rankingOffsetX, rankingOffsetY + 1 + (playerNum * 2), false);
+            if(playerNum == 1)
+            {
+                print(YELLOW +  "|\\/\\/|\n" ,rankingOffsetX + 106, rankingOffsetY + (playerNum * 2), false);
+                print(YELLOW + "|____|", rankingOffsetX + 106, rankingOffsetY + 1 + (playerNum * 2), false);
+            }
+
+            playerNum++;
+        }
+        print("Type [exit/play] to continue", 0, 1, false);
 
     }
 
@@ -798,7 +871,7 @@ public class ViewCLI implements View{
     {
         for(int i = 0; i < game.getPlayers().size(); i++)
         {
-            print("points: " + game.getPlayers().get(i).getPointsScoringTokens(), bookshelfOffsetX + (i*bookshelvesDistance), bookshelfOffsetY + 12, false);
+            print("points: " + game.getPlayers().get(i).getPublicPoints(), bookshelfOffsetX + (i*bookshelvesDistance), bookshelfOffsetY + 12, false);
         }
     }
 
