@@ -45,7 +45,7 @@
           <artifactId>javafx-maven-plugin</artifactId>
           <version>${javafx.maven.plugin.version}</version>
           <configuration>
-            <mainClass>org.myshelfie.view.ViewGUI</mainClass>
+            <mainClass>org.myshelfie.view.GUI.ViewGUI</mainClass>
           </configuration>
         </plugin>
 

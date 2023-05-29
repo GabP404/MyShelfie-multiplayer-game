@@ -1,4 +1,4 @@
-package org.myshelfie.view;
+package org.myshelfie.view.GUI;
 
 import com.gluonhq.charm.glisten.control.TextField;
 import javafx.fxml.FXML;
