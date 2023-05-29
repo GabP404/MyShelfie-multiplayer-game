@@ -1,4 +1,4 @@
-package org.myshelfie.view;
+package org.myshelfie.view.GUI;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

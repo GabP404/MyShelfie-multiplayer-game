@@ -8,7 +8,7 @@ import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.GameView;
 import org.myshelfie.network.server.ServerRMIInterface;
 import org.myshelfie.view.View;
-import org.myshelfie.view.ViewCLI;
+import org.myshelfie.view.CLI.ViewCLI;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

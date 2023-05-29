@@ -1,4 +1,4 @@
-package org.myshelfie.view;
+package org.myshelfie.view.CLI;
 
 /**
  * Colors
