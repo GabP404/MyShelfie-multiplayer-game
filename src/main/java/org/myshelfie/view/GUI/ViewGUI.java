@@ -14,6 +14,7 @@ import org.myshelfie.model.*;
 import org.myshelfie.network.messages.gameMessages.GameView;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -72,9 +73,9 @@ public class ViewGUI extends Application {
         List<Tile> tiles = new ArrayList<>();
         tiles.add(exampleGame.getBoard().removeTile(1, 4));
         tiles.add(exampleGame.getBoard().removeTile(1, 3));
-        exampleGame.getPlayers().get(1).setTilesPicked(tiles);
-        exampleGame.getPlayers().get(1).addScoringToken(new ScoringToken(4, null));
-        exampleGame.getPlayers().get(1).addScoringToken(new ScoringToken(8, null));
+        exampleGame.getPlayers().get(3).setTilesPicked(tiles);
+        exampleGame.getPlayers().get(3).addScoringToken(new ScoringToken(4, null));
+        exampleGame.getPlayers().get(3).addScoringToken(new ScoringToken(8, null));
         controller.update(new GameView(exampleGame));
 
 
@@ -87,8 +88,8 @@ public class ViewGUI extends Application {
             exampleGame.getPlayers().get(2).getBookshelf().insertTile(exampleGame.getBoard().removeTile(0, 3), 3);
             exampleGame.getPlayers().get(2).getBookshelf().insertTile(exampleGame.getBoard().removeTile(0, 4), 3);
 
-            exampleGame.getPlayers().get(3).getBookshelf().insertTile(exampleGame.getBoard().removeTile(1, 5), 3);
-            exampleGame.getPlayers().get(3).addTilesPicked(exampleGame.getBoard().removeTile(2, 6));
+            exampleGame.getCurrPlayer().addTilesPicked(exampleGame.getBoard().removeTile(1, 5));
+            exampleGame.getCurrPlayer().addTilesPicked(exampleGame.getBoard().removeTile(2, 6));
         } catch (WrongArgumentException e) {
             throw new RuntimeException(e);
         }
@@ -135,12 +136,18 @@ public class ViewGUI extends Application {
 
     private Game getExampleGame(String creatorNickname) {
         Game game = new Game();
+        PersonalGoalDeck personalGoalDeck;
+        try {
+            personalGoalDeck = PersonalGoalDeck.getInstance();
+        } catch (IOException | URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
 
-        Player player1 = new Player(creatorNickname, null);
-        Player player2 = new Player("Gabriele", null);
-        Player player3 = new Player("Mattia", null);
-        Player player4 = new Player("Giuseppe", null);
-
+        List<PersonalGoalCard> cards = personalGoalDeck.draw(4);
+        Player player1 = new Player(creatorNickname, cards.get(0));
+        Player player2 = new Player("Gabriele", cards.get(1));
+        Player player3 = new Player("Mattia", cards.get(2));
+        Player player4 = new Player("Giuseppe", cards.get(3));
 
         List<Player> players = new ArrayList<>();
         players.add(player1);

@@ -16,7 +16,7 @@ class PlayerTest {
         Pair<Pair<Integer,Integer>,Tile> p2 = new Pair<>(new Pair<>(0,0),new Tile(ItemType.BOOK));
         List<Pair<Pair<Integer,Integer>,Tile>> lp = new ArrayList<>();
         lp.add(p2);
-        PersonalGoalCard pg = new PersonalGoalCard(lp);
+        PersonalGoalCard pg = new PersonalGoalCard(lp, 0);
         String nick = "User101";
         Player p = new Player(nick,pg);
         assertNotNull(p);
@@ -37,7 +37,7 @@ class PlayerTest {
         Pair<Pair<Integer,Integer>,Tile> p2 = new Pair<>(new Pair<>(0,0),new Tile(ItemType.BOOK));
         List<Pair<Pair<Integer,Integer>,Tile>> lp = new ArrayList<>();
         lp.add(p2);
-        PersonalGoalCard pg = new PersonalGoalCard(lp);
+        PersonalGoalCard pg = new PersonalGoalCard(lp, 0);
         String nick = "User101";
         Player p = new Player(nick,pg);
         assertTrue(p.getTilesPicked().isEmpty());
@@ -68,7 +68,7 @@ class PlayerTest {
         Pair<Pair<Integer,Integer>,Tile> p2 = new Pair<>(new Pair<>(0,0),new Tile(ItemType.BOOK));
         List<Pair<Pair<Integer,Integer>,Tile>> lp = new ArrayList<>();
         lp.add(p2);
-        PersonalGoalCard pg = new PersonalGoalCard(lp);
+        PersonalGoalCard pg = new PersonalGoalCard(lp, 0);
         String nick = "User101";
         Player p = new Player(nick,pg);
         assertFalse(p.getHasFinalToken());

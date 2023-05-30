@@ -90,14 +90,13 @@ public class GameControllerFX implements Initializable {
         updateBoard(game.getBoard());
 
         /////// UPDATE MY BOOKSHELF ///////
-        updateMyBookshelf(game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get().getBookshelf());
+        ImmutablePlayer me = game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get();
+        updateMyBookshelf(me.getBookshelf());
         updateAmICurrPlayer(game.getCurrPlayer().getNickname().equals(nickname));
         updateMyFinalToken((Boolean) game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get().getHasFinalToken());
-        updateMyCommonGoalToken(game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get().getCommonGoalTokens());
-        updateMyTilesPicked(game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get().getTilesPicked());
-        updateMyPersGoal(null);
-
-        // TODO: myPersGoal, myTiles and myTokens
+        updateMyCommonGoalToken(me.getCommonGoalTokens());
+        updateMyTilesPicked(me.getTilesPicked());
+        updateMyPersGoal(me.getPersonalGoal());
 
         /////// UPDATE OTHER PLAYERS ///////
         updateOtherPlayers(game);
@@ -247,7 +246,8 @@ public class GameControllerFX implements Initializable {
     }
 
     private void updateMyPersGoal(PersonalGoalCard card) {
-        // TODO: implement this
+        myPersonalGoal.setImage(new Image("graphics/persGoalCard/Personal_Goals" + card.getId() + ".png"));
+        myPersonalGoal.setVisible(true);
     }
 
 
