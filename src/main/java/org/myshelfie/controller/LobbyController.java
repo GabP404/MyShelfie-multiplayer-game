@@ -38,7 +38,7 @@ public class LobbyController {
         return single_istance;
     }
     public void executeCommand(CommandMessage command, UserInputEvent t) {
-        gameControllers.get(command.getGameName()).executeCommand(command, t);
+        gameControllers.get(command.getGameName()).queueAndExecuteCommand(command, t);
     }
 
 
