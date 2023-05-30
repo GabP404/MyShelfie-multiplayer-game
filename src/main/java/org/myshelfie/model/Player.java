@@ -102,6 +102,11 @@ public class Player {
         for (ScoringToken s : this.commonGoalTokens) {
             points_scoringToken += s.getPoints();
         }
+        int points_group = getBookshelfPoints();
+        return points_scoringToken + points_group;
+    }
+
+    public int getBookshelfPoints() {
         HashMap<Integer,Integer> mapping = Configuration.getMapPointsGroup();
         int points_group = 0;
         List<Integer> groups = this.bookshelf.getAdjacentSizes();
@@ -117,12 +122,13 @@ public class Player {
             if(g > maxKey) points_group += mapping.get(maxKey);
             else points_group += mapping.get(g);
         }
-        return points_scoringToken + points_group;
+        return points_group;
     }
 
     public void removeTilesPicked(Tile t) throws WrongArgumentException{
         if (!this.tilesPicked.contains(t)) throw new WrongArgumentException("Tile not found");
         this.tilesPicked.remove(t);
+        Server.eventManager.notify(GameEvent.BOOKSHELF_UPDATE);
     }
 
     public void removeTilesPicked(List<Tile> tilesRemoved) throws WrongArgumentException{

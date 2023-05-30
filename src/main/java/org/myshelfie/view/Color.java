@@ -13,7 +13,6 @@ public enum Color {
     LIGHT_GRAY("\033[37m"),
     MAGENTA("\033[35m"),
     CYAN("\033[36m"),
-
     BG_RED("\033[41m"),
     BG_GREEN("\033[42m"),
     BG_YELLOW("\033[43m"),
@@ -24,18 +23,15 @@ public enum Color {
     BG_BRIGHT_GREEN("\033[102m"),
     BG_BRIGHT_YELLOW("\033[103m"),
     BG_LIGHT_BLUE("\033[104m"),
+    BG_LIGHT_BROWN("\033[48;2;128;84;09m"),
+    BG_DARK_BROWN("\033[48;2;74;49;06m"),
+    BG_TITLE_FRAME("\033[48;2;158;92;11m"),
+    BG_TITLE_FILL("\033[48;2;74;43;05m"),
+    BG_LIGHT_CYAN("\033[48;2;99;148;142m"),
+    BG_DARK_GRAY("\033[48;2;71;79;78m"),
     BG_GRAY1("\033[48;2;140;140;140m"),
-    BG_GRAY2("\033[48;2;175;175;175m"),
-    BG_GRAY3("\033[48;2;220;220;220m"),
     BG_BRIGHT_BLUE("\033[48;2;40;69;186m"),
-    BG_GRASS("\033[48;2;93;181;105m"),
-    BG_GRASS2("\033[48;2;93;140;105m"),
-
     BG_DARK_RED("\033[48;2;49;03;07m"),
-
-    BG_WORKER_RED("\033[48;2;214;40;40m"),
-    BG_WORKER_BLUE("\033[48;2;50;98;123m"),
-    BG_WORKER_ORANGE("\033[48;2;248;144;11m"),
 
     RESET("\033[0m");
 

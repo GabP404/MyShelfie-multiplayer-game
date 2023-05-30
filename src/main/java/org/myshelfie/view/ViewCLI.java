@@ -7,6 +7,7 @@ import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.commandMessages.UserInputEvent;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.GameView;
+import org.myshelfie.network.messages.gameMessages.ImmutableBoard;
 import org.myshelfie.network.messages.gameMessages.ImmutablePlayer;
 
 import java.util.*;
@@ -15,17 +16,24 @@ import static org.myshelfie.view.Color.*;
 import static org.myshelfie.view.Color.BLUE;
 
 public class ViewCLI implements View{
+    private static final int frameOffsetX = 10;
+    private static final int frameOffsetY = 4;
+    private static final int titleOffsetX = 20;
+    private static final int titleOffsetY = 8;
     private static final int boardOffsetX = 10;
     private static final int boardOffsetY = 15;
     private static final int bookshelfOffsetX = 40;
     private static final int bookshelfOffsetY = 15;
     private static final int commonGoalOffsetX = 5;
     private static final int commonGoalOffsetY = 2;
-    private static final int personalGoalOffsetX = 110;
+    private static final int personalGoalOffsetX = 115;
     private static final int personalGoalOffsetY = 15;
-    private static final int bookshelvesDistance = 15;
-    public static final int inputOffsetX = 3;
+    private static final int bookshelvesDistance = 18;
+    public static final int inputOffsetX = 0;
     public static final int inputOffsetY = 30;
+
+    public static final int rankingOffsetX = 10;
+    public static final int rankingOffsetY = 10;
 
     private static final int errorOffsetX = 3;
     private static final int errorOffsetY = 33;
@@ -43,13 +51,14 @@ public class ViewCLI implements View{
     private List<GameController.GameDefinition> availableGames;
 
     Thread threadNick = new Thread(() -> {
+        firstClear();
         try {
-            firstClear();
-            print("Insert a Nickname ", 0, 0, false);
+            printTitle();
+            print("Insert a Nickname ", 0, 20, false);
             while (true) {
-                setCursor(10,10);
+                setCursor(0,22);
                 nickname = scanner.nextLine();
-                print("CONNECTING TO SERVER WITH NICKNAME "+ nickname,10,10,    false);
+                print("CONNECTING TO SERVER WITH NICKNAME "+ nickname,0,25,false);
                 this.client.eventManager.notify(UserInputEvent.NICKNAME, nickname);
                 try {
                     Thread.sleep(10000);
@@ -59,7 +68,7 @@ public class ViewCLI implements View{
                 }
                 //send information to server
                 clear();
-                print("Try again ", 0, 0, false);
+                print("Try again ", 0, 25, false);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -69,12 +78,13 @@ public class ViewCLI implements View{
     Thread threadCreateGame = new Thread(() -> {
         try {
             clear();
-            print("Insert a Game name, player number and true/false for simplified rules ", 0, 0, false);
             while (true) {
-                setCursor(10,10);
+                printTitle();
+                print("Insert a Game name, player number and true/false for simplified rules ", 0, 20, false);
+                setCursor(0,22);
                 String gameName = scanner.nextLine();
                 String[] parts = gameName.split(" ");
-                print("Creating game: "+ gameName,10,10,    true);
+                print("Creating game: "+ parts[0],0,25,false);
                 this.client.eventManager.notify(UserInputEvent.CREATE_GAME, parts[0], Integer.parseInt(parts[1]), Boolean.valueOf(parts[2]));
                 try {
                     Thread.sleep(10000);
@@ -84,7 +94,7 @@ public class ViewCLI implements View{
                 }
                 //send information to server
                 clear();
-                print("Try again ", 0, 0, false);
+                print("Try again ", 0, 25, false);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -95,13 +105,14 @@ public class ViewCLI implements View{
         try {
             clear();
             while (true) {
-                print("Insert a Game name ", 0, 0, false);
-                print("Available games: ", 0, 10, false);
+                printTitle();
+                print("Insert a Game name ", 0, 20, false);
+                print("Available games: ", 50, 20, false);
                 for (int i=0; i<this.availableGames.size(); i++) {
-                    print(" -> " + this.availableGames.get(i).getGameName() + " " + this.availableGames.get(i).getNicknames().size() + "/" + this.availableGames.get(i).getMaxPlayers(), 0, 11+i, false);
+                    print(" -> " + this.availableGames.get(i).getGameName() + " " + this.availableGames.get(i).getNicknames().size() + "/" + this.availableGames.get(i).getMaxPlayers(), 50, 22+i, false);
                 }
 
-                setCursor(10,5);
+                setCursor(0,22);
                 String gameName = scanner.nextLine();
                 String[] parts = gameName.split(" ");
                 if (parts[0].toLowerCase().equals("refresh")) {
@@ -109,7 +120,7 @@ public class ViewCLI implements View{
                     Thread.sleep(250);
                     clear();
                 } else {
-                    print("joining game: "+ gameName,10,10,    true);
+                    print("joining game: "+ gameName,0,25,    true);
                     this.client.eventManager.notify(UserInputEvent.JOIN_GAME, parts[0]);
                     try {
                         Thread.sleep(10000);
@@ -119,7 +130,7 @@ public class ViewCLI implements View{
                     }
                     //send information to server
                     clear();
-                    print("Try again ", 10, 0, false);
+                    print("Try again ", 0, 25, false);
                 }
 
             }
@@ -136,21 +147,29 @@ public class ViewCLI implements View{
         this.client = client;
     }
 
+    //handle messages from server
     @Override
     public void update(GameView msg, GameEvent ev) {
-
-        clear();
-        switch (ev)
-        {
-            // TODO: work in progress (on ev == GameEvent.ERROR print the string from msg.getErrorState(..,)
-            //  instead of printAll())
-            case BOARD_UPDATE -> selectedTiles.clear();
-        }
         game = msg;
-        printAll();
+        clear();
+        //if the game state is END_GAME print the ranking
+        if(game.getModelState().equals(ModelState.END_GAME))
+            printEndGameScreen();
+        else    //else print the new gameView
+        {
+            switch (ev)
+            {
+                case ERROR:
+                    if(game.getErrorState(nickname) != null)
+                        printError(game.getErrorState(nickname));
+                    break;
+                case BOARD_UPDATE:
+                    selectedTiles.clear();
+                    break;
+            }
+            printAll();
+        }
         setCursor(inputOffsetX, inputOffsetY);
-        // System.out.println("Received from server the event " + ev + "signaling a change in the model!");
-        // System.out.println("    Message payload: " + msg);
     }
 
     @Override
@@ -165,8 +184,9 @@ public class ViewCLI implements View{
         String choice = null;
         do {
             clear();
-            print("Do you want to create or join a game? [create/join]", 0, 0, false);
-            setCursor(10, 10);
+            printTitle();
+            print("Do you want to create or join a game? [create/join]", 0, 20, false);
+            setCursor(0, 22);
             choice = scanner.nextLine();
         }while(!choice.equals("create") && !choice.equals("join"));
 
@@ -293,6 +313,28 @@ public class ViewCLI implements View{
         }
     }
 
+    public static void printTitle()
+    {
+        String exteriorLine = BG_LIGHT_BROWN + "                                                                                                "+ RESET;
+        String exteriorLine2 = " " + BG_TITLE_FRAME + "                                                                                              " + RESET;
+        String middleLine = "  " + BG_TITLE_FRAME + " "+ BG_TITLE_FILL +"                                                                                         "+ BG_TITLE_FRAME +" " + RESET;
+        print(exteriorLine, frameOffsetX, frameOffsetY, false);
+        print(exteriorLine2, frameOffsetX, frameOffsetY + 1, false);
+        for(int i = 0; i < 10; i++){
+            print(middleLine, frameOffsetX, frameOffsetY + 2 + i, false);
+        }
+        print(exteriorLine2, frameOffsetX, frameOffsetY + 12, false);
+        print(exteriorLine, frameOffsetX, frameOffsetY + 13, false);
+
+        print(BG_TITLE_FILL + YELLOW.toString() +"███╗   ███╗██╗   ██╗    ███████╗██╗  ██╗███████╗██╗     ███████╗██╗███████╗", titleOffsetX, titleOffsetY, false);
+        print(BG_TITLE_FILL + YELLOW.toString() +"████╗ ████║╚██╗ ██╔╝    ██╔════╝██║  ██║██╔════╝██║     ██╔════╝██║██╔════╝", titleOffsetX, titleOffsetY + 1, false);
+        print(BG_TITLE_FILL + YELLOW.toString() +"██╔████╔██║ ╚████╔╝     ███████╗███████║█████╗  ██║     █████╗  ██║█████╗  ", titleOffsetX, titleOffsetY + 2, false);
+        print(BG_TITLE_FILL + YELLOW.toString() +"██║╚██╔╝██║  ╚██╔╝      ╚════██║██╔══██║██╔══╝  ██║     ██╔══╝  ██║██╔══╝  ", titleOffsetX, titleOffsetY + 3, false);
+        print(BG_TITLE_FILL + YELLOW.toString() +"██║ ╚═╝ ██║   ██║       ███████║██║  ██║███████╗███████╗██║     ██║███████╗", titleOffsetX, titleOffsetY + 4, false);
+        print(BG_TITLE_FILL + YELLOW.toString() +"╚═╝     ╚═╝   ╚═╝       ╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     ╚═╝╚══════╝", titleOffsetX, titleOffsetY + 5, false);
+
+    }
+
     public static void printWin() {
         String c = BG_BRIGHT_BLUE.toString() + BLUE.toString();
 
@@ -307,6 +349,13 @@ public class ViewCLI implements View{
     }
 
     public void parseInput(String s) {
+        //if it's not the player turn return
+        if(!game.getCurrPlayer().getNickname().equals(nickname))
+        {
+            printError("IT'S NOT YOUR TURN");
+            return;
+        }
+
         String[] parts = s.split(" ");
 
         if (parts.length < 1) {
@@ -335,6 +384,7 @@ public class ViewCLI implements View{
                             printError("ROW OR COLUMN NUMBERS ARE NOT CORRECT");
                             return;
                         }
+                        printBoard();
                         break;
                     case "column", "c":
                         if (parts.length != 3) {
@@ -367,6 +417,7 @@ public class ViewCLI implements View{
                             printError("ROW OR COLUMN NUMBERS ARE NOT CORRECT");
                             return;
                         }
+                        printBoard();
                         break;
                     case "column", "c":
                         //not sure if player should deselect column..
@@ -383,7 +434,21 @@ public class ViewCLI implements View{
                     return;
                 break;
             case "confirm", "c":
+                if(selectedTiles.isEmpty())
+                {
+                    printError("NO TILES SELECTED");
+                    return;
+                }
                 confirmSelection();
+                break;
+            case "exit":
+                System.exit(0);
+                break;
+            case "play":
+                //TODO: implement play command
+                //this is only for testing, when the command is implemented it should be removed
+                clear();
+                printEndGameScreen();
                 break;
             case "help", "h":
                 //print possible commands
@@ -392,8 +457,8 @@ public class ViewCLI implements View{
                 printError("COMMAND DOES NOT EXIST");
                 return;
         }
-        printAll();
-        clearRow(errorOffsetX, errorOffsetY);
+        //printAll();
+        //clearRow(0, errorOffsetY);
     }
 
     private boolean selectTile(int r, int c) {
@@ -468,6 +533,61 @@ public class ViewCLI implements View{
 
     }
 
+    //prints the end game score of all players
+    public void printEndGameScreen()
+    {
+        print("               CommonGoal          PersonalGoal          Bookshelf          End game          Total ", rankingOffsetX, rankingOffsetY - 1, false);
+        print("Nickname         points               points               points             token            points", rankingOffsetX, rankingOffsetY, false);
+
+        int playerNum = 1;
+        String playerRowPoints = "";
+
+        //sorts the players by points with the highest first
+        game.getPlayers().sort((p1, p2) -> {
+            try {
+                return p2.getTotalPoints() - p1.getTotalPoints();
+            } catch (WrongArgumentException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        //cycles through all players and prints their nickname and points
+        for(ImmutablePlayer p: game.getPlayers())
+        {
+            //if the player is the current player, print it in cyan
+            playerRowPoints = "";
+            if(p.getNickname().equals(nickname))
+                playerRowPoints = CYAN.toString();
+
+            try {
+                playerRowPoints += p.getNickname() + RESET ;
+                playerRowPoints += "              " + p.getPointsScoringTokens();
+                playerRowPoints += "                    " + p.getPersonalGoalPoints();
+                playerRowPoints += "                    " + p.getBookshelfPoints();
+                if(p.getHasFinalToken())
+                    playerRowPoints += GREEN.toString() + "                  ■";
+                else
+                    playerRowPoints += "                  ■";
+                playerRowPoints += "                " + p.getTotalPoints();
+
+
+            } catch (WrongArgumentException e) {
+                throw new RuntimeException(e);
+            }
+
+            print(playerRowPoints, rankingOffsetX, rankingOffsetY + 1 + (playerNum * 2), false);
+            if(playerNum == 1)
+            {
+                print(YELLOW +  "|\\/\\/|\n" ,rankingOffsetX + 106, rankingOffsetY + (playerNum * 2), false);
+                print(YELLOW + "|____|", rankingOffsetX + 106, rankingOffsetY + 1 + (playerNum * 2), false);
+            }
+
+            playerNum++;
+        }
+        print("Type [exit/play] to continue", 0, 1, false);
+
+    }
+
     public void printAll()
     {
         for(int i = 0; i < errorOffsetY-2; i++)
@@ -475,6 +595,7 @@ public class ViewCLI implements View{
         printCommonGoals();
         printBoard();
         printAllBookshelves();
+        printPoints();
         printPersonalGoal();
         if(game.getCurrPlayer().getNickname().equals(nickname))
             print(MAGENTA + "È IL TUO TURNO!",boardOffsetX, boardOffsetY-4, false);
@@ -483,47 +604,48 @@ public class ViewCLI implements View{
     public void printBoard()
     {
         print("BOARD: ",boardOffsetX, boardOffsetY-2,false);
+        print(BG_LIGHT_CYAN + "                      ",boardOffsetX - 2, boardOffsetY-1,false);
         for(int i = 0; i<Board.DIMBOARD; i++)
         {
             for(int j = 0; j<Board.DIMBOARD; j++)
             {
                 if(j == 0)
-                    print(String.valueOf(i), boardOffsetX+j-1,boardOffsetY+i,false);
+                    print(BG_LIGHT_CYAN.toString() + i + " ", boardOffsetX+j-2,boardOffsetY+i,false);
 
-                if(game.getBoard().getTile(i, j) != null)
-                {
-                    boolean selected = false;
-                    for(LocatedTile t : selectedTiles)
-                    {
-                        if(t.getRow() == i && t.getCol() == j)
-                        {
-                            selected = true;
-                        }
-                    }
-
-                    String c;
-
-                    //c = getColorFromTile(game.getBoard().getTile(i, j)) + BLACK.toString();
-                    c = getColorFromTile(game.getBoard().getTile(i, j));
-
-                    if(selected)
-                        c = c  + "█";
-                    else
-                        c = c + "■";
-
-                    //String c = BG_GREEN.toString() + BLACK.toString();
-                    print(c, boardOffsetX+j,boardOffsetY+i,false);
-                }
+                if(ImmutableBoard.getMaskItem(i,j) > game.getPlayers().size())
+                    print(BG_LIGHT_CYAN + "  ", boardOffsetX+(j*2),boardOffsetY+i,false);
                 else
                 {
-                    String c = BG_GRAY1.toString();
-                    print(" ", boardOffsetX+j, boardOffsetY+i, false);
+                    if(game.getBoard().getTile(i, j) != null)
+                    {
+                        boolean selected = false;
+                        for(LocatedTile t : selectedTiles)
+                        {
+                            if(t.getRow() == i && t.getCol() == j)
+                            {
+                                selected = true;
+                            }
+                        }
+
+                        String c;
+                        c = BG_DARK_GRAY + getColorFromTile(game.getBoard().getTile(i, j));
+
+                        if(selected)
+                            c = c  + "█ ";
+                        else
+                            c = c + "■ ";
+
+                        print(c, boardOffsetX+(j*2),boardOffsetY+i,false);
+                    }
+                    else
+                    {
+                        print(BG_DARK_GRAY + "  ", boardOffsetX+(j*2), boardOffsetY+i, false);
+                    }
                 }
-
-
             }
+            print(BG_LIGHT_CYAN + "  ", boardOffsetX+(Board.DIMBOARD*2), boardOffsetY+i, false);
         }
-        print("012345678", boardOffsetX, bookshelfOffsetY+9, false);
+        print(BG_LIGHT_CYAN + "  0 1 2 3 4 5 6 7 8   ", boardOffsetX - 2, bookshelfOffsetY+9, false);
     }
 
     private String getBGColorFromTile(Tile t)
@@ -563,38 +685,46 @@ public class ViewCLI implements View{
 
     private void printBookshelf(int numPlayer)
     {
-        print(game.getPlayers().get(numPlayer).getNickname(), bookshelfOffsetX + (numPlayer*bookshelvesDistance), bookshelfOffsetY-2, false);
+        String p = "";
+        if(game.getCurrPlayer().getNickname().equals(game.getPlayers().get(numPlayer).getNickname()))
+            p = GREEN.toString();
+
+        print(p + game.getPlayers().get(numPlayer).getNickname() + RESET, bookshelfOffsetX + (numPlayer*bookshelvesDistance), bookshelfOffsetY-3, false);
+        print(BG_LIGHT_BROWN + "              ", bookshelfOffsetX + (numPlayer*bookshelvesDistance) - 2, bookshelfOffsetY-1, false);
         for(int i = 0; i<Bookshelf.NUMROWS; i++)
         {
             for(int j = 0; j<Bookshelf.NUMCOLUMNS; j++)
             {
                 if(j == 0)
-                    print(String.valueOf(i), bookshelfOffsetX + (numPlayer*bookshelvesDistance)-1,bookshelfOffsetY+i,false);
+                    print(BG_LIGHT_BROWN + String.valueOf(i) + " ", bookshelfOffsetX + (numPlayer*bookshelvesDistance)-2,bookshelfOffsetY+i,false);
                 try {
                     if(game.getPlayers().get(numPlayer).getBookshelf().getTile(i, j) != null)
                     {
-                        String c = getColorFromTile(game.getPlayers().get(numPlayer).getBookshelf().getTile(i, j)) + "■";
-                        print(c, bookshelfOffsetX+j + (numPlayer*bookshelvesDistance),bookshelfOffsetY+i,false);
+                        String c = BG_DARK_BROWN.toString() + getColorFromTile(game.getPlayers().get(numPlayer).getBookshelf().getTile(i, j)) + "■ ";
+                        print(c, bookshelfOffsetX+(j*2) + (numPlayer*bookshelvesDistance),bookshelfOffsetY+i,false);
                     }
                     else
                     {
-                        print(" ", bookshelfOffsetX+j + (numPlayer*bookshelvesDistance), bookshelfOffsetY+i, false);
+                        print(BG_DARK_BROWN + "  ", bookshelfOffsetX+(j*2) + (numPlayer*bookshelvesDistance), bookshelfOffsetY+i, false);
                     }
                 } catch (WrongArgumentException e) {
                     throw new RuntimeException(e);
                 }
             }
+            print(BG_LIGHT_BROWN + "  ", bookshelfOffsetX+(Bookshelf.NUMCOLUMNS*2) + (numPlayer*bookshelvesDistance), bookshelfOffsetY+i, false);
         }
-        setCursor(bookshelfOffsetX + (numPlayer*bookshelvesDistance), bookshelfOffsetY + 6);
+        setCursor(bookshelfOffsetX + (numPlayer*bookshelvesDistance) - 2, bookshelfOffsetY + 6);
+        print(BG_LIGHT_BROWN + "  ");
         for(int i = 0; i<Bookshelf.NUMCOLUMNS; i++)
         {
             if(numPlayer == myPlayerIndex() && game.getCurrPlayer().getSelectedColumn() == i && game.getCurrPlayer().getNickname().equals(nickname))
             {
-                print(BG_YELLOW.toString() + i + RESET);
+                print(BG_YELLOW.toString() + i + " " + RESET);
             }
             else
-                print(i);
+                print(BG_LIGHT_BROWN.toString() + i + " ");
         }
+        print(BG_LIGHT_BROWN + "  ");
     }
 
     private void printAllBookshelves()
@@ -692,6 +822,11 @@ public class ViewCLI implements View{
             default:
                 print("NOT YET IMPLEMENTED", commonGoalOffsetX+2 + (offset*60), commonGoalOffsetY + 2, false);
         }
+        //print the value of the top scoring token of the common goal card associed to the id
+        //TODO: get this to work
+        print(game.getCommonGoalTokens(String.valueOf(id)).get(0).getPoints().toString(), cordX + 44, cordY + 4, false);
+        //print(game.getCommonGoalsMap().get(game.getCommonGoals().get(id)).get(0).getPoints().toString(), cordX + 35, cordY + 4, false);
+        //print("8", cordX + 44, cordY + 4, false);
     }
 
     private void  printCommonGoalBoxes()
@@ -704,17 +839,18 @@ public class ViewCLI implements View{
             print(c + "║                                              ║", commonGoalOffsetX + (i*60), commonGoalOffsetY + 2, false);
             print(c + "║                                              ║", commonGoalOffsetX + (i*60), commonGoalOffsetY + 3, false);
             print(c + "║                                              ║", commonGoalOffsetX + (i*60), commonGoalOffsetY + 4, false);
-            print(c + "║                                              ║", commonGoalOffsetX + (i*60), commonGoalOffsetY + 5, false);
-            print(c + "╚══════════════════════════════════════════════╝", commonGoalOffsetX + (i*60), commonGoalOffsetY + 6, false);
+            print(c + "║                                           ╔═══╗", commonGoalOffsetX + (i*60), commonGoalOffsetY + 5, false);
+            print(c + "╚═══════════════════════════════════════════║   ║", commonGoalOffsetX + (i*60), commonGoalOffsetY + 6, false);
+            print(c + "                                            ╚═══╝", commonGoalOffsetX + (i*60), commonGoalOffsetY + 7, false);
         }
     }
 
     private void printHand(int numPlayer)
     {
         //erasing old hand on screen
-        setCursor(bookshelfOffsetX + (numPlayer*bookshelvesDistance), bookshelfOffsetY + 9);
+        setCursor(bookshelfOffsetX + (numPlayer*bookshelvesDistance) + 2, bookshelfOffsetY + 9);
         print("      ");
-        setCursor(bookshelfOffsetX + (numPlayer*bookshelvesDistance), bookshelfOffsetY + 9);
+        setCursor(bookshelfOffsetX + (numPlayer*bookshelvesDistance) + 2, bookshelfOffsetY + 9);
         for(Tile t : game.getPlayers().get(numPlayer).getTilesPicked())
         {
             print(getColorFromTile(t) + "■ " + RESET);
@@ -724,9 +860,17 @@ public class ViewCLI implements View{
     }
     private void printHandBox(int numPlayer)
     {
-        print("╔═══════╗", bookshelfOffsetX + (numPlayer*bookshelvesDistance) - 2, bookshelfOffsetY + 8, false);
-        print("║       ║", bookshelfOffsetX + (numPlayer*bookshelvesDistance) - 2, bookshelfOffsetY + 9, false);
-        print("╚═══════╝", bookshelfOffsetX + (numPlayer*bookshelvesDistance) - 2, bookshelfOffsetY + 10, false);
+        print("╔ hand ═╗", bookshelfOffsetX + (numPlayer*bookshelvesDistance), bookshelfOffsetY + 8, false);
+        print("║       ║", bookshelfOffsetX + (numPlayer*bookshelvesDistance), bookshelfOffsetY + 9, false);
+        print("╚═══════╝", bookshelfOffsetX + (numPlayer*bookshelvesDistance), bookshelfOffsetY + 10, false);
+    }
+
+    private void printPoints()
+    {
+        for(int i = 0; i < game.getPlayers().size(); i++)
+        {
+            print("points: " + game.getPlayers().get(i).getPublicPoints(), bookshelfOffsetX + (i*bookshelvesDistance), bookshelfOffsetY + 12, false);
+        }
     }
 
     private void printPersonalGoal()
@@ -743,15 +887,15 @@ public class ViewCLI implements View{
                 //print(c + " ", personalGoalOffsetX+j, personalGoalOffsetY+i, false);
             }
         }
-        print("01234", personalGoalOffsetX, personalGoalOffsetY+6, false);
+        print("0 1 2 3 4", personalGoalOffsetX, personalGoalOffsetY+6, false);
 
         List<Pair<Pair<Integer, Integer>, Tile>> constraints = game.getPlayers().get(myPlayerIndex()).getPersonalGoal().getConstraints();
         for (Pair<Pair<Integer, Integer>, Tile> c: constraints) {
             int col = c.getLeft().getLeft();
             int row = c.getLeft().getRight();
-            print(getColorFromTile(c.getRight()) + "■" + RESET,personalGoalOffsetX + col, personalGoalOffsetY + row, false);
+            print(getColorFromTile(c.getRight()) + "■ " + RESET,personalGoalOffsetX + (col*2), personalGoalOffsetY + row, false);
         }
-        print("DIMENSIONE CONSTRAINTS PERSONALGOAL CARD: " + constraints.size(), 10, 10, false);
+        //print("DIMENSIONE CONSTRAINTS PERSONALGOAL CARD: " + constraints.size(), 10, 10, false);
 
 
 

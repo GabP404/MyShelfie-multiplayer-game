@@ -61,6 +61,10 @@ public class Game {
         );
         return x;
     }
+    public HashMap<CommonGoalCard,List<ScoringToken>> getCommonGoalsMap() {
+        return commonGoals;
+    }
+
     public TileBag getTileBag() {
         return tileBag;
     }
