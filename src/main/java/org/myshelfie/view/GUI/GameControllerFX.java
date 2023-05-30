@@ -3,8 +3,6 @@ package org.myshelfie.view.GUI;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -33,19 +31,28 @@ public class GameControllerFX implements Initializable {
     private ImageView myBookshelfImage;
 
     @FXML
+    private ImageView myFinalToken;
+
+    @FXML
     private Label myNickname;
 
     @FXML
-    private AnchorPane myPersonalGoalCard;
+    private ImageView myPersonalGoal;
 
     @FXML
-    private AnchorPane myTile1;
+    private ImageView myTile1;
 
     @FXML
-    private AnchorPane myTile2;
+    private ImageView myTile2;
 
     @FXML
-    private AnchorPane myTile3;
+    private ImageView myTile3;
+
+    @FXML
+    private ImageView myToken1;
+
+    @FXML
+    private ImageView myToken2;
 
     @FXML
     private VBox otherPlayersLayout;
@@ -71,7 +78,7 @@ public class GameControllerFX implements Initializable {
         otherPlayersLayout.setVisible(true);
     }
 
-    public void setNickname(String nickname) {
+    public void setMyNickname(String nickname) {
         this.nickname = nickname;
         myNickname.setText(nickname);
         myNickname.setStyle("-fx-font-weight: bold");
@@ -85,6 +92,12 @@ public class GameControllerFX implements Initializable {
         /////// UPDATE MY BOOKSHELF ///////
         updateMyBookshelf(game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get().getBookshelf());
         updateAmICurrPlayer(game.getCurrPlayer().getNickname().equals(nickname));
+        updateMyFinalToken((Boolean) game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get().getHasFinalToken());
+        updateMyCommonGoalToken(game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get().getCommonGoalTokens());
+        updateMyTilesPicked(game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get().getTilesPicked());
+        updateMyPersGoal(null);
+
+        // TODO: myPersGoal, myTiles and myTokens
 
         /////// UPDATE OTHER PLAYERS ///////
         updateOtherPlayers(game);
@@ -173,6 +186,68 @@ public class GameControllerFX implements Initializable {
 
             }
         }
+    }
+
+    private void updateMyCommonGoalToken(List<ScoringToken> commonGoalTokens) {
+        if (commonGoalTokens.size() >= 1) {
+            myToken1.setImage(new Image("graphics/tokens/scoring_" + commonGoalTokens.get(0).getPoints() + ".jpg"));
+            myToken1.setVisible(true);
+        } else {
+            myToken1.setVisible(false);
+            myToken2.setVisible(false);
+            return;
+        }
+
+        if (commonGoalTokens.size() >= 2) {
+            myToken2.setImage(new Image("graphics/tokens/scoring_" + commonGoalTokens.get(1).getPoints() + ".jpg"));
+            myToken2.setVisible(true);
+            myToken2.setX(myToken1.getX() + 15);
+            myToken2.setY(myToken1.getY() + 15);
+        } else {
+            myToken2.setVisible(false);
+        }
+    }
+
+    private void updateMyFinalToken(boolean hasFinalToken) {
+        if (hasFinalToken) {
+            this.myFinalToken.setImage(new Image("graphics/tokens/endGame.jpg"));
+            this.myFinalToken.setVisible(true);
+        } else {
+            this.myFinalToken.setVisible(false);
+        }
+    }
+
+
+    private void updateMyTilesPicked(List<Tile> tileHand) {
+        if (tileHand.size() >= 1) {
+            myTile1.setImage(new Image("graphics/tiles/" + tileHand.get(0).getItemType() + "_" + tileHand.get(0).getItemId() + ".png"));
+            myTile1.setVisible(true);
+        } else {
+            myTile1.setVisible(false);
+            myTile2.setVisible(false);
+            myTile3.setVisible(false);
+            return;
+        }
+
+        if (tileHand.size() >= 2) {
+            myTile2.setImage(new Image("graphics/tiles/" + tileHand.get(0).getItemType() + "_" + tileHand.get(1).getItemId() + ".png"));
+            myTile2.setVisible(true);
+        } else {
+            myTile2.setVisible(false);
+            myTile3.setVisible(false);
+            return;
+        }
+
+        if (tileHand.size() >= 3) {
+            myTile3.setImage(new Image("graphics/tiles/" + tileHand.get(0).getItemType() + "_" + tileHand.get(2).getItemId() + ".png"));
+            myTile3.setVisible(true);
+        } else {
+            myTile3.setVisible(false);
+        }
+    }
+
+    private void updateMyPersGoal(PersonalGoalCard card) {
+        // TODO: implement this
     }
 
 
