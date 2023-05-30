@@ -15,6 +15,13 @@
 .table {
     -fx-background-image: url('../graphics/misc/parquet.jpg');
     /*set the background image to cover the window but without being resized*/
-    -fx-background-size: cover, fill;
+    -fx-background-size: cover;
     -fx-background-position: center center;
+}
+
+.pers_table {
+    -fx-background-image: url('../graphics/misc/base.jpg');
+    -fx-background-size: cover, auto;
+    /*round the borders*/
+    -fx-background-radius: 50;
 }

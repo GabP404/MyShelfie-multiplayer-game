@@ -12,8 +12,6 @@ import org.myshelfie.controller.Command;
 import org.myshelfie.controller.WrongTurnException;
 import org.myshelfie.model.*;
 import org.myshelfie.network.messages.gameMessages.GameView;
-import org.myshelfie.network.messages.gameMessages.ImmutableBookshelf;
-import org.myshelfie.network.messages.gameMessages.ImmutablePlayer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,15 +56,18 @@ public class ViewGUI extends Application {
 
 
         String myNickname = "Matteo";
-        controller.setNickname(myNickname);
+        controller.setMyNickname(myNickname);
         exampleGame = getExampleGame(myNickname);
 
         // refill the board
         try {
             exampleGame.getBoard().refillBoard(exampleGame.getPlayers().size(), exampleGame.getTileBag());
+            controller.update(new GameView(exampleGame));
+
         } catch (WrongArgumentException e) {
             throw new RuntimeException(e);
         }
+
         // example
         List<Tile> tiles = new ArrayList<>();
         tiles.add(exampleGame.getBoard().removeTile(1, 4));
@@ -74,18 +75,26 @@ public class ViewGUI extends Application {
         exampleGame.getPlayers().get(1).setTilesPicked(tiles);
         exampleGame.getPlayers().get(1).addScoringToken(new ScoringToken(4, null));
         exampleGame.getPlayers().get(1).addScoringToken(new ScoringToken(8, null));
+        controller.update(new GameView(exampleGame));
+
 
         try {
             exampleGame.getCurrPlayer().getBookshelf().insertTile(exampleGame.getBoard().removeTile(2, 4), 1);
             exampleGame.getCurrPlayer().getBookshelf().insertTile(exampleGame.getBoard().removeTile(2, 3), 1);
             exampleGame.getCurrPlayer().getBookshelf().insertTile(exampleGame.getBoard().removeTile(2, 5), 1);
+            controller.update(new GameView(exampleGame));
 
             exampleGame.getPlayers().get(2).getBookshelf().insertTile(exampleGame.getBoard().removeTile(0, 3), 3);
             exampleGame.getPlayers().get(2).getBookshelf().insertTile(exampleGame.getBoard().removeTile(0, 4), 3);
 
+            exampleGame.getPlayers().get(3).getBookshelf().insertTile(exampleGame.getBoard().removeTile(1, 5), 3);
+            exampleGame.getPlayers().get(3).addTilesPicked(exampleGame.getBoard().removeTile(2, 6));
         } catch (WrongArgumentException e) {
             throw new RuntimeException(e);
         }
+
+        exampleGame.getCurrPlayer().addScoringToken(new ScoringToken(4, null));
+        exampleGame.getCurrPlayer().setHasFinalToken(true);
 
         controller.update(new GameView(exampleGame));
     }
