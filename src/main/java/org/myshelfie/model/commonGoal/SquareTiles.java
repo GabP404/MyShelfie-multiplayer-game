@@ -35,10 +35,15 @@ public class SquareTiles extends CommonGoalCard {
                     }
                     //if the group has 4 tiles analyze their shape
                     if (tmpGroupSize == 4) {
-                        if (bookshelf.getTile(i, j + 1).getItemType() == tmp.getItemType() &&
-                                bookshelf.getTile(i + 1, j).getItemType() == tmp.getItemType() &&
-                                bookshelf.getTile(i + 1, j + 1).getItemType() == tmp.getItemType()) {
-                            numGroupsFound++;
+                        if(bookshelf.getTile(i, j + 1) != null &&
+                                bookshelf.getTile(i + 1, j) != null &&
+                                bookshelf.getTile(i + 1, j + 1) != null){
+
+                            if (bookshelf.getTile(i, j + 1).getItemType() == tmp.getItemType() &&
+                                    bookshelf.getTile(i + 1, j).getItemType() == tmp.getItemType() &&
+                                    bookshelf.getTile(i + 1, j + 1).getItemType() == tmp.getItemType()) {
+                                numGroupsFound++;
+                            }
                         }
                     }
                     if (numGroupsFound >= numGroups) {
