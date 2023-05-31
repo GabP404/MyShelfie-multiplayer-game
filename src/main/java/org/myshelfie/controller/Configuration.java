@@ -59,22 +59,24 @@ public class Configuration {
         JSONObject jo = getJSON().getJSONObject("personal_goal_cards");
         JSONArray JSONCards = jo.getJSONArray("cards");
         for (int i = 0; i < JSONCards.length(); i++) {
-            JSONArray card = JSONCards.getJSONArray(i);
+            JSONObject card = JSONCards.getJSONObject(i);
             PersonalGoalCard c;
+            int id = card.getInt("id");
             List<Pair<Pair<Integer, Integer>, Tile>> l = new ArrayList<>();
-            for (int k = 0; k < card.length(); k++) {
-                JSONObject constraint_json = card.getJSONObject(k);
+            JSONArray card_positions = card.getJSONArray("content");
+            for (int k = 0; k < card_positions.length(); k++) {
+                JSONObject single_tile = card_positions.getJSONObject(k);
                 Pair<Pair<Integer, Integer>, Tile> constraint;
                 constraint = new Pair<>(
                         new Pair<>(
-                                (Integer) constraint_json.get("col"),
-                                (Integer) constraint_json.get("row")
+                                (Integer) single_tile.get("col"),
+                                (Integer) single_tile.get("row")
                         ),
-                        new Tile(ItemType.valueOf((String) constraint_json.get("type")))
+                        new Tile(ItemType.valueOf((String) single_tile.get("type")))
                 );
                 l.add(constraint);
             }
-            c = new PersonalGoalCard(l);
+            c = new PersonalGoalCard(l, id);
             cards.add(c);
         }
         return cards;
