@@ -1,18 +1,18 @@
 package org.myshelfie.controller;
-import java.io.Serializable;
-import java.util.*;
 
 import org.myshelfie.model.*;
 import org.myshelfie.network.messages.commandMessages.*;
-import org.myshelfie.network.messages.gameMessages.GameEvent;
-import org.myshelfie.network.server.GameListener;
-import org.myshelfie.network.server.Server;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URISyntaxException;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class GameController {
+
     public static class GameDefinition implements Serializable {
         private final String gameName;
         private final int maxPlayers;
@@ -43,6 +43,8 @@ public class GameController {
 
     private int timeout;
     private boolean isRunning;
+
+    private ExecutorService commandExecutor;
 
     public void startTimer() {
         timer = new Timer();
@@ -91,6 +93,7 @@ public class GameController {
         this.numGoalCards = numGoalCards;
         this.timeout = Configuration.getTimerTimeout();
         this.game = new Game();
+        this.commandExecutor = Executors.newSingleThreadExecutor();
     }
 
     public void setupGame() throws IOException, URISyntaxException {
@@ -193,8 +196,19 @@ public class GameController {
         }
     }
 
+    /**
+     * Queue a command to be executed. This will add the command to the command queue in a separate thread
+     * and execute it as soon as the executorService is available.
+     * The ExecutorService is a single thread executor, so commands will be executed in the order they are queued.
+     * @param queuedCommand
+     * @param queuedEvent
+     */
+    public void queueAndExecuteCommand(CommandMessage queuedCommand, UserInputEvent queuedEvent) {
+        commandExecutor.execute(() -> executeCommand(queuedCommand, queuedEvent));
+    }
+
     public void executeCommand(CommandMessage command, UserInputEvent t) {
-        Command c = null;
+        Command c;
         try {
             switch (t) {
                 case SELECTED_TILES -> c = new PickTilesCommand(game.getBoard(), game.getCurrPlayer(), (PickedTilesCommandMessage) command, this.game.getModelState());

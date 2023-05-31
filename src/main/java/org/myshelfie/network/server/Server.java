@@ -113,7 +113,6 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     @Override
     public void update(ClientRMIInterface clientRMIInterface, CommandMessageWrapper msg) throws RemoteException {
         //Get the client from the nickname sent in the message
-        //TODO check this
         Client client = this.getClient(msg.getMessage().getNickname());
         if (client == null) {
             throw new RemoteException("Client not registered!");
