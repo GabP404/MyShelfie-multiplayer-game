@@ -19,270 +19,426 @@
   },
   "personal_goal_cards": {
     "cards": [
-      [
-        {
-          "col": 1,
-          "row": 0,
-          "type": "TROPHY"
-        },
-        {
-          "col": 1,
-          "row": 1,
-          "type": "CAT"
-        },
-        {
-          "col": 3,
-          "row": 4,
-          "type": "FRAME"
-        },
-        {
-          "col": 1,
-          "row": 4,
-          "type": "GAME"
-        }
-      ],
-      [
-        {
-          "col": 1,
-          "row": 1,
-          "type": "CAT"
-        },
-        {
-          "col": 1,
-          "row": 2,
-          "type": "TROPHY"
-        },
-        {
-          "col": 2,
-          "row": 2,
-          "type": "GAME"
-        },
-        {
-          "col": 0,
-          "row": 0,
-          "type": "FRAME"
-        }
-      ],
-      [
-        {
-          "col": 4,
-          "row": 5,
-          "type": "GAME"
-        },
-        {
-          "col": 1,
-          "row": 3,
-          "type": "GAME"
-        },
-        {
-          "col": 3,
-          "row": 2,
-          "type": "FRAME"
-        },
-        {
-          "col": 0,
-          "row": 0,
-          "type": "PLANT"
-        }
-      ],
-      [
-        {
-          "col": 2,
-          "row": 4,
-          "type": "GAME"
-        },
-        {
-          "col": 4,
-          "row": 0,
-          "type": "BOOK"
-        },
-        {
-          "col": 3,
-          "row": 5,
-          "type": "TROPHY"
-        },
-        {
-          "col": 1,
-          "row": 4,
-          "type": "GAME"
-        }
-      ],
-      [
-        {
-          "col": 2,
-          "row": 4,
-          "type": "CAT"
-        },
-        {
-          "col": 0,
-          "row": 3,
-          "type": "CAT"
-        },
-        {
-          "col": 3,
-          "row": 4,
-          "type": "GAME"
-        },
-        {
-          "col": 3,
-          "row": 5,
-          "type": "GAME"
-        }
-      ],
-      [
-        {
-          "col": 2,
-          "row": 3,
-          "type": "GAME"
-        },
-        {
-          "col": 4,
-          "row": 5,
-          "type": "BOOK"
-        },
-        {
-          "col": 4,
-          "row": 0,
-          "type": "PLANT"
-        },
-        {
-          "col": 3,
-          "row": 2,
-          "type": "TROPHY"
-        }
-      ],
-      [
-        {
-          "col": 0,
-          "row": 1,
-          "type": "FRAME"
-        },
-        {
-          "col": 4,
-          "row": 5,
-          "type": "GAME"
-        },
-        {
-          "col": 0,
-          "row": 4,
-          "type": "BOOK"
-        },
-        {
-          "col": 0,
-          "row": 0,
-          "type": "BOOK"
-        }
-      ],
-      [
-        {
-          "col": 3,
-          "row": 2,
-          "type": "BOOK"
-        },
-        {
-          "col": 4,
-          "row": 0,
-          "type": "TROPHY"
-        },
-        {
-          "col": 0,
-          "row": 4,
-          "type": "GAME"
-        },
-        {
-          "col": 3,
-          "row": 0,
-          "type": "TROPHY"
-        }
-      ],
-      [
-        {
-          "col": 2,
-          "row": 4,
-          "type": "TROPHY"
-        },
-        {
-          "col": 1,
-          "row": 2,
-          "type": "CAT"
-        },
-        {
-          "col": 3,
-          "row": 4,
-          "type": "PLANT"
-        },
-        {
-          "col": 1,
-          "row": 4,
-          "type": "BOOK"
-        }
-      ],
-      [
-        {
-          "col": 1,
-          "row": 0,
-          "type": "PLANT"
-        },
-        {
-          "col": 0,
-          "row": 2,
-          "type": "TROPHY"
-        },
-        {
-          "col": 4,
-          "row": 0,
-          "type": "GAME"
-        },
-        {
-          "col": 1,
-          "row": 3,
-          "type": "FRAME"
-        }
-      ],
-      [
-        {
-          "col": 3,
-          "row": 1,
-          "type": "CAT"
-        },
-        {
-          "col": 1,
-          "row": 1,
-          "type": "BOOK"
-        },
-        {
-          "col": 1,
-          "row": 2,
-          "type": "PLANT"
-        },
-        {
-          "col": 0,
-          "row": 0,
-          "type": "GAME"
-        }
-      ],
-      [
-        {
-          "col": 4,
-          "row": 0,
-          "type": "CAT"
-        },
-        {
-          "col": 0,
-          "row": 3,
-          "type": "PLANT"
-        },
-        {
-          "col": 1,
-          "row": 3,
-          "type": "PLANT"
-        },
-        {
-          "col": 0,
-          "row": 5,
-          "type": "FRAME"
-        }
-      ]
+      {
+        "id": 1,
+        "content": [
+          {
+            "col": 0,
+            "row": 0,
+            "type": "PLANT"
+          },
+          {
+            "col": 2,
+            "row": 0,
+            "type": "FRAME"
+          },
+          {
+            "col": 4,
+            "row": 1,
+            "type": "CAT"
+          },
+          {
+            "col": 3,
+            "row": 2,
+            "type": "BOOK"
+          },
+          {
+            "col": 1,
+            "row": 3,
+            "type": "GAME"
+          },
+          {
+            "col": 2,
+            "row": 5,
+            "type": "TROPHY"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "content": [
+          {
+            "col": 0,
+            "row": 2,
+            "type": "CAT"
+          },
+          {
+            "col": 1,
+            "row": 1,
+            "type": "PLANT"
+          },
+          {
+            "col": 2,
+            "row": 2,
+            "type": "GAME"
+          },
+          {
+            "col": 3,
+            "row": 4,
+            "type": "TROPHY"
+          },
+          {
+            "col": 4,
+            "row": 3,
+            "type": "BOOK"
+          },
+          {
+            "col": 4,
+            "row": 5,
+            "type": "FRAME"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "content": [
+          {
+            "col": 0,
+            "row": 1,
+            "type": "FRAME"
+          },
+          {
+            "col": 0,
+            "row": 5,
+            "type": "BOOK"
+          },
+          {
+            "col": 1,
+            "row": 3,
+            "type": "CAT"
+          },
+          {
+            "col": 2,
+            "row": 2,
+            "type": "PLANT"
+          },
+          {
+            "col": 3,
+            "row": 1,
+            "type": "GAME"
+          },
+          {
+            "col": 4,
+            "row": 3,
+            "type": "TROPHY"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "content": [
+          {
+            "col": 0,
+            "row": 2,
+            "type": "TROPHY"
+          },
+          {
+            "col": 1,
+            "row": 4,
+            "type": "BOOK"
+          },
+          {
+            "col": 2,
+            "row": 2,
+            "type": "FRAME"
+          },
+          {
+            "col": 2,
+            "row": 4,
+            "type": "CAT"
+          },
+          {
+            "col": 3,
+            "row": 3,
+            "type": "PLANT"
+          },
+          {
+            "col": 4,
+            "row": 0,
+            "type": "TOY"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "content": [
+          {
+            "col": 0,
+            "row": 5,
+            "type": "TOY"
+          },
+          {
+            "col": 1,
+            "row": 1,
+            "type": "TROPHY"
+          },
+          {
+            "col": 1,
+            "row": 3,
+            "type": "FRAME"
+          },
+          {
+            "col": 2,
+            "row": 3,
+            "type": "BOOK"
+          },
+          {
+            "col": 3,
+            "row": 5,
+            "type": "CAT"
+          },
+          {
+            "col": 4,
+            "row": 4,
+            "type": "PLANT"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "content": [
+          {
+            "col": 0,
+            "row": 5,
+            "type": "PLANT"
+          },
+          {
+            "col": 1,
+            "row": 4,
+            "type": "PLANT"
+          },
+          {
+            "col": 2,
+            "row": 0,
+            "type": "TROPHY"
+          },
+          {
+            "col": 3,
+            "row": 2,
+            "type": "BOOK"
+          },
+          {
+            "col": 4,
+            "row": 0,
+            "type": "CAT"
+          },
+          {
+            "col": 3,
+            "row": 4,
+            "type": "FRAME"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "content": [
+          {
+            "col": 0,
+            "row": 0,
+            "type": "CAT"
+          },
+          {
+            "col": 0,
+            "row": 3,
+            "type": "TROPHY"
+          },
+          {
+            "col": 1,
+            "row": 2,
+            "type": "PLANT"
+          },
+          {
+            "col": 2,
+            "row": 5,
+            "type": "BOOK"
+          },
+          {
+            "col": 3,
+            "row": 1,
+            "type": "FRAME"
+          },
+          {
+            "col": 4,
+            "row": 4,
+            "type": "TOY"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "content": [
+          {
+            "col": 0,
+            "row": 3,
+            "type": "PLANT"
+          },
+          {
+            "col": 4,
+            "row": 0,
+            "type": "FRAME"
+          },
+          {
+            "col": 1,
+            "row": 1,
+            "type": "CAT"
+          },
+          {
+            "col": 3,
+            "row": 4,
+            "type": "BOOK"
+          },
+          {
+            "col": 3,
+            "row": 5,
+            "type": "GAME"
+          },
+          {
+            "col": 2,
+            "row": 2,
+            "type": "TROPHY"
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "content": [
+          {
+            "col": 4,
+            "row": 4,
+            "type": "PLANT"
+          },
+          {
+            "col": 0,
+            "row": 5,
+            "type": "FRAME"
+          },
+          {
+            "col": 2,
+            "row": 2,
+            "type": "CAT"
+          },
+          {
+            "col": 4,
+            "row": 3,
+            "type": "BOOK"
+          },
+          {
+            "col": 2,
+            "row": 0,
+            "type": "GAME"
+          },
+          {
+            "col": 1,
+            "row": 4,
+            "type": "TROPHY"
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "content": [
+          {
+            "col": 3,
+            "row": 5,
+            "type": "PLANT"
+          },
+          {
+            "col": 1,
+            "row": 4,
+            "type": "FRAME"
+          },
+          {
+            "col": 3,
+            "row": 3,
+            "type": "CAT"
+          },
+          {
+            "col": 0,
+            "row": 2,
+            "type": "BOOK"
+          },
+          {
+            "col": 1,
+            "row": 1,
+            "type": "GAME"
+          },
+          {
+            "col": 4,
+            "row": 0,
+            "type": "TROPHY"
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "content": [
+          {
+            "col": 2,
+            "row": 0,
+            "type": "PLANT"
+          },
+          {
+            "col": 2,
+            "row": 3,
+            "type": "FRAME"
+          },
+          {
+            "col": 4,
+            "row": 4,
+            "type": "CAT"
+          },
+          {
+            "col": 1,
+            "row": 1,
+            "type": "BOOK"
+          },
+          {
+            "col": 0,
+            "row": 2,
+            "type": "GAME"
+          },
+          {
+            "col": 3,
+            "row": 5,
+            "type": "TROPHY"
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "content": [
+          {
+            "col": 1,
+            "row": 1,
+            "type": "PLANT"
+          },
+          {
+            "col": 2,
+            "row": 2,
+            "type": "FRAME"
+          },
+          {
+            "col": 0,
+            "row": 5,
+            "type": "CAT"
+          },
+          {
+            "col": 2,
+            "row": 0,
+            "type": "BOOK"
+          },
+          {
+            "col": 4,
+            "row": 4,
+            "type": "GAME"
+          },
+          {
+            "col": 3,
+            "row": 3,
+            "type": "TROPHY"
+          }
+        ]
+      }
     ],
     "map_points": {
       "0": 0,
@@ -295,5 +451,15 @@
   "final_points": 2,
   "tile_bag": {
     "tiles_per_type": 22
-  }
+  },
+  "map_points_group": {
+    "0": 0,
+    "1": 0,
+    "2": 0,
+    "3": 2,
+    "4": 3,
+    "5": 5,
+    "6": 8
+  },
+  "timer_timeout": 60000
 }

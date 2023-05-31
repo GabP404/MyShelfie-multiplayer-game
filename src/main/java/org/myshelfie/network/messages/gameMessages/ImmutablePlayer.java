@@ -1,20 +1,23 @@
 package org.myshelfie.network.messages.gameMessages;
 
-import org.myshelfie.model.PersonalGoalCard;
-import org.myshelfie.model.Player;
-import org.myshelfie.model.ScoringToken;
-import org.myshelfie.model.Tile;
+import org.myshelfie.model.*;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class ImmutablePlayer {
+public final class ImmutablePlayer  implements Serializable {
     private final String nickname;
     private final List<ScoringToken> commonGoalTokens;
     private final Boolean hasFinalToken;
     private final PersonalGoalCard personalGoal;
     private final ImmutableBookshelf bookshelf;
     private final List<Tile> tilesPicked;
+    private final int selectedColumn;
+    private final int bookshelfPoints;
+    private final int personalGoalPoints;
+    private final int publicPoints;
+    private final int totalPoints;
     private static int DIM_TILESPICKED = 3;
 
     public ImmutablePlayer(Player p) {
@@ -24,6 +27,16 @@ public final class ImmutablePlayer {
         this.personalGoal = p.getPersonalGoal();
         this.bookshelf = new ImmutableBookshelf(p.getBookshelf());
         this.tilesPicked = new ArrayList<>(p.getTilesPicked());
+        this.selectedColumn = p.getSelectedColumn();
+        this.bookshelfPoints = p.getBookshelfPoints();
+        this.personalGoalPoints = p.getPersonalGoal().getPoints(p.getBookshelf());
+        this.publicPoints = p.getPublicPoints();
+        try {
+            this.totalPoints = p.getTotalPoints();
+        } catch (WrongArgumentException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     public String getNickname() {
@@ -50,6 +63,22 @@ public final class ImmutablePlayer {
         return new ArrayList<>(tilesPicked);
     }
 
+    public int getSelectedColumn() {
+        return selectedColumn;
+    }
+
+    public int getTotalPoints() throws WrongArgumentException {
+        return totalPoints;
+    }
+    public int getPublicPoints() {
+        return publicPoints;
+    }
+    public int getPersonalGoalPoints() {
+        return personalGoalPoints;
+    }
+    public int getBookshelfPoints() {
+        return bookshelfPoints;
+    }
 
     /**
      * @return number of points earnt from ScoringTokens

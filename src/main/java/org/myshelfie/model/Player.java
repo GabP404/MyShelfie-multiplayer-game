@@ -1,9 +1,11 @@
 package org.myshelfie.model;
 
+import org.myshelfie.controller.Configuration;
 import org.myshelfie.network.server.Server;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Player {
@@ -79,7 +81,7 @@ public class Player {
         return tilesPicked;
     }
     public void setTilesPicked(List<Tile> tilesPicked) {
-        this.tilesPicked = tilesPicked;
+        this.tilesPicked = new ArrayList<>(tilesPicked);
     }
 
     public Tile getTilePicked(int index) throws WrongArgumentException {
@@ -93,20 +95,40 @@ public class Player {
     }
 
     /**
-     * @return number of points earnt from ScoringTokens
+     * @return number of points earn from ScoringTokens
      */
-    public int getPointsScoringTokens() {
-        int x = 0;
-        for (ScoringToken s :
-                this.commonGoalTokens) {
-            x+= s.getPoints();
+    public int getPublicPoints() {
+        int points_scoringToken = 0;
+        for (ScoringToken s : this.commonGoalTokens) {
+            points_scoringToken += s.getPoints();
         }
-        return x;
+        int points_group = getBookshelfPoints();
+        return points_scoringToken + points_group;
+    }
+
+    public int getBookshelfPoints() {
+        HashMap<Integer,Integer> mapping = Configuration.getMapPointsGroup();
+        int points_group = 0;
+        List<Integer> groups = this.bookshelf.getAdjacentSizes();
+        int maxKey = Integer.MIN_VALUE;
+
+        for (int key : mapping.keySet()) {
+            if (key > maxKey) {
+                maxKey = key;
+            }
+        }
+        for (Integer g :
+                groups) {
+            if(g > maxKey) points_group += mapping.get(maxKey);
+            else points_group += mapping.get(g);
+        }
+        return points_group;
     }
 
     public void removeTilesPicked(Tile t) throws WrongArgumentException{
         if (!this.tilesPicked.contains(t)) throw new WrongArgumentException("Tile not found");
         this.tilesPicked.remove(t);
+        Server.eventManager.notify(GameEvent.BOOKSHELF_UPDATE);
     }
 
     public void removeTilesPicked(List<Tile> tilesRemoved) throws WrongArgumentException{
@@ -127,6 +149,7 @@ public class Player {
             throw new WrongArgumentException("Column Out of range");
         }
         this.selectedColumn = selectedColumn;
+        Server.eventManager.notify(GameEvent.BOOKSHELF_UPDATE);
     }
 
     public boolean isOnline() {
@@ -135,9 +158,10 @@ public class Player {
 
     public void setOnline(boolean online) {
         this.online = online;
+        Server.eventManager.notify(GameEvent.PLAYER_ONLINE_UPDATE);
     }
 
     public int getTotalPoints() throws WrongArgumentException{
-        return getPointsScoringTokens() + this.personalGoal.getPoints(this.bookshelf);
+        return getPublicPoints() + this.personalGoal.getPoints(this.bookshelf) +  (this.hasFinalToken ? 1 : 0);
     }
 }

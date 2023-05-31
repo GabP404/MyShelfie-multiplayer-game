@@ -1,6 +1,8 @@
 package org.myshelfie.model;
 
-public class Tile {
+import java.io.Serializable;
+
+public class Tile implements Serializable {
     private ItemType itemType;
     private int itemId;
 
@@ -8,6 +10,11 @@ public class Tile {
     public Tile(ItemType itemType) {
         this.itemType = itemType;
         this.itemId = 1;
+    }
+
+
+    public boolean equals(Tile t) {
+        return this.itemType.equals(t.getItemType()) && this.itemId == t.getItemId();
     }
 
     public Tile(Tile t) {

@@ -2,21 +2,29 @@ package org.myshelfie.network.client;
 
 import org.myshelfie.network.EventManager;
 import org.myshelfie.network.messages.commandMessages.CommandMessageWrapper;
+import org.myshelfie.network.messages.commandMessages.HeartBeatMessage;
 import org.myshelfie.network.messages.commandMessages.UserInputEvent;
-import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.EventWrapper;
+import org.myshelfie.network.messages.gameMessages.GameEvent;
+import org.myshelfie.network.messages.gameMessages.GameView;
 import org.myshelfie.network.server.ServerRMIInterface;
+import org.myshelfie.view.View;
+import org.myshelfie.view.ViewCLI;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
-public class Client extends UnicastRemoteObject implements ClientRMIInterface {
+public class Client extends UnicastRemoteObject implements ClientRMIInterface, Runnable{
+
+    // Add a heartbeat interval constant
+    private static final int HEARTBEAT_INTERVAL = 5000; // 5 seconds
+    private long lastHeartbeat = System.currentTimeMillis();
+
     protected String nickname;
     protected static final String SERVER_ADDRESS = "localhost";
     protected static final int SERVER_PORT = 1234;
@@ -24,31 +32,40 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface {
     protected static String RMI_SERVER_NAME = "MinecraftServer";
     ServerRMIInterface rmiServer;
     private Socket serverSocket;
+    private ObjectOutputStream output;
+    private ObjectInputStream input;
 
     protected boolean isRMI;
+    private ClientRMIInterface RMIInterface;
+    private Thread serverListener;
 
     protected Socket clientSocket;
-    public static EventManager eventManager = new EventManager();
+    public EventManager eventManager = new EventManager();
+    private View view;
+    private String gameName;
 
     /**
      * Constructor used by the server to create a Client based on the nickname received via socket
-     * @param nickname
      * @throws RemoteException
      */
-    public Client(String nickname) throws RemoteException {
+    public Client() throws RemoteException {
         super();
-        this.nickname = nickname;
         this.isRMI = false;
     }
 
-    public Client(String nickName, boolean isRMI) throws RemoteException {
+    public Client(boolean isRMI, boolean isGUI) throws RemoteException {
         this.isRMI = isRMI;
-        this.nickname = nickName;
+        if (isGUI) {
+            // TODO: implement GUI
+        } else {
+            this.view = new ViewCLI(this);
+        }
+
+        // connect
         if (isRMI) {
             try {
                 // Look up the server object in the RMI registry
-                rmiServer = (ServerRMIInterface) Naming.lookup("//localhost/" + RMI_SERVER_NAME);
-                rmiServer.register(this);
+                rmiServer = (ServerRMIInterface) Naming.lookup("//" + SERVER_ADDRESS + "/" + RMI_SERVER_NAME);
             } catch (Exception e) {
                 System.err.println("Exception: " + e.getMessage());
                 e.printStackTrace();
@@ -57,18 +74,64 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface {
             try {
                 // Create a new socket and connect to the server
                 this.serverSocket = new Socket(SERVER_ADDRESS, SERVER_PORT);
-                PrintWriter output = new PrintWriter(serverSocket.getOutputStream(), true);
-                output.println(nickName);
+                output = new ObjectOutputStream(serverSocket.getOutputStream());
 
                 // Create and start a new thread that constantly listens for messages from the server
-                Thread serverListener = new SocketServerListener(serverSocket);
-                serverListener.start();
+                serverListener = new SocketServerListener(serverSocket);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
         // Subscribe a new UserInputListener that listen to changes in the view and forward events adding message to the server
         eventManager.subscribe(UserInputEvent.class, new UserInputListener(this));
+    }
+
+
+    public void endNicknameThread() {
+        view.endNicknameThread();
+    }
+
+    public void endCreateGameThread() {
+        view.endCreateGameThread();
+        if (!isRMI) {
+            try {
+                serverListener.start();
+            } catch (java.lang.IllegalThreadStateException e) {
+                // Should never be thrown, but if thrown, then thread was already started!
+            }
+        }
+    }
+    public void endJoinGameThread() {
+        view.endJoinGameThread();
+        if (!isRMI) {
+            try {
+                serverListener.start();
+            } catch (java.lang.IllegalThreadStateException e) {
+                // Should never be thrown, but if thrown, then thread was already started!
+            }
+        }
+    }
+
+    public void startServerListener() {
+        if (!isRMI) {
+            try {
+                serverListener.start();
+            } catch (java.lang.IllegalThreadStateException e) {
+                // Should never be thrown, but if thrown, then thread was already started!
+            }
+        }
+    }
+
+    public String getGameName() {
+        return view.getGameName();
+    }
+
+    public void setLastHeartbeat(long l) {
+        this.lastHeartbeat = l;
+    }
+
+    public long getLastHeartBeat() {
+        return this.lastHeartbeat;
     }
 
     class SocketServerListener extends Thread {
@@ -82,13 +145,11 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface {
         // Thread function that will handle the client requests
         public void run() {
             try {
-                // Create a new input stream to read from the server socket
-                ObjectInputStream input = new ObjectInputStream(serverSocket.getInputStream());
-
                 // Loop to handle every server message
                 while (true) {
                     try {
                         // Read the message from the server
+                        input = new ObjectInputStream(serverSocket.getInputStream());
                         EventWrapper ew = (EventWrapper) input.readObject();
                         // If the request is null, the client has disconnected
                         if (ew == null) {
@@ -114,7 +175,13 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface {
 
     public Client(ClientRMIInterface rmiInterface) throws RemoteException {
         super();
+        this.RMIInterface = rmiInterface;
+        this.isRMI = true;
         this.nickname = rmiInterface.getNickname();
+    }
+
+    public View getView() {
+        return this.view;
     }
 
     public Client getClientInstance() {
@@ -126,8 +193,30 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface {
      * @param argument GameView in case of a model change, String in case of an error
      * @param ev Type of the information received
      */
-    public void update(Object argument, GameEvent ev) {
-        System.out.println("Received update from server: " + argument.toString() + " " + ev.toString());
+    @Override
+    public void update(GameView argument, GameEvent ev) throws RemoteException {
+        view.update(argument, ev);
+    }
+
+    public void updateRMI(GameView argument, GameEvent ev) throws RemoteException {
+        this.RMIInterface.update(argument, ev);
+    }
+
+    public void startHeartBeatThread() {
+        Thread heartbeatThread;
+        if (isRMI) {
+            heartbeatThread = new Thread(this::sendHeartbeatRMI);
+        } else {
+            heartbeatThread = new Thread(this::sendHeartbeatSocket);
+        }
+        heartbeatThread.start();
+        System.out.println("Heartbeat thread started!");
+    }
+
+    @Override
+    public void run()
+    {
+        view.run();
     }
 
     public void updateServer(CommandMessageWrapper msg) {
@@ -142,7 +231,6 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface {
         } else {
             // Send a serialized message to the server using the socket
             try {
-                ObjectOutputStream output = new ObjectOutputStream(serverSocket.getOutputStream());
                 output.writeObject(msg);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -150,8 +238,76 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface {
         }
     }
 
+    /**
+     * Update the server during pre-game session by handling separetely RMI and Socket
+     * @param msg Message containing information about the event (NICKNAME, CREATE_GAME or JOIN_GAME)
+     * @return Server response, whose type depends on the type of event
+     */
+    public Object updateServerPreGame(CommandMessageWrapper msg) {
+        if (isRMI) {
+            try {
+                return rmiServer.updatePreGame(this, msg);
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            // Send a serialized message to the server using the socket
+            try {
+                output.writeObject(msg);
+
+                input = new ObjectInputStream(serverSocket.getInputStream());
+                return input.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    /**
+     * Send a heartbeat message to the server every HEARTBEAT_INTERVAL milliseconds.
+     * This calls the remote method heartbeat() of the server.
+     * This method is supposed to be run inside a dedicated thread.
+     */
+    private void sendHeartbeatRMI() {
+        while (true) {
+            try {
+                // Send a heartbeat message to the server using RMI
+                HeartBeatMessage msg = new HeartBeatMessage(this.nickname);
+                rmiServer.heartbeat(this, msg);
+                Thread.sleep(HEARTBEAT_INTERVAL);
+            } catch (RemoteException | InterruptedException e) {
+                // Handle exceptions as needed
+            }
+        }
+    }
+
+    /**
+     * Send a heartbeat message to the server every HEARTBEAT_INTERVAL milliseconds.
+     * This method should be used only by a "socket" client, and is supposed to be run inside a dedicated thread.
+     */
+    private void sendHeartbeatSocket() {
+        while (true) {
+            try {
+                // Send a heartbeat message to the server
+                CommandMessageWrapper heartbeatMsg = new CommandMessageWrapper(
+                        new HeartBeatMessage(this.nickname),
+                        UserInputEvent.HEARTBEAT
+                );
+                output.writeObject(heartbeatMsg);
+                Thread.sleep(HEARTBEAT_INTERVAL);
+            } catch (IOException | InterruptedException e) {
+                // Handle exceptions as needed
+            }
+        }
+    }
+
+
     public String getNickname() {
         return nickname;
+    }
+
+    public void setNickname(String nickname) {
+    	this.nickname = nickname;
     }
 
     public boolean isRMI() {

@@ -4,25 +4,99 @@ import org.myshelfie.model.*;
 import org.myshelfie.network.messages.commandMessages.*;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class GameController {
+
+    public static class GameDefinition implements Serializable {
+        private final String gameName;
+        private final int maxPlayers;
+        private final List<String> nicknames;
+
+
+
+        public GameDefinition(GameController gc) {
+            this.gameName = gc.getGameName();
+            this.maxPlayers = gc.getNumPlayerGame();
+            this.nicknames = new ArrayList<>(gc.getNicknames());
+        }
+
+        public String getGameName() {
+            return gameName;
+        }
+
+        public int getMaxPlayers() {
+            return maxPlayers;
+        }
+
+        public List<String> getNicknames() {
+            return nicknames;
+        }
+
+    }
+    private Timer timer;
+
+    private int timeout;
+    private boolean isRunning;
+
+    private ExecutorService commandExecutor;
+
+    public void startTimer() {
+        timer = new Timer();
+        timer.schedule(new GameTimerTask(), this.timeout); // 1 minute = 60,000 milliseconds
+        isRunning = true;
+    }
+
+    public void stopTimer() {
+        if (timer != null) {
+            timer.cancel();
+            isRunning = false;
+        }
+    }
+
+    public boolean isTimerRunning() {
+        return isRunning;
+    }
+
+    private class GameTimerTask extends TimerTask {
+        @Override
+        public void run() {
+            endGame();
+            try {
+                getGame().setWinner(getGame().getPlayers().stream().filter(x -> x.isOnline()).collect(Collectors.toList()).get(0));
+            } catch (WrongArgumentException e) {
+                throw new RuntimeException(e);
+            }
+            isRunning = false;
+        }
+    }
+
+
+    private String gameName;
+
     private Game game;
     private List<String> nicknames;
 
     private int numPlayerGame;
 
     private int numGoalCards;
-    public GameController() {
+
+    public GameController(String gameName, int numPlayerGame, int numGoalCards) {
+        this.gameName = gameName;
         this.nicknames = new ArrayList<>();
+        this.numPlayerGame = numPlayerGame;
+        this.numGoalCards = numGoalCards;
+        this.timeout = Configuration.getTimerTimeout();
+        this.game = new Game();
+        this.commandExecutor = Executors.newSingleThreadExecutor();
     }
 
-    private void setupGame() throws IOException, URISyntaxException {
+    public void setupGame() throws IOException, URISyntaxException {
         CommonGoalDeck commonGoalDeck = CommonGoalDeck.getInstance();
         PersonalGoalDeck personalGoalDeck = PersonalGoalDeck.getInstance();
         List<PersonalGoalCard> personalGoalCardsGame = personalGoalDeck.draw(numPlayerGame);
@@ -37,13 +111,14 @@ public class GameController {
             commonGoal.put(x, (List<ScoringToken>) createTokensCommonGoalCard(x.getId(),numPlayerGame));
         }
         TileBag tileBag = new TileBag();
-        this.game = new Game(players, new Board(numPlayerGame),commonGoal,tileBag,ModelState.WAITING_SELECTION_TILE);
-    }
 
-    public void createGame(int numPlayerGame, int numGoalCards, String nickname) {
-        this.numPlayerGame = numPlayerGame;
-        this.numGoalCards = numGoalCards;
-        addPlayer(nickname);
+        this.game.setupGame(players, new Board(numPlayerGame),commonGoal,tileBag,ModelState.WAITING_SELECTION_TILE,gameName);
+
+        try {
+            this.game.getBoard().refillBoard(this.getNumPlayerGame(), this.game.getTileBag());
+        } catch (WrongArgumentException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private LinkedList<ScoringToken> createTokensCommonGoalCard(String id, int numPlayer) {
@@ -70,52 +145,70 @@ public class GameController {
         return tokens;
     }
 
-    private boolean checkEndGame() {
-        int numPlayersOnline = (int) this.game.getPlayers().stream().filter(x -> x.isOnline()).count();
-        if(numPlayersOnline == 0){
-            this.game.setModelState(ModelState.END_GAME);
-            return true;
-        }
-        if(numPlayersOnline == 1){
-            //TODO start timer instead of end game
-            this.game.setModelState(ModelState.END_GAME);
+
+    private void endGame() {
+        this.game.setModelState(ModelState.END_GAME);
+    }
+
+    private void checkWinner() {
+        Player p = this.game.getPlayers().stream().reduce( (a, b) -> {
             try {
-                this.game.setWinner(this.game.getPlayers().stream().filter(x -> x.isOnline()).collect(Collectors.toList()).get(0));
+                return a.getTotalPoints() > b.getTotalPoints() ? a:b;
             } catch (WrongArgumentException e) {
                 throw new RuntimeException(e);
             }
-            return true;
+        }).orElse(null);
+        try {
+            this.game.setWinner(p);
+        } catch (WrongArgumentException e) {
+            throw new RuntimeException(e);
         }
+    }
+
+    private boolean checkEndGameBookShelfFull() {
         if(this.game.getPlayers().stream().filter(x -> x.getBookshelf().isFull()).count() > 0) {
-            this.game.setModelState(ModelState.END_GAME);
-            Player p = this.game.getPlayers().stream().reduce( (a, b) -> {
-                try {
-                    return a.getTotalPoints() > b.getTotalPoints() ? a:b;
-                } catch (WrongArgumentException e) {
-                    throw new RuntimeException(e);
-                }
-            }).orElse(null);
-            try {
-                this.game.setWinner(p);
-            } catch (WrongArgumentException e) {
-                throw new RuntimeException(e);
-            }
+            this.game.getCurrPlayer().setHasFinalToken(true);
+            endGame();
+            checkWinner();
+            return true;
         }
         return false;
     }
 
-    public void setOfflinePlayer(String nickname) {
+
+    public void setPlayerOffline(String nickname) {
         this.game.getPlayers().stream().filter(x -> x.getNickname().equals(nickname)).collect(Collectors.toList()).get(0).setOnline(false);
+        checkPlayersOnline();
     }
 
     public void setOnlinePlayer(String nickname) {
         this.game.getPlayers().stream().filter(x -> x.getNickname().equals(nickname)).collect(Collectors.toList()).get(0).setOnline(true);
+        if(game.getNumOnlinePlayers() > 1) {
+            if(isTimerRunning())
+                stopTimer();
+        }
     }
 
+    private void checkPlayersOnline() {
+        switch (this.game.getNumOnlinePlayers()) {
+            case 0 -> endGame();
+            case 1 -> startTimer();
+        }
+    }
 
-    //change firm of the method based
+    /**
+     * Queue a command to be executed. This will add the command to the command queue in a separate thread
+     * and execute it as soon as the executorService is available.
+     * The ExecutorService is a single thread executor, so commands will be executed in the order they are queued.
+     * @param queuedCommand
+     * @param queuedEvent
+     */
+    public void queueAndExecuteCommand(CommandMessage queuedCommand, UserInputEvent queuedEvent) {
+        commandExecutor.execute(() -> executeCommand(queuedCommand, queuedEvent));
+    }
+
     public void executeCommand(CommandMessage command, UserInputEvent t) {
-        Command c = null;
+        Command c;
         try {
             switch (t) {
                 case SELECTED_TILES -> c = new PickTilesCommand(game.getBoard(), game.getCurrPlayer(), (PickedTilesCommandMessage) command, this.game.getModelState());
@@ -145,7 +238,7 @@ public class GameController {
         if(currentGameState == ModelState.WAITING_1_SELECTION_TILE_FROM_HAND && t != UserInputEvent.SELECTED_HAND_TILE) throw new InvalidCommand("waiting for Tile Selection Hand ");
     }
 
-    private void nextState() {
+    private void nextState() throws WrongArgumentException {
         ModelState currentGameState = game.getModelState();
         ModelState nextState = null;
         switch (currentGameState) {
@@ -153,13 +246,16 @@ public class GameController {
                 nextState = ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN;
                 break;
             case WAITING_3_SELECTION_TILE_FROM_HAND:
+                CheckTokenAchievement();
                 nextState = ModelState.WAITING_2_SELECTION_TILE_FROM_HAND;
                 break;
             case WAITING_2_SELECTION_TILE_FROM_HAND:
+                CheckTokenAchievement();
                 nextState = ModelState.WAITING_1_SELECTION_TILE_FROM_HAND;
                 break;
             case WAITING_1_SELECTION_TILE_FROM_HAND:
-                if(checkEndGame()) {
+                CheckTokenAchievement();
+                if(checkEndGameBookShelfFull()) {
                     nextState = ModelState.END_GAME;
                 }else {
                     try {
@@ -174,6 +270,7 @@ public class GameController {
                             throw new RuntimeException(e);
                         }
                     }
+                    updateEndTurn();
                     nextState = ModelState.WAITING_SELECTION_TILE;
                 }
                 break;
@@ -197,18 +294,25 @@ public class GameController {
         game.setModelState(nextState);
     }
 
-    public void addPlayer(String nickname) {
-        if (nicknames.contains(nickname)) return;
-        this.nicknames.add(nickname);
-        if(nicknames.size() == numPlayerGame) {
-            try {
-                setupGame();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (URISyntaxException e) {
-                throw new RuntimeException(e);
+    public void updateEndTurn() throws WrongArgumentException {
+        if(game.getBoard().isRefillNeeded()) {
+            this.game.getBoard().refillBoard(this.getNumPlayerGame(), this.game.getTileBag());
+        }
+    }
+
+    public void CheckTokenAchievement() throws WrongArgumentException {
+        for(CommonGoalCard x: this.game.getCommonGoals()) {
+            if(x.checkGoalSatisfied(this.game.getCurrPlayer().getBookshelf())) {
+                this.game.getCurrPlayer().addScoringToken(this.game.popTopScoringToken(x));
             }
         }
+    }
+
+
+    public void addPlayer(String nickname) throws IllegalArgumentException{
+        if (nicknames.contains(nickname))
+            throw new IllegalArgumentException("Player already exists in the game");
+        this.nicknames.add(nickname);
     }
 
     public void removePlayer(String nickname) {
@@ -238,7 +342,12 @@ public class GameController {
         return numPlayerGame;
     }
 
-    public int getNumGoalCards() {
-        return numGoalCards;
+    public boolean isGameCreated() {
+        if (game == null) return false;
+        return true;
+    }
+
+    public String getGameName() {
+        return gameName;
     }
 }

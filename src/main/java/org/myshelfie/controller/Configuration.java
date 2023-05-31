@@ -59,22 +59,24 @@ public class Configuration {
         JSONObject jo = getJSON().getJSONObject("personal_goal_cards");
         JSONArray JSONCards = jo.getJSONArray("cards");
         for (int i = 0; i < JSONCards.length(); i++) {
-            JSONArray card = JSONCards.getJSONArray(i);
+            JSONObject card = JSONCards.getJSONObject(i);
             PersonalGoalCard c;
+            int id = card.getInt("id");
             List<Pair<Pair<Integer, Integer>, Tile>> l = new ArrayList<>();
-            for (int k = 0; k < card.length(); k++) {
-                JSONObject constraint_json = card.getJSONObject(k);
+            JSONArray card_positions = card.getJSONArray("content");
+            for (int k = 0; k < card_positions.length(); k++) {
+                JSONObject single_tile = card_positions.getJSONObject(k);
                 Pair<Pair<Integer, Integer>, Tile> constraint;
                 constraint = new Pair<>(
                         new Pair<>(
-                                (Integer) constraint_json.get("col"),
-                                (Integer) constraint_json.get("row")
+                                (Integer) single_tile.get("col"),
+                                (Integer) single_tile.get("row")
                         ),
-                        new Tile(ItemType.valueOf((String) constraint_json.get("type")))
+                        new Tile(ItemType.valueOf((String) single_tile.get("type")))
                 );
                 l.add(constraint);
             }
-            c = new PersonalGoalCard(l);
+            c = new PersonalGoalCard(l, id);
             cards.add(c);
         }
         return cards;
@@ -156,5 +158,27 @@ public class Configuration {
     static public int getTilesPerType() {
         JSONObject jo = getJSON().getJSONObject("tile_bag");
         return jo.getInt("tiles_per_type");
+    }
+
+
+    /**
+     * Get the timeout of the timer in order to handle the disconnection of a player
+     * @return The timeout of the timer in millisecond
+     */
+    static public int getTimerTimeout() {
+        return getJSON().getInt("timer_timeout");
+    }
+
+    /**
+     * Get the points that a player gets for a group of adjacent tiles of the same type
+     * @return Mapping between the number of tiles of the same type adjacent and the number of points
+     */
+    static public HashMap<Integer, Integer> getMapPointsGroup() {
+        JSONObject JSONPoints = getJSON().getJSONObject("map_points_group");
+        HashMap<Integer, Integer> points = new HashMap<>();
+        for (String key : JSONPoints.keySet()) {
+            points.put(Integer.parseInt(key), JSONPoints.getInt(key));
+        }
+        return points;
     }
 }

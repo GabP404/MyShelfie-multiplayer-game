@@ -2,15 +2,18 @@ package org.myshelfie.model;
 import org.myshelfie.model.util.Pair;
 import org.myshelfie.controller.Configuration;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Class that represents a personal goal card.
  */
-public class PersonalGoalCard {
+public class PersonalGoalCard implements Serializable {
 
     private List<Pair<Pair<Integer, Integer>, Tile>> constraints;
+    // Needed to associate the personal goal card object to its image file
+    private int id;
     private static final Map<Integer, Integer> points_map = Configuration.getPersonalGoalPoints();
 
     /**
@@ -19,6 +22,11 @@ public class PersonalGoalCard {
      */
     public PersonalGoalCard(List<Pair<Pair<Integer, Integer>, Tile>> constraint_tiles) {
         constraints = constraint_tiles;
+    }
+
+    public PersonalGoalCard(List<Pair<Pair<Integer, Integer>, Tile>> constraint_tiles, int id) {
+        constraints = constraint_tiles;
+        this.id = id;
     }
 
     /**
@@ -42,5 +50,13 @@ public class PersonalGoalCard {
             }
         }
         return points_map.get(occurrences);
+    }
+
+    public List<Pair<Pair<Integer, Integer>, Tile>> getConstraints() {
+        return constraints;
+    }
+
+    public int getId() {
+        return id;
     }
 }

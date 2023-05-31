@@ -1,9 +1,11 @@
 package org.myshelfie.network.messages.commandMessages;
 
+import java.io.Serializable;
+
 /**
  * List of all the types of messages that can be sent from the client to the server.
  */
-public enum UserInputEvent {
+public enum UserInputEvent implements Serializable {
     /**
      * List of the selected tiles to take from the living room board
      */
@@ -17,7 +19,25 @@ public enum UserInputEvent {
      */
     SELECTED_HAND_TILE,
     /**
-     * Message to be sent to the chat
+     * Message to create a new game
      */
-    CHAT_MESSAGE
+    CREATE_GAME,
+    /**
+     * Message to join an existing game
+     */
+    JOIN_GAME,
+    /**
+     * Message to send the nickname of the player
+     */
+    NICKNAME,
+
+    /**
+     * Message to send a heartbeat to the server
+     */
+    HEARTBEAT,
+
+    /**
+     * Message to send to ask for available games
+     */
+    REFRESH_AVAILABLE_GAMES
 }

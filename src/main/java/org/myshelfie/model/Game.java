@@ -1,23 +1,32 @@
 package org.myshelfie.model;
-import org.myshelfie.network.server.Server;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
+import org.myshelfie.network.server.Server;
 
 import java.util.*;
 
 public class Game {
+
+    private String gameName;
     private Player currPlayer;
     private List<Player> players;
     private Board board;
     private HashMap<CommonGoalCard,List<ScoringToken>> commonGoals;
     private TileBag tileBag;
-    private boolean playing;
 
     private ModelState modelState;
 
     private Player winner;
-    private Map<String, Boolean> errorState;
+    /**
+     * errorState maps every player nickname to a corresponding (possible) error message
+     */
+    private Map<String, String> errorState;
 
-    public Game(List<Player> players, Board board, HashMap<CommonGoalCard,List<ScoringToken>> commonGoals, TileBag tileBag, ModelState modelState) {
+    private boolean playing;
+    public Game() {
+
+    }
+
+    public void setupGame(List<Player> players, Board board, HashMap<CommonGoalCard,List<ScoringToken>> commonGoals, TileBag tileBag, ModelState modelState, String gameName) {
         this.players = players;
         this.board = board;
         this.commonGoals = commonGoals;
@@ -26,26 +35,12 @@ public class Game {
         this.modelState = modelState;
         this.winner = null;
         this.errorState = new HashMap<>();
-        players.forEach( (player) -> errorState.put(player.getNickname(), false) );
-        try {
-            this.board.refillBoard(this.players.size(), tileBag);
-        } catch (WrongArgumentException e) {
-            throw new RuntimeException(e);
-        }
-        suspendGame();
+        players.forEach( (player) -> errorState.put(player.getNickname(), null) );
+
+        this.gameName = gameName;
+        this.playing = true;
     }
 
-    public Game() {
-        suspendGame();
-    }
-
-    public void startGame() {
-        playing = true;
-    }
-
-    public void suspendGame() {
-        playing = false;
-    }
 
     public Player getCurrPlayer() {
         return currPlayer;
@@ -66,6 +61,10 @@ public class Game {
         );
         return x;
     }
+    public HashMap<CommonGoalCard,List<ScoringToken>> getCommonGoalsMap() {
+        return commonGoals;
+    }
+
     public TileBag getTileBag() {
         return tileBag;
     }
@@ -75,11 +74,8 @@ public class Game {
         return players.get(pos + 1);
     }
 
-    public Boolean getErrorState(String nickname) {
-        Boolean res = errorState.get(nickname);
-        if (res == null)
-            return false;
-        return res;
+    public String getErrorState(String nickname) {
+        return errorState.get(nickname);
     }
 
     /**
@@ -91,16 +87,24 @@ public class Game {
         resetErrorState();
         // if the nickname belongs to one of the players, set the error state to true
         if (players.stream().anyMatch( (player) -> player.getNickname().equals(nickname) )) {
-            this.errorState.put(nickname, true);
-            Server.eventManager.notify(GameEvent.ERROR, errorMessage);
+            this.errorState.put(nickname, errorMessage);
+            Server.eventManager.notify(GameEvent.ERROR);
         }
     }
 
     /**
-     * Reset the error state of all the players
+     * Reset the error state of all the players. Send the notification only if at least one error state has been reset
      */
     public void resetErrorState() {
-        players.forEach( (player) -> errorState.put(player.getNickname(), false) );
+        int countReset = 0;
+        for (Player p : players) {
+            if (errorState.get(p.getNickname()) != null) {
+                errorState.put(p.getNickname(), null);
+                countReset++;
+            }
+        }
+        if (countReset > 0)
+            Server.eventManager.notify(GameEvent.ERROR_STATE_UPDATE);
     }
 
     public ScoringToken popTopScoringToken(CommonGoalCard c) throws WrongArgumentException {
@@ -118,14 +122,12 @@ public class Game {
             throw new WrongArgumentException("CommonGoalCard not found");
         return x.getFirst();
     }
-    public boolean isPlaying() {
-        return playing;
-    }
 
     public void setCurrPlayer(Player currPlayer) throws WrongArgumentException{
         if (currPlayer == null || !players.contains(currPlayer))
             throw new WrongArgumentException("Player not found");
         this.currPlayer = currPlayer;
+        Server.eventManager.notify(GameEvent.CURR_PLAYER_UPDATE);
     }
 
     public ModelState getModelState() {
@@ -146,5 +148,21 @@ public class Game {
         this.winner = winner;
     }
 
+    public int getNumOnlinePlayers() {
+        return (int) players.stream().filter(Player::isOnline).count();
+    }
 
+    public String getGameName() {
+        return gameName;
+    }
+
+    public boolean isPlaying() {
+        return playing;
+    }
+
+    public void setPlaying(boolean playing) {
+        // TODO: to handle player's disconnection a notify with a specific event will be required
+        //  (also for the setter of Player's online attribute)
+        this.playing = playing;
+    }
 }

@@ -1,9 +1,6 @@
 package org.myshelfie.network.messages.gameMessages;
 
-import org.myshelfie.model.Board;
-import org.myshelfie.model.CommonGoalCard;
-import org.myshelfie.model.Game;
-import org.myshelfie.model.Player;
+import org.myshelfie.model.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,40 +17,54 @@ public class GameView implements Serializable {
     private final ImmutablePlayer currPlayer;
     private final List<ImmutablePlayer> players;
     private final List<CommonGoalCard> commonGoals;
+    private final HashMap<String,List<ScoringToken>> commonGoalsTokens;
     private final ImmutableBoard board;
-    private final Map<String, Boolean> errorState;
+    private final Map<String, String> errorState;
+    private final ModelState modelState;
+
+    private final String gameName;
     public GameView(Game model) {
         this.currPlayer = new ImmutablePlayer(model.getCurrPlayer());
         this.commonGoals = model.getCommonGoals();
+        this.commonGoalsTokens = new HashMap<>();
+        model.getCommonGoalsMap().forEach(
+                (key,value) -> this.commonGoalsTokens.put(key.getId(), new ArrayList<>(value))
+        );
+        // this.commonGoals.putAll(model.getCommonGoalsMap()); -> possible error here
         this.players = new ArrayList<>();
         for(Player p: model.getPlayers()) {
             this.players.add(new ImmutablePlayer(p));
         }
+        this.gameName = model.getGameName();
         this.board = new ImmutableBoard(model.getBoard());
         this.errorState = new HashMap<>();
         players.forEach( (player) -> errorState.put(player.getNickname(), model.getErrorState(player.getNickname())) );
+        this.modelState = model.getModelState();
     }
 
-    public Boolean getErrorState(String nickname) {
-        Boolean res = errorState.get(nickname);
-        if (res == null)
-            return false;
-        return res;
+    public String getErrorState(String nickname) {
+        return errorState.get(nickname);
     }
-
     public ImmutablePlayer getCurrPlayer() {
         return currPlayer;
     }
-
     public List<ImmutablePlayer> getPlayers() {
         return players;
     }
-
     public List<CommonGoalCard> getCommonGoals() {
-        return commonGoals;
+        return new ArrayList<>(commonGoals);
     }
-
+    public List<ScoringToken> getCommonGoalTokens(String id) {
+        return commonGoalsTokens.get(id);
+    }
     public ImmutableBoard getBoard() {
         return board;
     }
+    public String getGameName() {
+        return gameName;
+    }
+    public ModelState getModelState() {
+        return modelState;
+    }
+
 }

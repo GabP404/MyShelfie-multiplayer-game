@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * This class represents the command used to send the choice of the tiles picked from the Board
  */
-public class PickedTilesCommandMessage extends CommandMessage implements Serializable  {
+public class PickedTilesCommandMessage extends CommandMessage implements Serializable {
 
     private final List<Pair<Integer, Integer>> tiles;
 
@@ -17,8 +17,8 @@ public class PickedTilesCommandMessage extends CommandMessage implements Seriali
      * @param nickname    Nickname of the player sending the message
      * @param tiles       List of the chosen tiles
      */
-    public PickedTilesCommandMessage(String nickname, List<LocatedTile> tiles) {
-        super(nickname);
+    public PickedTilesCommandMessage(String nickname, String gameName, List<LocatedTile> tiles) {
+        super(nickname, gameName);
         this.tiles = tiles.stream().map(t -> new Pair<Integer, Integer>(t.getRow(), t.getCol())).toList();
     }
 

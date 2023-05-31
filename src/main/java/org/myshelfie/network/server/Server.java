@@ -1,18 +1,13 @@
 package org.myshelfie.network.server;
 
 import org.myshelfie.controller.GameController;
-import org.myshelfie.controller.InvalidCommand;
-import org.myshelfie.controller.WrongTurnException;
-import org.myshelfie.model.Game;
-import org.myshelfie.model.WrongArgumentException;
+import org.myshelfie.controller.LobbyController;
+import org.myshelfie.model.util.Pair;
 import org.myshelfie.network.EventManager;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.client.ClientRMIInterface;
-import org.myshelfie.network.messages.commandMessages.CommandMessage;
-import org.myshelfie.network.messages.commandMessages.CommandMessageWrapper;
-import org.myshelfie.network.messages.commandMessages.UserInputEvent;
+import org.myshelfie.network.messages.commandMessages.*;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
-import org.myshelfie.network.messages.gameMessages.EventWrapper;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -31,60 +26,68 @@ import java.util.List;
 
 public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     private List<Client> clients;
-    private GameController controller;
+    private LobbyController controller;
     public static EventManager eventManager = new EventManager();
-    private Game game;
     private String RMI_SERVER_NAME = "MinecraftServer";
     private ServerSocket serverSocket;
+    private static final int HEARTBEAT_TIMEOUT = 10000; // 10 seconds
 
     /**
      * Overloaded constructor used for testing since it allows to initialize the Game object outside
-     * @param game Already initialized model
      */
-    public Server(Game game) throws RemoteException {
+    public Server() throws RemoteException {
         super();
-        this.game = game;
         this.clients = new ArrayList<>();
-        this.controller = new GameController();
+        this.controller = LobbyController.getInstance(this);
     }
 
-    /**
-     * Getter for the model that the server is using. This method is used in order to allow GameListener to send
-     * the updated modelView everytime a change occurs in the model.
-     * NOTE: this method will need to be parametric when we'll handle multiple games.
-     * @return The model used by the server
-     */
-    Game getGame() {
-        return game;
+    public static void main( String[] args ) {
+        Object lock = new Object();
+        Server s = null;
+        try {
+            s = new Server();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+        s.startServer(lock);
     }
+
+
+    public Client getClient(String nickname) {
+        return this.clients.stream().filter(c -> c.getNickname().equals(nickname)).findFirst().orElse(null);
+    }
+
 
     /**
      * Register a client to the server
      * @param client the client to register
      */
-    public void register(Client client) {
+    public void register(Client client) throws IllegalArgumentException {
         //Throws an exception if there is already a client with the same nickname
         if (this.clients.stream().anyMatch(c -> c.getNickname().equals(client.getNickname()))) {
             throw new IllegalArgumentException("Nickname already taken");
         }
         this.clients.add(client);
-        // Subscribe a new GameListener that will be notified when a change in the model occurs.
-        // After being notified the Listener will send a message to the client containing the event and the ModelView obj
-        eventManager.subscribe(GameEvent.class, new GameListener(this, client, this.getGame()));
-    }
 
-    /**
-     * Register a client to the server using RMI
-     * @param rmiClientInterface the client to register (as an RMI interface)
-     */
-    @Override
-    public void register(ClientRMIInterface rmiClientInterface) {
-        try {
-            Client client = new Client(rmiClientInterface);
-            this.register(client);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
+        //Start a thread that will check the connection status of the client
+        client.setLastHeartbeat(System.currentTimeMillis());
+        Thread t = new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(HEARTBEAT_TIMEOUT);
+                    if (System.currentTimeMillis() - client.getLastHeartBeat() > HEARTBEAT_TIMEOUT) {
+                        System.out.println("Client " + client.getNickname() + " disconnected");
+                        unregister(client);
+                        controller.handleClientDisconnection(client.getNickname());
+                        break;
+                    }
+                } catch (InterruptedException e) {
+                    System.out.println("Heartbeat thread for client " + client.getNickname() + " interrupted");
+                }
+            }
+        });
+        t.start();
+        System.out.println("Client " + client.getNickname() + " registered and heartbeat thread started.");
     }
 
     /**
@@ -93,28 +96,92 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
      */
     public void unregister(Client client) {
         this.clients.remove(client);
-        // eventManager.unsubscribe(GameEvent.class, new GameListener(this, client));
-        //The above is not needed I think
+        GameListener toUnsubscribe = (GameListener) eventManager.getListener(GameEvent.class, (l) -> {
+            GameListener gl = (GameListener) l;
+            return gl.getClient().getNickname().equals(client.getNickname());
+        });
+         eventManager.unsubscribe(GameEvent.class, toUnsubscribe);
+        //The above is not needed I think (edit: instead it was lol)
     }
 
     /**
      * Update of the server after a client send a message. This method forwards the message produced by the View (which is
      * observed by the client) to the controller, specifying the client that generated the event.
-     * @param client  the client that generated the event
+     * @param clientRMIInterface  the client that generated the event
      * @param msg wrapped message received from the client
      */
     @Override
-    public void update(Client client, CommandMessageWrapper msg) {
-        if (!clients.contains(client)) {
-            throw new IllegalArgumentException("Client not registered");
+    public void update(ClientRMIInterface clientRMIInterface, CommandMessageWrapper msg) throws RemoteException {
+        //Get the client from the nickname sent in the message
+        Client client = this.getClient(msg.getMessage().getNickname());
+        if (client == null) {
+            throw new RemoteException("Client not registered!");
         }
-        // TODO: understand how to use information about the client that sent the message
 
         // unwrap the message
         UserInputEvent messageType = msg.getType();
         CommandMessage messageCommand = msg.getMessage();
+        System.out.println("Server received event " + messageType);
+
+        // If the message is a heartbeat, update the last heartbeat time of the client and return (nothing to execute)
+        if (messageType == UserInputEvent.HEARTBEAT) {
+            client.setLastHeartbeat(System.currentTimeMillis());
+            return;
+        }
         // call the update on the controller
         this.controller.executeCommand(messageCommand, messageType);
+    }
+
+    /**
+     * Update of the server after a client send a message. This method forwards the message produced by the View (which is
+     * observed by the client) to the controller, specifying the client that generated the event.
+     * @param clientRMIInterface  the client that generated the event
+     * @param msg wrapped message received from the client
+     */
+    @Override
+    public Object updatePreGame(ClientRMIInterface clientRMIInterface, CommandMessageWrapper msg) throws RemoteException {
+        Client client = new Client(clientRMIInterface);
+        System.out.println("Server received RMI event " + msg.getType());
+
+        try {
+            switch (msg.getType()) {
+                case CREATE_GAME -> {
+                    CreateGameMessage createGameMessage = (CreateGameMessage) msg.getMessage();
+                    return this.createGame(createGameMessage);
+                }
+                case JOIN_GAME -> {
+                    JoinGameMessage joinGameMessage = (JoinGameMessage) msg.getMessage();
+                    return this.joinGame(joinGameMessage);
+                }
+                case NICKNAME -> {
+                    NicknameMessage nicknameMessage = (NicknameMessage) msg.getMessage();
+                    // set the nickname of the client, but if the register fails, the nickname will be set again
+                    client.setNickname(nicknameMessage.getNickname());
+                    try {
+                        this.register(client);
+                        System.out.println("Client " + client.getNickname() + " registered");
+                        // Put the client back in the game, if necessary
+                        boolean reconnecting = this.controller.handleClientReconnection(client.getNickname());
+                        if (reconnecting) {
+                            return new Pair<ConnectingStatuses, Object>(ConnectingStatuses.RECONNECTING, this.controller.getGames());
+                        } else {
+                            return new Pair<ConnectingStatuses, Object>(ConnectingStatuses.CONFIRMED, this.controller.getGames());
+                        }
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Nickname already taken");
+                        return new Pair<ConnectingStatuses, Object>(ConnectingStatuses.ERROR, new ArrayList<>());
+                    }
+                }
+                case REFRESH_AVAILABLE_GAMES -> {
+                    // send the current list of games
+                    return this.controller.getGames();
+                }
+                default -> throw new IllegalArgumentException("Wrong message type");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RemoteException(e.getMessage());
+        }
     }
 
     // Method to start the server
@@ -171,14 +238,9 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                     return;
                 }
 
-                //Get client nickname
-                BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                String nickname = input.readLine();
-
                 //Create and register a new client
-                Client client = new Client(nickname);
+                Client client = new Client();
                 client.setClientSocket(clientSocket);
-                this.register(client);
                 // Create and start a new client handler thread
                 Thread clientHandler = new SocketClientHandler(clientSocket, client);
                 clientHandler.start();
@@ -224,11 +286,11 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
      * Method to send a message to a client
      * @param clientSocket
      */
-    public void sendTo(Socket clientSocket, EventWrapper ew) {
-        ObjectOutputStream output = null;
+    public void sendTo(Socket clientSocket, Serializable message) {
+        ObjectOutputStream output;
         try {
             output = new ObjectOutputStream(clientSocket.getOutputStream());
-            output.writeObject(ew);
+            output.writeObject(message);
             output.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -252,19 +314,76 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                 // Create a new input stream to read serialized objects from the client socket
                 ObjectInputStream input = new ObjectInputStream(clientSocket.getInputStream());
 
-                // Loop to handle multiple client requests
+                //Get client nickname
+                boolean inputValid = false;
+                boolean reconnecting = false;
+                Pair<ConnectingStatuses, List<GameController.GameDefinition>> response;
+                do {
+                    CommandMessageWrapper messageWrapper = (CommandMessageWrapper) input.readObject();
+                    client.setNickname(messageWrapper.getMessage().getNickname());
+                    try {
+                        Server.this.register(client);
+                        // Put the client back in the game, if it is reconnecting
+                        reconnecting = Server.this.controller.handleClientReconnection(client.getNickname());
+                        inputValid = true;
+                    } catch (IllegalArgumentException e) {
+                        response = new Pair<>(ConnectingStatuses.ERROR, new ArrayList<>());
+                        sendTo(clientSocket, response);
+                    }
+                } while (!inputValid);
+
+                if (reconnecting) {
+                    // The client is reconnecting to a game.
+                    // Skip sending the list of games and wait directly for the game messages.
+                    response = new Pair<>(ConnectingStatuses.RECONNECTING, Server.this.getGames());
+                    sendTo(clientSocket, response);
+                } else {
+                    // The client is not reconnecting to any game.
+                    // Send confirm and list of games
+                    response = new Pair<>(ConnectingStatuses.CONFIRMED, Server.this.getGames());
+                    sendTo(clientSocket, response);
+
+                    // Get CREATE or JOIN or REFRESH_AVAILABLE_GAMES game message
+                    inputValid = false;
+                    do {
+                        CommandMessageWrapper message = (CommandMessageWrapper) input.readObject();
+                        System.out.println("Received message of type '" + message.getType() + "' from client " + client.getNickname());
+                        try {
+                            if (message.getType() == UserInputEvent.CREATE_GAME) {
+                                inputValid = Server.this.createGame((CreateGameMessage) message.getMessage());
+                            } else if (message.getType() == UserInputEvent.JOIN_GAME) {
+                                inputValid = Server.this.joinGame((JoinGameMessage) message.getMessage());
+                            } else if (message.getType() == UserInputEvent.REFRESH_AVAILABLE_GAMES) {
+                                // send the list of available games WITHOUT changing the inputValid flag
+                                sendTo(clientSocket, (Serializable) Server.this.getGames());
+                            } else if (message.getType() == UserInputEvent.HEARTBEAT) {
+                                client.setLastHeartbeat(System.currentTimeMillis());
+                            }  else {
+                                throw new IllegalArgumentException("Invalid message type");
+                            }
+                        } catch (IllegalArgumentException e) {
+                            sendTo(clientSocket, e.getMessage());
+                        }
+                    } while (!inputValid);
+
+                    // Send flag to signal the successful creation / join of the game
+                    sendTo(clientSocket, inputValid);
+                }
+
+                // Wait for UserInputEvents related to the game
                 while (true) {
-                    // Read a request from the client, sent as a serialized CommandMessageWrapper
-                    CommandMessageWrapper request = (CommandMessageWrapper) input.readObject();
-                    // If the request is null, the client has disconnected
-                    if (request == null) {
-                        //TODO handle disconnection
-                        System.out.println("Client disconnected.");
+                    try {
+                        // Read a request from the client, sent as a serialized CommandMessageWrapper
+                        CommandMessageWrapper request = (CommandMessageWrapper) input.readObject();
+
+                        // Handle the request
+                        Server.this.update(this.client, request);
+                    } catch (EOFException e) {
+                        // If this exception is caught, the client has disconnected
+                        System.out.println("Socket stream reached EOF - probably disconnected. Setting last heartbeat to 0.");
+                        client.setLastHeartbeat(0);
                         break;
                     }
-
-                    // Handle the request
-                    Server.this.update(this.client, request);
                 }
 
                 // Close the client socket and unregister the client
@@ -276,6 +395,46 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    /**
+     * Handle the heartbeat message sent by a client
+     * @param client The client (RMIInterface) that sent the heartbeat
+     * @throws RemoteException
+     */
+    @Override
+    public void heartbeat(ClientRMIInterface client, HeartBeatMessage msg) throws RemoteException {
+        Client c = getClient(msg.getNickname());
+        if (c == null) {
+            //The client is not registered!
+            throw new RemoteException("Client not registered!");
+        }
+
+        System.out.println("Received heartbeat from client " + c.getNickname());
+        //Update the last heartbeat timestamp
+        c.setLastHeartbeat(System.currentTimeMillis());
+    }
+
+    public List<GameController.GameDefinition> getGames() throws RemoteException {
+        return this.controller.getGames();
+    }
+
+    public boolean createGame(CreateGameMessage message) throws RemoteException {
+        try {
+            this.controller.createGame(message);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    public boolean joinGame(JoinGameMessage message) throws RemoteException {
+        try {
+            this.controller.joinGame(message);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
         }
     }
 }

@@ -28,7 +28,7 @@ class PlayerTest {
         assertNotNull(p.getPersonalGoal());
         p.addScoringToken(new ScoringToken(8,"1"));
         p.addScoringToken(new ScoringToken(4,"2"));
-        assertEquals(12, p.getPointsScoringTokens());
+        assertEquals(12, p.getPublicPoints());
     }
 
 
@@ -75,14 +75,14 @@ class PlayerTest {
         p.setHasFinalToken(true);
         assertTrue(p.getHasFinalToken());
         List<Tile> t = new ArrayList<>();
-        Tile t1 = new Tile(ItemType.BOOK);
-        Tile t2 = new Tile(ItemType.CAT);
+        Tile t1 = new Tile(ItemType.BOOK, 1);
+        Tile t2 = new Tile(ItemType.CAT, 2);
         t.add(t1);
         t.add(t2);
         p.setTilesPicked(t);
         assertEquals(p.getTilesPicked().get(0), t1);
         assertEquals(p.getTilesPicked().get(1), t2);
-        t.remove(t1);
+        p.getTilesPicked().remove(t1);
         assertNotEquals(p.getTilesPicked().get(0), t1);
         assertEquals(p.getTilesPicked().get(0), t2);
     }

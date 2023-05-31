@@ -1,6 +1,8 @@
 package org.myshelfie.model;
 
-public abstract class CommonGoalCard {
+import java.io.Serializable;
+
+public abstract class CommonGoalCard implements Serializable {
     private String id;
 
     public CommonGoalCard(String id){

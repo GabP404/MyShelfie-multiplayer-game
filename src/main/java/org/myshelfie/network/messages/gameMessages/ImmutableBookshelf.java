@@ -5,10 +5,11 @@ import org.myshelfie.model.ItemType;
 import org.myshelfie.model.Tile;
 import org.myshelfie.model.WrongArgumentException;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class ImmutableBookshelf {
+public final class ImmutableBookshelf  implements Serializable {
     public final int NUMROWS;
     public final int NUMCOLUMNS;
 
