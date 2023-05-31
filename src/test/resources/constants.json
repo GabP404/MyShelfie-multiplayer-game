@@ -155,7 +155,7 @@
           {
             "col": 4,
             "row": 0,
-            "type": "TOY"
+            "type": "GAME"
           }
         ]
       },
@@ -165,7 +165,7 @@
           {
             "col": 0,
             "row": 5,
-            "type": "TOY"
+            "type": "GAME"
           },
           {
             "col": 1,
@@ -260,7 +260,7 @@
           {
             "col": 4,
             "row": 4,
-            "type": "TOY"
+            "type": "GAME"
           }
         ]
       },

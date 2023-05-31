@@ -10,8 +10,6 @@ import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.server.GameListener;
 import org.myshelfie.network.server.Server;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -105,7 +103,9 @@ public class LobbyController {
                         System.out.println("Setting game " + message.getGameName() + " up...");
                         gameController.setupGame();
                         System.out.println("Game set up!");
-                    } catch (IOException | URISyntaxException e) {
+                    } catch (Exception e) {
+                        System.out.println("Exception while setting game up: " + e.getMessage());
+                        e.printStackTrace();
                         throw new RuntimeException(e);
                     }
                 }, 2, TimeUnit.SECONDS);

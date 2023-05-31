@@ -193,7 +193,7 @@ public class ViewCLI implements View{
             do {
                 clear();
                 printTitle();
-                print("Do you want to create or join a game? [create/join]", 0, 0, false);
+                print("Do you want to create or join a game? [create/join]", 0, 20, false);
                 setCursor(0, 22);
                 choice = scanner.nextLine();
             }while(!choice.equals("create") && !choice.equals("join"));
