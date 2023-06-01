@@ -92,7 +92,12 @@ public class LobbyController {
 
         Client client = server.getClient(message.getNickname());
         GameController gameController = gameControllers.get(message.getGameName());
+
+        // The game is full and already started, so no new player can join it.
         Game gameToSubscribe = gameController.getGame();
+        if (gameToSubscribe != null && gameToSubscribe.isPlaying()) {
+            return;
+        }
         Server.eventManager.subscribe(GameEvent.class, new GameListener(this.server, client, gameToSubscribe));
 
         if (gameController.getNicknames().size() == gameController.getNumPlayerGame()) {
