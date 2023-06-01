@@ -36,7 +36,7 @@ public class PickTilesCommand implements Command {
         nickname = command.getNickname();
 
         for (Pair<Integer, Integer> t: command.getTiles()) {
-            if (b.getTile(t.getLeft(), t.getRight()) == null || t.getLeft() < 0 || t.getRight() < 0 || t.getRight()>=Bookshelf.NUMCOLUMNS || t.getLeft()>=Bookshelf.NUMROWS)
+            if (b.getTile(t.getLeft(), t.getRight()) == null || t.getLeft() < 0 || t.getRight() < 0 || t.getRight()>=Board.DIMBOARD || t.getLeft()>=Board.DIMBOARD)
                 throw new WrongArgumentException("The tile at row " + t.getLeft() + " and column " + t.getRight() + " does not exist!");
         }
 
@@ -90,7 +90,7 @@ public class PickTilesCommand implements Command {
                 return false;
         }
 
-        // Check if there are fewer than two tiles in the list
+        // Skip the check if there is only one tile in the selection
         if (chosen.size() < 2) {
             // If so, return true since a single tile or no tiles are always in a line
             return true;
@@ -104,14 +104,14 @@ public class PickTilesCommand implements Command {
             return false;
 
         // Check that the chosen tile are "sequential" i.e., adjacent to each other
-        List<Integer> l = null;
+        List<Integer> listIndexes = null;
         if (isHorizontal)
-            l = chosen.stream().map(LocatedTile::getCol).toList();
+            listIndexes = chosen.stream().map(LocatedTile::getCol).toList();
         if (isVertical)
-            l = chosen.stream().map(LocatedTile::getRow).toList();
+            listIndexes = chosen.stream().map(LocatedTile::getRow).toList();
 
-        for (int i = 0; i < l.size() - 1; i++) {
-            if (Math.abs(l.get(i + 1) - l.get(i)) != 1)
+        for (int i = 0; i < listIndexes.size() - 1; i++) {
+            if (Math.abs(listIndexes.get(i + 1) - listIndexes.get(i)) != 1)
                 return false;
         }
         return true;
