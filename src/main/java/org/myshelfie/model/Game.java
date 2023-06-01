@@ -88,7 +88,7 @@ public class Game {
         // if the nickname belongs to one of the players, set the error state to true
         if (players.stream().anyMatch( (player) -> player.getNickname().equals(nickname) )) {
             this.errorState.put(nickname, errorMessage);
-            Server.eventManager.notify(GameEvent.ERROR);
+            Server.eventManager.notify(GameEvent.ERROR, this);
         }
     }
 
@@ -104,7 +104,7 @@ public class Game {
             }
         }
         if (countReset > 0)
-            Server.eventManager.notify(GameEvent.ERROR_STATE_UPDATE);
+            Server.eventManager.notify(GameEvent.ERROR_STATE_RESET, this);
     }
 
     public ScoringToken popTopScoringToken(CommonGoalCard c) throws WrongArgumentException {
@@ -113,7 +113,7 @@ public class Game {
             throw new WrongArgumentException("CommonGoalCard not found");
         ScoringToken scoringToken = x.removeFirst();
         // notify the server that the token stack has changed
-        Server.eventManager.notify(GameEvent.TOKEN_UPDATE);
+        Server.eventManager.notify(GameEvent.TOKEN_STACK_UPDATE, this);
         return scoringToken;
     }
     public ScoringToken getTopScoringToken(CommonGoalCard c) throws WrongArgumentException{
@@ -127,7 +127,7 @@ public class Game {
         if (currPlayer == null || !players.contains(currPlayer))
             throw new WrongArgumentException("Player not found");
         this.currPlayer = currPlayer;
-        Server.eventManager.notify(GameEvent.CURR_PLAYER_UPDATE);
+        Server.eventManager.notify(GameEvent.CURR_PLAYER_UPDATE, this);
     }
 
     public ModelState getModelState() {

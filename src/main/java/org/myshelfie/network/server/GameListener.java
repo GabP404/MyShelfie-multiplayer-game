@@ -1,6 +1,9 @@
 package org.myshelfie.network.server;
 
+import org.myshelfie.model.Board;
+import org.myshelfie.model.Bookshelf;
 import org.myshelfie.model.Game;
+import org.myshelfie.model.Player;
 import org.myshelfie.network.Listener;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
@@ -39,12 +42,16 @@ public class GameListener implements Listener<GameEvent> {
      */
     @Override
     public void update(GameEvent ev, Object... args) {
+        if (this.listenedGame == null) {
+            return; //The game hasn't been set yet
+        }
+
+        if (!isMyGameChanged(ev, args[0])) {
+            return; // It's not my game the one that changed
+        }
+
         System.out.print("Sending event: " + ev);
         System.out.println(" to client: " + client.getNickname());
-
-        //Send the message to the client
-        if (this.listenedGame == null)
-            return; //The game hasn't been set yet
 
         //Create the message to be sent
         GameView message = new GameView(this.listenedGame);
@@ -59,6 +66,41 @@ public class GameListener implements Listener<GameEvent> {
             EventWrapper ew = new EventWrapper(message, ev);
             Socket clientSocket = client.getClientSocket();
             server.sendTo(clientSocket, ew);
+        }
+    }
+
+    /**
+     * Check if the object that changed belongs to the game that this listener is listening to.
+     * Thus, the checks are made on the object that triggered the event, and they depend on the type of event.
+     * @param ev the event that has been emitted
+     * @param changedItem the object that changed and triggered the event
+     * @return true if the object that triggered the event belongs to the game that this listener is listening to.
+     */
+    private boolean isMyGameChanged(GameEvent ev, Object changedItem) {
+        switch (ev) {
+            case BOARD_UPDATE -> {
+                // this kind of event is directly triggered by a Board object
+                Board board = (Board) changedItem;
+                return listenedGame.getBoard() == board;
+            }
+            case BOOKSHELF_UPDATE -> {
+                // this kind of event is directly triggered by a Bookshelf object
+                Bookshelf bookshelf = (Bookshelf) changedItem;
+                return listenedGame.getPlayers().stream().anyMatch(p -> p.getBookshelf() == bookshelf);
+            }
+            case TOKEN_STACK_UPDATE, CURR_PLAYER_UPDATE, ERROR_STATE_RESET, ERROR -> {
+                // all these events are directly triggered by a Game object
+                Game game = (Game) changedItem;
+                return listenedGame == game;
+            }
+            case TOKEN_UPDATE, PLAYER_ONLINE_UPDATE, TILES_PICKED_UPDATE, SELECTED_COLUMN_UPDATE, FINAL_TOKEN_UPDATE -> {
+                // all these events are directly triggered by a Player object
+                Player player = (Player) changedItem;
+                return listenedGame.getPlayers().stream().anyMatch(p -> p == player);
+            }
+            default -> {
+                throw new RuntimeException("Unexpected event: " + ev);
+            }
         }
     }
 

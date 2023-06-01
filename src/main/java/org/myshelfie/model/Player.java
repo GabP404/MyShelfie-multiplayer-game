@@ -47,7 +47,7 @@ public class Player {
     public void setHasFinalToken(Boolean hasFinalToken) {
         this.hasFinalToken = hasFinalToken;
         // notify the server that the final token has changed
-        Server.eventManager.notify(GameEvent.TOKEN_UPDATE);
+        Server.eventManager.notify(GameEvent.FINAL_TOKEN_UPDATE, this);
     }
 
     public PersonalGoalCard getPersonalGoal() {
@@ -68,6 +68,7 @@ public class Player {
      */
     public void addScoringToken(ScoringToken t) {
         this.commonGoalTokens.add(t);
+        Server.eventManager.notify(GameEvent.TOKEN_UPDATE, this);
     }
 
     /**
@@ -128,7 +129,7 @@ public class Player {
     public void removeTilesPicked(Tile t) throws WrongArgumentException{
         if (!this.tilesPicked.contains(t)) throw new WrongArgumentException("Tile not found");
         this.tilesPicked.remove(t);
-        Server.eventManager.notify(GameEvent.BOOKSHELF_UPDATE);
+        Server.eventManager.notify(GameEvent.TILES_PICKED_UPDATE, this);
     }
 
     public void removeTilesPicked(List<Tile> tilesRemoved) throws WrongArgumentException{
@@ -149,7 +150,7 @@ public class Player {
             throw new WrongArgumentException("Column Out of range");
         }
         this.selectedColumn = selectedColumn;
-        Server.eventManager.notify(GameEvent.BOOKSHELF_UPDATE);
+        Server.eventManager.notify(GameEvent.SELECTED_COLUMN_UPDATE, this);
     }
 
     public boolean isOnline() {
@@ -158,7 +159,7 @@ public class Player {
 
     public void setOnline(boolean online) {
         this.online = online;
-        Server.eventManager.notify(GameEvent.PLAYER_ONLINE_UPDATE);
+        Server.eventManager.notify(GameEvent.PLAYER_ONLINE_UPDATE, this);
     }
 
     public int getTotalPoints() throws WrongArgumentException{
