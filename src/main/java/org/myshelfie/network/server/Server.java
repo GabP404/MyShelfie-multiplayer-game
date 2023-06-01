@@ -30,7 +30,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     public static EventManager eventManager = new EventManager();
     private String RMI_SERVER_NAME = "MinecraftServer";
     private ServerSocket serverSocket;
-    private static final int HEARTBEAT_TIMEOUT = 10000; // 10 seconds
+    private static final int HEARTBEAT_TIMEOUT = 10000; // TODO move to configuration
 
     /**
      * Overloaded constructor used for testing since it allows to initialize the Game object outside
