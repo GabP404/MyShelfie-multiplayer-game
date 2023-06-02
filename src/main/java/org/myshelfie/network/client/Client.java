@@ -72,6 +72,7 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
             } catch (Exception e) {
                 System.err.println("Exception: " + e.getMessage());
                 e.printStackTrace();
+                System.exit(1);
             }
         } else {
             try {
@@ -94,18 +95,8 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
         view.endNicknameThread();
     }
 
-    public void endCreateGameThread() {
-        view.endCreateGameThread();
-        if (!isRMI) {
-            try {
-                serverListener.start();
-            } catch (java.lang.IllegalThreadStateException e) {
-                // Should never be thrown, but if thrown, then thread was already started!
-            }
-        }
-    }
-    public void endJoinGameThread() {
-        view.endJoinGameThread();
+    public void endChoiceThread() {
+        view.endChoiceThread();
         if (!isRMI) {
             try {
                 serverListener.start();

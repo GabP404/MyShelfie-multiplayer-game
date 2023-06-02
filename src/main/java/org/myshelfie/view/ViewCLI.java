@@ -11,6 +11,9 @@ import org.myshelfie.network.messages.gameMessages.ImmutableBoard;
 import org.myshelfie.network.messages.gameMessages.ImmutablePlayer;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.myshelfie.view.Color.*;
 import static org.myshelfie.view.Color.BLUE;
@@ -22,21 +25,21 @@ public class ViewCLI implements View{
     private static final int titleOffsetY = 8;
     private static final int boardOffsetX = 10;
     private static final int boardOffsetY = 15;
-    private static final int bookshelfOffsetX = 40;
+    private static final int bookshelfOffsetX = 38;
     private static final int bookshelfOffsetY = 15;
     private static final int commonGoalOffsetX = 5;
     private static final int commonGoalOffsetY = 2;
-    private static final int personalGoalOffsetX = 115;
+    private static final int personalGoalOffsetX = 110;
     private static final int personalGoalOffsetY = 15;
     private static final int bookshelvesDistance = 18;
     public static final int inputOffsetX = 0;
-    public static final int inputOffsetY = 30;
+    public static final int inputOffsetY = 29;
 
     public static final int rankingOffsetX = 10;
     public static final int rankingOffsetY = 10;
 
     private static final int errorOffsetX = 3;
-    private static final int errorOffsetY = 33;
+    private static final int errorOffsetY = 31;
     private Client client = null;
 
     private List<LocatedTile> selectedTiles;    // tiles selected from the board
@@ -52,80 +55,21 @@ public class ViewCLI implements View{
 
     private List<GameController.GameDefinition> availableGames;
 
+    //Thread used to ask the nickname
     Thread threadNick = new Thread(() -> {
-        firstClear();
+        clear();
         try {
-            printTitle();
-            print("Insert a Nickname ", 0, 20, false);
             while (true) {
+                printTitle();
+                print("Insert a Nickname ", 0, 20, false);
                 setCursor(0,22);
                 nickname = scanner.nextLine();
-                print("CONNECTING TO SERVER WITH NICKNAME "+ nickname,0,25,false);
-                this.client.eventManager.notify(UserInputEvent.NICKNAME, nickname);
-                try {
-                    Thread.sleep(10000);
-                } catch ( InterruptedException e) {
-                    Thread.currentThread().interrupt(); // restore interrupted status
-                    break;
-                }
-                //send information to server
-                clear();
-                print("Try again ", 0, 25, false);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    });
-
-    Thread threadCreateGame = new Thread(() -> {
-        try {
-            clear();
-            while (true) {
-                printTitle();
-                print("Insert a Game name, player number and true/false for simplified rules ", 0, 20, false);
-                setCursor(0,22);
-                String gameName = scanner.nextLine();
-                String[] parts = gameName.split(" ");
-                print("Creating game: "+ parts[0],0,25,false);
-                this.client.eventManager.notify(UserInputEvent.CREATE_GAME, parts[0], Integer.parseInt(parts[1]), Boolean.valueOf(parts[2]));
-                try {
-                    Thread.sleep(10000);
-                } catch ( InterruptedException e) {
-                    Thread.currentThread().interrupt(); // restore interrupted status
-                    break;
-                }
-                //send information to server
-                clear();
-                print("Try again ", 0, 25, false);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    });
-
-    Thread threadJoinGame = new Thread(() -> {
-        try {
-            clear();
-            while (true) {
-                printTitle();
-                print("Insert a Game name ", 0, 20, false);
-                print("Available games: ", 50, 20, false);
-                for (int i=0; i<this.availableGames.size(); i++) {
-                    print(" -> " + this.availableGames.get(i).getGameName() + " " + this.availableGames.get(i).getNicknames().size() + "/" + this.availableGames.get(i).getMaxPlayers(), 50, 22+i, false);
-                }
-
-                setCursor(0,22);
-                String gameName = scanner.nextLine();
-                String[] parts = gameName.split(" ");
-                if (parts[0].toLowerCase().equals("refresh")) {
-                    this.client.eventManager.notify(UserInputEvent.REFRESH_AVAILABLE_GAMES);
-                    Thread.sleep(250);
-                    clear();
-                } else {
-                    print("joining game: "+ gameName,0,25, true);
-                    this.client.eventManager.notify(UserInputEvent.JOIN_GAME, parts[0]);
+                if(validateString(nickname) && nickname.length() < 15)
+                {
+                    print("CONNECTING TO SERVER WITH NICKNAME "+ nickname,0,25,false);
+                    this.client.eventManager.notify(UserInputEvent.NICKNAME, nickname);
                     try {
-                        Thread.sleep(10000);
+                        TimeUnit.MILLISECONDS.sleep(10000);
                     } catch ( InterruptedException e) {
                         Thread.currentThread().interrupt(); // restore interrupted status
                         break;
@@ -134,12 +78,164 @@ public class ViewCLI implements View{
                     clear();
                     print("Try again ", 0, 25, false);
                 }
-
+                else{
+                    clear();
+                    print("the nickname cannot contain a symbols, spaces, and must be shorter than 15 characters ", 0, 25, false);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     });
+
+    //game creation/lobby selection
+    Thread threadChoice = new Thread(() -> {
+        clear();
+        String choice;
+        String gameName;
+        do{
+            choice = null;
+            gameName = null;
+            do {
+                clear();
+                printTitle();
+                print("Do you want to create or join a game? [create/join]", 0, 20, false);
+                setCursor(0, 22);
+                choice = scanner.nextLine();
+            }while(!choice.equalsIgnoreCase("create") && !choice.equalsIgnoreCase("join"));
+
+            if(choice.equalsIgnoreCase("create"))
+            {
+                try {
+                    clear();
+                    do {
+                        printTitle();
+                        print("Insert a Game name, player number and --simple at the end for simplified version   |   --back to go back", 0, 20, false);
+                        setCursor(0,22);
+                        gameName = scanner.nextLine();
+                        if (!gameName.equalsIgnoreCase("--back")) {
+
+                            String[] parts = gameName.split(" ");
+                            boolean hasSimpleRules = false;
+                            if(parts.length >= 2)
+                            {
+                                try{
+                                    int playerNum = Integer.parseInt(parts[1]);
+                                    if(playerNum >= 2 && playerNum <= 4)
+                                    {
+                                        if(validateString(parts[0]))
+                                        {
+                                            if(parts.length > 2 && parts[2].equalsIgnoreCase("--simple"))
+                                                hasSimpleRules = true;
+                                            print("Creating game: "+ parts[0],0,25,true);
+                                            this.client.eventManager.notify(UserInputEvent.CREATE_GAME, parts[0], playerNum, hasSimpleRules);
+                                            try {
+                                                TimeUnit.MILLISECONDS.sleep(10000);
+                                            } catch ( InterruptedException e) {
+                                                Thread.currentThread().interrupt(); // restore interrupted status
+                                                break;
+                                            }
+                                            //send information to server
+                                            clear();
+                                            print("Try again ", 0, 25, false);
+                                        }
+                                        else{
+                                            clear();
+                                            print("game name is not valid, it cannot contain symbols ", 0, 25, false);
+                                        }
+                                    }
+                                    else {
+                                        clear();
+                                        print("number of players must be between 2 and 4 ", 0, 25, false);
+                                    }
+                                }
+                                catch(NumberFormatException nfe) {
+                                    clear();
+                                    print("number of players typed is not a number ", 0, 25, false);
+                                }
+                            }
+                            else{
+                                clear();
+                                print("Not enough arguments ", 0, 25, false);
+                            }
+
+                        }
+                    }while (!gameName.equalsIgnoreCase("--back"));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            else if(choice.equals("join"))
+            {
+                try {
+                    clear();
+                     do{
+                        printTitle();
+                        print("Insert a Game name  |  --back to go back  |  --refresh to refresh lobbies", 0, 20, false);
+                        print("Available games: ", 90, 20, false);
+                        for (int i=0; i<this.availableGames.size(); i++) {
+                            print(" -> " + this.availableGames.get(i).getGameName() + " " + this.availableGames.get(i).getNicknames().size() + "/" + this.availableGames.get(i).getMaxPlayers(), 90, 22+i, false);
+                        }
+                        setCursor(0,22);
+                        gameName = scanner.nextLine();
+                        if (!gameName.equalsIgnoreCase("--back")) {
+
+                            //String[] parts = gameName.split(" ");
+                            if (gameName.equalsIgnoreCase("--refresh")) {
+                                this.client.eventManager.notify(UserInputEvent.REFRESH_AVAILABLE_GAMES);
+                                Thread.sleep(250);
+                                clear();
+                            } else {
+                                if(isInLobbyList(gameName))
+                                {
+                                    print("joining game: "+ gameName,0,25,    true);
+                                    this.client.eventManager.notify(UserInputEvent.JOIN_GAME, gameName);
+                                    try {
+                                        TimeUnit.MILLISECONDS.sleep(10000);
+                                    } catch ( InterruptedException e) {
+                                        Thread.currentThread().interrupt(); // restore interrupted status
+                                        break;
+                                    }
+                                    clear();
+                                    print("Try again ", 0, 25, false);
+                                }
+                                else
+                                {
+                                    clear();
+                                    print("Game not found, please pick a game from the list",0,25,false);
+                                }
+                            }
+
+                        }
+                    }while (!gameName.equalsIgnoreCase("--back"));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            else
+            {
+                System.out.println("Wrong choice");
+            }
+
+        }while(Objects.requireNonNull(gameName).equalsIgnoreCase("--back"));
+    });
+
+    //checks if the game name is in the list of all lobbies
+    private boolean isInLobbyList(String gameName)
+    {
+        for (int i=0; i<this.availableGames.size(); i++) {
+            if (this.availableGames.get(i).getGameName().equalsIgnoreCase(gameName))
+                return true;
+        }
+        return false;
+    }
+
+    private boolean validateString(String input) {
+        String regex = "^[a-zA-Z0-9]+$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
+        return matcher.matches();
+    }
 
     public ViewCLI(Client client) {
         selectedColumn = -1;
@@ -153,8 +249,7 @@ public class ViewCLI implements View{
     @Override
     public void update(GameView msg, GameEvent ev) {
         // End the threads to create/join a game, in case the gameView was received after a reconnection
-        this.endCreateGameThread();
-        this.endJoinGameThread();
+        this.endChoiceThread();
 
         game = msg;
         clear();
@@ -180,6 +275,7 @@ public class ViewCLI implements View{
 
     @Override
     public void run() {
+        //start the thread that asks the user for the nickname
         threadNick.start();
         try {
             threadNick.join();
@@ -187,49 +283,27 @@ public class ViewCLI implements View{
             throw new RuntimeException(e);
         }
 
+        //start the thread that asks the user if he wants to create or join a game
         if (!reconnecting) {
-            // Go through the whole "create or join" game phase
-            String choice = null;
-            do {
-                clear();
-                printTitle();
-                print("Do you want to create or join a game? [create/join]", 0, 20, false);
-                setCursor(0, 22);
-                choice = scanner.nextLine();
-            }while(!choice.equals("create") && !choice.equals("join"));
-
-            if(choice.equals("create"))
-            {
-                threadCreateGame.start();
-                try {
-                    threadCreateGame.join();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-
-            }
-            else if(choice.equals("join"))
-            {
-                threadJoinGame.start();
-                try {
-                    threadJoinGame.join();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            else
-            {
-                System.out.println("Wrong choice");
+            threadChoice.start();
+            try {
+                threadChoice.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         }
 
+        //start the thread that handles the user input for the entire game
         Thread t = new Thread(() -> {
             try {
                 while (true) {
                     clearRow(inputOffsetX, inputOffsetY);
                     setCursor(inputOffsetX, inputOffsetY);
                     String userCommand = scanner.nextLine();
-                    parseInput(userCommand);
+                    if(this.game != null)
+                        parseInput(userCommand);
+                    else
+                        printError("GAME HAS NOT STARTED YET, WAIT FOR OTHER PLAYERS");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -246,18 +320,12 @@ public class ViewCLI implements View{
     }
 
     @Override
-    public void endCreateGameThread()
+    public void endChoiceThread()
     {
-        if(threadCreateGame.isAlive())
-            threadCreateGame.interrupt();
+        if(threadChoice.isAlive())
+            threadChoice.interrupt();
     }
 
-    @Override
-    public void endJoinGameThread()
-    {
-        if(threadJoinGame.isAlive())
-            threadJoinGame.interrupt();
-    }
 
     @Override
     public String getGameName() {
