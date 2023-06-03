@@ -6,6 +6,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.myshelfie.controller.Command;
@@ -161,6 +162,18 @@ public class ViewGUI extends Application {
         TileBag tileBag = new TileBag();
 
         HashMap<CommonGoalCard,List<ScoringToken>> commonGoals = new HashMap<>();
+        CommonGoalDeck commonGoalDeck = CommonGoalDeck.getInstance();
+        List<CommonGoalCard> commonGoalCardsList = commonGoalDeck.drawCommonGoalCard(2);
+        List<ScoringToken> tokens1 = new ArrayList<>();
+        tokens1.add(new ScoringToken(4, commonGoalCardsList.get(0).getId()));
+        tokens1.add(new ScoringToken(6, commonGoalCardsList.get(0).getId()));
+        tokens1.add(new ScoringToken(8, commonGoalCardsList.get(0).getId()));
+        List<ScoringToken> tokens2 = new ArrayList<>();
+        tokens2.add(new ScoringToken(4, commonGoalCardsList.get(1).getId()));
+        tokens2.add(new ScoringToken(6, commonGoalCardsList.get(1).getId()));
+        tokens2.add(new ScoringToken(8, commonGoalCardsList.get(1).getId()));
+        commonGoals.put(commonGoalCardsList.get(0), tokens1);
+        commonGoals.put(commonGoalCardsList.get(1), tokens2);
 
         game.setupGame(players, board, commonGoals, tileBag, ModelState.WAITING_SELECTION_TILE, "PartitozzaTattica");
 

@@ -146,18 +146,16 @@
                         </AnchorPane>
                         <HBox alignment="CENTER" prefHeight="200.0" prefWidth="200.0" spacing="20.0">
                            <children>
-                              <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                              <AnchorPane prefHeight="200.0" prefWidth="200.0">
                                  <children>
-                                    <Label text="Common Goal 1" />
-                                    <Label text="Token" />
+                                    <ImageView fx:id="commonGoalCard1" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
                                  </children>
-                              </VBox>
-                              <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                              </AnchorPane>
+                              <AnchorPane prefHeight="200.0" prefWidth="200.0">
                                  <children>
-                                    <Label text="Common Goal 1" />
-                                    <Label text="Token" />
+                                    <ImageView fx:id="commonGoalCard2" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
                                  </children>
-                              </VBox>
+                              </AnchorPane>
                            </children>
                         </HBox>
                      </children>

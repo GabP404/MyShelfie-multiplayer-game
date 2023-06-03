@@ -57,6 +57,12 @@ public class GameControllerFX implements Initializable {
     @FXML
     private VBox otherPlayersLayout;
 
+    @FXML
+    private ImageView commonGoalCard1;
+
+    @FXML
+    private ImageView commonGoalCard2;
+
     private String nickname = null;
 
     private Map<String, OtherPlayerItemController> otherPlayerItemControllers;
@@ -89,7 +95,10 @@ public class GameControllerFX implements Initializable {
         /////// UPDATE BOARD ///////
         updateBoard(game.getBoard());
 
-        /////// UPDATE MY BOOKSHELF ///////
+        /////// UPDATE COMMON GOAL ///////
+        updateCommonGoalCards(game);
+
+        /////// UPDATE MY STUFF ///////
         ImmutablePlayer me = game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get();
         updateMyBookshelf(me.getBookshelf());
         updateAmICurrPlayer(game.getCurrPlayer().getNickname().equals(nickname));
@@ -187,9 +196,52 @@ public class GameControllerFX implements Initializable {
         }
     }
 
-    private void updateMyCommonGoalToken(List<ScoringToken> commonGoalTokens) {
-        if (commonGoalTokens.size() >= 1) {
-            myToken1.setImage(new Image("graphics/tokens/scoring_" + commonGoalTokens.get(0).getPoints() + ".jpg"));
+
+    private void updateCommonGoalCards(GameView gameView) {
+        List<CommonGoalCard> commonGoalCards = gameView.getCommonGoals();
+
+        if (commonGoalCards.size() >= 1) {
+            commonGoalCard1.setImage(new Image("graphics/commonGoalCards/" + commonGoalCards.get(0).getId() + ".jpg"));
+            commonGoalCard1.setVisible(true);
+            commonGoalCard2.setVisible(false);
+            int k = 0;
+            for (ScoringToken token : gameView.getCommonGoalTokens(commonGoalCards.get(0).getId())) {
+                AnchorPane pane = (AnchorPane) commonGoalCard1.getParent();
+                ImageView tokenImage = new ImageView("graphics/tokens/scoring_" + token.getPoints() + ".jpg");
+                pane.getChildren().add(tokenImage);
+                tokenImage.setX(commonGoalCard1.getX() + 5 * k + commonGoalCard1.getFitWidth() * 0.6);
+                tokenImage.setY(commonGoalCard1.getY() + 5 * k + commonGoalCard1.getFitHeight() * 0.25);
+                tokenImage.setFitWidth(40);
+                tokenImage.setFitHeight(40);
+                tokenImage.setVisible(true);
+                tokenImage.toFront();
+                k++;
+            }
+        }
+        if (commonGoalCards.size() == 2) {
+            commonGoalCard2.setImage(new Image("graphics/commonGoalCards/" + commonGoalCards.get(1).getId() + ".jpg"));
+            commonGoalCard2.setVisible(true);
+            int k = 0;
+            for (ScoringToken token : gameView.getCommonGoalTokens(commonGoalCards.get(1).getId())) {
+                AnchorPane pane = (AnchorPane) commonGoalCard2.getParent();
+                ImageView tokenImage = new ImageView("graphics/tokens/scoring_" + token.getPoints() + ".jpg");
+                pane.getChildren().add(tokenImage);
+                tokenImage.setX(commonGoalCard2.getX() + 5 * k + commonGoalCard2.getFitWidth() * 0.6);
+                tokenImage.setY(commonGoalCard2.getY() + 5 * k + commonGoalCard2.getFitHeight() * 0.25);
+                tokenImage.setFitWidth(40);
+                tokenImage.setFitHeight(40);
+                tokenImage.setVisible(true);
+                tokenImage.toFront();
+                k++;
+            }
+        }
+
+    }
+
+
+    private void updateMyCommonGoalToken(List<ScoringToken> myCommonGoalTokens) {
+        if (myCommonGoalTokens.size() >= 1) {
+            myToken1.setImage(new Image("graphics/tokens/scoring_" + myCommonGoalTokens.get(0).getPoints() + ".jpg"));
             myToken1.setVisible(true);
         } else {
             myToken1.setVisible(false);
@@ -197,8 +249,8 @@ public class GameControllerFX implements Initializable {
             return;
         }
 
-        if (commonGoalTokens.size() >= 2) {
-            myToken2.setImage(new Image("graphics/tokens/scoring_" + commonGoalTokens.get(1).getPoints() + ".jpg"));
+        if (myCommonGoalTokens.size() >= 2) {
+            myToken2.setImage(new Image("graphics/tokens/scoring_" + myCommonGoalTokens.get(1).getPoints() + ".jpg"));
             myToken2.setVisible(true);
             myToken2.setX(myToken1.getX() + 15);
             myToken2.setY(myToken1.getY() + 15);
@@ -246,7 +298,7 @@ public class GameControllerFX implements Initializable {
     }
 
     private void updateMyPersGoal(PersonalGoalCard card) {
-        myPersonalGoal.setImage(new Image("graphics/persGoalCard/Personal_Goals" + card.getId() + ".png"));
+        myPersonalGoal.setImage(new Image("graphics/persGoalCards/Personal_Goals" + card.getId() + ".png"));
         myPersonalGoal.setVisible(true);
     }
 
