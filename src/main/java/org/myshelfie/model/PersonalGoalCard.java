@@ -13,21 +13,7 @@ public class PersonalGoalCard implements Serializable {
     private final int id;
     private List<Pair<Pair<Integer, Integer>, Tile>> constraints;
     // Needed to associate the personal goal card object to its image file
-    private int id;
     private static final Map<Integer, Integer> points_map = Configuration.getPersonalGoalPoints();
-
-    /**
-     * Constructor of the PersonalGoalCard class.
-     * @param constraint_tiles  The list of tiles that must be present in the bookshelf to satisfy the goal
-     */
-    public PersonalGoalCard(List<Pair<Pair<Integer, Integer>, Tile>> constraint_tiles, int id) {
-        constraints = constraint_tiles;
-        this.id = id;
-    }
-
-    public int getId() {
-        return id;
-    }
 
     public PersonalGoalCard(List<Pair<Pair<Integer, Integer>, Tile>> constraint_tiles, int id) {
         constraints = constraint_tiles;

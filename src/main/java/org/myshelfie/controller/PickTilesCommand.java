@@ -36,7 +36,7 @@ public class PickTilesCommand implements Command {
         nickname = command.getNickname();
 
         for (Pair<Integer, Integer> t: command.getTiles()) {
-            if (b.getTile(t.getLeft(), t.getRight()) == null || t.getLeft()<=0 || t.getRight()<=0 || t.getRight()>=Board.DIMBOARD || t.getLeft()>=Board.DIMBOARD)
+            if (b.getTile(t.getLeft(), t.getRight()) == null || t.getLeft()<0 || t.getRight()<0 || t.getRight()>=Board.DIMBOARD || t.getLeft()>=Board.DIMBOARD)
                 throw new WrongArgumentException("The tile at row " + t.getLeft() + " and column " + t.getRight() + " does not exist!");
         }
 

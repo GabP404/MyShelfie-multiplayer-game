@@ -104,7 +104,7 @@ public class Game {
             }
         }
         if (countReset > 0)
-            Server.eventManager.notify(GameEvent.ERROR_STATE_UPDATE, this);
+            Server.eventManager.notify(GameEvent.ERROR_STATE_RESET, this);
     }
 
     public ScoringToken popTopScoringToken(CommonGoalCard c) throws WrongArgumentException {

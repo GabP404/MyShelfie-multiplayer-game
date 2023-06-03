@@ -1,4 +1,4 @@
-package org.myshelfie.view;
+package org.myshelfie.view.CLI;
 
 import org.myshelfie.controller.GameController;
 import org.myshelfie.model.*;
@@ -9,13 +9,14 @@ import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.GameView;
 import org.myshelfie.network.messages.gameMessages.ImmutableBoard;
 import org.myshelfie.network.messages.gameMessages.ImmutablePlayer;
+import org.myshelfie.view.View;
 
 import java.util.*;
 
-import static org.myshelfie.view.Color.*;
-import static org.myshelfie.view.Color.BLUE;
+import static org.myshelfie.view.CLI.Color.*;
+import static org.myshelfie.view.CLI.Color.BLUE;
 
-public class ViewCLI implements View{
+public class ViewCLI implements View {
     private static final int frameOffsetX = 10;
     private static final int frameOffsetY = 4;
     private static final int titleOffsetX = 20;
