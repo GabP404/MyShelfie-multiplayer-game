@@ -258,6 +258,8 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
                 input = new ObjectInputStream(serverSocket.getInputStream());
                 return input.readObject();
             } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+                System.out.println("Exception: " + e.getMessage());
                 throw new RuntimeException(e);
             }
         }

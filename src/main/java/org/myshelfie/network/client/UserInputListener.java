@@ -79,10 +79,11 @@ public class UserInputListener implements Listener<UserInputEvent> {
                         e.printStackTrace();
                     }
                 } else if (joinGameResponse instanceof Boolean) {
-                    // TODO do something on the view
                     if ((boolean) joinGameResponse) {
                         System.out.println("Successfully joined game " + args[0]);
                         client.endJoinGameThread();
+                    } else {
+                        System.out.println("Could not join game " + args[0]);
                     }
                 }
 

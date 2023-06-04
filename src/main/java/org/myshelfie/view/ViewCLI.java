@@ -122,7 +122,7 @@ public class ViewCLI implements View{
                     Thread.sleep(250);
                     clear();
                 } else {
-                    print("joining game: "+ gameName,0,25,    true);
+                    print("joining game: "+ gameName,0,25, true);
                     this.client.eventManager.notify(UserInputEvent.JOIN_GAME, parts[0]);
                     try {
                         Thread.sleep(10000);
