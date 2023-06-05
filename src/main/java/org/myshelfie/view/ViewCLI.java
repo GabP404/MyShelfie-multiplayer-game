@@ -23,6 +23,8 @@ public class ViewCLI implements View{
     private static final int frameOffsetY = 4;
     private static final int titleOffsetX = 20;
     private static final int titleOffsetY = 8;
+    private static final int helpOffsetX = 15;
+    private static final int helpOffsetY = 10;
     private static final int boardOffsetX = 10;
     private static final int boardOffsetY = 15;
     private static final int bookshelfOffsetX = 38;
@@ -50,6 +52,7 @@ public class ViewCLI implements View{
     private GameView game;
 
     private boolean reconnecting = false;
+    private boolean showingHelp = false;
 
     private Scanner scanner = new Scanner(System.in);
 
@@ -252,25 +255,34 @@ public class ViewCLI implements View{
         this.endChoiceThread();
 
         game = msg;
-        clear();
+
         //if the game state is END_GAME print the ranking
         if(game.getModelState().equals(ModelState.END_GAME))
+        {
+            clear();
             printEndGameScreen();
+            setCursor(inputOffsetX, inputOffsetY);
+        }
         else    //else print the new gameView
         {
-            switch (ev)
+            if(!showingHelp)//if a player is watching the help box, don't print the gameView yet
             {
-                case ERROR:
-                    if(game.getErrorState(nickname) != null)
-                        printError(game.getErrorState(nickname));
-                    break;
-                case BOARD_UPDATE:
-                    selectedTiles.clear();
-                    break;
+                switch (ev)
+                {
+                    case ERROR:
+                        if(game.getErrorState(nickname) != null)
+                            printError(game.getErrorState(nickname));
+                        break;
+                    case BOARD_UPDATE:
+                        selectedTiles.clear();
+                        break;
+                }
+                clear();
+                printAll();
+                setCursor(inputOffsetX, inputOffsetY);
             }
-            printAll();
         }
-        setCursor(inputOffsetX, inputOffsetY);
+
     }
 
     @Override
@@ -425,6 +437,39 @@ public class ViewCLI implements View{
     }
 
     public void parseInput(String s) {
+
+        String[] parts = s.split(" ");
+        //if there are no arguments return
+        if (parts.length < 1) {
+            printError("NOT ENOUGH ARGUMENTS");
+            return;
+        }
+
+        //
+        switch (parts[0]) {
+            case "exit" -> {
+                System.exit(0);
+                return;
+            }
+            case "play" -> {
+                //TODO: TEST THIS OPTION
+                if(game.getModelState().equals(ModelState.END_GAME))
+                {
+                    clear();
+                    threadChoice.run();
+                }
+                //threadChoice.run();
+                return;
+            }
+            case "help", "h" -> {
+                //print possible commands
+                printHelp();
+                return;
+            }
+            default -> {
+            }
+        }
+
         //if it's not the player turn return
         if(!game.getCurrPlayer().getNickname().equals(nickname))
         {
@@ -432,12 +477,7 @@ public class ViewCLI implements View{
             return;
         }
 
-        String[] parts = s.split(" ");
 
-        if (parts.length < 1) {
-            printError("NOT ENOUGH ARGUMENTS");
-            return;
-        }
 
         switch (parts[0]) {
             case "select", "s":
@@ -516,18 +556,6 @@ public class ViewCLI implements View{
                     return;
                 }
                 confirmSelection();
-                break;
-            case "exit":
-                System.exit(0);
-                break;
-            case "play":
-                //TODO: implement play command
-                //this is only for testing, when the command is implemented it should be removed
-                clear();
-                printEndGameScreen();
-                break;
-            case "help", "h":
-                //print possible commands
                 break;
             default:
                 printError("COMMAND DOES NOT EXIST");
@@ -613,7 +641,7 @@ public class ViewCLI implements View{
     public void printEndGameScreen()
     {
         print("               CommonGoal          PersonalGoal          Bookshelf          End game          Total ", rankingOffsetX, rankingOffsetY - 1, false);
-        print("Nickname         points               points               points             token            points", rankingOffsetX, rankingOffsetY, false);
+        print("Nickname         points               points               points             token           points", rankingOffsetX, rankingOffsetY, false);
 
         int playerNum = 1;
         String playerRowPoints = "";
@@ -637,31 +665,75 @@ public class ViewCLI implements View{
 
             try {
                 playerRowPoints += p.getNickname() + RESET ;
-                playerRowPoints += "              " + p.getPointsScoringTokens();
+                for(int i = 0; i < 15 - p.getNickname().length(); i++)
+                    playerRowPoints += " ";
+                playerRowPoints += "    " + p.getPointsScoringTokens();
                 playerRowPoints += "                    " + p.getPersonalGoalPoints();
                 playerRowPoints += "                    " + p.getBookshelfPoints();
                 if(p.getHasFinalToken())
-                    playerRowPoints += GREEN.toString() + "                  ■";
+                    playerRowPoints += GREEN.toString() + "               ■";
                 else
                     playerRowPoints += "                  ■";
-                playerRowPoints += "                " + p.getTotalPoints();
+                playerRowPoints += "               " + p.getTotalPoints();
 
 
             } catch (WrongArgumentException e) {
                 throw new RuntimeException(e);
             }
 
-            print(playerRowPoints, rankingOffsetX, rankingOffsetY + 1 + (playerNum * 2), false);
-            if(playerNum == 1)
-            {
-                print(YELLOW +  "|\\/\\/|\n" ,rankingOffsetX + 106, rankingOffsetY + (playerNum * 2), false);
-                print(YELLOW + "|____|", rankingOffsetX + 106, rankingOffsetY + 1 + (playerNum * 2), false);
+            print(playerRowPoints, rankingOffsetX, rankingOffsetY + 1 + (playerNum * 3), false);
+            try {
+                if(p.getTotalPoints() == game.getPlayers().get(0).getTotalPoints())
+                {
+                    print(YELLOW + "|\\/\\/|\n" ,rankingOffsetX + 105, rankingOffsetY + (playerNum * 3), false);
+                    print(YELLOW + "|____|", rankingOffsetX + 105, rankingOffsetY + 1 + (playerNum * 3), false);
+                }
+            } catch (WrongArgumentException e) {
+                throw new RuntimeException(e);
             }
 
             playerNum++;
         }
         print("Type [exit/play] to continue", 0, 1, false);
 
+    }
+
+    public void printHelp()
+    {
+        showingHelp = true;
+        clearRow(0,inputOffsetY);
+
+        print("╔═════════════════════════════════════════════════════════════════════════════════╗", helpOffsetX, helpOffsetY, false);
+        print("║                                                                                 ║", helpOffsetX, helpOffsetY + 1, false);
+        print("║                                                                                 ║", helpOffsetX, helpOffsetY + 2, false);
+        print("║                                                                                 ║", helpOffsetX, helpOffsetY + 3, false);
+        print("║                                                                                 ║", helpOffsetX, helpOffsetY + 4, false);
+        print("║                                                                                 ║", helpOffsetX, helpOffsetY + 5, false);
+        print("║                                                                                 ║", helpOffsetX, helpOffsetY + 6, false);
+        print("║                                                                                 ║", helpOffsetX, helpOffsetY + 7, false);
+        print("║                                                                                 ║", helpOffsetX, helpOffsetY + 8, false);
+        print("║                                                                                 ║", helpOffsetX, helpOffsetY + 9, false);
+        print("║                                                                                 ║", helpOffsetX, helpOffsetY + 10, false);
+        print("╚═════════════════════════════════════════════════════════════════════════════════╝", helpOffsetX, helpOffsetY + 11, false);
+
+
+        print("COMMANDS:                                                                       ", helpOffsetX + 1, helpOffsetY + 1, false);
+        print("select tile [row] [column]   | s t [row] [column] - select tile from board      ", helpOffsetX + 1, helpOffsetY + 2, false);
+        print("deselect tile [row] [column] | d s [row] [column] - deselect tile from board    ", helpOffsetX + 1, helpOffsetY + 3, false);//76
+        print("confirm                      | c                  - confirm selection           ", helpOffsetX + 1, helpOffsetY + 4, false);
+        print("select column [column]       | s c [column]       - select column from bookshelf", helpOffsetX + 1, helpOffsetY + 5, false);
+        print("pick [index]                 | p [index]          - pick tile from hand         ", helpOffsetX + 1, helpOffsetY + 6, false);
+        print("help                         | h                  - print this help             ", helpOffsetX + 1, helpOffsetY + 7, false);
+        print("exit                                              - exit game                   ", helpOffsetX + 1, helpOffsetY + 8, false);
+        print("                                                                                ", helpOffsetX + 1, helpOffsetY + 9, false);
+        print("PRESS ENTER TO CONTINUE                                                         ", helpOffsetX + 1, helpOffsetY + 10, false);
+
+        setCursor(inputOffsetX,inputOffsetY);
+        scanner.nextLine();
+
+        clear();
+        printAll();
+        showingHelp = false;
     }
 
     public void printAll()
@@ -836,64 +908,66 @@ public class ViewCLI implements View{
         switch (id)
         {
             case 1:
-                print("Sei gruppi separati formati ciascuno", cordX, cordY, false);
-                print("da due tessere adiacenti dello stesso tipo", cordX, cordY + 1, false);
-                print("Le tessere di un gruppo possono", cordX, cordY + 2, false);
-                print("essere diverse da quelle di un altro gruppo.", cordX, cordY + 3, false);
+                print("Six groups each containing at least", cordX, cordY, false);
+                print("2 tiles of the same type.", cordX, cordY + 1, false);
+                print("The tiles of one group can be different", cordX, cordY + 2, false);
+                print("from those of another group.", cordX, cordY + 3, false);
                 break;
             case 2:
-                print("Quattro gruppi separati formati ciascuno", cordX, cordY, false);
-                print("da quattro tessere adiacenti dello stesso", cordX, cordY + 1, false);
-                print("tipo. Le tessere di un gruppo possono", cordX, cordY + 2, false);
-                print("essere diverse da quelle di un altro gruppo.", cordX, cordY + 3, false);
+                print("Four groups each containing at least", cordX, cordY, false);
+                print("4 tiles of the same type.", cordX, cordY + 1, false);
+                print("The tiles of one group can be different", cordX, cordY + 2, false);
+                print("from those of another group.", cordX, cordY + 3, false);
                 break;
             case 3:
-                print("Quattro tessere dello stesso tipo", cordX, cordY, false);
-                print("ai quattro angoli della Libreria. ", cordX, cordY + 1, false);
+                print("Four tiles of the same type in the four", cordX, cordY, false);
+                print("corners of the bookshelf.", cordX, cordY + 1, false);
                 break;
             case 4:
-                print("Due gruppi separati di 4 tessere dello", cordX, cordY, false);
-                print("stesso tipo che formano un quadrato 2x2.", cordX, cordY + 1, false);
-                print("Le tessere dei due gruppi devono essere", cordX, cordY + 2, false);
-                print("dello stesso tipo.", cordX, cordY + 3, false);
+                print("Two groups each containing 4 tiles of", cordX, cordY, false);
+                print("the same type in a 2x2 square. The tiles", cordX, cordY + 1, false);
+                print("of one square can be different from", cordX, cordY + 2, false);
+                print("those of the other square.", cordX, cordY + 3, false);
                 break;
             case 5:
-                print("Tre colonne formate ciascuna da", cordX, cordY, false);
-                print("6 tessere di uno, due o tre tipi differenti.", cordX, cordY + 1, false);
-                print("Colonne diverse possono avere", cordX, cordY + 2, false);
-                print("combinazioni diverse di tipi di tessere.", cordX, cordY + 3, false);
+                print("Three columns each formed by 6 tiles", cordX, cordY, false);
+                print("of maximum three different types. One", cordX, cordY + 1, false);
+                print("column can show the same or a different", cordX, cordY + 2, false);
+                print("combination of another column.", cordX, cordY + 3, false);
                 break;
             case 6:
-                print("Otto tessere dello stesso tipo. Non ci", cordX, cordY, false);
-                print("sono restrizioni sulla posizione di", cordX, cordY + 1, false);
-                print("queste tessere.", cordX, cordY + 2, false);
+                print("Eight tiles of the same type. There’s no", cordX, cordY, false);
+                print("restriction about the position of these", cordX, cordY + 1, false);
+                print("tiles.", cordX, cordY + 2, false);
                 break;
             case 7:
-                print("Cinque tessere dello stesso tipo che", cordX, cordY, false);
-                print("formano una diagonale. ", cordX, cordY + 1, false);
+                print("Five tiles of the same type forming a", cordX, cordY, false);
+                print("diagonal.", cordX, cordY + 1, false);
                 break;
             case 8:
-                print("Quattro righe formate ciascuna", cordX, cordY, false);
-                print("da 5 tessere di uno, due o tre tipi", cordX, cordY + 1, false);
-                print("differenti. Righe diverse possono avere", cordX, cordY + 2, false);
-                print("combinazioni diverse di tipi di tessere.", cordX, cordY + 3, false);
+                print("Four lines each formed by 5 tiles of", cordX, cordY, false);
+                print("maximum three different types. One", cordX, cordY + 1, false);
+                print("line can show the same or a different", cordX, cordY + 2, false);
+                print("combination of another line.", cordX, cordY + 3, false);
                 break;
             case 9:
-                print("Due colonne formate ciascuna", cordX, cordY, false);
-                print("da 6 diversi tipi di tessere.", cordX, cordY + 1, false);
+                print("Two columns each formed by 6", cordX, cordY, false);
+                print("different types of tiles.", cordX, cordY + 1, false);
                 break;
             case 10:
-                print("Due righe formate ciascuna", cordX, cordY, false);
-                print("da 5 diversi tipi di tessere.", cordX, cordY + 1, false);
+                print("Two lines each formed by 5 different", cordX, cordY, false);
+                print("types of tiles. One line can show the", cordX, cordY + 1, false);
+                print("same or a different combination of the", cordX, cordY + 2, false);
+                print("other line.", cordX, cordY + 3, false);
                 break;
             case 11:
-                print("Cinque tessere dello stesso tipo", cordX, cordY, false);
-                print("che formano una X.", cordX, cordY + 1, false);
+                print("Five tiles of the same type", cordX, cordY, false);
+                print("forming an X.", cordX, cordY + 1, false);
                 break;
             case 12:
-                print("Cinque colonne di altezza crescente o", cordX, cordY, false);
-                print("decrescente.", cordX, cordY + 1, false);
-                print("Le tessere possono essere di qualsiasi tipo.", cordX, cordY + 2, false);
+                print("Five columns of increasing or decreasing", cordX, cordY, false);
+                print("height.", cordX, cordY + 1, false);
+                print("Tiles can be of any type.", cordX, cordY + 2, false);
                 break;
             default:
                 print("NOT YET IMPLEMENTED", commonGoalOffsetX+2 + (offset*60), commonGoalOffsetY + 2, false);
