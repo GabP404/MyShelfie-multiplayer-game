@@ -353,6 +353,10 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                                 inputValid = Server.this.createGame((CreateGameMessage) message.getMessage());
                             } else if (message.getType() == UserInputEvent.JOIN_GAME) {
                                 inputValid = Server.this.joinGame((JoinGameMessage) message.getMessage());
+                                if (!inputValid) {
+                                    // Alert the client that the game is not joinable for some reason
+                                    sendTo(clientSocket, false);
+                                }
                             } else if (message.getType() == UserInputEvent.REFRESH_AVAILABLE_GAMES) {
                                 // send the list of available games WITHOUT changing the inputValid flag
                                 sendTo(clientSocket, (Serializable) Server.this.getGames());
