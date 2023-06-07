@@ -181,4 +181,19 @@ public class Configuration {
         }
         return points;
     }
+
+    public static String getServerAddress() {
+        JSONObject serverInfo = getJSON().getJSONObject("server");
+        return serverInfo.getString("address");
+    }
+
+    public static int getServerSocketPort() {
+        JSONObject serverInfo = getJSON().getJSONObject("server");
+        return serverInfo.getInt("socket_port");
+    }
+
+    public static String getServerRMIName() {
+        JSONObject serverInfo = getJSON().getJSONObject("server");
+        return serverInfo.getString("rmi_name");
+    }
 }

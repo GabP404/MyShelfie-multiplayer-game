@@ -1,5 +1,6 @@
 package org.myshelfie.network.client;
 
+import org.myshelfie.controller.Configuration;
 import org.myshelfie.network.EventManager;
 import org.myshelfie.network.messages.commandMessages.CommandMessageWrapper;
 import org.myshelfie.network.messages.commandMessages.HeartBeatMessage;
@@ -15,8 +16,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.rmi.Naming;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
 public class Client extends UnicastRemoteObject implements ClientRMIInterface, Runnable{
@@ -26,10 +28,10 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
     private long lastHeartbeat = System.currentTimeMillis();
 
     protected String nickname;
-    protected static final String SERVER_ADDRESS = "localhost";
-    protected static final int SERVER_PORT = 1234;
+    protected static final String SERVER_ADDRESS = Configuration.getServerAddress();
+    protected static final int SERVER_PORT = Configuration.getServerSocketPort();
 
-    protected static String RMI_SERVER_NAME = "MinecraftServer";
+    protected static String RMI_SERVER_NAME = Configuration.getServerRMIName();
     ServerRMIInterface rmiServer;
     private Socket serverSocket;
     private ObjectOutputStream output;
@@ -65,7 +67,8 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
         if (isRMI) {
             try {
                 // Look up the server object in the RMI registry
-                rmiServer = (ServerRMIInterface) Naming.lookup("//" + SERVER_ADDRESS + "/" + RMI_SERVER_NAME);
+                Registry registry = LocateRegistry.getRegistry(SERVER_ADDRESS, 1099);
+                rmiServer = (ServerRMIInterface) registry.lookup("//" + SERVER_ADDRESS + "/" + RMI_SERVER_NAME);
             } catch (Exception e) {
                 System.err.println("Exception: " + e.getMessage());
                 e.printStackTrace();

@@ -1,5 +1,6 @@
 package org.myshelfie.network.server;
 
+import org.myshelfie.controller.Configuration;
 import org.myshelfie.controller.GameController;
 import org.myshelfie.controller.LobbyController;
 import org.myshelfie.model.util.Pair;
@@ -14,11 +15,12 @@ import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.rmi.AlreadyBoundException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
-import java.rmi.server.ExportException;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +30,12 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     private List<Client> clients;
     private LobbyController controller;
     public static EventManager eventManager = new EventManager();
-    private String RMI_SERVER_NAME = "MinecraftServer";
+    public static final String SERVER_ADDRESS = Configuration.getServerAddress();
+    private String RMI_SERVER_NAME = Configuration.getServerRMIName();
     private ServerSocket serverSocket;
     private static final int HEARTBEAT_TIMEOUT = 10000; // TODO move to configuration
+
+    private static Registry registry;
 
     /**
      * Overloaded constructor used for testing since it allows to initialize the Game object outside
@@ -42,6 +47,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     }
 
     public static void main( String[] args ) {
+        System.setProperty("java.rmi.server.hostname", SERVER_ADDRESS);
         Object lock = new Object();
         Server s = null;
         try {
@@ -200,16 +206,17 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
 
     // Method to start the RMI server
     public void startRMIServer() throws RemoteException, MalformedURLException {
+        registry = null;
         try {
             // Create the RMI registry
-            LocateRegistry.createRegistry(1099);
-        } catch (ExportException e) {
-            // If the registry already exists, it will throw an exception.
-            // In this case, we get the registry and continue
-            LocateRegistry.getRegistry(1099);
+            registry = LocateRegistry.createRegistry(1099);
+            registry.bind("//" + SERVER_ADDRESS + "/" + RMI_SERVER_NAME, this);
+        } catch (AlreadyBoundException e) {
+            // If the server is already bound, we unbind it and bind it again
+            registry.rebind("//" + SERVER_ADDRESS + "/" + RMI_SERVER_NAME, this);
         }
+
         // Bind the server object to the registry
-        Naming.rebind("//localhost/" + RMI_SERVER_NAME, this);
         System.out.println("Server started with RMI.");
     }
 
@@ -268,7 +275,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
      */
     public void stopRMIServer() {
         try {
-            Naming.unbind("//localhost/" + RMI_SERVER_NAME);
+            Naming.unbind(RMI_SERVER_NAME);
         } catch (RemoteException | MalformedURLException | NotBoundException e) {
             e.printStackTrace();
         }
