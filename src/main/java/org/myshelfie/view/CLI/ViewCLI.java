@@ -12,6 +12,9 @@ import org.myshelfie.network.messages.gameMessages.ImmutablePlayer;
 import org.myshelfie.view.View;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.myshelfie.view.CLI.Color.*;
 import static org.myshelfie.view.CLI.Color.BLUE;
@@ -21,23 +24,25 @@ public class ViewCLI implements View {
     private static final int frameOffsetY = 4;
     private static final int titleOffsetX = 20;
     private static final int titleOffsetY = 8;
+    private static final int helpOffsetX = 15;
+    private static final int helpOffsetY = 10;
     private static final int boardOffsetX = 10;
     private static final int boardOffsetY = 15;
-    private static final int bookshelfOffsetX = 40;
+    private static final int bookshelfOffsetX = 38;
     private static final int bookshelfOffsetY = 15;
     private static final int commonGoalOffsetX = 5;
     private static final int commonGoalOffsetY = 2;
-    private static final int personalGoalOffsetX = 115;
+    private static final int personalGoalOffsetX = 110;
     private static final int personalGoalOffsetY = 15;
     private static final int bookshelvesDistance = 18;
     public static final int inputOffsetX = 0;
-    public static final int inputOffsetY = 30;
+    public static final int inputOffsetY = 29;
 
     public static final int rankingOffsetX = 10;
     public static final int rankingOffsetY = 10;
 
     private static final int errorOffsetX = 3;
-    private static final int errorOffsetY = 33;
+    private static final int errorOffsetY = 31;
     private Client client = null;
 
     private List<LocatedTile> selectedTiles;    // tiles selected from the board
@@ -48,85 +53,27 @@ public class ViewCLI implements View {
     private GameView game;
 
     private boolean reconnecting = false;
+    private boolean showingHelp = false;
 
     private Scanner scanner = new Scanner(System.in);
 
     private List<GameController.GameDefinition> availableGames;
 
+    //Thread used to ask the nickname
     Thread threadNick = new Thread(() -> {
-        firstClear();
+        clear();
         try {
-            printTitle();
-            print("Insert a Nickname ", 0, 20, false);
             while (true) {
+                printTitle();
+                print("Insert a Nickname ", 0, 20, false);
                 setCursor(0,22);
                 nickname = scanner.nextLine();
-                print("CONNECTING TO SERVER WITH NICKNAME "+ nickname,0,25,false);
-                this.client.eventManager.notify(UserInputEvent.NICKNAME, nickname);
-                try {
-                    Thread.sleep(10000);
-                } catch ( InterruptedException e) {
-                    Thread.currentThread().interrupt(); // restore interrupted status
-                    break;
-                }
-                //send information to server
-                clear();
-                print("Try again ", 0, 25, false);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    });
-
-    Thread threadCreateGame = new Thread(() -> {
-        try {
-            clear();
-            while (true) {
-                printTitle();
-                print("Insert a Game name, player number and true/false for simplified rules ", 0, 20, false);
-                setCursor(0,22);
-                String gameName = scanner.nextLine();
-                String[] parts = gameName.split(" ");
-                print("Creating game: "+ parts[0],0,25,false);
-                this.client.eventManager.notify(UserInputEvent.CREATE_GAME, parts[0], Integer.parseInt(parts[1]), Boolean.valueOf(parts[2]));
-                try {
-                    Thread.sleep(10000);
-                } catch ( InterruptedException e) {
-                    Thread.currentThread().interrupt(); // restore interrupted status
-                    break;
-                }
-                //send information to server
-                clear();
-                print("Try again ", 0, 25, false);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    });
-
-    Thread threadJoinGame = new Thread(() -> {
-        try {
-            clear();
-            while (true) {
-                printTitle();
-                print("Insert a Game name ", 0, 20, false);
-                print("Available games: ", 50, 20, false);
-                for (int i=0; i<this.availableGames.size(); i++) {
-                    print(" -> " + this.availableGames.get(i).getGameName() + " " + this.availableGames.get(i).getNicknames().size() + "/" + this.availableGames.get(i).getMaxPlayers(), 50, 22+i, false);
-                }
-
-                setCursor(0,22);
-                String gameName = scanner.nextLine();
-                String[] parts = gameName.split(" ");
-                if (parts[0].toLowerCase().equals("refresh")) {
-                    this.client.eventManager.notify(UserInputEvent.REFRESH_AVAILABLE_GAMES);
-                    Thread.sleep(250);
-                    clear();
-                } else {
-                    print("joining game: "+ gameName,0,25,    true);
-                    this.client.eventManager.notify(UserInputEvent.JOIN_GAME, parts[0]);
+                if(validateString(nickname) && nickname.length() < 15)
+                {
+                    print("CONNECTING TO SERVER WITH NICKNAME "+ nickname,0,25,false);
+                    this.client.eventManager.notify(UserInputEvent.NICKNAME, nickname);
                     try {
-                        Thread.sleep(10000);
+                        TimeUnit.MILLISECONDS.sleep(10000);
                     } catch ( InterruptedException e) {
                         Thread.currentThread().interrupt(); // restore interrupted status
                         break;
@@ -135,12 +82,164 @@ public class ViewCLI implements View {
                     clear();
                     print("Try again ", 0, 25, false);
                 }
-
+                else{
+                    clear();
+                    print("the nickname cannot contain a symbols, spaces, and must be shorter than 15 characters ", 0, 25, false);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     });
+
+    //game creation/lobby selection
+    Thread threadChoice = new Thread(() -> {
+        clear();
+        String choice;
+        String gameName;
+        do{
+            choice = null;
+            gameName = null;
+            do {
+                clear();
+                printTitle();
+                print("Do you want to create or join a game? [create/join]", 0, 20, false);
+                setCursor(0, 22);
+                choice = scanner.nextLine();
+            }while(!choice.equalsIgnoreCase("create") && !choice.equalsIgnoreCase("join"));
+
+            if(choice.equalsIgnoreCase("create"))
+            {
+                try {
+                    clear();
+                    do {
+                        printTitle();
+                        print("Insert a Game name, player number and --simple at the end for simplified version   |   --back to go back", 0, 20, false);
+                        setCursor(0,22);
+                        gameName = scanner.nextLine();
+                        if (!gameName.equalsIgnoreCase("--back")) {
+
+                            String[] parts = gameName.split(" ");
+                            boolean hasSimpleRules = false;
+                            if(parts.length >= 2)
+                            {
+                                try{
+                                    int playerNum = Integer.parseInt(parts[1]);
+                                    if(playerNum >= 2 && playerNum <= 4)
+                                    {
+                                        if(validateString(parts[0]))
+                                        {
+                                            if(parts.length > 2 && parts[2].equalsIgnoreCase("--simple"))
+                                                hasSimpleRules = true;
+                                            print("Creating game: "+ parts[0],0,25,true);
+                                            this.client.eventManager.notify(UserInputEvent.CREATE_GAME, parts[0], playerNum, hasSimpleRules);
+                                            try {
+                                                TimeUnit.MILLISECONDS.sleep(10000);
+                                            } catch ( InterruptedException e) {
+                                                Thread.currentThread().interrupt(); // restore interrupted status
+                                                break;
+                                            }
+                                            //send information to server
+                                            clear();
+                                            print("Try again ", 0, 25, false);
+                                        }
+                                        else{
+                                            clear();
+                                            print("game name is not valid, it cannot contain symbols ", 0, 25, false);
+                                        }
+                                    }
+                                    else {
+                                        clear();
+                                        print("number of players must be between 2 and 4 ", 0, 25, false);
+                                    }
+                                }
+                                catch(NumberFormatException nfe) {
+                                    clear();
+                                    print("number of players typed is not a number ", 0, 25, false);
+                                }
+                            }
+                            else{
+                                clear();
+                                print("Not enough arguments ", 0, 25, false);
+                            }
+
+                        }
+                    }while (!gameName.equalsIgnoreCase("--back"));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            else if(choice.equals("join"))
+            {
+                try {
+                    clear();
+                     do{
+                        printTitle();
+                        print("Insert a Game name  |  --back to go back  |  --refresh to refresh lobbies", 0, 20, false);
+                        print("Available games: ", 90, 20, false);
+                        for (int i=0; i<this.availableGames.size(); i++) {
+                            print(" -> " + this.availableGames.get(i).getGameName() + " " + this.availableGames.get(i).getNicknames().size() + "/" + this.availableGames.get(i).getMaxPlayers(), 90, 22+i, false);
+                        }
+                        setCursor(0,22);
+                        gameName = scanner.nextLine();
+                        if (!gameName.equalsIgnoreCase("--back")) {
+
+                            //String[] parts = gameName.split(" ");
+                            if (gameName.equalsIgnoreCase("--refresh")) {
+                                this.client.eventManager.notify(UserInputEvent.REFRESH_AVAILABLE_GAMES);
+                                Thread.sleep(250);
+                                clear();
+                            } else {
+                                if(isInLobbyList(gameName))
+                                {
+                                    print("joining game: "+ gameName,0,25,    true);
+                                    this.client.eventManager.notify(UserInputEvent.JOIN_GAME, gameName);
+                                    try {
+                                        TimeUnit.MILLISECONDS.sleep(10000);
+                                    } catch ( InterruptedException e) {
+                                        Thread.currentThread().interrupt(); // restore interrupted status
+                                        break;
+                                    }
+                                    clear();
+                                    print("Try again ", 0, 25, false);
+                                }
+                                else
+                                {
+                                    clear();
+                                    print("Game not found, please pick a game from the list",0,25,false);
+                                }
+                            }
+
+                        }
+                    }while (!gameName.equalsIgnoreCase("--back"));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            else
+            {
+                System.out.println("Wrong choice");
+            }
+
+        }while(Objects.requireNonNull(gameName).equalsIgnoreCase("--back"));
+    });
+
+    //checks if the game name is in the list of all lobbies
+    private boolean isInLobbyList(String gameName)
+    {
+        for (int i=0; i<this.availableGames.size(); i++) {
+            if (this.availableGames.get(i).getGameName().equalsIgnoreCase(gameName))
+                return true;
+        }
+        return false;
+    }
+
+    private boolean validateString(String input) {
+        String regex = "^[a-zA-Z0-9]+$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
+        return matcher.matches();
+    }
 
     public ViewCLI(Client client) {
         selectedColumn = -1;
@@ -154,33 +253,42 @@ public class ViewCLI implements View {
     @Override
     public void update(GameView msg, GameEvent ev) {
         // End the threads to create/join a game, in case the gameView was received after a reconnection
-        this.endCreateGameThread();
-        this.endJoinGameThread();
+        this.endChoiceThread();
 
         game = msg;
-        clear();
+
         //if the game state is END_GAME print the ranking
         if(game.getModelState().equals(ModelState.END_GAME))
+        {
+            clear();
             printEndGameScreen();
+            setCursor(inputOffsetX, inputOffsetY);
+        }
         else    //else print the new gameView
         {
-            switch (ev)
+            if(!showingHelp)//if a player is watching the help box, don't print the gameView yet
             {
-                case ERROR:
-                    if(game.getErrorState(nickname) != null)
-                        printError(game.getErrorState(nickname));
-                    break;
-                case BOARD_UPDATE:
-                    selectedTiles.clear();
-                    break;
+                switch (ev)
+                {
+                    case ERROR:
+                        if(game.getErrorState(nickname) != null)
+                            printError(game.getErrorState(nickname));
+                        break;
+                    case BOARD_UPDATE:
+                        selectedTiles.clear();
+                        break;
+                }
+                clear();
+                printAll();
+                setCursor(inputOffsetX, inputOffsetY);
             }
-            printAll();
         }
-        setCursor(inputOffsetX, inputOffsetY);
+
     }
 
     @Override
     public void run() {
+        //start the thread that asks the user for the nickname
         threadNick.start();
         try {
             threadNick.join();
@@ -188,49 +296,27 @@ public class ViewCLI implements View {
             throw new RuntimeException(e);
         }
 
+        //start the thread that asks the user if he wants to create or join a game
         if (!reconnecting) {
-            // Go through the whole "create or join" game phase
-            String choice = null;
-            do {
-                clear();
-                printTitle();
-                print("Do you want to create or join a game? [create/join]", 0, 20, false);
-                setCursor(0, 22);
-                choice = scanner.nextLine();
-            }while(!choice.equals("create") && !choice.equals("join"));
-
-            if(choice.equals("create"))
-            {
-                threadCreateGame.start();
-                try {
-                    threadCreateGame.join();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-
-            }
-            else if(choice.equals("join"))
-            {
-                threadJoinGame.start();
-                try {
-                    threadJoinGame.join();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            else
-            {
-                System.out.println("Wrong choice");
+            threadChoice.start();
+            try {
+                threadChoice.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         }
 
+        //start the thread that handles the user input for the entire game
         Thread t = new Thread(() -> {
             try {
                 while (true) {
                     clearRow(inputOffsetX, inputOffsetY);
                     setCursor(inputOffsetX, inputOffsetY);
                     String userCommand = scanner.nextLine();
-                    parseInput(userCommand);
+                    if(this.game != null)
+                        parseInput(userCommand);
+                    else
+                        printError("GAME HAS NOT STARTED YET, WAIT FOR OTHER PLAYERS");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -247,18 +333,12 @@ public class ViewCLI implements View {
     }
 
     @Override
-    public void endCreateGameThread()
+    public void endChoiceThread()
     {
-        if(threadCreateGame.isAlive())
-            threadCreateGame.interrupt();
+        if(threadChoice.isAlive())
+            threadChoice.interrupt();
     }
 
-    @Override
-    public void endJoinGameThread()
-    {
-        if(threadJoinGame.isAlive())
-            threadJoinGame.interrupt();
-    }
 
     @Override
     public String getGameName() {
@@ -358,6 +438,39 @@ public class ViewCLI implements View {
     }
 
     public void parseInput(String s) {
+
+        String[] parts = s.split(" ");
+        //if there are no arguments return
+        if (parts.length < 1) {
+            printError("NOT ENOUGH ARGUMENTS");
+            return;
+        }
+
+        //
+        switch (parts[0]) {
+            case "exit" -> {
+                System.exit(0);
+                return;
+            }
+            case "play" -> {
+                //TODO: TEST THIS OPTION
+                if(game.getModelState().equals(ModelState.END_GAME))
+                {
+                    clear();
+                    threadChoice.run();
+                }
+                //threadChoice.run();
+                return;
+            }
+            case "help", "h" -> {
+                //print possible commands
+                printHelp();
+                return;
+            }
+            default -> {
+            }
+        }
+
         //if it's not the player turn return
         if(!game.getCurrPlayer().getNickname().equals(nickname))
         {
@@ -365,12 +478,7 @@ public class ViewCLI implements View {
             return;
         }
 
-        String[] parts = s.split(" ");
 
-        if (parts.length < 1) {
-            printError("NOT ENOUGH ARGUMENTS");
-            return;
-        }
 
         switch (parts[0]) {
             case "select", "s":
@@ -449,18 +557,6 @@ public class ViewCLI implements View {
                     return;
                 }
                 confirmSelection();
-                break;
-            case "exit":
-                System.exit(0);
-                break;
-            case "play":
-                //TODO: implement play command
-                //this is only for testing, when the command is implemented it should be removed
-                clear();
-                printEndGameScreen();
-                break;
-            case "help", "h":
-                //print possible commands
                 break;
             default:
                 printError("COMMAND DOES NOT EXIST");
@@ -546,7 +642,7 @@ public class ViewCLI implements View {
     public void printEndGameScreen()
     {
         print("               CommonGoal          PersonalGoal          Bookshelf          End game          Total ", rankingOffsetX, rankingOffsetY - 1, false);
-        print("Nickname         points               points               points             token            points", rankingOffsetX, rankingOffsetY, false);
+        print("Nickname         points               points               points             token           points", rankingOffsetX, rankingOffsetY, false);
 
         int playerNum = 1;
         String playerRowPoints = "";
@@ -570,31 +666,75 @@ public class ViewCLI implements View {
 
             try {
                 playerRowPoints += p.getNickname() + RESET ;
-                playerRowPoints += "              " + p.getPointsScoringTokens();
+                for(int i = 0; i < 15 - p.getNickname().length(); i++)
+                    playerRowPoints += " ";
+                playerRowPoints += "    " + p.getPointsScoringTokens();
                 playerRowPoints += "                    " + p.getPersonalGoalPoints();
                 playerRowPoints += "                    " + p.getBookshelfPoints();
                 if(p.getHasFinalToken())
-                    playerRowPoints += GREEN.toString() + "                  ■";
+                    playerRowPoints += GREEN.toString() + "               ■";
                 else
                     playerRowPoints += "                  ■";
-                playerRowPoints += "                " + p.getTotalPoints();
+                playerRowPoints += "               " + p.getTotalPoints();
 
 
             } catch (WrongArgumentException e) {
                 throw new RuntimeException(e);
             }
 
-            print(playerRowPoints, rankingOffsetX, rankingOffsetY + 1 + (playerNum * 2), false);
-            if(playerNum == 1)
-            {
-                print(YELLOW +  "|\\/\\/|\n" ,rankingOffsetX + 106, rankingOffsetY + (playerNum * 2), false);
-                print(YELLOW + "|____|", rankingOffsetX + 106, rankingOffsetY + 1 + (playerNum * 2), false);
+            print(playerRowPoints, rankingOffsetX, rankingOffsetY + 1 + (playerNum * 3), false);
+            try {
+                if(p.getTotalPoints() == game.getPlayers().get(0).getTotalPoints())
+                {
+                    print(YELLOW + "|\\/\\/|\n" ,rankingOffsetX + 105, rankingOffsetY + (playerNum * 3), false);
+                    print(YELLOW + "|____|", rankingOffsetX + 105, rankingOffsetY + 1 + (playerNum * 3), false);
+                }
+            } catch (WrongArgumentException e) {
+                throw new RuntimeException(e);
             }
 
             playerNum++;
         }
         print("Type [exit/play] to continue", 0, 1, false);
 
+    }
+
+    public void printHelp()
+    {
+        showingHelp = true;
+        clearRow(0,inputOffsetY);
+
+        print("╔═════════════════════════════════════════════════════════════════════════════════╗", helpOffsetX, helpOffsetY, false);
+        print("║                                                                                 ║", helpOffsetX, helpOffsetY + 1, false);
+        print("║                                                                                 ║", helpOffsetX, helpOffsetY + 2, false);
+        print("║                                                                                 ║", helpOffsetX, helpOffsetY + 3, false);
+        print("║                                                                                 ║", helpOffsetX, helpOffsetY + 4, false);
+        print("║                                                                                 ║", helpOffsetX, helpOffsetY + 5, false);
+        print("║                                                                                 ║", helpOffsetX, helpOffsetY + 6, false);
+        print("║                                                                                 ║", helpOffsetX, helpOffsetY + 7, false);
+        print("║                                                                                 ║", helpOffsetX, helpOffsetY + 8, false);
+        print("║                                                                                 ║", helpOffsetX, helpOffsetY + 9, false);
+        print("║                                                                                 ║", helpOffsetX, helpOffsetY + 10, false);
+        print("╚═════════════════════════════════════════════════════════════════════════════════╝", helpOffsetX, helpOffsetY + 11, false);
+
+
+        print("COMMANDS:                                                                       ", helpOffsetX + 1, helpOffsetY + 1, false);
+        print("select tile [row] [column]   | s t [row] [column] - select tile from board      ", helpOffsetX + 1, helpOffsetY + 2, false);
+        print("deselect tile [row] [column] | d s [row] [column] - deselect tile from board    ", helpOffsetX + 1, helpOffsetY + 3, false);//76
+        print("confirm                      | c                  - confirm selection           ", helpOffsetX + 1, helpOffsetY + 4, false);
+        print("select column [column]       | s c [column]       - select column from bookshelf", helpOffsetX + 1, helpOffsetY + 5, false);
+        print("pick [index]                 | p [index]          - pick tile from hand         ", helpOffsetX + 1, helpOffsetY + 6, false);
+        print("help                         | h                  - print this help             ", helpOffsetX + 1, helpOffsetY + 7, false);
+        print("exit                                              - exit game                   ", helpOffsetX + 1, helpOffsetY + 8, false);
+        print("                                                                                ", helpOffsetX + 1, helpOffsetY + 9, false);
+        print("PRESS ENTER TO CONTINUE                                                         ", helpOffsetX + 1, helpOffsetY + 10, false);
+
+        setCursor(inputOffsetX,inputOffsetY);
+        scanner.nextLine();
+
+        clear();
+        printAll();
+        showingHelp = false;
     }
 
     public void printAll()
@@ -769,64 +909,66 @@ public class ViewCLI implements View {
         switch (id)
         {
             case 1:
-                print("Sei gruppi separati formati ciascuno", cordX, cordY, false);
-                print("da due tessere adiacenti dello stesso tipo", cordX, cordY + 1, false);
-                print("Le tessere di un gruppo possono", cordX, cordY + 2, false);
-                print("essere diverse da quelle di un altro gruppo.", cordX, cordY + 3, false);
+                print("Six groups each containing at least", cordX, cordY, false);
+                print("2 tiles of the same type.", cordX, cordY + 1, false);
+                print("The tiles of one group can be different", cordX, cordY + 2, false);
+                print("from those of another group.", cordX, cordY + 3, false);
                 break;
             case 2:
-                print("Quattro gruppi separati formati ciascuno", cordX, cordY, false);
-                print("da quattro tessere adiacenti dello stesso", cordX, cordY + 1, false);
-                print("tipo. Le tessere di un gruppo possono", cordX, cordY + 2, false);
-                print("essere diverse da quelle di un altro gruppo.", cordX, cordY + 3, false);
+                print("Four groups each containing at least", cordX, cordY, false);
+                print("4 tiles of the same type.", cordX, cordY + 1, false);
+                print("The tiles of one group can be different", cordX, cordY + 2, false);
+                print("from those of another group.", cordX, cordY + 3, false);
                 break;
             case 3:
-                print("Quattro tessere dello stesso tipo", cordX, cordY, false);
-                print("ai quattro angoli della Libreria. ", cordX, cordY + 1, false);
+                print("Four tiles of the same type in the four", cordX, cordY, false);
+                print("corners of the bookshelf.", cordX, cordY + 1, false);
                 break;
             case 4:
-                print("Due gruppi separati di 4 tessere dello", cordX, cordY, false);
-                print("stesso tipo che formano un quadrato 2x2.", cordX, cordY + 1, false);
-                print("Le tessere dei due gruppi devono essere", cordX, cordY + 2, false);
-                print("dello stesso tipo.", cordX, cordY + 3, false);
+                print("Two groups each containing 4 tiles of", cordX, cordY, false);
+                print("the same type in a 2x2 square. The tiles", cordX, cordY + 1, false);
+                print("of one square can be different from", cordX, cordY + 2, false);
+                print("those of the other square.", cordX, cordY + 3, false);
                 break;
             case 5:
-                print("Tre colonne formate ciascuna da", cordX, cordY, false);
-                print("6 tessere di uno, due o tre tipi differenti.", cordX, cordY + 1, false);
-                print("Colonne diverse possono avere", cordX, cordY + 2, false);
-                print("combinazioni diverse di tipi di tessere.", cordX, cordY + 3, false);
+                print("Three columns each formed by 6 tiles", cordX, cordY, false);
+                print("of maximum three different types. One", cordX, cordY + 1, false);
+                print("column can show the same or a different", cordX, cordY + 2, false);
+                print("combination of another column.", cordX, cordY + 3, false);
                 break;
             case 6:
-                print("Otto tessere dello stesso tipo. Non ci", cordX, cordY, false);
-                print("sono restrizioni sulla posizione di", cordX, cordY + 1, false);
-                print("queste tessere.", cordX, cordY + 2, false);
+                print("Eight tiles of the same type. There’s no", cordX, cordY, false);
+                print("restriction about the position of these", cordX, cordY + 1, false);
+                print("tiles.", cordX, cordY + 2, false);
                 break;
             case 7:
-                print("Cinque tessere dello stesso tipo che", cordX, cordY, false);
-                print("formano una diagonale. ", cordX, cordY + 1, false);
+                print("Five tiles of the same type forming a", cordX, cordY, false);
+                print("diagonal.", cordX, cordY + 1, false);
                 break;
             case 8:
-                print("Quattro righe formate ciascuna", cordX, cordY, false);
-                print("da 5 tessere di uno, due o tre tipi", cordX, cordY + 1, false);
-                print("differenti. Righe diverse possono avere", cordX, cordY + 2, false);
-                print("combinazioni diverse di tipi di tessere.", cordX, cordY + 3, false);
+                print("Four lines each formed by 5 tiles of", cordX, cordY, false);
+                print("maximum three different types. One", cordX, cordY + 1, false);
+                print("line can show the same or a different", cordX, cordY + 2, false);
+                print("combination of another line.", cordX, cordY + 3, false);
                 break;
             case 9:
-                print("Due colonne formate ciascuna", cordX, cordY, false);
-                print("da 6 diversi tipi di tessere.", cordX, cordY + 1, false);
+                print("Two columns each formed by 6", cordX, cordY, false);
+                print("different types of tiles.", cordX, cordY + 1, false);
                 break;
             case 10:
-                print("Due righe formate ciascuna", cordX, cordY, false);
-                print("da 5 diversi tipi di tessere.", cordX, cordY + 1, false);
+                print("Two lines each formed by 5 different", cordX, cordY, false);
+                print("types of tiles. One line can show the", cordX, cordY + 1, false);
+                print("same or a different combination of the", cordX, cordY + 2, false);
+                print("other line.", cordX, cordY + 3, false);
                 break;
             case 11:
-                print("Cinque tessere dello stesso tipo", cordX, cordY, false);
-                print("che formano una X.", cordX, cordY + 1, false);
+                print("Five tiles of the same type", cordX, cordY, false);
+                print("forming an X.", cordX, cordY + 1, false);
                 break;
             case 12:
-                print("Cinque colonne di altezza crescente o", cordX, cordY, false);
-                print("decrescente.", cordX, cordY + 1, false);
-                print("Le tessere possono essere di qualsiasi tipo.", cordX, cordY + 2, false);
+                print("Five columns of increasing or decreasing", cordX, cordY, false);
+                print("height.", cordX, cordY + 1, false);
+                print("Tiles can be of any type.", cordX, cordY + 2, false);
                 break;
             default:
                 print("NOT YET IMPLEMENTED", commonGoalOffsetX+2 + (offset*60), commonGoalOffsetY + 2, false);
