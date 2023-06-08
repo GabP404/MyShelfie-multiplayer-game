@@ -6,13 +6,20 @@
 
 <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="100.0" prefWidth="500.0" spacing="50.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.myshelfie.view.GUI.LobbyControllerFX">
    <children>
-      <Label fx:id="GameNameJoin_LB" alignment="CENTER" text="GameName" textAlignment="CENTER" />
-      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="20.0">
+      <Label fx:id="GameNameJoin_LB" alignment="CENTER" prefHeight="17.0" prefWidth="69.0" text="GameName" textAlignment="CENTER" />
+      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="117.0" spacing="5.0">
          <children>
-            <Label text="Players Connected" />
-            <Label fx:id="NumPlayers_LB" text="1" />
+            <Label prefHeight="17.0" prefWidth="50.0" text="Players:" />
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="0.0" spacing="5.0">
+               <children>
+                  <Label fx:id="NumPlayersConnected_LB" text="1" />
+                  <Label text="/" />
+                  <Label fx:id="MaxNumPlayers_LB" text="1" />
+               </children>
+            </HBox>
          </children>
       </HBox>
+      <Label fx:id="Rules_LB" text="Rules" />
       <Button fx:id="JoinGame_BTN" mnemonicParsing="false" text="Join" />
    </children>
 </HBox>
