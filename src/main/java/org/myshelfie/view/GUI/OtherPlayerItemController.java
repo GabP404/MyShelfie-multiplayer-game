@@ -3,9 +3,14 @@ package org.myshelfie.view.GUI;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import org.myshelfie.model.Bookshelf;
 import org.myshelfie.model.ScoringToken;
 import org.myshelfie.model.Tile;
@@ -48,6 +53,8 @@ public class OtherPlayerItemController implements Initializable {
     private ImageView token2;
 
     String nickname;
+    final int TOKEN_DIM = 45;
+
 
 
     private void updateBookshelf(ImmutableBookshelf bookshelf) {
@@ -79,19 +86,23 @@ public class OtherPlayerItemController implements Initializable {
 
     public void updateCurrPlayer(boolean isCurrPlayer) {
         if (isCurrPlayer) {
-            nicknameLabel.setTextFill(javafx.scene.paint.Color.web("#3cae1c"));
-            nicknameLabel.setStyle("-fx-font-weight: bold");
+            nicknameLabel.setFont(Font.font("System", FontWeight.BOLD, 15));
+            nicknameLabel.setEffect(new DropShadow(10, Color.WHITE));
+            nicknameLabel.setVisible(true);
         } else {
-            nicknameLabel.setTextFill(javafx.scene.paint.Color.web("black"));
-            nicknameLabel.setStyle("-fx-font-weight: normal");
+            nicknameLabel.setFont(Font.font("System", FontWeight.NORMAL, 10));
+            nicknameLabel.setEffect(null);
+            nicknameLabel.setVisible(true);
         }
+
     }
 
     private void updateCommonGoalToken(List<ScoringToken> commonGoalTokens) {
-        // TODO: check that the size is correct
         if (commonGoalTokens.size() >= 1) {
             token1.setImage(new Image("graphics/tokens/scoring_" + commonGoalTokens.get(0).getPoints() + ".jpg"));
             token1.setVisible(true);
+            token1.setFitHeight(TOKEN_DIM);
+            token1.setFitWidth(TOKEN_DIM);
         } else {
             token1.setVisible(false);
             token2.setVisible(false);
@@ -103,15 +114,18 @@ public class OtherPlayerItemController implements Initializable {
             token2.setVisible(true);
             token2.setX(token1.getX() + 15);
             token2.setY(token1.getY() + 15);
+            token2.setFitHeight(TOKEN_DIM);
+            token2.setFitWidth(TOKEN_DIM);
         } else {
             token2.setVisible(false);
         }
     }
 
     private void updateFinalToken(boolean hasFinalToken) {
-        // TODO: check that the size is correct
         if (hasFinalToken) {
             this.finalToken.setImage(new Image("graphics/tokens/endGame.jpg"));
+            finalToken.setFitHeight(TOKEN_DIM);
+            finalToken.setFitWidth(TOKEN_DIM);
             this.finalToken.setVisible(true);
         } else {
             this.finalToken.setVisible(false);

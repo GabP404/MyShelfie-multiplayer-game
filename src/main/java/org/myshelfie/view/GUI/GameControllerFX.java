@@ -1,12 +1,18 @@
 package org.myshelfie.view.GUI;
 
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import org.myshelfie.model.*;
 import org.myshelfie.network.messages.gameMessages.GameView;
 import org.myshelfie.network.messages.gameMessages.ImmutableBoard;
@@ -67,10 +73,20 @@ public class GameControllerFX implements Initializable {
 
     private Map<String, OtherPlayerItemController> otherPlayerItemControllers;
 
+    GameView latestGame;
+    List<Tile> unconfirmedSelectedTiles;
+
+    final int TOKEN_DIM = 50;
+    final int PERSONAL_CARD_HEIGHT = 200;
+    final int SELECTED_TILE_DIM = 55;
+
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        latestGame = null;
         otherPlayerItemControllers = new HashMap<>();
+        unconfirmedSelectedTiles = new ArrayList<>();
 
         // set the correct size for the board
         boardGrid.prefWidthProperty().bind(boardImage.fitWidthProperty());
@@ -91,14 +107,27 @@ public class GameControllerFX implements Initializable {
         myNickname.setVisible(true);
     }
 
+
+    ///////////////////////////// MAIN UPDATE METHOD ///////////////////////////
+
+    /**
+     * Main method to update the GUI
+     * @param game
+     */
     public void update(GameView game) {
-        /////// UPDATE BOARD ///////
+        // TODO: add a GameEvent as a parameter and update only the part of the model that changed
+
+        latestGame = game;
+        unconfirmedSelectedTiles.clear();
+
+        // Update board
         updateBoard(game.getBoard());
-
-        /////// UPDATE COMMON GOAL ///////
+        // Update common goal cards
         updateCommonGoalCards(game);
+        // Update other players (note that they are controlled by a different controller)
+        updateOtherPlayers(game);
 
-        /////// UPDATE MY STUFF ///////
+        // Update all MY stuff
         ImmutablePlayer me = game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get();
         updateMyBookshelf(me.getBookshelf());
         updateAmICurrPlayer(game.getCurrPlayer().getNickname().equals(nickname));
@@ -106,11 +135,61 @@ public class GameControllerFX implements Initializable {
         updateMyCommonGoalToken(me.getCommonGoalTokens());
         updateMyTilesPicked(me.getTilesPicked());
         updateMyPersGoal(me.getPersonalGoal());
+    }
 
-        /////// UPDATE OTHER PLAYERS ///////
-        updateOtherPlayers(game);
+
+    ///////////////////////////// ON ACTION METHODS ///////////////////////////
+
+    /**
+     * Method that is called when a tile is clicked. It's bound to the on click event of the tileImage object
+     * created when the board is updated.
+     * @param tileImage the ImageView object representing the tile
+     * @param row the row of the tile in the board
+     * @param col the column of the tile in the board
+     */
+    private void onTileClicked(ImageView tileImage, int row, int col) {
+        // TODO: implement the messages when a wrong move is performed
+
+        if (latestGame.getCurrPlayer().getNickname().equals(nickname)) {
+            if (latestGame.getModelState() != ModelState.WAITING_SELECTION_TILE) {
+                System.out.println("You can't pick a tile now!");
+            } else {
+                if (!unconfirmedSelectedTiles.contains(latestGame.getBoard().getTile(row, col))) {
+                    if (unconfirmedSelectedTiles.size() == 3) {
+                        System.out.println("You can't pick more than 3 tiles!");
+                        return;
+                    } else {
+                        // pick the tile
+                        // TODO: implement the logic that checks if the tile is valid (for the moment it's always valid)
+                        unconfirmedSelectedTiles.add(latestGame.getBoard().getTile(row, col));
+                        tileImage.setEffect(new DropShadow(15, Color.WHITE));
+                        tileImage.setScaleX(1);
+                        tileImage.setScaleY(1);
+                        tileImage.toFront();
+                        System.out.println("Selected tile: " + row + " " + col + " -> you've already selected " + unconfirmedSelectedTiles.size() + " tiles");
+                    }
+
+                } else {
+                    // un-pick the tile
+                    tileImage.setScaleX(0.9);
+                    tileImage.setScaleY(0.9);
+                    tileImage.setEffect(new DropShadow(5, Color.BLACK));
+                    unconfirmedSelectedTiles.remove(latestGame.getBoard().getTile(row, col));
+                    System.out.println("Deselected tile: " + row + " " + col);
+                }
+
+            }
+        } else {
+            System.out.println("It's not your turn!");
+        }
 
     }
+
+
+
+
+
+    /////////////////////////// VIEW UPDATE METHODS ///////////////////////////
 
     public void updateOtherPlayers(GameView gameView) {
         if (nickname == null)
@@ -144,12 +223,12 @@ public class GameControllerFX implements Initializable {
 
     private void updateAmICurrPlayer(boolean amICurrPlayer) {
         if (amICurrPlayer) {
-            myNickname.setTextFill(javafx.scene.paint.Color.web("#3cae1c"));
-            myNickname.setStyle("-fx-font-weight: bold");
+            myNickname.setFont(Font.font("System", FontWeight.BOLD, 20));
+            myNickname.setEffect(new DropShadow(15, Color.WHITE));
             myNickname.setVisible(true);
         } else {
-            myNickname.setTextFill(javafx.scene.paint.Color.web("black"));
-            myNickname.setStyle("-fx-font-weight: bold");
+            myNickname.setFont(Font.font("System", FontWeight.BOLD, 12));
+            myNickname.setEffect(null);
             myNickname.setVisible(true);
         }
     }
@@ -196,7 +275,10 @@ public class GameControllerFX implements Initializable {
         }
     }
 
-
+    /**
+     * This method updates the view of the common goal cards together with their tokens.
+     * @param gameView
+     */
     private void updateCommonGoalCards(GameView gameView) {
         List<CommonGoalCard> commonGoalCards = gameView.getCommonGoals();
 
@@ -242,6 +324,8 @@ public class GameControllerFX implements Initializable {
     private void updateMyCommonGoalToken(List<ScoringToken> myCommonGoalTokens) {
         if (myCommonGoalTokens.size() >= 1) {
             myToken1.setImage(new Image("graphics/tokens/scoring_" + myCommonGoalTokens.get(0).getPoints() + ".jpg"));
+            myToken1.setFitHeight(TOKEN_DIM);
+            myToken1.setFitWidth(TOKEN_DIM);
             myToken1.setVisible(true);
         } else {
             myToken1.setVisible(false);
@@ -251,6 +335,8 @@ public class GameControllerFX implements Initializable {
 
         if (myCommonGoalTokens.size() >= 2) {
             myToken2.setImage(new Image("graphics/tokens/scoring_" + myCommonGoalTokens.get(1).getPoints() + ".jpg"));
+            myToken2.setFitHeight(TOKEN_DIM);
+            myToken2.setFitWidth(TOKEN_DIM);
             myToken2.setVisible(true);
             myToken2.setX(myToken1.getX() + 15);
             myToken2.setY(myToken1.getY() + 15);
@@ -259,9 +345,12 @@ public class GameControllerFX implements Initializable {
         }
     }
 
+
     private void updateMyFinalToken(boolean hasFinalToken) {
         if (hasFinalToken) {
             this.myFinalToken.setImage(new Image("graphics/tokens/endGame.jpg"));
+            this.myFinalToken.setFitHeight(TOKEN_DIM);
+            this.myFinalToken.setFitWidth(TOKEN_DIM);
             this.myFinalToken.setVisible(true);
         } else {
             this.myFinalToken.setVisible(false);
@@ -272,6 +361,8 @@ public class GameControllerFX implements Initializable {
     private void updateMyTilesPicked(List<Tile> tileHand) {
         if (tileHand.size() >= 1) {
             myTile1.setImage(new Image("graphics/tiles/" + tileHand.get(0).getItemType() + "_" + tileHand.get(0).getItemId() + ".png"));
+            myTile1.setFitHeight(SELECTED_TILE_DIM);
+            myTile1.setEffect(new DropShadow(15, Color.BLACK));
             myTile1.setVisible(true);
         } else {
             myTile1.setVisible(false);
@@ -282,6 +373,8 @@ public class GameControllerFX implements Initializable {
 
         if (tileHand.size() >= 2) {
             myTile2.setImage(new Image("graphics/tiles/" + tileHand.get(0).getItemType() + "_" + tileHand.get(1).getItemId() + ".png"));
+            myTile2.setFitHeight(SELECTED_TILE_DIM);
+            myTile2.setEffect(new DropShadow(15, Color.BLACK));
             myTile2.setVisible(true);
         } else {
             myTile2.setVisible(false);
@@ -291,6 +384,8 @@ public class GameControllerFX implements Initializable {
 
         if (tileHand.size() >= 3) {
             myTile3.setImage(new Image("graphics/tiles/" + tileHand.get(0).getItemType() + "_" + tileHand.get(2).getItemId() + ".png"));
+            myTile3.setFitHeight(SELECTED_TILE_DIM);
+            myTile3.setEffect(new DropShadow(15, Color.BLACK));
             myTile3.setVisible(true);
         } else {
             myTile3.setVisible(false);
@@ -299,6 +394,8 @@ public class GameControllerFX implements Initializable {
 
     private void updateMyPersGoal(PersonalGoalCard card) {
         myPersonalGoal.setImage(new Image("graphics/persGoalCards/Personal_Goals" + card.getId() + ".png"));
+        myPersonalGoal.setFitHeight(PERSONAL_CARD_HEIGHT);
+        myPersonalGoal.setEffect(new DropShadow(15, Color.BLACK));
         myPersonalGoal.setVisible(true);
     }
 
@@ -314,8 +411,20 @@ public class GameControllerFX implements Initializable {
         // scale down to allow a little space between tiles
         tileImage.setScaleX(0.9);
         tileImage.setScaleY(0.9);
+        tileImage.setEffect(new DropShadow(5, Color.BLACK));
         tileImage.setVisible(true);
+
+        // set the on click handler
+        tileImage.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                onTileClicked(tileImage, row, col);
+            }
+        });
+
     }
+
+
 
     /**
      * This method allows you to remove a tile from the board's representation (GridPane).

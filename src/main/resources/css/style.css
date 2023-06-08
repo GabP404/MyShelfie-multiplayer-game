@@ -25,3 +25,9 @@
     /*round the borders*/
     -fx-background-radius: 50;
 }
+
+
+.pers_hand {
+    -fx-background-image: url('../graphics/misc/base_dark.jpg');
+    -fx-background-size: cover, auto;
+}

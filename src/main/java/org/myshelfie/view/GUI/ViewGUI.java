@@ -98,6 +98,7 @@ public class ViewGUI extends Application {
         exampleGame.getCurrPlayer().addScoringToken(new ScoringToken(4, null));
         exampleGame.getCurrPlayer().setHasFinalToken(true);
 
+
         controller.update(new GameView(exampleGame));
     }
 
