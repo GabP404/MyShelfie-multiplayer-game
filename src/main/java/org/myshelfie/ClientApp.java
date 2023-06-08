@@ -5,6 +5,7 @@ import org.myshelfie.network.client.Client;
 import java.rmi.RemoteException;
 import java.util.Scanner;
 
+import static org.myshelfie.view.PrinterCLI.*;
 import static org.myshelfie.view.ViewCLI.*;
 
 
