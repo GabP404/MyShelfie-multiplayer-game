@@ -21,7 +21,7 @@ public class ClientApp {
             }
             // Get the server address
             if (arg.startsWith("--server-address=")) {
-                serverAddress = arg.substring(18);
+                serverAddress = arg.substring(17);
             }
         }
 
