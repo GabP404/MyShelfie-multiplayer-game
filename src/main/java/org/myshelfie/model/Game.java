@@ -126,7 +126,8 @@ public class Game {
     public void setCurrPlayer(Player currPlayer) throws WrongArgumentException{
         if (currPlayer == null || !players.contains(currPlayer))
             throw new WrongArgumentException("Player not found");
-        this.currPlayer = currPlayer;
+        this.currPlayer.clearSelectedColumn(); // reset the selected column from the previous player
+        this.currPlayer = currPlayer; // set the new current player
         Server.eventManager.notify(GameEvent.CURR_PLAYER_UPDATE, this);
     }
 
