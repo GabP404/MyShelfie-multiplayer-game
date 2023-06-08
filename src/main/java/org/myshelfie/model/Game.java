@@ -165,4 +165,20 @@ public class Game {
         //  (also for the setter of Player's online attribute)
         this.playing = playing;
     }
+
+    /**
+     * Get the next player that is online. If there are no online players, return null
+     * @return
+     */
+    public Player getNextOnlinePlayer() {
+        int pos = players.indexOf(currPlayer);
+        int count = 0;
+        while (count < players.size()) {
+            pos = (pos + 1) % players.size();
+            if (players.get(pos).isOnline())
+                return players.get(pos);
+            count++;
+        }
+        return null;
+    }
 }

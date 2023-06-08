@@ -176,7 +176,26 @@ public class GameController {
     }
 
 
+    /**
+     * Set the player with the given nickname offline.
+     * If the player is the current player, set the current player to the next online player.
+     * If there are no more online players, end the game.
+     * @param nickname the nickname of the player to set offline
+     */
     public void setPlayerOffline(String nickname) {
+        // If the player is the current player, empty their hand and the selected column
+        // Also, set the current player to the next online player (check that it's online)
+        try {
+            if(this.game.getCurrPlayer().getNickname().equals(nickname)) {
+                this.game.getCurrPlayer().clearHand();
+                this.game.getCurrPlayer().clearSelectedColumn();
+                this.game.setCurrPlayer(this.game.getNextOnlinePlayer());
+            }
+        } catch (WrongArgumentException e) {
+            // This exception is thrown when there are no more online players
+            this.endGame();
+            throw new RuntimeException(e);
+        }
         this.game.getPlayers().stream().filter(x -> x.getNickname().equals(nickname)).collect(Collectors.toList()).get(0).setOnline(false);
         checkPlayersOnline();
     }

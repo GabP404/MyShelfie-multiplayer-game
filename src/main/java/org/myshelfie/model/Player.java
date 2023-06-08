@@ -153,6 +153,14 @@ public class Player {
         Server.eventManager.notify(GameEvent.SELECTED_COLUMN_UPDATE, this);
     }
 
+    public void clearHand() {
+        this.tilesPicked.clear();
+    }
+
+    public void clearSelectedColumn() {
+        this.selectedColumn = -1;
+    }
+
     public boolean isOnline() {
         return online;
     }
