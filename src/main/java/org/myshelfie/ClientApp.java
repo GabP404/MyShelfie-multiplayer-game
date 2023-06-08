@@ -1,45 +1,35 @@
 package org.myshelfie;
 
+import org.myshelfie.controller.Configuration;
 import org.myshelfie.network.client.Client;
 
 import java.rmi.RemoteException;
-import java.util.Scanner;
-
-import static org.myshelfie.view.PrinterCLI.*;
-import static org.myshelfie.view.ViewCLI.*;
 
 
 public class ClientApp {
 
+    // Usage: java -jar client.jar [--cli] --server-address=<server-address>
     public static void main( String[] args ) {
-        Scanner userInput = new Scanner(System.in);
-        boolean isRMI = false;
-        String choice;
-        clear();
-        printTitle();
-        print("Would you like to use Socket or RMI? (s/r)", 0, 20, false);
-        do {
-            setCursor(0, 22);
-            choice = userInput.nextLine();
-            if (choice.equalsIgnoreCase("s"))
-                isRMI = false;
-            else if (choice.equalsIgnoreCase("r"))
-                isRMI = true;
-            else
-            {
-                clear();
-                print("Try again ", 0, 25, false);
-                printTitle();
-                print("Would you like to use Socket or RMI? (s/r)", 0, 20, false);
+        boolean isGUI = true;
+        String serverAddress = Configuration.getServerAddress();
+
+        // For all the arguments, check if one of them is "--cli"
+        // If so, set the isCLI variable to true
+        for (String arg : args) {
+            if (arg.equals("--cli")) {
+                isGUI = false;
             }
-        } while(!choice.equalsIgnoreCase("s") && !choice.equalsIgnoreCase("r"));
+            // Get the server address
+            if (arg.startsWith("--server-address=")) {
+                serverAddress = arg.substring(18);
+            }
+        }
 
         Client client;
         try {
-            client = new Client(isRMI, false);
+            client = new Client(isGUI, serverAddress);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
-        client.run();
     }
 }

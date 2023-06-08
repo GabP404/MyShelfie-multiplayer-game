@@ -465,7 +465,7 @@
   },
   "timer_timeout": 60000,
   "server": {
-    "address": "192.168.1.51",
+    "address": "localhost",
     "socket_port": 1234,
     "rmi_name": "CODServer"
   }

@@ -20,6 +20,10 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Scanner;
+
+import static org.myshelfie.view.PrinterCLI.*;
+import static org.myshelfie.view.PrinterCLI.print;
 
 public class Client extends UnicastRemoteObject implements ClientRMIInterface, Runnable{
 
@@ -28,7 +32,7 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
     private long lastHeartbeat = System.currentTimeMillis();
 
     protected String nickname;
-    protected static final String SERVER_ADDRESS = Configuration.getServerAddress();
+    protected static String SERVER_ADDRESS = Configuration.getServerAddress();
     protected static final int SERVER_PORT = Configuration.getServerSocketPort();
 
     protected static String RMI_SERVER_NAME = Configuration.getServerRMIName();
@@ -55,14 +59,46 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
         this.isRMI = false;
     }
 
-    public Client(boolean isRMI, boolean isGUI) throws RemoteException {
-        this.isRMI = isRMI;
+    public Client(boolean isGUI, String serverAddress) throws RemoteException {
+        SERVER_ADDRESS = serverAddress;
+
+        // Subscribe a new UserInputListener that listen to changes in the view and forward events adding message to the server
+        eventManager.subscribe(UserInputEvent.class, new UserInputListener(this));
+
         if (isGUI) {
             // TODO: implement GUI
         } else {
+            Scanner userInput = new Scanner(System.in);
+            String choice;
+            clear();
+            printTitle();
+            print("Would you like to use Socket or RMI? (s/r)", 0, 20, false);
+            do {
+                setCursor(0, 22);
+                choice = userInput.nextLine();
+                if (choice.equalsIgnoreCase("s"))
+                    isRMI = false;
+                else if (choice.equalsIgnoreCase("r"))
+                    isRMI = true;
+                else
+                {
+                    clear();
+                    print("Try again ", 0, 25, false);
+                    printTitle();
+                    print("Would you like to use Socket or RMI? (s/r)", 0, 20, false);
+                }
+            } while(!choice.equalsIgnoreCase("s") && !choice.equalsIgnoreCase("r"));
+
             this.view = new ViewCLI(this);
+            print("Connecting to server...", 0, 25, false);
+            // Connect to the server
+            this.connect();
+            this.run();
         }
 
+    }
+
+    public void connect() {
         // connect
         if (isRMI) {
             try {
@@ -86,8 +122,6 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
                 throw new RuntimeException(e);
             }
         }
-        // Subscribe a new UserInputListener that listen to changes in the view and forward events adding message to the server
-        eventManager.subscribe(UserInputEvent.class, new UserInputListener(this));
     }
 
 
