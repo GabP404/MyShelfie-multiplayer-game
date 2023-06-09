@@ -18,12 +18,15 @@ public class GameController {
         private final int maxPlayers;
         private final List<String> nicknames;
 
+        private final boolean simplifyRules;
+
 
 
         public GameDefinition(GameController gc) {
             this.gameName = gc.getGameName();
             this.maxPlayers = gc.getNumPlayerGame();
             this.nicknames = new ArrayList<>(gc.getNicknames());
+            this.simplifyRules = gc.getNumGoalCards() == 1 ? true : false;
         }
 
         public String getGameName() {
@@ -38,6 +41,16 @@ public class GameController {
             return nicknames;
         }
 
+        public boolean isSimplifyRules() {
+            return simplifyRules;
+        }
+
+        public boolean isFull() {
+            if(nicknames.size() == maxPlayers) {
+                return true;
+            }
+            return false;
+        }
     }
     private Timer timer;
 
@@ -83,6 +96,10 @@ public class GameController {
     private List<String> nicknames;
 
     private int numPlayerGame;
+
+    public int getNumGoalCards() {
+        return numGoalCards;
+    }
 
     private int numGoalCards;
 

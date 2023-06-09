@@ -33,12 +33,12 @@ public class UserInputListener implements Listener<UserInputEvent> {
                 if (response.getLeft() == ConnectingStatuses.CONFIRMED) {
                     client.getView().setAvailableGames(response.getRight());
                     System.out.println("Successfully set nickname to " + args[0]);
-                    client.endNicknameThread(); // Stop the view thread that was waiting for the nickname
+                    client.endLoginPhase(); // Stop the view thread that was waiting for the nickname
                 } else if (response.getLeft() == ConnectingStatuses.RECONNECTING) {
                     System.out.println("Successfully set nickname to " + args[0]);
                     client.getView().setReconnecting(true);
                     System.out.println("Reconnected to a game!");
-                    client.endNicknameThread(); // Stop the view thread that was waiting for the nickname
+                    client.endLoginPhase(); // Stop the view thread that was waiting for the nickname
                     client.startServerListener();
                 } else {
                     System.out.println("Nickname " + args[0] + " already taken!");
@@ -56,7 +56,7 @@ public class UserInputListener implements Listener<UserInputEvent> {
                 // TODO do something on the view
                 if (successfulCreation) {
                     System.out.println("Successfully created game " + args[0]);
-                    client.endCreateGameThread();
+                    client.endChoiceThread();
                 }
             }
             case JOIN_GAME -> {
@@ -68,7 +68,7 @@ public class UserInputListener implements Listener<UserInputEvent> {
                 );
                 if (joinGameResponse instanceof EventWrapper) {
                     System.out.println(client.getNickname() + ": Successfully joined game " + args[0]);
-                    client.endJoinGameThread();
+                    client.endChoiceThread();
                     System.out.println(client.getNickname() + ": Game started!");
                     // This response is the game view; the client should now update the view since the game
                     // has now started!
@@ -82,7 +82,7 @@ public class UserInputListener implements Listener<UserInputEvent> {
                     // TODO do something on the view
                     if ((boolean) joinGameResponse) {
                         System.out.println("Successfully joined game " + args[0]);
-                        client.endJoinGameThread();
+                        client.endChoiceThread();
                     }
                 }
 

@@ -9,15 +9,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.myshelfie.view.GUI.LobbiesControllerFX">
-   <top>
-      <VBox alignment="CENTER" prefHeight="50.0" prefWidth="100.0" BorderPane.alignment="CENTER">
-         <children>
-            <Label text="Matches available" />
-         </children>
-      </VBox>
-   </top>
    <center>
       <VBox fx:id="LobbyContainer" prefHeight="250.0" prefWidth="300.0" BorderPane.alignment="CENTER" />
    </center>
@@ -25,7 +17,7 @@
       <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="20.0" BorderPane.alignment="CENTER">
          <children>
             <Label />
-            <TextField prefHeight="26.0" prefWidth="94.0" promptText="GameName" text="GameName_LBL" />
+            <TextField prefHeight="26.0" prefWidth="94.0" promptText="GameName" />
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="143.0" spacing="10.0">
                <children>
                   <Label text="Rules" />
@@ -48,4 +40,12 @@
    <right>
       <AnchorPane prefHeight="200.0" prefWidth="50.0" BorderPane.alignment="CENTER" />
    </right>
+   <top>
+      <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0" spacing="50.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label text="Match Availables" />
+            <Button fx:id="refresh_BTN" mnemonicParsing="false" text="Refresh" />
+         </children>
+      </HBox>
+   </top>
 </BorderPane>
