@@ -1,5 +1,6 @@
 package org.myshelfie.view.GUI;
 
+import javafx.animation.ScaleTransition;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,6 +14,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.util.Duration;
 import org.myshelfie.model.*;
 import org.myshelfie.network.messages.gameMessages.GameView;
 import org.myshelfie.network.messages.gameMessages.ImmutableBoard;
@@ -29,6 +31,15 @@ public class GameControllerFX implements Initializable {
 
     @FXML
     private ImageView boardImage;
+
+    @FXML
+    private GridPane colSelectionArrowsGrid;
+
+    @FXML
+    private ImageView commonGoalCard1;
+
+    @FXML
+    private ImageView commonGoalCard2;
 
     @FXML
     private GridPane myBookshelfGrid;
@@ -63,22 +74,18 @@ public class GameControllerFX implements Initializable {
     @FXML
     private VBox otherPlayersLayout;
 
-    @FXML
-    private ImageView commonGoalCard1;
-
-    @FXML
-    private ImageView commonGoalCard2;
-
     private String nickname = null;
 
     private Map<String, OtherPlayerItemController> otherPlayerItemControllers;
 
     GameView latestGame;
     List<Tile> unconfirmedSelectedTiles;
+    private int selectedColumn = -1;
 
     final int TOKEN_DIM = 50;
     final int PERSONAL_CARD_HEIGHT = 200;
     final int SELECTED_TILE_DIM = 55;
+    final int SEL_COL_ARROW_WIDTH = 50;
 
 
 
@@ -98,6 +105,7 @@ public class GameControllerFX implements Initializable {
         myBookshelfImage.setVisible(true);
         myNickname.setVisible(true);
         otherPlayersLayout.setVisible(true);
+        colSelectionArrowsGrid.setVisible(true);
     }
 
     public void setMyNickname(String nickname) {
@@ -135,6 +143,7 @@ public class GameControllerFX implements Initializable {
         updateMyCommonGoalToken(me.getCommonGoalTokens());
         updateMyTilesPicked(me.getTilesPicked());
         updateMyPersGoal(me.getPersonalGoal());
+        udpateColSelectionArrows();
     }
 
 
@@ -163,9 +172,25 @@ public class GameControllerFX implements Initializable {
                         // TODO: implement the logic that checks if the tile is valid (for the moment it's always valid)
                         unconfirmedSelectedTiles.add(latestGame.getBoard().getTile(row, col));
                         tileImage.setEffect(new DropShadow(15, Color.WHITE));
-                        tileImage.setScaleX(1);
-                        tileImage.setScaleY(1);
                         tileImage.toFront();
+
+                        // animation
+                        double finalScale = 1; // The final scale value
+                        // Create a ScaleTransition with desired properties
+                        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), tileImage);
+                        scaleTransition.setToX(finalScale);
+                        scaleTransition.setToY(finalScale);
+                        scaleTransition.setCycleCount(1);
+                        // Set the final scale values directly at the end of the animation
+                        scaleTransition.setOnFinished(event -> {
+                            tileImage.setScaleX(finalScale);
+                            tileImage.setScaleY(finalScale);
+                        });
+                        // Play the animation
+                        scaleTransition.play();
+
+
+                        // TODO: add notify to the server (temporary system.out.println)
                         System.out.println("Selected tile: " + row + " " + col + " -> you've already selected " + unconfirmedSelectedTiles.size() + " tiles");
                     }
 
@@ -183,6 +208,22 @@ public class GameControllerFX implements Initializable {
             System.out.println("It's not your turn!");
         }
 
+    }
+
+
+    private void onArrowClicked(int column, ImageView arrowImage) {
+        selectedColumn = column;
+        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), arrowImage);
+        scaleTransition.setToX(arrowImage.getScaleX() * 1.1);
+        scaleTransition.setToY(arrowImage.getScaleY() * 1.1);
+        scaleTransition.setCycleCount(2);
+        scaleTransition.setAutoReverse(true);
+
+        // Play the animation
+        scaleTransition.play();
+
+        // TODO: add notify to the server
+        System.out.println("Selected column: " + column);
     }
 
 
@@ -220,6 +261,37 @@ public class GameControllerFX implements Initializable {
         }
     }
 
+
+    private void udpateColSelectionArrows() {
+        if (latestGame.getCurrPlayer().getNickname().equals(nickname) && latestGame.getModelState() == ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN) {
+            colSelectionArrowsGrid.setVisible(true);
+            for (int i = 0; i < 5; i++) {
+                // show the arrow only if the column has enough space
+                ImmutablePlayer me = latestGame.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get();
+                if (me.getBookshelf().getHeight(i) <= Bookshelf.NUMROWS - me.getTilesPicked().size()) {
+                    ImageView arrow = (ImageView) colSelectionArrowsGrid.getChildren().get(i);
+                    arrow.setImage(new Image("/graphics/misc/arrow.png"));
+                    arrow.setEffect(new DropShadow(5, Color.ORANGE));
+                    arrow.setFitWidth(SEL_COL_ARROW_WIDTH);
+                    arrow.setVisible(true);
+                    int copyI = i;
+                    arrow.setOnMouseClicked(event -> onArrowClicked(copyI, arrow));
+                } else {
+                    ImageView arrow = (ImageView) colSelectionArrowsGrid.getChildren().get(i);
+                    arrow.setImage(null);
+                    arrow.setVisible(false);
+                }
+            }
+        } else {
+            for (int i = 0; i < 5; i++) {
+                ImageView arrow = (ImageView) colSelectionArrowsGrid.getChildren().get(i);
+                arrow.setImage(null);
+                arrow.setVisible(false);
+            }
+            colSelectionArrowsGrid.setVisible(false);
+
+        }
+    }
 
     private void updateAmICurrPlayer(boolean amICurrPlayer) {
         if (amICurrPlayer) {
@@ -415,12 +487,7 @@ public class GameControllerFX implements Initializable {
         tileImage.setVisible(true);
 
         // set the on click handler
-        tileImage.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                onTileClicked(tileImage, row, col);
-            }
-        });
+        tileImage.setOnMouseClicked(mouseEvent -> onTileClicked(tileImage, row, col));
 
     }
 
