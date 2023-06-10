@@ -443,9 +443,11 @@
     "map_points": {
       "0": 0,
       "1": 1,
-      "2": 3,
-      "3": 6,
-      "4": 8
+      "2": 2,
+      "3": 4,
+      "4": 6,
+      "5": 9,
+      "6": 12
     }
   },
   "final_points": 2,
@@ -461,5 +463,10 @@
     "5": 5,
     "6": 8
   },
-  "timer_timeout": 60000
+  "timer_timeout": 60000,
+  "server": {
+    "address": "localhost",
+    "socket_port": 1234,
+    "rmi_name": "CODServer"
+  }
 }

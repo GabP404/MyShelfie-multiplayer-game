@@ -1,10 +1,8 @@
 package org.myshelfie.controller;
 
-import org.myshelfie.model.WrongArgumentException;
 import org.myshelfie.network.messages.commandMessages.JoinGameMessage;
 
 import java.util.HashMap;
-import java.util.UUID;
 
 public class JoinGameCommand implements Command{
 
@@ -26,6 +24,8 @@ public class JoinGameCommand implements Command{
         if(!gameControllers.containsKey(gameName))
             throw new IllegalArgumentException("Game not found");
         if(!gameControllers.get(gameName).isGameCreated())
+            throw new IllegalArgumentException("Game not joinable");
+        if(gameControllers.get(gameName).getGame().isPlaying())
             throw new IllegalArgumentException("Game not joinable");
         GameController gameController = gameControllers.get(gameName);
         gameController.addPlayer(nickname);
