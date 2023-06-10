@@ -8,9 +8,14 @@ import java.rmi.RemoteException;
 
 public class ClientApp {
 
-    // Usage: java -jar client.jar [--cli] --server-address=<server-address>
+    /**
+     *
+     * Usage: java -jar client.jar [--cli | --gui] [--rmi | --socket] --server-address=<server-address>
+     */
     public static void main( String[] args ) {
         boolean isGUI = true;
+        boolean isRMI = false;
+        // Get the deafult server address from the configuration file
         String serverAddress = Configuration.getServerAddress();
 
         // For all the arguments, check if one of them is "--cli"
@@ -19,15 +24,24 @@ public class ClientApp {
             if (arg.equals("--cli")) {
                 isGUI = false;
             }
+            if (arg.equals("--gui")) {
+                isGUI = true;
+            }
+            if (arg.equals("--rmi")) {
+                isRMI = true;
+            }
+            if (arg.equals("--socket")) {
+                isRMI = false;
+            }
             // Get the server address
             if (arg.startsWith("--server-address=")) {
-                serverAddress = arg.substring(18);
+                serverAddress = arg.substring(17);
             }
         }
 
         Client client;
         try {
-            client = new Client(isGUI, serverAddress);
+            client = new Client(isGUI, isRMI, serverAddress);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
