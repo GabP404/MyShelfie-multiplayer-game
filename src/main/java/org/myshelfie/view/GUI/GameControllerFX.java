@@ -61,15 +61,6 @@ public class GameControllerFX implements Initializable {
     private ImageView myPersonalGoal;
 
     @FXML
-    private ImageView myTile1;
-
-    @FXML
-    private ImageView myTile2;
-
-    @FXML
-    private ImageView myTile3;
-
-    @FXML
     private ImageView myToken1;
 
     @FXML
@@ -77,6 +68,9 @@ public class GameControllerFX implements Initializable {
 
     @FXML
     private VBox otherPlayersLayout;
+
+    @FXML
+    private GridPane tilesHandGrid;
 
     Button tilesConfirmButton;
 
@@ -236,7 +230,35 @@ public class GameControllerFX implements Initializable {
     }
 
 
+    private void onConfirmTilesSelection() {
+        if (unconfirmedSelectedTiles.size() >= 1) {
+            System.out.println("Sending to server " + unconfirmedSelectedTiles.size() + " tiles");
+            // TODO: add the notify to the server
+            tilesConfirmButton.setVisible(false);
+        } else {
+            System.out.println("You must select at least one tile!");
+        }
+    }
 
+    private void onTileFromHandClicked(ImageView tileImage) {
+        if (latestGame.getCurrPlayer().getNickname().equals(nickname) &&
+                (latestGame.getModelState() == ModelState.WAITING_1_SELECTION_TILE_FROM_HAND ||
+                    latestGame.getModelState() == ModelState.WAITING_2_SELECTION_TILE_FROM_HAND ||
+                    latestGame.getModelState() == ModelState.WAITING_3_SELECTION_TILE_FROM_HAND)) {
+            ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), tileImage);
+            scaleTransition.setToX(tileImage.getScaleX() * 1.1);
+            scaleTransition.setToY(tileImage.getScaleY() * 1.1);
+            scaleTransition.setCycleCount(2);
+            scaleTransition.setAutoReverse(true);
+
+            // Play the animation
+            scaleTransition.play();
+
+            // TODO: send the notify to the server
+            System.out.println("Selected tile from hand");
+
+        }
+    }
 
 
     /////////////////////////// VIEW UPDATE METHODS ///////////////////////////
@@ -316,21 +338,15 @@ public class GameControllerFX implements Initializable {
 
     private void updateTilesConfirmButton() {
         if (latestGame.getCurrPlayer().getNickname().equals(nickname) && latestGame.getModelState() == ModelState.WAITING_SELECTION_TILE) {
-            tilesConfirmButton.setOnMouseClicked(ev -> {
-                if (unconfirmedSelectedTiles.size() >= 1) {
-                    System.out.println("Sending to server " + unconfirmedSelectedTiles.size() + " tiles");
-                    // TODO: add the notify to the server
-                    tilesConfirmButton.setVisible(false);
-                } else {
-                    System.out.println("You must select at least one tile!");
-                }
-            });
+            tilesConfirmButton.setOnMouseClicked(ev -> onConfirmTilesSelection());
             tilesConfirmButton.setVisible(true);
         } else {
-            tilesConfirmButton.setVisible(true);
+            tilesConfirmButton.setOnMouseClicked(null);
+            tilesConfirmButton.setVisible(false);
         }
 
     }
+
 
 
     /**
@@ -458,38 +474,19 @@ public class GameControllerFX implements Initializable {
 
 
     private void updateMyTilesPicked(List<Tile> tileHand) {
-        if (tileHand.size() >= 1) {
-            myTile1.setImage(new Image("graphics/tiles/" + tileHand.get(0).getItemType() + "_" + tileHand.get(0).getItemId() + ".png"));
-            myTile1.setFitHeight(SELECTED_TILE_DIM);
-            myTile1.setEffect(new DropShadow(15, Color.BLACK));
-            myTile1.setVisible(true);
-        } else {
-            myTile1.setVisible(false);
-            myTile2.setVisible(false);
-            myTile3.setVisible(false);
-            return;
-        }
-
-        if (tileHand.size() >= 2) {
-            myTile2.setImage(new Image("graphics/tiles/" + tileHand.get(0).getItemType() + "_" + tileHand.get(1).getItemId() + ".png"));
-            myTile2.setFitHeight(SELECTED_TILE_DIM);
-            myTile2.setEffect(new DropShadow(15, Color.BLACK));
-            myTile2.setVisible(true);
-        } else {
-            myTile2.setVisible(false);
-            myTile3.setVisible(false);
-            return;
-        }
-
-        if (tileHand.size() >= 3) {
-            myTile3.setImage(new Image("graphics/tiles/" + tileHand.get(0).getItemType() + "_" + tileHand.get(2).getItemId() + ".png"));
-            myTile3.setFitHeight(SELECTED_TILE_DIM);
-            myTile3.setEffect(new DropShadow(15, Color.BLACK));
-            myTile3.setVisible(true);
-        } else {
-            myTile3.setVisible(false);
+        for (int i=0; i<tileHand.size(); i++) {
+            ImageView tileImage = (ImageView) tilesHandGrid.getChildren().get(i);
+            tileImage.setImage(new Image("graphics/tiles/" + tileHand.get(i).getItemType() + "_" + tileHand.get(i).getItemId() + ".png"));
+            tileImage.setFitHeight(SELECTED_TILE_DIM);
+            tileImage.setFitWidth(SELECTED_TILE_DIM);
+            tileImage.setEffect(new DropShadow(15, Color.BLACK));
+            tileImage.setOnMouseClicked(event -> onTileFromHandClicked(tileImage));
+            tileImage.setVisible(true);
         }
     }
+
+
+
 
     private void updateMyPersGoal(PersonalGoalCard card) {
         myPersonalGoal.setImage(new Image("graphics/persGoalCards/Personal_Goals" + card.getId() + ".png"));
