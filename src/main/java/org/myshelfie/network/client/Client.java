@@ -20,9 +20,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Scanner;
 
-import static org.myshelfie.view.PrinterCLI.*;
 import static org.myshelfie.view.PrinterCLI.print;
 
 public class Client extends UnicastRemoteObject implements ClientRMIInterface, Runnable{
@@ -59,8 +57,11 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
         this.isRMI = false;
     }
 
-    public Client(boolean isGUI, String serverAddress) throws RemoteException {
+    public Client(boolean isGUI, boolean isRMI, String serverAddress) throws RemoteException {
         SERVER_ADDRESS = serverAddress;
+
+        // Save the choice of the user
+        this.isRMI = isRMI;
 
         // Subscribe a new UserInputListener that listen to changes in the view and forward events adding message to the server
         eventManager.subscribe(UserInputEvent.class, new UserInputListener(this));
@@ -68,29 +69,31 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
         if (isGUI) {
             // TODO: implement GUI
         } else {
-            Scanner userInput = new Scanner(System.in);
-            String choice;
-            clear();
-            printTitle();
-            print("Would you like to use Socket or RMI? (s/r)", 0, 20, false);
-            do {
-                setCursor(0, 22);
-                choice = userInput.nextLine();
-                if (choice.equalsIgnoreCase("s"))
-                    isRMI = false;
-                else if (choice.equalsIgnoreCase("r"))
-                    isRMI = true;
-                else
-                {
-                    clear();
-                    print("Try again ", 0, 25, false);
-                    printTitle();
-                    print("Would you like to use Socket or RMI? (s/r)", 0, 20, false);
-                }
-            } while(!choice.equalsIgnoreCase("s") && !choice.equalsIgnoreCase("r"));
+
+            // TODO uncomment this in case we can't pass the Socket/RMI parameter via command line before the jar
+//            Scanner userInput = new Scanner(System.in);
+//            String choice;
+//            clear();
+//            printTitle();
+//            print("Would you like to use Socket or RMI? (s/r)", 0, 20, false);
+//            do {
+//                setCursor(0, 22);
+//                choice = userInput.nextLine();
+//                if (choice.equalsIgnoreCase("s"))
+//                    isRMI = false;
+//                else if (choice.equalsIgnoreCase("r"))
+//                    isRMI = true;
+//                else
+//                {
+//                    clear();
+//                    print("Try again ", 0, 25, false);
+//                    printTitle();
+//                    print("Would you like to use Socket or RMI? (s/r)", 0, 20, false);
+//                }
+//            } while(!choice.equalsIgnoreCase("s") && !choice.equalsIgnoreCase("r"));
 
             this.view = new ViewCLI(this);
-            print("Connecting to server...", 0, 25, false);
+            print("Connecting to server: " + SERVER_ADDRESS, 0, 25, false);
             // Connect to the server
             this.connect();
             this.run();
