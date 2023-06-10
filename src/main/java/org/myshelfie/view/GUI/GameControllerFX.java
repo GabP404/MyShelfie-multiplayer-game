@@ -5,6 +5,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
@@ -48,6 +49,9 @@ public class GameControllerFX implements Initializable {
     private ImageView myBookshelfImage;
 
     @FXML
+    private AnchorPane myBookshelfPane;
+
+    @FXML
     private ImageView myFinalToken;
 
     @FXML
@@ -73,6 +77,8 @@ public class GameControllerFX implements Initializable {
 
     @FXML
     private VBox otherPlayersLayout;
+
+    Button tilesConfirmButton;
 
     private String nickname = null;
 
@@ -106,6 +112,8 @@ public class GameControllerFX implements Initializable {
         myNickname.setVisible(true);
         otherPlayersLayout.setVisible(true);
         colSelectionArrowsGrid.setVisible(true);
+
+        initializeTilesConfirmButton();
     }
 
     public void setMyNickname(String nickname) {
@@ -144,6 +152,7 @@ public class GameControllerFX implements Initializable {
         updateMyTilesPicked(me.getTilesPicked());
         updateMyPersGoal(me.getPersonalGoal());
         udpateColSelectionArrows();
+        updateTilesConfirmButton();
     }
 
 
@@ -303,6 +312,24 @@ public class GameControllerFX implements Initializable {
             myNickname.setEffect(null);
             myNickname.setVisible(true);
         }
+    }
+
+    private void updateTilesConfirmButton() {
+        if (latestGame.getCurrPlayer().getNickname().equals(nickname) && latestGame.getModelState() == ModelState.WAITING_SELECTION_TILE) {
+            tilesConfirmButton.setOnMouseClicked(ev -> {
+                if (unconfirmedSelectedTiles.size() >= 1) {
+                    System.out.println("Sending to server " + unconfirmedSelectedTiles.size() + " tiles");
+                    // TODO: add the notify to the server
+                    tilesConfirmButton.setVisible(false);
+                } else {
+                    System.out.println("You must select at least one tile!");
+                }
+            });
+            tilesConfirmButton.setVisible(true);
+        } else {
+            tilesConfirmButton.setVisible(true);
+        }
+
     }
 
 
@@ -501,4 +528,15 @@ public class GameControllerFX implements Initializable {
         tileImage.setImage(null);
         tileImage.setVisible(false);
     }
+
+    /////////////////////////// INITIALIZATION METHODS ///////////////////////////
+    private void initializeTilesConfirmButton() {
+        tilesConfirmButton = new Button("CONFIRM");
+        myBookshelfPane.getChildren().add(tilesConfirmButton);
+        tilesConfirmButton.fontProperty().set(Font.font("System", 15));
+        tilesConfirmButton.setTranslateX(0);
+        tilesConfirmButton.setTranslateY(myBookshelfImage.getFitHeight() + 100);
+        tilesConfirmButton.setVisible(false);
+    }
+
 }
