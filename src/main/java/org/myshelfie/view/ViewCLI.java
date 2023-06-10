@@ -410,9 +410,14 @@ public class ViewCLI implements View{
                             printError("NUMBER OF ARGUMENTS NOT CORRECT");
                             return;
                         }
+                        try {
                         int c = Integer.parseInt(parts[2]);
                         if (!selectColumn(c))
                             return;
+                        } catch (NumberFormatException nfe) {
+                            printError("COLUMN NUMBER IS NOT CORRECT");
+                            return;
+                        }
                         break;
                     default:
                         printError("COMMAND DOES NOT EXIST");
