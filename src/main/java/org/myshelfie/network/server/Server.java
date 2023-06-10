@@ -30,7 +30,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     private List<Client> clients;
     private LobbyController controller;
     public static EventManager eventManager = new EventManager();
-    public static final String SERVER_ADDRESS = Configuration.getServerAddress();
+    public static String SERVER_ADDRESS = Configuration.getServerAddress();
     private String RMI_SERVER_NAME = Configuration.getServerRMIName();
     private ServerSocket serverSocket;
     private static final int HEARTBEAT_TIMEOUT = 10000; // TODO move to configuration
@@ -47,6 +47,15 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     }
 
     public static void main( String[] args ) {
+        // Usage example: java -jar server.jar [--server-address=<server-address>]
+
+        // Take the IP address from the CLI arguments to override the one in the configuration file
+        for (String arg : args) {
+            if (arg.startsWith("--server-address=")) {
+                SERVER_ADDRESS = arg.substring(17);
+            }
+        }
+
         System.setProperty("java.rmi.server.hostname", SERVER_ADDRESS);
         Object lock = new Object();
         Server s = null;
