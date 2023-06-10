@@ -4,10 +4,11 @@ import org.myshelfie.controller.Configuration;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.server.Server;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Bookshelf {
+public class Bookshelf implements Serializable {
 
     public static final int NUMROWS = Configuration.getBookshelfRows();
     public static final int NUMCOLUMNS = Configuration.getBookshelfCols();

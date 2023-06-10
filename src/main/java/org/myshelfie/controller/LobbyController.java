@@ -10,6 +10,7 @@ import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.server.GameListener;
 import org.myshelfie.network.server.Server;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +27,24 @@ public class LobbyController {
 
     private LobbyController(Server server) {
         this.server = server;
-        gameControllers = new HashMap<>();
+        if(server.shouldResumeFromBackup()) {
+            try {
+                System.out.println("Backup option selected. Resuming from default backup file...");
+                gameControllers = GameControllerSaver.load();
+                //for each element in gameControllers, create a new Executor service
+                for (GameController g : gameControllers.values()) {
+                    g.createCommandExecutor();
+                }
+                System.out.println("Games resumed successfully! Waiting for players to reconnect...");
+            } catch (Exception e) {
+                System.out.println("Exception occurred while resuming from backup file: " + e.getMessage());
+                System.out.println("No big deal, I'll just create a new gameControllers map.");
+                gameControllers = new HashMap<>();
+            }
+        }
+        else {
+            gameControllers = new HashMap<>();
+        }
     }
 
     public static LobbyController getInstance(Server server){
@@ -36,7 +54,21 @@ public class LobbyController {
         return single_istance;
     }
     public void executeCommand(CommandMessage command, UserInputEvent t) {
+        // Queue the command
         gameControllers.get(command.getGameName()).queueAndExecuteCommand(command, t);
+
+        // Queue the operation of saving the server status.
+        // This operation is done inside the executor thread at the end of every command so that the status is kept consistent.
+        // The `save` method is synchronized so that only one thread at a time can access the file.
+        gameControllers.get(command.getGameName()).queueAndExecuteInstruction(
+                () -> {
+                    try {
+                        GameControllerSaver.save(gameControllers);
+                    } catch (IOException e) {
+                        System.out.println("Exception occurred while saving gameControllers: " + e.getMessage());
+                    }
+                }
+        );
     }
 
 

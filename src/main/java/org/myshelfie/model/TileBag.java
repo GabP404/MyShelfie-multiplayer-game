@@ -1,11 +1,12 @@
 package org.myshelfie.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.myshelfie.controller.Configuration;
 
-public class TileBag {
+public class TileBag implements Serializable {
     private static final int TILEPERTYPE = Configuration.getTilesPerType();
     private List<Tile> tiles;
 

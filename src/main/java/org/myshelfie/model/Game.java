@@ -2,9 +2,10 @@ package org.myshelfie.model;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.server.Server;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class Game {
+public class Game implements Serializable {
 
     private String gameName;
     private Player currPlayer;

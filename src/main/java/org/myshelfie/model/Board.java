@@ -4,7 +4,9 @@ import org.myshelfie.network.server.Server;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.controller.Configuration;
 
-public class Board {
+import java.io.Serializable;
+
+public class Board implements Serializable {
     /**
      * Describes the board on which the tiles are placed.
      */
