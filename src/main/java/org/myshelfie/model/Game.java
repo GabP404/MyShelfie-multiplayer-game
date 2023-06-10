@@ -126,7 +126,8 @@ public class Game {
     public void setCurrPlayer(Player currPlayer) throws WrongArgumentException{
         if (currPlayer == null || !players.contains(currPlayer))
             throw new WrongArgumentException("Player not found");
-        this.currPlayer = currPlayer;
+        this.currPlayer.clearSelectedColumn(); // reset the selected column from the previous player
+        this.currPlayer = currPlayer; // set the new current player
         Server.eventManager.notify(GameEvent.CURR_PLAYER_UPDATE, this);
     }
 
@@ -164,5 +165,21 @@ public class Game {
         // TODO: to handle player's disconnection a notify with a specific event will be required
         //  (also for the setter of Player's online attribute)
         this.playing = playing;
+    }
+
+    /**
+     * Get the next player that is online. If there are no online players, return null
+     * @return
+     */
+    public Player getNextOnlinePlayer() {
+        int pos = players.indexOf(currPlayer);
+        int count = 0;
+        while (count < players.size()) {
+            pos = (pos + 1) % players.size();
+            if (players.get(pos).isOnline())
+                return players.get(pos);
+            count++;
+        }
+        return null;
     }
 }
