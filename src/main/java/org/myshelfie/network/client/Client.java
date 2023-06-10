@@ -126,11 +126,11 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
 
 
     public void endNicknameThread() {
-        view.endNicknameThread();
+        view.endLoginPhase();
     }
 
     public void endChoiceThread() {
-        view.endChoiceThread();
+        view.endLobbyPhase();
         if (!isRMI) {
             try {
                 serverListener.start();

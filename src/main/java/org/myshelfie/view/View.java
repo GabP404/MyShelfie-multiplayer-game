@@ -19,8 +19,8 @@ public interface View extends Runnable {
     /**
      * Method called to stop the thread that handles the nickname choice
      */
-    void endNicknameThread();
-    void endChoiceThread();
+    void endLoginPhase();
+    void endLobbyPhase();
 
     /**
      * Returns the name of the game the user is in

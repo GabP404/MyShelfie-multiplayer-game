@@ -253,7 +253,7 @@ public class ViewCLI implements View {
     @Override
     public void update(GameView msg, GameEvent ev) {
         // End the threads to create/join a game, in case the gameView was received after a reconnection
-        this.endChoiceThread();
+        this.endLobbyPhase();
 
         game = msg;
 
@@ -326,14 +326,14 @@ public class ViewCLI implements View {
     }
 
     @Override
-    public void endNicknameThread()
+    public void endLoginPhase()
     {
         if(threadNick.isAlive())
             threadNick.interrupt();
     }
 
     @Override
-    public void endChoiceThread()
+    public void endLobbyPhase()
     {
         if(threadChoice.isAlive())
             threadChoice.interrupt();
