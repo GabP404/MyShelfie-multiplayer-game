@@ -31,6 +31,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     private LobbyController controller;
     public static EventManager eventManager = new EventManager();
     public static String SERVER_ADDRESS = Configuration.getServerAddress();
+    private static Boolean RESUME_FROM_BACKUP = Boolean.FALSE;
     private String RMI_SERVER_NAME = Configuration.getServerRMIName();
     private ServerSocket serverSocket;
     private static final int HEARTBEAT_TIMEOUT = 10000; // TODO move to configuration
@@ -47,12 +48,16 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     }
 
     public static void main( String[] args ) {
-        // Usage example: java -jar server.jar [--server-address=<server-address>]
+        // Usage example: java -jar server.jar [--server-address=<server-address>] [--backup]
 
         // Take the IP address from the CLI arguments to override the one in the configuration file
+        // If the --backup flag is present, the server will try to resume from a backup file (serverBackup.ser)
         for (String arg : args) {
             if (arg.startsWith("--server-address=")) {
                 SERVER_ADDRESS = arg.substring(17);
+            }
+            if (arg.equals("--backup")) {
+                RESUME_FROM_BACKUP = Boolean.TRUE;
             }
         }
 
@@ -456,6 +461,11 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
         } catch (IllegalArgumentException e) {
             return false;
         }
+    }
+
+    public boolean shouldResumeFromBackup()
+    {
+        return RESUME_FROM_BACKUP;
     }
 }
 

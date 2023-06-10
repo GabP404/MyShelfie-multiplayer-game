@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-public class GameController {
+public class GameController implements Serializable {
 
     public static class GameDefinition implements Serializable {
         private final String gameName;
@@ -39,12 +39,13 @@ public class GameController {
         }
 
     }
-    private Timer timer;
+    private transient Timer timer; // declared as transient to not serialize it
 
     private int timeout;
     private boolean isRunning;
 
-    private ExecutorService commandExecutor;
+    // declared as transient to not serialize it
+    private transient ExecutorService commandExecutor;
 
     public void startTimer() {
         timer = new Timer();
@@ -93,6 +94,11 @@ public class GameController {
         this.numGoalCards = numGoalCards;
         this.timeout = Configuration.getTimerTimeout();
         this.game = new Game();
+        createCommandExecutor();
+    }
+
+    //creates a new command executor
+    public void createCommandExecutor() {
         this.commandExecutor = Executors.newSingleThreadExecutor();
     }
 
@@ -219,11 +225,19 @@ public class GameController {
      * Queue a command to be executed. This will add the command to the command queue in a separate thread
      * and execute it as soon as the executorService is available.
      * The ExecutorService is a single thread executor, so commands will be executed in the order they are queued.
-     * @param queuedCommand
-     * @param queuedEvent
+     * @param queuedCommand The command to queue
+     * @param queuedEvent The event that triggered the command
      */
     public void queueAndExecuteCommand(CommandMessage queuedCommand, UserInputEvent queuedEvent) {
         commandExecutor.execute(() -> executeCommand(queuedCommand, queuedEvent));
+    }
+
+    /**
+     * Make the executor service execute a generic Runnable.
+     * @param instruction The Runnable (such as a lambda function) to execute
+     */
+    public void queueAndExecuteInstruction(Runnable instruction) {
+        commandExecutor.execute(instruction);
     }
 
     public void executeCommand(CommandMessage command, UserInputEvent t) {
