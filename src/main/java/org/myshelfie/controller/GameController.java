@@ -72,6 +72,8 @@ public class GameController implements Serializable {
                 getGame().setWinner(getGame().getPlayers().stream().filter(x -> x.isOnline()).collect(Collectors.toList()).get(0));
             } catch (WrongArgumentException e) {
                 throw new RuntimeException(e);
+            } catch (IndexOutOfBoundsException e) {
+                // All the players are offline (get(0) went out of bound), the game ends!
             }
             isRunning = false;
         }
