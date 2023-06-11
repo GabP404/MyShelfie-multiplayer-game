@@ -88,7 +88,7 @@ public class GameListener implements Listener<GameEvent> {
                 Bookshelf bookshelf = (Bookshelf) changedItem;
                 return listenedGame.getPlayers().stream().anyMatch(p -> p.getBookshelf() == bookshelf);
             }
-            case TOKEN_STACK_UPDATE, CURR_PLAYER_UPDATE, ERROR_STATE_RESET, ERROR -> {
+            case TOKEN_STACK_UPDATE, CURR_PLAYER_UPDATE, ERROR_STATE_RESET, ERROR, GAME_END -> {
                 // all these events are directly triggered by a Game object
                 Game game = (Game) changedItem;
                 return listenedGame == game;

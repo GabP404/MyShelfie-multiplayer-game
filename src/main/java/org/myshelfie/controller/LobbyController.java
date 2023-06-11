@@ -1,6 +1,7 @@
 package org.myshelfie.controller;
 
 import org.myshelfie.model.Game;
+import org.myshelfie.model.ModelState;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.commandMessages.CommandMessage;
 import org.myshelfie.network.messages.commandMessages.CreateGameMessage;
@@ -60,6 +61,24 @@ public class LobbyController {
     public void executeCommand(CommandMessage command, UserInputEvent t) {
         // Queue the command
         gameControllers.get(command.getGameName()).queueAndExecuteCommand(command, t);
+
+        gameControllers.get(command.getGameName()).queueAndExecuteInstruction(
+                () -> {
+                    // Delete the game if it has ended - the update has already been sent to the clients
+                    if (gameControllers.get(command.getGameName()).getGame().getModelState() == ModelState.END_GAME) {
+                        // Unsubscribe all the clients that were listening to this game
+                        gameControllers.get(command.getGameName()).getGame().getPlayers().forEach(
+                                (player) -> {
+                                    Client toUnregister = server.getClient(player.getNickname());
+                                    server.unregister(toUnregister);
+                                }
+                        );
+
+                        // Delete the game from the map
+                        gameControllers.remove(command.getGameName());
+                    }
+                }
+        );
 
         // Queue the operation of saving the server status.
         // This operation is done inside the executor thread at the end of every command so that the status is kept consistent.

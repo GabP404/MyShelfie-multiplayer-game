@@ -11,5 +11,6 @@ public enum GameEvent {
     TILES_PICKED_UPDATE,
     SELECTED_COLUMN_UPDATE,
     FINAL_TOKEN_UPDATE,
+    GAME_END,
     ERROR
 }

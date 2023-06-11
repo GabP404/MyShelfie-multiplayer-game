@@ -138,6 +138,8 @@ public class Game implements Serializable {
 
     public void setModelState(ModelState modelState) {
         this.modelState = modelState;
+        if (modelState == ModelState.END_GAME)
+            Server.eventManager.notify(GameEvent.GAME_END, this);
     }
 
     public Player getWinner() {
