@@ -8,8 +8,8 @@ import org.myshelfie.network.messages.gameMessages.ImmutablePlayer;
 
 import java.util.List;
 
-import static org.myshelfie.view.Color.*;
-import static org.myshelfie.view.Color.BLUE;
+import static org.myshelfie.view.CLI.Color.*;
+import static org.myshelfie.view.CLI.Color.BLUE;
 
 public class PrinterCLI {
     private static final int frameOffsetX = 10;
