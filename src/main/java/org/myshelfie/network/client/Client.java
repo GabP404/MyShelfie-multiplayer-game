@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.NoRouteToHostException;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.rmi.AccessException;
@@ -111,9 +112,13 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
     public void connect() {
         try {
             if (isRMI) {
+                // Resolve the hostname, if necessary
+                InetAddress address = InetAddress.getByName(SERVER_ADDRESS);
+                String hostAddress = address.getHostAddress();
+
                 // Look up the server object in the RMI registry
-                Registry registry = LocateRegistry.getRegistry(SERVER_ADDRESS, 1099);
-                rmiServer = (ServerRMIInterface) registry.lookup("//" + SERVER_ADDRESS + "/" + RMI_SERVER_NAME);
+                Registry registry = LocateRegistry.getRegistry(hostAddress, 1099);
+                rmiServer = (ServerRMIInterface) registry.lookup("//" + hostAddress + "/" + RMI_SERVER_NAME);
             } else {
                 // Create a new socket and connect to the server
                 this.serverSocket = new Socket(SERVER_ADDRESS, SERVER_PORT);
