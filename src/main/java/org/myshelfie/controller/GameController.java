@@ -310,7 +310,10 @@ public class GameController implements Serializable {
                 if(checkEndGameBookShelfFull()) {
                     nextState = ModelState.END_GAME;
                 }else {
+                    // TODO optimize this with a check to send the player update only once
                     try {
+                        nextState = ModelState.WAITING_SELECTION_TILE;
+                        game.setModelState(nextState);
                         game.setCurrPlayer(game.getNextPlayer());
                     } catch (WrongArgumentException e) {
                         throw new RuntimeException(e);
@@ -323,7 +326,6 @@ public class GameController implements Serializable {
                         }
                     }
                     updateEndTurn();
-                    nextState = ModelState.WAITING_SELECTION_TILE;
                 }
                 break;
             case WAITING_SELECTION_BOOKSHELF_COLUMN:

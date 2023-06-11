@@ -24,6 +24,8 @@ public class ViewGUI extends Application implements View  {
 
     private String nickname;
 
+    private String gameName;
+
     private Stage stage;
 
     private FXMLLoader fxmlLoader;
@@ -74,7 +76,7 @@ public class ViewGUI extends Application implements View  {
         scenes = new HashMap<>();
         scenes.put("Game", "/fxml/GameFXML.fxml");
         scenes.put("EndGame", "/fxml/EndGameFXML.fxml");
-        scenes.put("Lobbies", "fxml/LobbiesFXML.fxml");
+        scenes.put("Lobbies", "/fxml/LobbiesFXML.fxml");
         scenes.put("Login", "/fxml/LoginFXML.fxml");
     }
 
@@ -97,12 +99,18 @@ public class ViewGUI extends Application implements View  {
                 loginControllerFX.setClient(client);
                 break;
             case "Game":
+                stage.setResizable(true);
+                stage.setMinWidth(1280);
+                stage.setMinHeight(720);
                 gameControllerFX = fxmlLoader.getController();
+                this.nickname = this.client.getNickname();
                 gameControllerFX.setMyNickname(this.nickname);
+                gameControllerFX.setClient(this.client);
                 break;
             //case "EndGame":
             case "Lobbies":
                 lobbiesControllerFX = fxmlLoader.getController();
+                lobbiesControllerFX.setClient(client);
                 break;
         }
         stage.show();
@@ -111,8 +119,9 @@ public class ViewGUI extends Application implements View  {
 
     @Override
     public void update(GameView msg, GameEvent ev) {
+        this.gameName = msg.getGameName();
         if(gameControllerFX != null)
-            gameControllerFX.update(msg);
+            gameControllerFX.update(ev, msg);
     }
 
     @Override
@@ -138,7 +147,7 @@ public class ViewGUI extends Application implements View  {
     }
     @Override
     public String getGameName() {
-        return null;
+        return gameName;
     }
 
     @Override
@@ -154,7 +163,6 @@ public class ViewGUI extends Application implements View  {
     @Override
     public void setAvailableGames(List<GameController.GameDefinition> availableGamesList) {
         lobbiesControllerFX.updateLobbiesOptimized(availableGamesList);
-
     }
 
     @Override

@@ -38,18 +38,22 @@ public class LobbyControllerFX implements Initializable{
         NumPlayersConnected_LB.setText(gameDefinition.getNicknames().size() + "");
         if(gameDefinition.isSimplifyRules()) {
             Rules_LB.setText("SimplifiedRules");
-        }else {
+        } else {
             Rules_LB.setText("StandardRules");
         }
-        this.client.notify();
+        if (this.client == null) {
+            System.out.println("UANMUANMUANM CLIENT IS NULL UAUA");
+        }
         JoinGame_BTN.setOnAction(new EventHandler<ActionEvent>() {
-            private Client client;
-
             @Override
             public void handle(ActionEvent actionEvent) {
-                this.client.eventManager.notify(UserInputEvent.JOIN_GAME, gameDefinition.getGameName());
+                LobbyControllerFX.this.client.eventManager.notify(UserInputEvent.JOIN_GAME, gameDefinition.getGameName());
             }
         });
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
     }
 
 

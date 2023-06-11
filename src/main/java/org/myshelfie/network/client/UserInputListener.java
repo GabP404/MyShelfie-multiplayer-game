@@ -31,9 +31,9 @@ public class UserInputListener implements Listener<UserInputEvent> {
                 client.setNickname((String) args[0]);
                 client.startHeartBeatThread();
                 if (response.getLeft() == ConnectingStatuses.CONFIRMED) {
+                    client.endLoginPhase(); // Stop the view thread that was waiting for the nickname
                     client.getView().setAvailableGames(response.getRight());
                     System.out.println("Successfully set nickname to " + args[0]);
-                    client.endLoginPhase(); // Stop the view thread that was waiting for the nickname
                 } else if (response.getLeft() == ConnectingStatuses.RECONNECTING) {
                     System.out.println("Successfully set nickname to " + args[0]);
                     client.getView().setReconnecting(true);

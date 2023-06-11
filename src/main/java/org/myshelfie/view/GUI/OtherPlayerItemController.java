@@ -4,7 +4,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -15,12 +14,10 @@ import org.myshelfie.model.Bookshelf;
 import org.myshelfie.model.ScoringToken;
 import org.myshelfie.model.Tile;
 import org.myshelfie.model.WrongArgumentException;
-import org.myshelfie.network.messages.gameMessages.GameView;
 import org.myshelfie.network.messages.gameMessages.ImmutableBookshelf;
 import org.myshelfie.network.messages.gameMessages.ImmutablePlayer;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -141,14 +138,14 @@ public class OtherPlayerItemController implements Initializable {
         }
 
         if (tileHand.size() >= 2) {
-            tileHand2.setImage(new Image("graphics/tiles/" + tileHand.get(0).getItemType() + "_" + tileHand.get(1).getItemId() + ".png"));
+            tileHand2.setImage(new Image("graphics/tiles/" + tileHand.get(1).getItemType() + "_" + tileHand.get(1).getItemId() + ".png"));
             tileHand2.setVisible(true);
         } else {
             tileHand2.setVisible(false);
         }
 
         if (tileHand.size() >= 3) {
-            tileHand3.setImage(new Image("graphics/tiles/" + tileHand.get(0).getItemType() + "_" + tileHand.get(2).getItemId() + ".png"));
+            tileHand3.setImage(new Image("graphics/tiles/" + tileHand.get(2).getItemType() + "_" + tileHand.get(2).getItemId() + ".png"));
             tileHand3.setVisible(true);
         } else {
             tileHand3.setVisible(false);

@@ -14,7 +14,6 @@ import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.commandMessages.UserInputEvent;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -42,6 +41,8 @@ public class LobbiesControllerFX implements Initializable {
 
     private Client client;
 
+    private String gameName;
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -49,15 +50,27 @@ public class LobbiesControllerFX implements Initializable {
     }
 
 
+    public void setClient(Client client) {
+        this.client = client;
+    }
+
+    public String getGameName() {
+        return gameName;
+    }
+
+    public void setGameName(String gameName) {
+        this.gameName = gameName;
+    }
 
     public void createLobbies(List<GameController.GameDefinition> lobbies) {
         for(GameController.GameDefinition lobby : lobbies) {
             if (!lobby.isFull()) {
                 FXMLLoader fxmlLoader = new FXMLLoader();
-                fxmlLoader.setLocation(getClass().getResource("LobbyFXML.fxml"));
+                fxmlLoader.setLocation(getClass().getResource("/fxml/LobbyFXML.fxml"));
                 try {
                     HBox lobbyHBox = fxmlLoader.load();
                     LobbyControllerFX lobbyControllerFX = fxmlLoader.getController();
+                    lobbyControllerFX.setClient(this.client);
                     lobbiesFX.put(lobby.getGameName(), lobbyControllerFX);
                     lobbyControllerFX.setData(lobby);
                     LobbyContainer.getChildren().add(lobbyHBox);
@@ -80,10 +93,11 @@ public class LobbiesControllerFX implements Initializable {
                 lobbiesFX.remove(lobby.getGameName());
             } else if (!lobby.isFull() && !lobbiesFX.containsKey(lobby.getGameName())) {
                 FXMLLoader fxmlLoader = new FXMLLoader();
-                fxmlLoader.setLocation(getClass().getResource("LobbyFXML.fxml"));
+                fxmlLoader.setLocation(getClass().getResource("/fxml/LobbyFXML.fxml"));
                 try {
                     HBox lobbyHBox = fxmlLoader.load();
                     LobbyControllerFX lobbyControllerFX = fxmlLoader.getController();
+                    lobbyControllerFX.setClient(this.client);
                     lobbiesFX.put(lobby.getGameName(), lobbyControllerFX);
                     lobbyControllerFX.setData(lobby);
                     LobbyContainer.getChildren().add(lobbyHBox);
@@ -105,14 +119,5 @@ public class LobbiesControllerFX implements Initializable {
     public void refresh() {
         this.client.eventManager.notify(UserInputEvent.REFRESH_AVAILABLE_GAMES);
     }
-
-
-    /*
-    public void createGame() {
-        this.client.eventManager.notify(UserInputEvent.CREATE_GAME, GameName.getText(), Players_CB.getValue(), Rules_CB.getValue());
-    }
-
-     */
-
 
 }

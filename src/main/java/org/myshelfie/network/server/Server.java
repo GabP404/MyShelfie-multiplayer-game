@@ -394,9 +394,9 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                 boolean reconnecting = false;
                 Pair<ConnectingStatuses, List<GameController.GameDefinition>> response;
                 do {
-                    CommandMessageWrapper messageWrapper = (CommandMessageWrapper) input.readObject();
-                    client.setNickname(messageWrapper.getMessage().getNickname());
                     try {
+                        CommandMessageWrapper messageWrapper = (CommandMessageWrapper) input.readObject();
+                        client.setNickname(messageWrapper.getMessage().getNickname());
                         Server.this.register(client);
                         // Put the client back in the game, if it is reconnecting
                         reconnecting = Server.this.controller.handleClientReconnection(client.getNickname());
@@ -405,6 +405,14 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                         // The nickname is probably already taken!
                         response = new Pair<>(ConnectingStatuses.ERROR, new ArrayList<>());
                         sendTo(clientSocket, response);
+                    } catch (EOFException e) {
+                        // If this exception is caught, the client has disconnected
+                        logger.fine("Socket stream reached EOF - client disconnected.");
+                        return; // Terminate the thread since the client has disconnected
+                    } catch (SocketException e) {
+                        // If this exception is caught, the client has disconnected
+                        logger.fine("Socket exception caught - client disconnected.");
+                        return; // Terminate the thread since the client has disconnected
                     }
                 } while (!inputValid);
 

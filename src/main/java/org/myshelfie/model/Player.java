@@ -1,8 +1,8 @@
 package org.myshelfie.model;
 
 import org.myshelfie.controller.Configuration;
-import org.myshelfie.network.server.Server;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
+import org.myshelfie.network.server.Server;
 
 import java.io.Serializable;
 import java.util.ArrayList;
