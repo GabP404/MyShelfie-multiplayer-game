@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 public class Configuration {
     private static final String JSONfile = "constants.json";
@@ -216,5 +217,27 @@ public class Configuration {
     public static String getServerBackupFileName() {
         JSONObject serverInfo = getJSON().getJSONObject("server");
         return serverInfo.getString("backup_file_name");
+    }
+
+    /**
+     * Get the name of the log file used by the server
+     * @return The name of the log file used by the server
+     */
+    public static String getServerLogFileName() {
+        JSONObject serverInfo = getJSON().getJSONObject("server");
+        return serverInfo.getString("log_file_name");
+    }
+
+    /**
+     * Get the default logging level of the server
+     * @return The default logging level of the server
+     */
+    public static Level getServerLogLevel() {
+        JSONObject serverInfo = getJSON().getJSONObject("server");
+        try {
+            return Level.parse(serverInfo.getString("default_logging_level"));
+        } catch (Exception e) {
+            return Level.INFO;
+        }
     }
 }
