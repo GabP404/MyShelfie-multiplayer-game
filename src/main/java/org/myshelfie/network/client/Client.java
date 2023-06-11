@@ -15,6 +15,7 @@ import org.myshelfie.view.ViewCLI;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -105,9 +106,13 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
         // connect
         if (isRMI) {
             try {
+                // Resolve the hostname, if necessary
+                InetAddress address = InetAddress.getByName(SERVER_ADDRESS);
+                String hostAddress = address.getHostAddress();
+
                 // Look up the server object in the RMI registry
-                Registry registry = LocateRegistry.getRegistry(SERVER_ADDRESS, 1099);
-                rmiServer = (ServerRMIInterface) registry.lookup("//" + SERVER_ADDRESS + "/" + RMI_SERVER_NAME);
+                Registry registry = LocateRegistry.getRegistry(hostAddress, 1099);
+                rmiServer = (ServerRMIInterface) registry.lookup("//" + hostAddress + "/" + RMI_SERVER_NAME);
             } catch (Exception e) {
                 System.err.println("Exception: " + e.getMessage());
                 e.printStackTrace();

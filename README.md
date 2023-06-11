@@ -22,6 +22,8 @@ The startup command has these optional parameters:
 
 - `--cli`: If set, this flag runs the game in textual mode. If it is not set, the game will run with a graphical interface.
 - `--server-address=<server-address>`: This parameter allows you to specify the server address if it's different from the default one.
+Note that it is possible also to use a hostname instead of an IP address, as long as there is a valid DNS record for it
+in the DNS server used by the client.
 Example usage:
 
 ```sh
