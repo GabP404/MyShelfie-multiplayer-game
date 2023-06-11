@@ -15,7 +15,11 @@ import org.myshelfie.view.ViewCLI;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.NoRouteToHostException;
 import java.net.Socket;
+import java.net.UnknownHostException;
+import java.rmi.AccessException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -101,29 +105,40 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
 
     }
 
+    /**
+     * Establish the connection to the server, be it RMI or Socket.
+     */
     public void connect() {
-        // connect
-        if (isRMI) {
-            try {
+        try {
+            if (isRMI) {
                 // Look up the server object in the RMI registry
                 Registry registry = LocateRegistry.getRegistry(SERVER_ADDRESS, 1099);
                 rmiServer = (ServerRMIInterface) registry.lookup("//" + SERVER_ADDRESS + "/" + RMI_SERVER_NAME);
-            } catch (Exception e) {
-                System.err.println("Exception: " + e.getMessage());
-                e.printStackTrace();
-                System.exit(1);
-            }
-        } else {
-            try {
+            } else {
                 // Create a new socket and connect to the server
                 this.serverSocket = new Socket(SERVER_ADDRESS, SERVER_PORT);
                 output = new ObjectOutputStream(serverSocket.getOutputStream());
 
                 // Create and start a new thread that constantly listens for messages from the server
                 serverListener = new SocketServerListener(serverSocket);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
+        } catch (NoRouteToHostException e) {
+            print("No route to server! Please specify another valid server address.");
+            System.exit(1);
+        } catch (AccessException e) {
+            throw new RuntimeException(e);
+        } catch (UnknownHostException e) {
+            print("Host unknown! Please specify another server address.");
+            System.exit(1);
+        } catch (NotBoundException e) {
+            print("Server not bound! The provided RMI name for the server is not valid, please change it.");
+            System.exit(1);
+        } catch (RemoteException e) {
+            print("The reference to the RMI registry could not be created! Please check your connection.");
+            System.exit(1);
+        } catch (IOException e) {
+            print("Error opening the socket: " + e.getMessage());
+            System.exit(1);
         }
     }
 
