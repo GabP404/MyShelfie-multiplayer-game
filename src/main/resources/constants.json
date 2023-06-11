@@ -468,6 +468,8 @@
     "address": "localhost",
     "socket_port": 1234,
     "rmi_name": "CODServer",
-    "backup_file_name": "serverBackup.ser"
+    "backup_file_name": "serverBackup.ser",
+    "log_file_name": "server.log",
+    "default_logging_level": "INFO"
   }
 }

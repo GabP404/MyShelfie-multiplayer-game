@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 public class LobbyController {
     private Server server;
@@ -29,16 +30,19 @@ public class LobbyController {
         this.server = server;
         if(server.shouldResumeFromBackup()) {
             try {
-                System.out.println("Backup option selected. Resuming from default backup file...");
+                server.log(Level.INFO, "Backup option selected. Resuming from default backup file...");
                 gameControllers = GameControllerSaver.load();
                 //for each element in gameControllers, create a new Executor service
                 for (GameController g : gameControllers.values()) {
                     g.createCommandExecutor();
                 }
-                System.out.println("Games resumed successfully! Waiting for players to reconnect...");
+                server.log(Level.INFO, "Games resumed successfully! Waiting for players to reconnect...");
             } catch (Exception e) {
-                System.out.println("Exception occurred while resuming from backup file: " + e.getMessage());
-                System.out.println("No big deal, I'll just create a new gameControllers map.");
+                server.log(
+                        Level.WARNING,
+                        "Exception occurred while resuming from backup file: " + e.getMessage() +
+                        "\nNo big deal, I'll just create a new gameControllers map."
+                );
                 gameControllers = new HashMap<>();
             }
         }
@@ -65,7 +69,7 @@ public class LobbyController {
                     try {
                         GameControllerSaver.save(gameControllers);
                     } catch (IOException e) {
-                        System.out.println("Exception occurred while saving gameControllers: " + e.getMessage());
+                        server.log(Level.WARNING, "Exception occurred while saving gameControllers: " + e.getMessage());
                     }
                 }
         );
@@ -137,12 +141,11 @@ public class LobbyController {
                 ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
                 executorService.schedule(() -> {
                     try {
-                        System.out.println("Setting game " + message.getGameName() + " up...");
+                        server.log(Level.FINE, "Setting game " + message.getGameName() + " up...");
                         gameController.setupGame();
-                        System.out.println("Game set up!");
+                        server.log(Level.INFO, "Game " + message.getGameName() + " set up!");
                     } catch (Exception e) {
-                        System.out.println("Exception while setting game up: " + e.getMessage());
-                        e.printStackTrace();
+                        server.log(Level.SEVERE, "Exception while setting game up: " + e.getMessage());
                         throw new RuntimeException(e);
                     }
                 }, 2, TimeUnit.SECONDS);
@@ -212,14 +215,14 @@ public class LobbyController {
 
         GameController gameController = gameControllers.get(gameName);
         if (gameController.isGameCreated()) {
-            System.out.println("Player " + nickname + " reconnected to game " + gameName + "!");
+            server.log(Level.INFO, "Player " + nickname + " reconnected to game " + gameName + "!");
 
             // Subscribe the client to the event listener
             Game gameToSubscribe = gameController.getGame();
             Client client = server.getClient(nickname);
             if (client == null) {
-                System.out.println("Client " + nickname + " not found!");
-                throw new RuntimeException("Client " + nickname + " not found!");
+                server.log(Level.WARNING, "Client " + nickname + " not found!");
+                return false;
             }
             Server.eventManager.subscribe(GameEvent.class, new GameListener(this.server, client, gameToSubscribe));
 
