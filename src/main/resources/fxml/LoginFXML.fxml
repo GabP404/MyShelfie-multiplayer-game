@@ -6,10 +6,9 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.myshelfie.view.GUI.LoginControllerFX">
    <right>
       <AnchorPane prefHeight="400.0" prefWidth="380.0" style="-fx-background-color: green;" BorderPane.alignment="CENTER" />
    </right>
@@ -17,21 +16,10 @@
       <VBox alignment="TOP_CENTER" prefHeight="400.0" prefWidth="220.0" spacing="20.0" BorderPane.alignment="CENTER">
          <children>
             <Label text="Welcome" />
-            <VBox fx:id="connectionMethod_VB" prefHeight="102.0" prefWidth="180.0">
+            <VBox fx:id="nickname_VB" alignment="CENTER" prefHeight="126.0" prefWidth="180.0" spacing="20.0">
                <children>
-                  <Label prefHeight="36.0" prefWidth="180.0" text="Choose the connection Method" />
-                  <HBox alignment="CENTER" prefHeight="52.0" prefWidth="115.0" spacing="10.0">
-                     <children>
-                        <Button fx:id="rmi_BTN" mnemonicParsing="false" onAction="#createRmiConnection" text="RMI" />
-                        <Button fx:id="socket_BTN" mnemonicParsing="false" onAction="#createSocketConnection" text="Socket" />
-                     </children>
-                  </HBox>
-               </children>
-            </VBox>
-            <VBox fx:id="username_VB" alignment="CENTER" prefHeight="126.0" prefWidth="180.0" spacing="20.0">
-               <children>
-                  <TextField fx:id="username_LBL" prefHeight="27.0" prefWidth="120.0" promptText="Username" />
-                  <Button fx:id="joinGame_BTN" mnemonicParsing="false" onAction="#sendUsername" text="Join" />
+                  <TextField fx:id="nickname_LBL" prefHeight="27.0" prefWidth="120.0" promptText="Username" />
+                  <Button fx:id="endLoginPhaseButton_BTN" mnemonicParsing="false" onAction="#sendNickname" text="Join" />
                </children>
             </VBox>
          </children>

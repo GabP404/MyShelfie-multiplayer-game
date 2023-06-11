@@ -107,9 +107,12 @@ public class LobbiesControllerFX implements Initializable {
     }
 
 
+    /*
     public void createGame() {
         this.client.eventManager.notify(UserInputEvent.CREATE_GAME, GameName.getText(), Players_CB.getValue(), Rules_CB.getValue());
     }
+
+     */
 
 
 }

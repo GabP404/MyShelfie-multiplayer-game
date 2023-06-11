@@ -1,9 +1,8 @@
 package org.myshelfie;
 
 import org.myshelfie.controller.Configuration;
-import org.myshelfie.network.client.Client;
-
-import java.rmi.RemoteException;
+import org.myshelfie.view.CLI.ViewCLI;
+import org.myshelfie.view.GUI.ViewGUI;
 
 
 public class ClientApp {
@@ -14,7 +13,7 @@ public class ClientApp {
      */
     public static void main( String[] args ) {
         boolean isGUI = true;
-        boolean isRMI = false;
+        Boolean isRMI = false;
         // Get the deafult server address from the configuration file
         String serverAddress = Configuration.getServerAddress();
 
@@ -39,11 +38,13 @@ public class ClientApp {
             }
         }
 
-        Client client;
-        try {
-            client = new Client(isGUI, isRMI, serverAddress);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
+        String[] arguments = new String[2];
+        arguments[0] = isRMI.toString();
+        arguments[1] = serverAddress;
+        if (isGUI) {
+            ViewGUI.main(arguments); //Starts the JavaFX application
+        } else {
+            ViewCLI.main(arguments);
         }
     }
 }

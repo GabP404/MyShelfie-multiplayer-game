@@ -9,14 +9,15 @@ import org.myshelfie.network.messages.gameMessages.EventWrapper;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.GameView;
 import org.myshelfie.network.server.ServerRMIInterface;
-import org.myshelfie.view.View;
+import org.myshelfie.view.GUI.ViewGUI;
 import org.myshelfie.view.CLI.ViewCLI;
+import org.myshelfie.view.View;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.NoRouteToHostException;
 import java.net.InetAddress;
+import java.net.NoRouteToHostException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.rmi.AccessException;
@@ -70,40 +71,6 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
 
         // Subscribe a new UserInputListener that listen to changes in the view and forward events adding message to the server
         eventManager.subscribe(UserInputEvent.class, new UserInputListener(this));
-
-        if (isGUI) {
-            // TODO: implement GUI
-        } else {
-
-            // TODO uncomment this in case we can't pass the Socket/RMI parameter via command line before the jar
-//            Scanner userInput = new Scanner(System.in);
-//            String choice;
-//            clear();
-//            printTitle();
-//            print("Would you like to use Socket or RMI? (s/r)", 0, 20, false);
-//            do {
-//                setCursor(0, 22);
-//                choice = userInput.nextLine();
-//                if (choice.equalsIgnoreCase("s"))
-//                    isRMI = false;
-//                else if (choice.equalsIgnoreCase("r"))
-//                    isRMI = true;
-//                else
-//                {
-//                    clear();
-//                    print("Try again ", 0, 25, false);
-//                    printTitle();
-//                    print("Would you like to use Socket or RMI? (s/r)", 0, 20, false);
-//                }
-//            } while(!choice.equalsIgnoreCase("s") && !choice.equalsIgnoreCase("r"));
-
-            this.view = new ViewCLI(this);
-            print("Connecting to server: " + SERVER_ADDRESS, 0, 25, false);
-            // Connect to the server
-            this.connect();
-            this.run();
-        }
-
     }
 
     /**
@@ -148,11 +115,11 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
     }
 
 
-    public void endNicknameThread() {
+    public void endLoginPhase() {
         view.endLoginPhase();
     }
 
-    public void endChoiceThread() {
+    public void endLobbyPhase() {
         view.endLobbyPhase();
         if (!isRMI) {
             try {
@@ -183,6 +150,14 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
 
     public long getLastHeartBeat() {
         return this.lastHeartbeat;
+    }
+
+    public void initializeViewCLI(ViewCLI viewCLI) {
+        this.view = viewCLI;
+    }
+
+    public void initializeViewGUI(ViewGUI viewGUI) {
+        this.view = viewGUI;
     }
 
     class SocketServerListener extends Thread {

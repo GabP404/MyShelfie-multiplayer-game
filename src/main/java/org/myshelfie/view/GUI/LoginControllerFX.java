@@ -19,53 +19,23 @@ public class LoginControllerFX implements Initializable{
     public static final String LOGIN_FXML = "/org/myshelfie/view/GUI/Login.fxml";
 
     @FXML
-    private VBox connectionMethod_VB;
+    private Button endLoginPhaseButton_BTN;
 
     @FXML
-    private Button joinGame_BTN;
+    private TextField nickname_LBL;
 
     @FXML
-    private Button rmi_BTN;
-
-    @FXML
-    private Button socket_BTN;
-
-    @FXML
-    private TextField username_LBL;
-
-    @FXML
-    private VBox username_VB;
+    private VBox nickname_VB;
 
     private Client client;
 
-
-    public void LoginControllerFX() {
-
-    }
-
-    /**
-     * after clicking the RMI button, this method creates a new client with RMI connection
-     * @param event
-     * @throws RemoteException
-     */
-    @FXML
-    void createRmiConnection(ActionEvent event) throws RemoteException {
-        client = new Client(true,true);
-        changeLayout();
-    }
 
     Client getClient() {
         return client;
     }
 
-    /**
-     * after clicking the socket button, this method creates a new client with socket connection
-     * @param event
-     * @throws RemoteException
-     */
-    @FXML
-    void createSocketConnection(ActionEvent event) throws RemoteException {
-        client = new Client(true,true);
+    public void setClient(Client client) {
+        this.client = client;
     }
 
     /**
@@ -73,8 +43,8 @@ public class LoginControllerFX implements Initializable{
      * @param event
      */
     @FXML
-    void sendUsername(ActionEvent event) {
-        String nickname = username_LBL.getText();
+    void sendNickname(ActionEvent event) {
+        String nickname = nickname_LBL.getText();
         if (nickname.isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
@@ -84,20 +54,9 @@ public class LoginControllerFX implements Initializable{
         }
     }
 
-    /**
-     * this method changes the layout of the login screen to show the username input and hide the connection method buttons
-     */
-    private void changeLayout() {
-        connectionMethod_VB.setVisible(false);
-        connectionMethod_VB.setManaged(false);
-        username_VB.setVisible(true);
-    }
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        connectionMethod_VB.setVisible(true);
-        connectionMethod_VB.setManaged(true);
-        username_VB.setVisible(false);
-        username_VB.setManaged(false);
+        nickname_VB.setManaged(true);
+        nickname_VB.setVisible(true);
     }
 }

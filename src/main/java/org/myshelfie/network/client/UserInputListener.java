@@ -56,7 +56,7 @@ public class UserInputListener implements Listener<UserInputEvent> {
                 // TODO do something on the view
                 if (successfulCreation) {
                     System.out.println("Successfully created game " + args[0]);
-                    client.endChoiceThread();
+                    client.endLobbyPhase();
                 }
             }
             case JOIN_GAME -> {
@@ -68,7 +68,7 @@ public class UserInputListener implements Listener<UserInputEvent> {
                 );
                 if (joinGameResponse instanceof EventWrapper) {
                     System.out.println(client.getNickname() + ": Successfully joined game " + args[0]);
-                    client.endChoiceThread();
+                    client.endLobbyPhase();
                     System.out.println(client.getNickname() + ": Game started!");
                     // This response is the game view; the client should now update the view since the game
                     // has now started!
@@ -82,7 +82,7 @@ public class UserInputListener implements Listener<UserInputEvent> {
                     // TODO do something on the view
                     if ((boolean) joinGameResponse) {
                         System.out.println("Successfully joined game " + args[0]);
-                        client.endChoiceThread();
+                        client.endLobbyPhase();
                     }
                 }
 
