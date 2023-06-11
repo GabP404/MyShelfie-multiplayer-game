@@ -422,9 +422,9 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                     // Get CREATE or JOIN or REFRESH_AVAILABLE_GAMES game message
                     inputValid = false;
                     do {
-                        CommandMessageWrapper message = (CommandMessageWrapper) input.readObject();
-                        logger.fine("Received message of type '" + message.getType() + "' from client " + client.getNickname());
                         try {
+                            CommandMessageWrapper message = (CommandMessageWrapper) input.readObject();
+                            logger.fine("Received message of type '" + message.getType() + "' from client " + client.getNickname());
                             if (message.getType() == UserInputEvent.CREATE_GAME) {
                                 inputValid = Server.this.createGame((CreateGameMessage) message.getMessage());
                             } else if (message.getType() == UserInputEvent.JOIN_GAME) {
@@ -443,6 +443,16 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                             }
                         } catch (IllegalArgumentException e) {
                             sendTo(clientSocket, e.getMessage());
+                        } catch (EOFException e) {
+                            // If this exception is caught, the client has disconnected
+                            logger.fine("Socket stream reached EOF - probably disconnected. Setting last heartbeat to 0.");
+                            client.setLastHeartbeat(0);
+                            return; // Terminate the thread since the client has disconnected
+                        } catch (SocketException e) {
+                            // If this exception is caught, the client has disconnected
+                            logger.fine("Socket exception caught - probably disconnected. Setting last heartbeat to 0.");
+                            client.setLastHeartbeat(0);
+                            return; // Terminate the thread since the client has disconnected
                         }
                     } while (!inputValid);
 
@@ -482,9 +492,10 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                 clientSocket.close();
                 Server.this.clients.remove(client);
             } catch (IOException e) {
-                System.err.println("Exception: " + e.getMessage());
+                logger.severe("Exception: " + e.getMessage());
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {
+                logger.severe("ClassNotFound exception: " + e.getMessage());
                 throw new RuntimeException(e);
             }
         }

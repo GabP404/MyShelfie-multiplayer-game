@@ -382,6 +382,10 @@ public class GameController implements Serializable {
         return true;
     }
 
+    public boolean isGamePlaying() {
+        return isGameCreated() && game.isPlaying();
+    }
+
     public String getGameName() {
         return gameName;
     }

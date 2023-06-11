@@ -209,7 +209,7 @@ public class LobbyController {
         }
 
         GameController gameController = gameControllers.get(gameName);
-        if (gameController.isGameCreated()) {
+        if (gameController.isGamePlaying()) {
             //The game has already started, so the player is set offline.
             gameController.setPlayerOffline(nickname);
         } else {
