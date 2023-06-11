@@ -1,6 +1,7 @@
 package org.myshelfie.controller;
 
 import org.myshelfie.model.Game;
+import org.myshelfie.model.ModelState;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.commandMessages.CommandMessage;
 import org.myshelfie.network.messages.commandMessages.CreateGameMessage;
@@ -10,12 +11,14 @@ import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.server.GameListener;
 import org.myshelfie.network.server.Server;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 public class LobbyController {
     private Server server;
@@ -26,7 +29,27 @@ public class LobbyController {
 
     private LobbyController(Server server) {
         this.server = server;
-        gameControllers = new HashMap<>();
+        if(server.shouldResumeFromBackup()) {
+            try {
+                server.log(Level.INFO, "Backup option selected. Resuming from default backup file...");
+                gameControllers = GameControllerSaver.load();
+                //for each element in gameControllers, create a new Executor service
+                for (GameController g : gameControllers.values()) {
+                    g.createCommandExecutor();
+                }
+                server.log(Level.INFO, "Games resumed successfully! Waiting for players to reconnect...");
+            } catch (Exception e) {
+                server.log(
+                        Level.WARNING,
+                        "Exception occurred while resuming from backup file: " + e.getMessage() +
+                        "\nNo big deal, I'll just create a new gameControllers map."
+                );
+                gameControllers = new HashMap<>();
+            }
+        }
+        else {
+            gameControllers = new HashMap<>();
+        }
     }
 
     public static LobbyController getInstance(Server server){
@@ -36,7 +59,39 @@ public class LobbyController {
         return single_istance;
     }
     public void executeCommand(CommandMessage command, UserInputEvent t) {
+        // Queue the command
         gameControllers.get(command.getGameName()).queueAndExecuteCommand(command, t);
+
+        gameControllers.get(command.getGameName()).queueAndExecuteInstruction(
+                () -> {
+                    // Delete the game if it has ended - the update has already been sent to the clients
+                    if (gameControllers.get(command.getGameName()).getGame().getModelState() == ModelState.END_GAME) {
+                        // Unsubscribe all the clients that were listening to this game
+                        gameControllers.get(command.getGameName()).getGame().getPlayers().forEach(
+                                (player) -> {
+                                    Client toUnregister = server.getClient(player.getNickname());
+                                    server.unregister(toUnregister);
+                                }
+                        );
+
+                        // Delete the game from the map
+                        gameControllers.remove(command.getGameName());
+                    }
+                }
+        );
+
+        // Queue the operation of saving the server status.
+        // This operation is done inside the executor thread at the end of every command so that the status is kept consistent.
+        // The `save` method is synchronized so that only one thread at a time can access the file.
+        gameControllers.get(command.getGameName()).queueAndExecuteInstruction(
+                () -> {
+                    try {
+                        GameControllerSaver.save(gameControllers);
+                    } catch (IOException e) {
+                        server.log(Level.WARNING, "Exception occurred while saving gameControllers: " + e.getMessage());
+                    }
+                }
+        );
     }
 
 
@@ -105,12 +160,11 @@ public class LobbyController {
                 ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
                 executorService.schedule(() -> {
                     try {
-                        System.out.println("Setting game " + message.getGameName() + " up...");
+                        server.log(Level.FINE, "Setting game " + message.getGameName() + " up...");
                         gameController.setupGame();
-                        System.out.println("Game set up!");
+                        server.log(Level.INFO, "Game " + message.getGameName() + " set up!");
                     } catch (Exception e) {
-                        System.out.println("Exception while setting game up: " + e.getMessage());
-                        e.printStackTrace();
+                        server.log(Level.SEVERE, "Exception while setting game up: " + e.getMessage());
                         throw new RuntimeException(e);
                     }
                 }, 2, TimeUnit.SECONDS);
@@ -155,7 +209,7 @@ public class LobbyController {
         }
 
         GameController gameController = gameControllers.get(gameName);
-        if (gameController.isGameCreated()) {
+        if (gameController.isGamePlaying()) {
             //The game has already started, so the player is set offline.
             gameController.setPlayerOffline(nickname);
         } else {
@@ -180,14 +234,14 @@ public class LobbyController {
 
         GameController gameController = gameControllers.get(gameName);
         if (gameController.isGameCreated()) {
-            System.out.println("Player " + nickname + " reconnected to game " + gameName + "!");
+            server.log(Level.INFO, "Player " + nickname + " reconnected to game " + gameName + "!");
 
             // Subscribe the client to the event listener
             Game gameToSubscribe = gameController.getGame();
             Client client = server.getClient(nickname);
             if (client == null) {
-                System.out.println("Client " + nickname + " not found!");
-                throw new RuntimeException("Client " + nickname + " not found!");
+                server.log(Level.WARNING, "Client " + nickname + " not found!");
+                return false;
             }
             Server.eventManager.subscribe(GameEvent.class, new GameListener(this.server, client, gameToSubscribe));
 

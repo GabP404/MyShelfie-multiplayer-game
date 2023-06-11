@@ -24,34 +24,102 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.*;
 
 
 public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     private List<Client> clients;
     private LobbyController controller;
     public static EventManager eventManager = new EventManager();
-    public static final String SERVER_ADDRESS = Configuration.getServerAddress();
+    public static String SERVER_ADDRESS = Configuration.getServerAddress();
+    private static Boolean RESUME_FROM_BACKUP = Boolean.FALSE;
     private String RMI_SERVER_NAME = Configuration.getServerRMIName();
     private ServerSocket serverSocket;
     private static final int HEARTBEAT_TIMEOUT = 10000; // TODO move to configuration
 
     private static Registry registry;
 
+    // Logging utilities
+    private static final Logger logger = Logger.getLogger(Server.class.getName());
+    private static Handler consoleHandler = null;
+    private static Handler fileHandler  = null;
+
+
     /**
-     * Overloaded constructor used for testing since it allows to initialize the Game object outside
+     * Main Server constructor. It sets the default logging level to INFO.
+     * @throws RemoteException In case it is not possible to initialize the RMI server
      */
     public Server() throws RemoteException {
         super();
         this.clients = new ArrayList<>();
         this.controller = LobbyController.getInstance(this);
+
+        // Prevent the logger from using parent handlers
+        logger.setUseParentHandlers(false);
+
+        // Initialize the logger
+        consoleHandler = new ConsoleHandler();
+        try {
+            String logPath = Configuration.getServerLogFileName();
+            fileHandler  = new FileHandler(logPath, true);
+        } catch (SecurityException | IOException e) {
+            e.printStackTrace();
+        }
+        logger.setLevel(Configuration.getServerLogLevel());
+
+        consoleHandler.setFormatter(new LoggingFormatterWithColor());
+        fileHandler.setFormatter(new LoggingFormatter());
+
+        logger.addHandler(consoleHandler);
+        logger.addHandler(fileHandler);
+    }
+
+    /**
+     * Server constructor with logging level parameter
+     * @param loggingLevel the logging level to set
+     * @throws RemoteException In case it is not possible to initialize the RMI server
+     */
+    public Server(Level loggingLevel) throws RemoteException {
+        this();
+        logger.setLevel(loggingLevel);
+        consoleHandler.setLevel(loggingLevel);
+        fileHandler.setLevel(loggingLevel);
+        logger.info("Logging level set to " + loggingLevel);
     }
 
     public static void main( String[] args ) {
+        // Usage example: java -jar server.jar [--server-address=<server-address>] [--backup] [--logging=<debug|info|error>]
+
+        // Take the IP address from the CLI arguments to override the one in the configuration file
+        // If the --backup flag is present, the server will try to resume from a backup file (serverBackup.ser)
+        Level loggingLevel = null;
+        for (String arg : args) {
+            if (arg.startsWith("--server-address=")) {
+                SERVER_ADDRESS = arg.substring(17);
+            }
+            if (arg.equals("--backup")) {
+                RESUME_FROM_BACKUP = Boolean.TRUE;
+            }
+            if (arg.equals("--logging=debug")) {
+                loggingLevel = Level.FINE;
+            }
+            if (arg.equals("--logging=info")) {
+                loggingLevel = Level.INFO;
+            }
+            if (arg.equals("--logging=error")) {
+                loggingLevel = Level.SEVERE;
+            }
+        }
+
         System.setProperty("java.rmi.server.hostname", SERVER_ADDRESS);
         Object lock = new Object();
         Server s = null;
         try {
-            s = new Server();
+            if (loggingLevel != null) {
+                s = new Server(loggingLevel);
+            } else {
+                s = new Server();
+            }
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
@@ -82,18 +150,18 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                 try {
                     Thread.sleep(HEARTBEAT_TIMEOUT);
                     if (System.currentTimeMillis() - client.getLastHeartBeat() > HEARTBEAT_TIMEOUT) {
-                        System.out.println("Client " + client.getNickname() + " disconnected");
+                        logger.info("Client " + client.getNickname() + " disconnected");
                         unregister(client);
                         controller.handleClientDisconnection(client.getNickname());
                         break;
                     }
                 } catch (InterruptedException e) {
-                    System.out.println("Heartbeat thread for client " + client.getNickname() + " interrupted");
+                    logger.info("Heartbeat thread for client " + client.getNickname() + " interrupted");
                 }
             }
         });
         t.start();
-        System.out.println("Client " + client.getNickname() + " registered and heartbeat thread started.");
+        logger.info("Client " + client.getNickname() + " registered and heartbeat thread started.");
     }
 
     /**
@@ -127,7 +195,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
         // unwrap the message
         UserInputEvent messageType = msg.getType();
         CommandMessage messageCommand = msg.getMessage();
-        System.out.println("Server received event " + messageType);
+        logger.fine("Server received event " + messageType);
 
         // If the message is a heartbeat, update the last heartbeat time of the client and return (nothing to execute)
         if (messageType == UserInputEvent.HEARTBEAT) {
@@ -147,7 +215,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     @Override
     public Object updatePreGame(ClientRMIInterface clientRMIInterface, CommandMessageWrapper msg) throws RemoteException {
         Client client = new Client(clientRMIInterface);
-        System.out.println("Server received RMI event " + msg.getType());
+        logger.fine("Server received RMI event " + msg.getType());
 
         try {
             switch (msg.getType()) {
@@ -165,7 +233,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                     client.setNickname(nicknameMessage.getNickname());
                     try {
                         this.register(client);
-                        System.out.println("Client " + client.getNickname() + " registered");
+                        logger.info("Client " + client.getNickname() + " registered");
                         // Put the client back in the game, if necessary
                         boolean reconnecting = this.controller.handleClientReconnection(client.getNickname());
                         if (reconnecting) {
@@ -174,7 +242,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                             return new Pair<ConnectingStatuses, Object>(ConnectingStatuses.CONFIRMED, this.controller.getGames());
                         }
                     } catch (IllegalArgumentException e) {
-                        System.out.println("Nickname already taken");
+                        logger.warning("Nickname already taken");
                         return new Pair<ConnectingStatuses, Object>(ConnectingStatuses.ERROR, new ArrayList<>());
                     }
                 }
@@ -217,7 +285,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
         }
 
         // Bind the server object to the registry
-        System.out.println("Server started with RMI.");
+        logger.info("Server started with RMI.");
     }
 
     /**
@@ -229,7 +297,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
             synchronized (lock) {
                 serverSocket = new ServerSocket(1234);
                 // Create a new server socket
-                System.out.println("Server started with sockets.");
+                logger.info("Server started with sockets.");
                 lock.notifyAll();
             }
 
@@ -239,9 +307,9 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                 try {
                     // Accept a new client connection
                     clientSocket = serverSocket.accept();
-                    System.out.println("Accepted new socket connection.");
+                    logger.fine("Accepted new socket connection.");
                 } catch (SocketException e) {
-                    System.out.println("Socket closed.");
+                    logger.fine("Socket closed.");
                     return;
                 }
 
@@ -334,6 +402,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                         reconnecting = Server.this.controller.handleClientReconnection(client.getNickname());
                         inputValid = true;
                     } catch (IllegalArgumentException e) {
+                        // The nickname is probably already taken!
                         response = new Pair<>(ConnectingStatuses.ERROR, new ArrayList<>());
                         sendTo(clientSocket, response);
                     }
@@ -353,9 +422,9 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                     // Get CREATE or JOIN or REFRESH_AVAILABLE_GAMES game message
                     inputValid = false;
                     do {
-                        CommandMessageWrapper message = (CommandMessageWrapper) input.readObject();
-                        System.out.println("Received message of type '" + message.getType() + "' from client " + client.getNickname());
                         try {
+                            CommandMessageWrapper message = (CommandMessageWrapper) input.readObject();
+                            logger.fine("Received message of type '" + message.getType() + "' from client " + client.getNickname());
                             if (message.getType() == UserInputEvent.CREATE_GAME) {
                                 inputValid = Server.this.createGame((CreateGameMessage) message.getMessage());
                             } else if (message.getType() == UserInputEvent.JOIN_GAME) {
@@ -374,6 +443,16 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                             }
                         } catch (IllegalArgumentException e) {
                             sendTo(clientSocket, e.getMessage());
+                        } catch (EOFException e) {
+                            // If this exception is caught, the client has disconnected
+                            logger.fine("Socket stream reached EOF - probably disconnected. Setting last heartbeat to 0.");
+                            client.setLastHeartbeat(0);
+                            return; // Terminate the thread since the client has disconnected
+                        } catch (SocketException e) {
+                            // If this exception is caught, the client has disconnected
+                            logger.fine("Socket exception caught - probably disconnected. Setting last heartbeat to 0.");
+                            client.setLastHeartbeat(0);
+                            return; // Terminate the thread since the client has disconnected
                         }
                     } while (!inputValid);
 
@@ -391,9 +470,21 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                         Server.this.update(this.client, request);
                     } catch (EOFException e) {
                         // If this exception is caught, the client has disconnected
-                        System.out.println("Socket stream reached EOF - probably disconnected. Setting last heartbeat to 0.");
+                        logger.fine("Socket stream reached EOF - probably disconnected. Setting last heartbeat to 0.");
                         client.setLastHeartbeat(0);
                         break;
+                    } catch (SocketException e) {
+                        // If this exception is caught, the client has disconnected
+                        logger.fine("Socket exception caught - probably disconnected. Setting last heartbeat to 0.");
+                        client.setLastHeartbeat(0);
+                        break;
+                    } catch (ClassNotFoundException | InvalidClassException | StreamCorruptedException e) {
+                        logger.severe(
+                                "Invalid message received from client " + client.getNickname() +
+                                "\nThe error is probably due to the deserialization process." +
+                                "\nError message: " + e.getMessage() +
+                                "Continuing to play, but the status may be inconsistent."
+                        );
                     }
                 }
 
@@ -401,9 +492,10 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                 clientSocket.close();
                 Server.this.clients.remove(client);
             } catch (IOException e) {
-                System.err.println("Exception: " + e.getMessage());
+                logger.severe("Exception: " + e.getMessage());
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {
+                logger.severe("ClassNotFound exception: " + e.getMessage());
                 throw new RuntimeException(e);
             }
         }
@@ -422,7 +514,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
             throw new RemoteException("Client not registered!");
         }
 
-        System.out.println("Received heartbeat from client " + c.getNickname());
+        logger.fine("Received heartbeat from client " + c.getNickname());
         //Update the last heartbeat timestamp
         c.setLastHeartbeat(System.currentTimeMillis());
     }
@@ -447,6 +539,20 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
         } catch (IllegalArgumentException e) {
             return false;
         }
+    }
+
+    public boolean shouldResumeFromBackup()
+    {
+        return RESUME_FROM_BACKUP;
+    }
+
+    /**
+     * Log a message
+     * @param logLevel The log level (FINE, INFO, WARNING, SEVERE, ...)
+     * @param message The message to log
+     */
+    public void log(Level logLevel, String message) {
+        logger.log(logLevel, message);
     }
 }
 

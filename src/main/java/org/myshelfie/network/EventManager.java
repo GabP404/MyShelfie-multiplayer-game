@@ -37,6 +37,9 @@ public class EventManager {
      */
     public Listener<? extends Enum<?>> getListener(Class<? extends Enum<?>> classToListen, Function<Listener<? extends Enum<?>>, Boolean> func) {
         List<Listener<? extends Enum<?>>> listened = listeners.get(classToListen);
+        if (listened == null) {
+            return null;
+        }
         for (Listener<? extends Enum<?>> l: listened) {
             if (func.apply(l)) {
                 return l;
@@ -52,7 +55,7 @@ public class EventManager {
      */
     public <E extends Enum<E>> void unsubscribe(Class<E> eventType, Listener<E> listener) {
         List<Listener<?>> eventListeners = listeners.get(eventType);
-        if (eventListeners != null) {
+        if (eventListeners != null && listener != null) {
             eventListeners.remove(listener);
         }
     }

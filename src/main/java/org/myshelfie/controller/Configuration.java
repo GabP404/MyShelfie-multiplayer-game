@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 public class Configuration {
     private static final String JSONfile = "constants.json";
@@ -182,18 +183,61 @@ public class Configuration {
         return points;
     }
 
+    /**
+     * Get the (default) address of the server. This value can be overridden by the command line arguments.
+     * @return The address of the server
+     */
     public static String getServerAddress() {
         JSONObject serverInfo = getJSON().getJSONObject("server");
         return serverInfo.getString("address");
     }
 
+    /**
+     * Get the port used by the server to listen for incoming socket connections.
+     * @return The port used by the server to listen for incoming socket connections
+     */
     public static int getServerSocketPort() {
         JSONObject serverInfo = getJSON().getJSONObject("server");
         return serverInfo.getInt("socket_port");
     }
 
+    /**
+     * Get the RMI name with which the server is registered in the RMI registry.
+     * @return The RMI name of the server
+     */
     public static String getServerRMIName() {
         JSONObject serverInfo = getJSON().getJSONObject("server");
         return serverInfo.getString("rmi_name");
+    }
+
+    /**
+     * Get the name of the file used to backup the server state.
+     * @return The name of the file used to backup the server state
+     */
+    public static String getServerBackupFileName() {
+        JSONObject serverInfo = getJSON().getJSONObject("server");
+        return serverInfo.getString("backup_file_name");
+    }
+
+    /**
+     * Get the name of the log file used by the server
+     * @return The name of the log file used by the server
+     */
+    public static String getServerLogFileName() {
+        JSONObject serverInfo = getJSON().getJSONObject("server");
+        return serverInfo.getString("log_file_name");
+    }
+
+    /**
+     * Get the default logging level of the server
+     * @return The default logging level of the server
+     */
+    public static Level getServerLogLevel() {
+        JSONObject serverInfo = getJSON().getJSONObject("server");
+        try {
+            return Level.parse(serverInfo.getString("default_logging_level"));
+        } catch (Exception e) {
+            return Level.INFO;
+        }
     }
 }

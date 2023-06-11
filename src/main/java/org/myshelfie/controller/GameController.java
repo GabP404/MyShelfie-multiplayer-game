@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-public class GameController {
+public class GameController implements Serializable {
 
     public static class GameDefinition implements Serializable {
         private final String gameName;
@@ -52,12 +52,13 @@ public class GameController {
             return false;
         }
     }
-    private Timer timer;
+    private transient Timer timer; // declared as transient to not serialize it
 
     private int timeout;
     private boolean isRunning;
 
-    private ExecutorService commandExecutor;
+    // declared as transient to not serialize it
+    private transient ExecutorService commandExecutor;
 
     public void startTimer() {
         timer = new Timer();
@@ -84,6 +85,8 @@ public class GameController {
                 getGame().setWinner(getGame().getPlayers().stream().filter(x -> x.isOnline()).collect(Collectors.toList()).get(0));
             } catch (WrongArgumentException e) {
                 throw new RuntimeException(e);
+            } catch (IndexOutOfBoundsException e) {
+                // All the players are offline (get(0) went out of bound), the game ends!
             }
             isRunning = false;
         }
@@ -110,6 +113,11 @@ public class GameController {
         this.numGoalCards = numGoalCards;
         this.timeout = Configuration.getTimerTimeout();
         this.game = new Game();
+        createCommandExecutor();
+    }
+
+    //creates a new command executor
+    public void createCommandExecutor() {
         this.commandExecutor = Executors.newSingleThreadExecutor();
     }
 
@@ -193,7 +201,26 @@ public class GameController {
     }
 
 
+    /**
+     * Set the player with the given nickname offline.
+     * If the player is the current player, set the current player to the next online player.
+     * If there are no more online players, end the game.
+     * @param nickname the nickname of the player to set offline
+     */
     public void setPlayerOffline(String nickname) {
+        // If the player is the current player, empty their hand and the selected column
+        // Also, set the current player to the next online player (check that it's online)
+        try {
+            if(this.game.getCurrPlayer().getNickname().equals(nickname)) {
+                this.game.getCurrPlayer().clearHand();
+                this.game.getCurrPlayer().clearSelectedColumn();
+                this.game.setCurrPlayer(this.game.getNextOnlinePlayer());
+            }
+        } catch (WrongArgumentException e) {
+            // This exception is thrown when there are no more online players
+            this.endGame();
+            throw new RuntimeException(e);
+        }
         this.game.getPlayers().stream().filter(x -> x.getNickname().equals(nickname)).collect(Collectors.toList()).get(0).setOnline(false);
         checkPlayersOnline();
     }
@@ -217,11 +244,19 @@ public class GameController {
      * Queue a command to be executed. This will add the command to the command queue in a separate thread
      * and execute it as soon as the executorService is available.
      * The ExecutorService is a single thread executor, so commands will be executed in the order they are queued.
-     * @param queuedCommand
-     * @param queuedEvent
+     * @param queuedCommand The command to queue
+     * @param queuedEvent The event that triggered the command
      */
     public void queueAndExecuteCommand(CommandMessage queuedCommand, UserInputEvent queuedEvent) {
         commandExecutor.execute(() -> executeCommand(queuedCommand, queuedEvent));
+    }
+
+    /**
+     * Make the executor service execute a generic Runnable.
+     * @param instruction The Runnable (such as a lambda function) to execute
+     */
+    public void queueAndExecuteInstruction(Runnable instruction) {
+        commandExecutor.execute(instruction);
     }
 
     public void executeCommand(CommandMessage command, UserInputEvent t) {
@@ -362,6 +397,10 @@ public class GameController {
     public boolean isGameCreated() {
         if (game == null) return false;
         return true;
+    }
+
+    public boolean isGamePlaying() {
+        return isGameCreated() && game.isPlaying();
     }
 
     public String getGameName() {

@@ -15,14 +15,17 @@ import org.myshelfie.view.CLI.ViewCLI;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.NoRouteToHostException;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
+import java.rmi.AccessException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Scanner;
 
-import static org.myshelfie.view.PrinterCLI.*;
 import static org.myshelfie.view.PrinterCLI.print;
 
 public class Client extends UnicastRemoteObject implements ClientRMIInterface, Runnable{
@@ -59,8 +62,11 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
         this.isRMI = false;
     }
 
-    public Client(boolean isGUI, String serverAddress) throws RemoteException {
+    public Client(boolean isGUI, boolean isRMI, String serverAddress) throws RemoteException {
         SERVER_ADDRESS = serverAddress;
+
+        // Save the choice of the user
+        this.isRMI = isRMI;
 
         // Subscribe a new UserInputListener that listen to changes in the view and forward events adding message to the server
         eventManager.subscribe(UserInputEvent.class, new UserInputListener(this));
@@ -68,29 +74,31 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
         if (isGUI) {
             // TODO: implement GUI
         } else {
-            Scanner userInput = new Scanner(System.in);
-            String choice;
-            clear();
-            printTitle();
-            print("Would you like to use Socket or RMI? (s/r)", 0, 20, false);
-            do {
-                setCursor(0, 22);
-                choice = userInput.nextLine();
-                if (choice.equalsIgnoreCase("s"))
-                    isRMI = false;
-                else if (choice.equalsIgnoreCase("r"))
-                    isRMI = true;
-                else
-                {
-                    clear();
-                    print("Try again ", 0, 25, false);
-                    printTitle();
-                    print("Would you like to use Socket or RMI? (s/r)", 0, 20, false);
-                }
-            } while(!choice.equalsIgnoreCase("s") && !choice.equalsIgnoreCase("r"));
+
+            // TODO uncomment this in case we can't pass the Socket/RMI parameter via command line before the jar
+//            Scanner userInput = new Scanner(System.in);
+//            String choice;
+//            clear();
+//            printTitle();
+//            print("Would you like to use Socket or RMI? (s/r)", 0, 20, false);
+//            do {
+//                setCursor(0, 22);
+//                choice = userInput.nextLine();
+//                if (choice.equalsIgnoreCase("s"))
+//                    isRMI = false;
+//                else if (choice.equalsIgnoreCase("r"))
+//                    isRMI = true;
+//                else
+//                {
+//                    clear();
+//                    print("Try again ", 0, 25, false);
+//                    printTitle();
+//                    print("Would you like to use Socket or RMI? (s/r)", 0, 20, false);
+//                }
+//            } while(!choice.equalsIgnoreCase("s") && !choice.equalsIgnoreCase("r"));
 
             this.view = new ViewCLI(this);
-            print("Connecting to server...", 0, 25, false);
+            print("Connecting to server: " + SERVER_ADDRESS, 0, 25, false);
             // Connect to the server
             this.connect();
             this.run();
@@ -98,29 +106,44 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
 
     }
 
+    /**
+     * Establish the connection to the server, be it RMI or Socket.
+     */
     public void connect() {
-        // connect
-        if (isRMI) {
-            try {
+        try {
+            if (isRMI) {
+                // Resolve the hostname, if necessary
+                InetAddress address = InetAddress.getByName(SERVER_ADDRESS);
+                String hostAddress = address.getHostAddress();
+
                 // Look up the server object in the RMI registry
-                Registry registry = LocateRegistry.getRegistry(SERVER_ADDRESS, 1099);
-                rmiServer = (ServerRMIInterface) registry.lookup("//" + SERVER_ADDRESS + "/" + RMI_SERVER_NAME);
-            } catch (Exception e) {
-                System.err.println("Exception: " + e.getMessage());
-                e.printStackTrace();
-                System.exit(1);
-            }
-        } else {
-            try {
+                Registry registry = LocateRegistry.getRegistry(hostAddress, 1099);
+                rmiServer = (ServerRMIInterface) registry.lookup("//" + hostAddress + "/" + RMI_SERVER_NAME);
+            } else {
                 // Create a new socket and connect to the server
                 this.serverSocket = new Socket(SERVER_ADDRESS, SERVER_PORT);
                 output = new ObjectOutputStream(serverSocket.getOutputStream());
 
                 // Create and start a new thread that constantly listens for messages from the server
                 serverListener = new SocketServerListener(serverSocket);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
+        } catch (NoRouteToHostException e) {
+            print("No route to server! Please specify another valid server address.");
+            System.exit(1);
+        } catch (AccessException e) {
+            throw new RuntimeException(e);
+        } catch (UnknownHostException e) {
+            print("Host unknown! Please specify another server address.");
+            System.exit(1);
+        } catch (NotBoundException e) {
+            print("Server not bound! The provided RMI name for the server is not valid, please change it.");
+            System.exit(1);
+        } catch (RemoteException e) {
+            print("The reference to the RMI registry could not be created! Please check your connection.");
+            System.exit(1);
+        } catch (IOException e) {
+            print("Error opening the socket: " + e.getMessage());
+            System.exit(1);
         }
     }
 

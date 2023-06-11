@@ -12,6 +12,7 @@ import org.myshelfie.network.messages.gameMessages.GameView;
 
 import java.net.Socket;
 import java.rmi.RemoteException;
+import java.util.logging.Level;
 
 public class GameListener implements Listener<GameEvent> {
     private final Server server;
@@ -50,8 +51,7 @@ public class GameListener implements Listener<GameEvent> {
             return; // It's not my game the one that changed
         }
 
-        System.out.print("Sending event: " + ev);
-        System.out.println(" to client: " + client.getNickname());
+        server.log(Level.FINE, "Sending event: " + ev + " to client: " + client.getNickname());
 
         //Create the message to be sent
         GameView message = new GameView(this.listenedGame);
@@ -60,7 +60,7 @@ public class GameListener implements Listener<GameEvent> {
             try {
                 client.updateRMI(message, ev);
             } catch (RemoteException e) {
-                System.out.println(e.getMessage());
+                server.log(Level.SEVERE, "Error in updating the RMI client: " + e.getMessage());
             }
         } else {
             EventWrapper ew = new EventWrapper(message, ev);
@@ -88,7 +88,7 @@ public class GameListener implements Listener<GameEvent> {
                 Bookshelf bookshelf = (Bookshelf) changedItem;
                 return listenedGame.getPlayers().stream().anyMatch(p -> p.getBookshelf() == bookshelf);
             }
-            case TOKEN_STACK_UPDATE, CURR_PLAYER_UPDATE, ERROR_STATE_RESET, ERROR -> {
+            case TOKEN_STACK_UPDATE, CURR_PLAYER_UPDATE, ERROR_STATE_RESET, ERROR, GAME_END -> {
                 // all these events are directly triggered by a Game object
                 Game game = (Game) changedItem;
                 return listenedGame == game;

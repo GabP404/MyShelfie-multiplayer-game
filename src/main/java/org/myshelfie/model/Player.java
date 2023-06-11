@@ -4,11 +4,12 @@ import org.myshelfie.controller.Configuration;
 import org.myshelfie.network.server.Server;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Player {
+public class Player implements Serializable {
     private String nickname;
     private List<ScoringToken> commonGoalTokens;
     private Boolean hasFinalToken;
@@ -151,6 +152,14 @@ public class Player {
         }
         this.selectedColumn = selectedColumn;
         Server.eventManager.notify(GameEvent.SELECTED_COLUMN_UPDATE, this);
+    }
+
+    public void clearHand() {
+        this.tilesPicked.clear();
+    }
+
+    public void clearSelectedColumn() {
+        this.selectedColumn = -1;
     }
 
     public boolean isOnline() {

@@ -4,10 +4,7 @@ import org.myshelfie.model.*;
 import org.myshelfie.model.util.Pair;
 import org.myshelfie.network.messages.commandMessages.PickedTilesCommandMessage;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class PickTilesCommand implements Command {
@@ -84,8 +81,13 @@ public class PickTilesCommand implements Command {
      * @return True if the chosen LocatedTiles can be selected, false otherwise
      */
     public boolean isTilesGroupSelectable(Board b, Set<LocatedTile> chosen) {
+        // Add the check that you cannot select more than 3 tiles
+        if (chosen.size() > 3) {
+            return false;
+        }
+
         //Check that all the selected tiles are indeed selectable on their own (i.e. at least one free border)
-        for (LocatedTile t: chosen) {
+        for (LocatedTile t : chosen) {
             if (!isCellSelectable(t))
                 return false;
         }
@@ -104,17 +106,13 @@ public class PickTilesCommand implements Command {
             return false;
 
         // Check that the chosen tile are "sequential" i.e., adjacent to each other
-        List<Integer> listIndexes = null;
+        SortedSet<Integer> sortedIndexes = new TreeSet<>();
         if (isHorizontal)
-            listIndexes = chosen.stream().map(LocatedTile::getCol).toList();
+            sortedIndexes.addAll(chosen.stream().map(LocatedTile::getCol).collect(Collectors.toSet()));
         if (isVertical)
-            listIndexes = chosen.stream().map(LocatedTile::getRow).toList();
+            sortedIndexes.addAll(chosen.stream().map(LocatedTile::getRow).collect(Collectors.toSet()));
 
-        for (int i = 0; i < listIndexes.size() - 1; i++) {
-            if (Math.abs(listIndexes.get(i + 1) - listIndexes.get(i)) != 1)
-                return false;
-        }
-        return true;
+        return sortedIndexes.last() - sortedIndexes.first() == sortedIndexes.size() - 1;
     }
 
 
