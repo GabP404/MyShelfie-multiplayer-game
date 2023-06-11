@@ -348,6 +348,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                         reconnecting = Server.this.controller.handleClientReconnection(client.getNickname());
                         inputValid = true;
                     } catch (IllegalArgumentException e) {
+                        // The nickname is probably already taken!
                         response = new Pair<>(ConnectingStatuses.ERROR, new ArrayList<>());
                         sendTo(clientSocket, response);
                     }
@@ -408,6 +409,16 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                         System.out.println("Socket stream reached EOF - probably disconnected. Setting last heartbeat to 0.");
                         client.setLastHeartbeat(0);
                         break;
+                    } catch (SocketException e) {
+                        // If this exception is caught, the client has disconnected
+                        System.out.println("Socket exception caught - probably disconnected. Setting last heartbeat to 0.");
+                        client.setLastHeartbeat(0);
+                        break;
+                    } catch (ClassNotFoundException | InvalidClassException | StreamCorruptedException e) {
+                        System.out.println("Invalid message received from client " + client.getNickname());
+                        System.out.println("The error is probably due to the deserialization process.");
+                        System.out.println("Error message: " + e.getMessage());
+                        System.out.println("Continuing to play, but the status may be inconsistent.");
                     }
                 }
 
