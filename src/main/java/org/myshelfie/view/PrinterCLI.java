@@ -126,29 +126,28 @@ public class PrinterCLI {
         //cycles through all players and prints their nickname and points
         for(ImmutablePlayer p: game.getPlayers())
         {
-            //if the player is the current player, print it in cyan
-            playerRowPoints = new StringBuilder();
+            //every player sees his name in cyan
             if(p.getNickname().equals(nickname))
-                playerRowPoints = new StringBuilder(CYAN.toString());
+                print(CYAN);
+            print(p.getNickname() + RESET, rankingOffsetX, rankingOffsetY + 1 + (playerNum * 3), false);
+            print(String.valueOf(p.getPointsScoringTokens()), rankingOffsetX + 19, rankingOffsetY + 1 +(playerNum * 3), false);
+            print(String.valueOf(p.getPersonalGoalPoints()), rankingOffsetX + 40, rankingOffsetY + 1 +(playerNum * 3), false);
+            print(String.valueOf(p.getBookshelfPoints()), rankingOffsetX + 61, rankingOffsetY + 1 +(playerNum * 3), false);
+
+
+            if(p.getHasFinalToken())
+                print( "1", rankingOffsetX + 80, rankingOffsetY + 1 +(playerNum * 3), false);
+            else
+                print( "0", rankingOffsetX + 80, rankingOffsetY + 1 +(playerNum * 3), false);
+
 
             try {
-                playerRowPoints.append(p.getNickname()).append(RESET);
-                playerRowPoints.append(" ".repeat(Math.max(0, 15 - p.getNickname().length())));
-                playerRowPoints.append("    ").append(p.getPointsScoringTokens());
-                playerRowPoints.append("                    ").append(p.getPersonalGoalPoints());
-                playerRowPoints.append("                    ").append(p.getBookshelfPoints());
-                if(p.getHasFinalToken())
-                    playerRowPoints.append(GREEN.toString()).append("               ■");
-                else
-                    playerRowPoints.append("                  ■");
-                playerRowPoints.append("               ").append(p.getTotalPoints());
-
-
+                print(String.valueOf(p.getTotalPoints()), rankingOffsetX + 95, rankingOffsetY + 1 +(playerNum * 3), false);
             } catch (WrongArgumentException e) {
                 throw new RuntimeException(e);
             }
 
-            print(playerRowPoints.toString(), rankingOffsetX, rankingOffsetY + 1 + (playerNum * 3), false);
+
             try {
                 if(p.getTotalPoints() == game.getPlayers().get(0).getTotalPoints())
                 {
@@ -208,12 +207,16 @@ public class PrinterCLI {
         printPoints(game);
         printPersonalGoal(game, nickname);
         if(game.getCurrPlayer().getNickname().equals(nickname))
-            print(MAGENTA + "È IL TUO TURNO!",boardOffsetX, boardOffsetY-4, false);
+        {
+            print(MAGENTA + "It's your turn!",boardOffsetX, boardOffsetY-4, false);
+            print(game.getModelState().toString(), boardOffsetX, boardOffsetY-3, false);
+        }
+
     }
 
     private static void printBoard(GameView game, List<LocatedTile> selectedTiles)
     {
-        print("BOARD: ",boardOffsetX, boardOffsetY-2,false);
+        print("BOARD: ",boardOffsetX-2, boardOffsetY-2,false);
         print(BG_LIGHT_CYAN + "                      ",boardOffsetX - 2, boardOffsetY-1,false);
         for(int i = 0; i< Board.DIMBOARD; i++)
         {
