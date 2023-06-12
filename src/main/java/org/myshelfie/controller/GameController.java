@@ -248,7 +248,10 @@ public class GameController implements Serializable {
      * @param queuedEvent The event that triggered the command
      */
     public void queueAndExecuteCommand(CommandMessage queuedCommand, UserInputEvent queuedEvent) {
-        commandExecutor.execute(() -> executeCommand(queuedCommand, queuedEvent));
+        commandExecutor.execute(() -> {
+            executeCommand(queuedCommand, queuedEvent);
+            System.out.println("Executed command " + queuedCommand.getClass().getSimpleName());
+        });
     }
 
     /**

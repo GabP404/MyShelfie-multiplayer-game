@@ -1,5 +1,7 @@
 package org.myshelfie.network;
 
+import org.myshelfie.network.server.GameListener;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +16,7 @@ import java.util.function.Function;
  */
 public class EventManager {
     // Map that links the Class Object representing the type of the event (enum), to the list of listeners that will be able to handle it
-    private Map<Class<? extends Enum<?>>, List<Listener<? extends Enum<?>>>> listeners = new HashMap<>();
+    protected Map<Class<? extends Enum<?>>, List<Listener<? extends Enum<?>>>> listeners = new HashMap<>();
 
     /**
      * Subscribe a listener to an event.
@@ -75,4 +77,5 @@ public class EventManager {
             }
         }
     }
+
 }

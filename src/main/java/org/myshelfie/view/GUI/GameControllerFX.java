@@ -401,7 +401,7 @@ public class GameControllerFX implements Initializable {
                 ImmutablePlayer me = latestGame.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get();
                 if (me.getBookshelf().getHeight(i) <= Bookshelf.NUMROWS - me.getTilesPicked().size()) {
                     ImageView arrow = (ImageView) colSelectionArrowsGrid.getChildren().get(i);
-                    arrow.setImage(new Image("/graphics/misc/arrow.png"));
+                    arrow.setImage(new Image("graphics/misc/arrow.png"));
                     arrow.setEffect(new DropShadow(5, Color.ORANGE));
                     arrow.setFitWidth(SEL_COL_ARROW_WIDTH);
                     arrow.setVisible(true);

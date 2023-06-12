@@ -64,6 +64,14 @@ public class LobbyController {
 
         gameControllers.get(command.getGameName()).queueAndExecuteInstruction(
                 () -> {
+                    server.log(Level.FINE, "Entered the thread to send the update " + t + "  to the clients");
+                    // Send the update to all the clients
+                    Server.eventManager.sendToClients();
+                }
+        );
+
+        gameControllers.get(command.getGameName()).queueAndExecuteInstruction(
+                () -> {
                     // Delete the game if it has ended - the update has already been sent to the clients
                     if (gameControllers.get(command.getGameName()).getGame().getModelState() == ModelState.END_GAME) {
                         // Unsubscribe all the clients that were listening to this game
@@ -162,6 +170,10 @@ public class LobbyController {
                     try {
                         server.log(Level.FINE, "Setting game " + message.getGameName() + " up...");
                         gameController.setupGame();
+                        gameController.queueAndExecuteInstruction(() -> {
+                            // Send the update to all the clients
+                            Server.eventManager.sendToClients();
+                        });
                         server.log(Level.INFO, "Game " + message.getGameName() + " set up!");
                     } catch (Exception e) {
                         server.log(Level.SEVERE, "Exception while setting game up: " + e.getMessage());
@@ -212,6 +224,10 @@ public class LobbyController {
         if (gameController.isGamePlaying()) {
             //The game has already started, so the player is set offline.
             gameController.setPlayerOffline(nickname);
+            gameController.queueAndExecuteInstruction(() -> {
+                // Send the update to all the clients
+                Server.eventManager.sendToClients();
+            });
         } else {
             //The game has not started yet, so the player is removed from the lobby.
             gameController.removePlayer(nickname);
@@ -250,7 +266,8 @@ public class LobbyController {
             try {
                 ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
                 executorService.schedule(() -> {
-                        gameController.setOnlinePlayer(nickname);
+                    gameController.setOnlinePlayer(nickname);
+                    Server.eventManager.sendToClients();
                 }, 1500, TimeUnit.MILLISECONDS);
 
                 executorService.shutdown();

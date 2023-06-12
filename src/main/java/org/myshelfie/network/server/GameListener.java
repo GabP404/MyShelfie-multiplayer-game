@@ -19,6 +19,8 @@ public class GameListener implements Listener<GameEvent> {
     private final Client client;
     private Game listenedGame;
 
+    private GameEvent lastEvent;
+
     /**
      * This listener is responsible for reacting to changes in the model, thus it's concerned
      * in sending the modelView message via the {@link #update update()} method whenever a change occurs.
@@ -37,33 +39,44 @@ public class GameListener implements Listener<GameEvent> {
     }
 
     /**
-     * Send to the client the (immutable) game after a change.
+     * Save to the client the (immutable) game after a change.
      *
      * @param ev  The event that has been emitted
      */
     @Override
     public void update(GameEvent ev, Object... args) {
         if (this.listenedGame == null) {
+            lastEvent = null;
             return; //The game hasn't been set yet
         }
 
         if (!isMyGameChanged(ev, args[0])) {
+            lastEvent = null;
             return; // It's not my game the one that changed
         }
 
-        server.log(Level.FINE, "Sending event: " + ev + " to client: " + client.getNickname());
+        lastEvent = ev;
+        server.log(Level.FINE, "Generated event " + ev + " for client: " + client.getNickname());
+    }
 
-        //Create the message to be sent
-        GameView message = new GameView(this.listenedGame);
+    /**
+     * Send the last event to the client.
+     */
+    public void sendLastEvent() {
+        if (lastEvent == null) {
+            return; // No event to send
+        }
+        server.log(Level.FINE, "Sending event " + lastEvent + " to client: " + client.getNickname());
 
+        GameView message = new GameView(listenedGame);
         if (client.isRMI()) {
             try {
-                client.updateRMI(message, ev);
+                client.updateRMI(message, lastEvent);
             } catch (RemoteException e) {
                 server.log(Level.SEVERE, "Error in updating the RMI client: " + e.getMessage());
             }
         } else {
-            EventWrapper ew = new EventWrapper(message, ev);
+            EventWrapper ew = new EventWrapper(message, lastEvent);
             Socket clientSocket = client.getClientSocket();
             server.sendTo(clientSocket, ew);
         }
