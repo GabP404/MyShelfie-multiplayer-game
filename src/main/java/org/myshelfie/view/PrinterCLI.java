@@ -208,8 +208,21 @@ public class PrinterCLI {
         printPersonalGoal(game, nickname);
         if(game.getCurrPlayer().getNickname().equals(nickname))
         {
-            print(MAGENTA + "It's your turn!",boardOffsetX, boardOffsetY-4, false);
-            print(game.getModelState().toString(), boardOffsetX, boardOffsetY-3, false);
+            print(MAGENTA + "IT'S YOUR TURN!",boardOffsetX-2, boardOffsetY-5, false);
+            switch(game.getModelState())
+            {
+                case WAITING_SELECTION_TILE -> {
+                    print("Select tiles from the board", boardOffsetX-2, boardOffsetY-4, false);
+                }
+                case WAITING_SELECTION_BOOKSHELF_COLUMN -> {
+                    print("Select a column from the bookshelf", boardOffsetX-2, boardOffsetY-4, false);
+                }
+                case WAITING_1_SELECTION_TILE_FROM_HAND, WAITING_2_SELECTION_TILE_FROM_HAND, WAITING_3_SELECTION_TILE_FROM_HAND -> {
+                    print("Pick a tile from your hand", boardOffsetX-2, boardOffsetY-4, false);
+                }
+
+
+            }
         }
 
     }
@@ -297,6 +310,8 @@ public class PrinterCLI {
         String p = "";
         if(game.getCurrPlayer().getNickname().equals(game.getPlayers().get(numPlayer).getNickname()))
             p = GREEN.toString();
+        if(!game.getPlayers().get(numPlayer).isOnline())
+            p = ULight_gray.toString();
 
         print(p + game.getPlayers().get(numPlayer).getNickname() + RESET, bookshelfOffsetX + (numPlayer*bookshelvesDistance), bookshelfOffsetY-3, false);
         print(BG_LIGHT_BROWN + "              ", bookshelfOffsetX + (numPlayer*bookshelvesDistance) - 2, bookshelfOffsetY-1, false);
@@ -488,7 +503,7 @@ public class PrinterCLI {
             for(int j = 0; j<Bookshelf.NUMCOLUMNS; j++)
             {
                 if(j == 0)
-                    print(String.valueOf(i),personalGoalOffsetX-1,personalGoalOffsetY+i, false);
+                    print(String.valueOf(i),personalGoalOffsetX-2,personalGoalOffsetY+i, false);
             }
         }
         print("0 1 2 3 4", personalGoalOffsetX, personalGoalOffsetY+6, false);

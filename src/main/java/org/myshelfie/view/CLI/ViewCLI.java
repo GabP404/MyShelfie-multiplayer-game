@@ -13,15 +13,13 @@ import org.myshelfie.network.messages.gameMessages.ImmutableBoard;
 import org.myshelfie.view.View;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static org.myshelfie.view.CLI.Color.ULight_gray;
 import static org.myshelfie.view.PrinterCLI.*;
 
 public class ViewCLI implements View{
@@ -163,7 +161,8 @@ public class ViewCLI implements View{
                         print("Insert a Game name  |  --back to go back  |  --refresh to refresh lobbies", 0, 20, false);
                         print("Available games: ", 90, 20, false);
                         for (int i=0; i<this.availableGames.size(); i++) {
-                            print(" -> " + this.availableGames.get(i).getGameName() + " " + this.availableGames.get(i).getNicknames().size() + "/" + this.availableGames.get(i).getMaxPlayers(), 90, 22+i, false);
+                            if(this.availableGames.get(i).getNicknames().size() < this.availableGames.get(i).getMaxPlayers())
+                                print("-> " + this.availableGames.get(i).getGameName() + " " + this.availableGames.get(i).getNicknames().size() + "/" + this.availableGames.get(i).getMaxPlayers(), 90, 22+i, false);
                         }
                         setCursor(0,22);
                         gameName = scanner.nextLine();
@@ -213,7 +212,7 @@ public class ViewCLI implements View{
     private boolean isInLobbyList(String gameName)
     {
         for (int i=0; i<this.availableGames.size(); i++) {
-            if (this.availableGames.get(i).getGameName().equalsIgnoreCase(gameName))
+            if (this.availableGames.get(i).getGameName().equalsIgnoreCase(gameName) && this.availableGames.get(i).getNicknames().size() < this.availableGames.get(i).getMaxPlayers())
                 return true;
         }
         return false;
@@ -520,7 +519,7 @@ public class ViewCLI implements View{
                 confirmSelection();
                 break;
             default:
-                printError("COMMAND DOES NOT EXIST");
+                printError("COMMAND DOES NOT EXIST, TYPE \"help\" TO SEE ALL COMMANDS");
                 return;
         }
     }
