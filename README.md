@@ -1,4 +1,15 @@
-# Softeng-gc07 Client
+# Software Engineering I - final project
+
+This is the final project for the Software Engineering I course at *Politecnico di Milano*.
+The project consists of a client-server application for a multiplayer game.
+
+Authors:
+- [Gabriele Puglisi]()
+- [Matteo Santelmo]()
+- [Giuseppe Steduto](https://giuseppesteduto.me)
+- [Mattia Vicenzotto]()
+
+Read the documentation at [https://softeng-gc07.github.io/](https://softeng-gc07.github.io/).
 
 ## Introduction
 
