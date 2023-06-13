@@ -1,0 +1,6 @@
+title: MyShelfie documentation
+arrange:
+    - index.md
+    - client
+    - server
+    - advanced-features
