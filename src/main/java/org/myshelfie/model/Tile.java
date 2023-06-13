@@ -1,6 +1,7 @@
 package org.myshelfie.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class Tile implements Serializable {
     private ItemType itemType;
@@ -32,4 +33,18 @@ public class Tile implements Serializable {
     }
 
     public int getItemId() { return itemId; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Tile tile = (Tile) o;
+        return itemId == tile.itemId &&
+                itemType == tile.itemType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(itemType, itemId);
+    }
 }

@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -74,11 +75,12 @@ public class GameControllerFX implements Initializable {
     private VBox otherPlayersLayout;
 
     @FXML
+    private Button tilesConfirmButton;
+
+    @FXML
     private GridPane tilesHandGrid;
 
     private boolean firstSetupDone = false;
-
-    Button tilesConfirmButton;
 
     private String nickname = null;
 
@@ -92,6 +94,7 @@ public class GameControllerFX implements Initializable {
     final int PERSONAL_CARD_HEIGHT = 200;
     final int SELECTED_TILE_DIM = 55;
     final int SEL_COL_ARROW_WIDTH = 50;
+    final double TILE_DIM = 45;
 
     private Client client;
 
@@ -113,8 +116,6 @@ public class GameControllerFX implements Initializable {
         myNickname.setVisible(true);
         otherPlayersLayout.setVisible(true);
         colSelectionArrowsGrid.setVisible(true);
-
-        initializeTilesConfirmButton();
     }
 
     public void setMyNickname(String nickname) {
@@ -159,11 +160,8 @@ public class GameControllerFX implements Initializable {
                 // Update board
                 updateBoard(game.getBoard());
             }
-            case BOOKSHELF_UPDATE -> {
-                updateMyBookshelf(me.getBookshelf());
-            }
             case TILES_PICKED_UPDATE -> {
-                updateMyTilesPicked(me.getTilesPicked());
+                updateBoard(game.getBoard());
             }
             case SELECTED_COLUMN_UPDATE -> {
                 udpateColSelectionArrows();
@@ -171,7 +169,6 @@ public class GameControllerFX implements Initializable {
             case TOKEN_STACK_UPDATE -> {
                 // Update common goal cards
                 updateCommonGoalCards(game);
-                updateMyCommonGoalToken(me.getCommonGoalTokens());
             }
             case CURR_PLAYER_UPDATE -> {
                 updateAmICurrPlayer(game.getCurrPlayer().getNickname().equals(nickname));
@@ -179,13 +176,19 @@ public class GameControllerFX implements Initializable {
             case FINAL_TOKEN_UPDATE -> {
                 updateMyFinalToken((Boolean) game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get().getHasFinalToken());
             }
+            case ERROR -> {
+                updateEverything(game);
+                return;
+            }
             default -> {
                 System.out.println("Entering the default updates...");
             }
         }
         // Actions that are performed on every update
         updateTilesConfirmButton();
+        updateMyBookshelf(me.getBookshelf());
         updateMyPersGoal(me.getPersonalGoal());
+        updateMyTilesPicked(me.getTilesPicked());
         // Update other players (note that they are controlled by a different controller)
         updateOtherPlayers(game);
     }
@@ -211,7 +214,10 @@ public class GameControllerFX implements Initializable {
     }
 
 
+    ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////// ON ACTION METHODS ///////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
 
     /**
      * Method that is called when a tile is clicked. It's bound to the on click event of the tileImage object
@@ -226,7 +232,7 @@ public class GameControllerFX implements Initializable {
 
                 showErrorDialog("You can't pick a tile now!");
             } else {
-                LocatedTile t = new LocatedTile(latestGame.getBoard().getTile(row, col).getItemType(), row, col);
+                LocatedTile t = new LocatedTile(latestGame.getBoard().getTile(row, col).getItemType(), latestGame.getBoard().getTile(row, col).getItemId(), row, col);
                 if (!unconfirmedSelectedTiles.contains(t)) {
                     if (unconfirmedSelectedTiles.size() == 3) {
                         showErrorDialog("You can't pick more than 3 tiles!");
@@ -239,32 +245,29 @@ public class GameControllerFX implements Initializable {
                             showErrorDialog("You can't pick this tile!");
                             return;
                         }
-                        tileImage.setEffect(new DropShadow(15, Color.WHITE));
+                        tileImage.setEffect(new DropShadow(15, Color.GREEN));
                         tileImage.toFront();
 
-                        // animation
-                        double finalScale = 1; // The final scale value
                         // Create a ScaleTransition with desired properties
+                        double finalScale = 1.2; // The final scale value
                         ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), tileImage);
-                        scaleTransition.setToX(finalScale);
-                        scaleTransition.setToY(finalScale);
-                        scaleTransition.setCycleCount(1);
+                        scaleTransition.setToX(finalScale * tileImage.getScaleX());
+                        scaleTransition.setToY(finalScale * tileImage.getScaleY());
+                        scaleTransition.setAutoReverse(false);
                         // Set the final scale values directly at the end of the animation
                         scaleTransition.setOnFinished(event -> {
-                            tileImage.setScaleX(finalScale);
-                            tileImage.setScaleY(finalScale);
+                            System.out.println("Selected tile: " + row + " " + col + " -> you've already selected " + unconfirmedSelectedTiles.size() + " tiles");
                         });
+
                         // Play the animation
                         scaleTransition.play();
-
-                        System.out.println("Selected tile: " + row + " " + col + " -> you've already selected " + unconfirmedSelectedTiles.size() + " tiles");
                     }
                 } else {
                     // un-pick the tile
                     tileImage.setScaleX(0.9);
                     tileImage.setScaleY(0.9);
                     tileImage.setEffect(new DropShadow(5, Color.BLACK));
-                    unconfirmedSelectedTiles.remove(latestGame.getBoard().getTile(row, col));
+                    unconfirmedSelectedTiles.remove(t);
                     System.out.println("Deselected tile: " + row + " " + col);
                 }
             }
@@ -309,23 +312,41 @@ public class GameControllerFX implements Initializable {
 
 
     private void onArrowClicked(int column, ImageView arrowImage) {
+        // TODO: implement controls that prevent the player from selecting a column that cannot contains the tiles he selected
         selectedColumn = column;
         ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), arrowImage);
         scaleTransition.setToX(arrowImage.getScaleX() * 1.1);
         scaleTransition.setToY(arrowImage.getScaleY() * 1.1);
         scaleTransition.setCycleCount(2);
         scaleTransition.setAutoReverse(true);
+        // Set the notify call to be sent after the animation is finished
+        scaleTransition.setOnFinished(event -> {
+            System.out.println("Selected column: " + column);
+            this.client.eventManager.notify(UserInputEvent.SELECTED_BOOKSHELF_COLUMN, column);
+        });
 
         // Play the animation
         scaleTransition.play();
-
-        System.out.println("Selected column: " + column);
-        this.client.eventManager.notify(UserInputEvent.SELECTED_BOOKSHELF_COLUMN, column);
     }
 
 
     private void onConfirmTilesSelection() {
+        // TODO: implement controls that prevent the player from selecting to many tiles when he has
+        //       not enough space in at least one of the columns of the bookshelf
         if (unconfirmedSelectedTiles.size() >= 1) {
+            Platform.runLater(() -> {
+                // Remove the selected tiles from the board
+                for (LocatedTile t : unconfirmedSelectedTiles) {
+                    int row = t.getRow();
+                    int col = t.getCol();
+                    boardGrid.getChildren().stream().filter(node -> GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == col).forEach(node -> {
+                        Platform.runLater(() -> {
+                            boardGrid.getChildren().remove(node);
+                        });
+                    });
+                }
+            });
+
             System.out.println("Sending to server " + unconfirmedSelectedTiles.size() + " tiles");
             this.client.eventManager.notify(UserInputEvent.SELECTED_TILES, unconfirmedSelectedTiles);
             tilesConfirmButton.setVisible(false);
@@ -335,6 +356,11 @@ public class GameControllerFX implements Initializable {
     }
 
     private void onTileFromHandClicked(ImageView tileImage, int tileIndex) {
+        if (tileIndex >= latestGame.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get().getTilesPicked().size()) {
+            showErrorDialog("You can't pick this tile!");
+            return;
+        }
+
         if (latestGame.getCurrPlayer().getNickname().equals(nickname) &&
                 (latestGame.getModelState() == ModelState.WAITING_1_SELECTION_TILE_FROM_HAND ||
                     latestGame.getModelState() == ModelState.WAITING_2_SELECTION_TILE_FROM_HAND ||
@@ -345,17 +371,23 @@ public class GameControllerFX implements Initializable {
             scaleTransition.setCycleCount(2);
             scaleTransition.setAutoReverse(true);
 
+            // Set the notify call to be sent after the animation is finished
+            scaleTransition.setOnFinished(event -> {
+                System.out.println("Selected tile from hand");
+                this.client.eventManager.notify(UserInputEvent.SELECTED_HAND_TILE, tileIndex);
+            });
 
             // Play the animation
             scaleTransition.play();
-
-            this.client.eventManager.notify(UserInputEvent.SELECTED_HAND_TILE, tileIndex);
-            System.out.println("Selected tile from hand");
         }
     }
 
 
+    ///////////////////////////////////////////////////////////////////////////
     /////////////////////////// VIEW UPDATE METHODS ///////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
+
+
 
     public void updateOtherPlayers(GameView gameView) {
         if (nickname == null)
@@ -446,23 +478,6 @@ public class GameControllerFX implements Initializable {
     }
 
 
-
-    /**
-     * This method updates the view of the board, by calling addTileToBoard for each tile.
-     * @param board the board object that will be shown
-     */
-    private void updateBoard(ImmutableBoard board) {
-        for (int r = 0; r < Board.DIMBOARD; r++) {
-            for (int c = 0; c < Board.DIMBOARD; c++) {
-                if (board.getTile(r, c) != null) {
-                    addTileToBoard(board.getTile(r, c), r, c);
-                } else {
-                    removeTileFromBoard(r, c);
-                }
-            }
-        }
-    }
-
     private void updateMyBookshelf(ImmutableBookshelf bookshelf) {
         for (int r = 0; r < Bookshelf.NUMROWS; r++) {
             for (int c = 0; c < Bookshelf.NUMCOLUMNS; c++) {
@@ -472,8 +487,6 @@ public class GameControllerFX implements Initializable {
                         tileImage.setImage(new Image("graphics/tiles/" + bookshelf.getTile(r, c).getItemType() + "_" + bookshelf.getTile(r, c).getItemId() + ".png"));
                         tileImage.fitWidthProperty().bind(myBookshelfGrid.widthProperty().divide(myBookshelfGrid.getColumnConstraints().size()));
                         tileImage.fitHeightProperty().bind(myBookshelfGrid.heightProperty().divide(myBookshelfGrid.getRowConstraints().size()));
-                        tileImage.setScaleX(0.9);
-                        tileImage.setScaleY(0.9);
                         tileImage.setVisible(true);
                     } else {
                         ImageView tileImage = (ImageView) myBookshelfGrid.getChildren().get(c + r * myBookshelfGrid.getColumnCount());
@@ -577,15 +590,28 @@ public class GameControllerFX implements Initializable {
 
 
     private void updateMyTilesPicked(List<Tile> tileHand) {
+        Platform.runLater(this::clearTilesPicked);
+
         for (int i=0; i<tileHand.size(); i++) {
-            ImageView tileImage = (ImageView) tilesHandGrid.getChildren().get(i);
-            tileImage.setImage(new Image("graphics/tiles/" + tileHand.get(i).getItemType() + "_" + tileHand.get(i).getItemId() + ".png"));
-            tileImage.setFitHeight(SELECTED_TILE_DIM);
-            tileImage.setFitWidth(SELECTED_TILE_DIM);
-            tileImage.setEffect(new DropShadow(15, Color.BLACK));
-            int indexTile = i; //Copying the index to use it in the lambda expression below
-            tileImage.setOnMouseClicked(event -> onTileFromHandClicked(tileImage, indexTile));
-            tileImage.setVisible(true);
+            final int finalI = i;
+            Platform.runLater(() -> {
+                ImageView tileImage = new ImageView("graphics/tiles/" + tileHand.get(finalI).getItemType() + "_" + tileHand.get(finalI).getItemId() + ".png");
+                tileImage.setImage(new Image("graphics/tiles/" + tileHand.get(finalI).getItemType() + "_" + tileHand.get(finalI).getItemId() + ".png"));
+                tileImage.setFitHeight(SELECTED_TILE_DIM);
+                tileImage.setFitWidth(SELECTED_TILE_DIM);
+                tileImage.setEffect(new DropShadow(10, Color.BLACK));
+                tileImage.setOnMouseClicked(event -> onTileFromHandClicked(tileImage, finalI));
+                tileImage.setVisible(true);
+
+                tilesHandGrid.add(tileImage, finalI, 0);
+            });
+        }
+    }
+
+    private void clearTilesPicked() {
+        for (Node node : tilesHandGrid.getChildren()) {
+            node.setOnMouseClicked(null);
+            Platform.runLater(() -> tilesHandGrid.getChildren().remove(node));
         }
     }
 
@@ -593,8 +619,29 @@ public class GameControllerFX implements Initializable {
     private void updateMyPersGoal(PersonalGoalCard card) {
         myPersonalGoal.setImage(new Image("graphics/persGoalCards/Personal_Goals" + card.getId() + ".png"));
         myPersonalGoal.setFitHeight(PERSONAL_CARD_HEIGHT);
-        myPersonalGoal.setEffect(new DropShadow(15, Color.BLACK));
+        myPersonalGoal.setEffect(new DropShadow(10, Color.BLACK));
         myPersonalGoal.setVisible(true);
+    }
+
+    /**
+     * This method updates the view of the board, by adding or removing tiles from the board's gridPane.
+     * @param board the board object that will be shown
+     */
+    private void updateBoard(ImmutableBoard board) {
+        Platform.runLater(this::clearBoard);
+
+        // Fill the board with the tiles
+        for (int r = 0; r < Board.DIMBOARD; r++) {
+            for (int c = 0; c < Board.DIMBOARD; c++) {
+                final int row = r;
+                final int col = c;
+                Platform.runLater(() -> {
+                    if (board.getTile(row, col) != null) {
+                        addTileToBoard(board.getTile(row, col), row, col);
+                    }
+                });
+            }
+        }
     }
 
 
@@ -602,43 +649,34 @@ public class GameControllerFX implements Initializable {
      * This method allows you to add a tile in the form of an ImageView to the board's gridPane.
      */
     private void addTileToBoard(Tile tile, int row, int col) {
-        ImageView tileImage = (ImageView) boardGrid.getChildren().get(col + row * boardGrid.getColumnCount());
-        tileImage.setImage(new Image("graphics/tiles/" + tile.getItemType() + "_" + tile.getItemId() + ".png"));
-        tileImage.fitWidthProperty().bind(boardGrid.widthProperty().divide(boardGrid.getColumnConstraints().size()));
-        tileImage.fitHeightProperty().bind(boardGrid.heightProperty().divide(boardGrid.getRowConstraints().size()));
-        // scale down to allow a little space between tiles
-        tileImage.setScaleX(0.9);
-        tileImage.setScaleY(0.9);
-        tileImage.setEffect(new DropShadow(5, Color.BLACK));
+        ImageView tileImage = new ImageView(new Image("graphics/tiles/" + tile.getItemType() + "_" + tile.getItemId() + ".png"));
         tileImage.setVisible(true);
-
-        // set the on click handler
         tileImage.setOnMouseClicked(mouseEvent -> onTileClicked(tileImage, row, col));
+        tileImage.setFitHeight(TILE_DIM);
+        tileImage.setFitWidth(TILE_DIM);
+        tileImage.setEffect(new DropShadow(5, Color.BLACK));
+
+        boardGrid.add(tileImage, col, row);
     }
-
-
 
     /**
      * This method allows you to remove a tile from the board's representation (GridPane).
      */
-    private void removeTileFromBoard(int row, int col) {
-        ImageView tileImage = (ImageView) boardGrid.getChildren().get(col + row * boardGrid.getColumnCount());
-        tileImage.setImage(null);
-        tileImage.setVisible(false);
+    private void clearBoard() {
+        for (Node node : boardGrid.getChildren()) {
+            if (node instanceof ImageView) {
+                Platform.runLater(() -> boardGrid.getChildren().remove(node));
+            }
+        }
     }
 
     public void setClient(Client client) {
         this.client = client;
     }
 
-    /////////////////////////// INITIALIZATION METHODS ///////////////////////////
-    private void initializeTilesConfirmButton() {
-        tilesConfirmButton = new Button("CONFIRM");
-        myBookshelfPane.getChildren().add(tilesConfirmButton);
-        tilesConfirmButton.fontProperty().set(Font.font("System", 15));
-        tilesConfirmButton.setTranslateX(0);
-        tilesConfirmButton.setTranslateY(myBookshelfImage.getFitHeight() + 100);
-        tilesConfirmButton.setVisible(false);
-    }
+
+
+
+
 
 }

@@ -3,6 +3,7 @@ package org.myshelfie.model;
 import org.myshelfie.model.util.Pair;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * This class extends Tile adding the information about the location of the tile in the bookshelf.
@@ -28,6 +29,22 @@ public class LocatedTile extends Tile implements Serializable {
         row = r;
         col = c;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        LocatedTile that = (LocatedTile) o;
+        return row == that.row &&
+                col == that.col;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), row, col);
+    }
+
 
     public int getRow() {
         return row;
