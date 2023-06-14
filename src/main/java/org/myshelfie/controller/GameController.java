@@ -373,7 +373,7 @@ public class GameController implements Serializable {
     }
 
     public void removePlayer(String nickname) {
-        if(this.game == null)
+        if(this.game != null)
             this.nicknames.remove(nickname);
     }
 
