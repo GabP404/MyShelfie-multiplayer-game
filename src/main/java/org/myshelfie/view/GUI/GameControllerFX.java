@@ -182,6 +182,8 @@ public class GameControllerFX implements Initializable {
             }
             default -> {
                 System.out.println("Entering the default updates...");
+                updateEverything(game);
+                return;
             }
         }
         // Actions that are performed on every update

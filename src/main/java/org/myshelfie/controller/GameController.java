@@ -209,12 +209,14 @@ public class GameController implements Serializable {
      */
     public void setPlayerOffline(String nickname) {
         // If the player is the current player, empty their hand and the selected column
-        // Also, set the current player to the next online player (check that it's online)
+        // Also, set the current player to the next online player (check that it's online).
+        // Finally, set the model state to WAITING_SELECTION_TILE (beginning of next turn)
         try {
             if(this.game.getCurrPlayer().getNickname().equals(nickname)) {
                 this.game.getCurrPlayer().clearHand();
                 this.game.getCurrPlayer().clearSelectedColumn();
                 this.game.setCurrPlayer(this.game.getNextOnlinePlayer());
+                this.game.setModelState(ModelState.WAITING_SELECTION_TILE);
             }
         } catch (WrongArgumentException e) {
             // This exception is thrown when there are no more online players
