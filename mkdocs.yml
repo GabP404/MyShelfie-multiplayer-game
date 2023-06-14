@@ -10,7 +10,7 @@ repo_url: 'https://github.com/GabP404/ing-sw-2023-Puglisi-Vicenzotto-Santelmo-St
 theme:
   name: 'material'
   palette:
-    primary: 'light green'
+    primary: teal
   font:
     text: 'Open Sans'
     code: 'Roboto Mono'
@@ -19,6 +19,7 @@ theme:
 
 # Extensions
 markdown_extensions:
+  - admonition
   - pymdownx.highlight
   - pymdownx.details # collapsible admonitions
   - pymdownx.superfences # fenced code blocks with syntax highlighting
