@@ -512,7 +512,7 @@ public class GameControllerFX implements Initializable {
                 List<CommonGoalCard> commonGoalCards = gameView.getCommonGoals();
 
                 if (commonGoalCards.size() >= 1) {
-                    commonGoalCard1.setImage(new Image("graphics/commonGoalCards/" + commonGoalCards.get(0).getId() + ".jpg"));
+                    commonGoalCard1.setImage(new Image("graphics/commonGoalCards/common_" + commonGoalCards.get(0).getId() + ".jpg"));
                     commonGoalCard1.setVisible(true);
                     commonGoalCard2.setVisible(false);
                     int k = 0;
@@ -530,7 +530,7 @@ public class GameControllerFX implements Initializable {
                     }
                 }
                 if (commonGoalCards.size() == 2) {
-                    commonGoalCard2.setImage(new Image("graphics/commonGoalCards/" + commonGoalCards.get(1).getId() + ".jpg"));
+                    commonGoalCard2.setImage(new Image("graphics/commonGoalCards/common_" + commonGoalCards.get(1).getId() + ".jpg"));
                     commonGoalCard2.setVisible(true);
                     int k = 0;
                     for (ScoringToken token : gameView.getCommonGoalTokens(commonGoalCards.get(1).getId())) {
