@@ -516,7 +516,9 @@ public class GameControllerFX implements Initializable {
                     commonGoalCard1.setVisible(true);
                     commonGoalCard2.setVisible(false);
                     int k = 0;
-                    for (ScoringToken token : gameView.getCommonGoalTokens(commonGoalCards.get(0).getId())) {
+                    List<ScoringToken> commonGoalCardTokens = gameView.getCommonGoalTokens(commonGoalCards.get(0).getId());
+                    Collections.reverse(commonGoalCardTokens);
+                    for (ScoringToken token : commonGoalCardTokens) {
                         AnchorPane pane = (AnchorPane) commonGoalCard1.getParent();
                         ImageView tokenImage = new ImageView("graphics/tokens/scoring_" + token.getPoints() + ".jpg");
                         pane.getChildren().add(tokenImage);
@@ -533,7 +535,9 @@ public class GameControllerFX implements Initializable {
                     commonGoalCard2.setImage(new Image("graphics/commonGoalCards/" + commonGoalCards.get(1).getId() + ".jpg"));
                     commonGoalCard2.setVisible(true);
                     int k = 0;
-                    for (ScoringToken token : gameView.getCommonGoalTokens(commonGoalCards.get(1).getId())) {
+                    List<ScoringToken> commonGoalCardTokens = gameView.getCommonGoalTokens(commonGoalCards.get(1).getId());
+                    Collections.reverse(commonGoalCardTokens);
+                    for (ScoringToken token : commonGoalCardTokens) {
                         AnchorPane pane = (AnchorPane) commonGoalCard2.getParent();
                         ImageView tokenImage = new ImageView("graphics/tokens/scoring_" + token.getPoints() + ".jpg");
                         pane.getChildren().add(tokenImage);
