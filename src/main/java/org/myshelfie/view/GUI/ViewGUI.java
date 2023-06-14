@@ -78,51 +78,65 @@ public class ViewGUI extends Application implements View  {
         scenes.put("EndGame", "/fxml/EndGameFXML.fxml");
         scenes.put("Lobbies", "/fxml/LobbiesFXML.fxml");
         scenes.put("Login", "/fxml/LoginFXML.fxml");
+        scenes.put("WaitGame","/fxml/WaitGameFXML.fxml");
     }
+
 
     public void setScene(String sceneName) {
-        Scene scene = null;
-        fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(getClass().getResource(scenes.get(sceneName)));
-        try {
-            scene = new Scene(fxmlLoader.load());
-        } catch (IOException e) {
-            e.printStackTrace();
-
-        }
-        stage.setScene(scene);
-        stage.setResizable(false);
-        stage.setTitle("MyShelfie");
-        switch (sceneName) {
-            case "Login":
-                loginControllerFX = fxmlLoader.getController();
-                loginControllerFX.setClient(client);
-                break;
-            case "Game":
-                stage.setResizable(true);
-                stage.setMinWidth(1280);
-                stage.setMinHeight(720);
-                gameControllerFX = fxmlLoader.getController();
-                this.nickname = this.client.getNickname();
-                gameControllerFX.setMyNickname(this.nickname);
-                gameControllerFX.setClient(this.client);
-                break;
-            //case "EndGame":
-            case "Lobbies":
-                lobbiesControllerFX = fxmlLoader.getController();
-                lobbiesControllerFX.setClient(client);
-                break;
-        }
-        stage.show();
+        Platform.runLater(() -> {
+            Scene scene = null;
+            fxmlLoader = new FXMLLoader();
+            fxmlLoader.setLocation(getClass().getResource(scenes.get(sceneName)));
+            try {
+                scene = new Scene(fxmlLoader.load());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            stage.setScene(scene);
+            stage.setResizable(false);
+            stage.setTitle("MyShelfie");
+            switch (sceneName) {
+                case "Login":
+                    loginControllerFX = fxmlLoader.getController();
+                    loginControllerFX.setClient(client);
+                    break;
+                case "Game":
+                    stage.setResizable(true);
+                    stage.setMinWidth(1280);
+                    stage.setMinHeight(720);
+                    gameControllerFX = fxmlLoader.getController();
+                    this.nickname = this.client.getNickname();
+                    gameControllerFX.setMyNickname(this.nickname);
+                    gameControllerFX.setClient(this.client);
+                    break;
+                //case "EndGame":
+                case "Lobbies":
+                    lobbiesControllerFX = fxmlLoader.getController();
+                    lobbiesControllerFX.setClient(client);
+                    break;
+            }
+            stage.show();
+        });
     }
+
+
 
 
     @Override
     public void update(GameView msg, GameEvent ev) {
         this.gameName = msg.getGameName();
-        if(gameControllerFX != null)
+        if (gameControllerFX != null) {
             gameControllerFX.update(ev, msg);
+        } else {
+            setScene("Game");
+            if (gameControllerFX != null) {
+                gameControllerFX.update(ev, msg);
+            } else {
+                System.out.println("GameControllerFX is still null after setting the scene.");
+            }
+        }
     }
+
 
     @Override
     public void run() {
@@ -143,7 +157,7 @@ public class ViewGUI extends Application implements View  {
 
     @Override
     public void endLobbyPhase() {
-        setScene("Game");
+        setScene("WaitGame");
     }
     @Override
     public String getGameName() {
@@ -162,8 +176,18 @@ public class ViewGUI extends Application implements View  {
 
     @Override
     public void setAvailableGames(List<GameController.GameDefinition> availableGamesList) {
-        lobbiesControllerFX.updateLobbiesOptimized(availableGamesList);
+        if (lobbiesControllerFX != null) {
+            lobbiesControllerFX.updateLobbiesOptimized(availableGamesList);
+        } else {
+            System.out.println("LobbiesControllerFX is null. Unable to update available games.");
+        }
     }
+
+    @Override
+    public void nicknameAlreadyUsed() {
+        loginControllerFX.nicknameAlreadyUsed();
+    }
+
 
     @Override
     public void setReconnecting(boolean reconnecting) {
