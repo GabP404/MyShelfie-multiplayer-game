@@ -501,9 +501,14 @@ public class ViewCLI implements View{
                     printError("NUMBER OF ARGUMENTS NOT CORRECT");
                     return;
                 }
-                int c = Integer.parseInt(parts[1]);
-                if (!pickTileFromHand(c))
+                try {
+                    int c = Integer.parseInt(parts[1]);
+                    if (!pickTileFromHand(c))
+                        return;
+                } catch (NumberFormatException nfe) {
+                    printError("HAND INDEX NUMBER IS NOT CORRECT");
                     return;
+                }
                 break;
             case "confirm", "c":
                 if(selectedTiles.isEmpty())
