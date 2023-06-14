@@ -127,6 +127,8 @@ public class PickTilesCommand implements Command {
         if (!isTilesGroupSelectable(b, tilesSet))
             throw new WrongArgumentException("The chosen group of tiles is not selectable!");
 
+        if(tilesSet.size() + currPlayer.getBookshelf().getMinHeight() > Bookshelf.NUMROWS) throw new WrongArgumentException("You can't pick that many tiles");
+
         for (LocatedTile t: tiles) {
             currPlayer.addTilesPicked(b.getTile(t.getRow(),t.getCol()));
             b.setTile(t.getRow(), t.getCol(), null);

@@ -81,6 +81,17 @@ public class Bookshelf implements Serializable {
         return NUMROWS - r;
     }
 
+    //method that returns the minimum height of the bookshelf
+    public int getMinHeight() throws WrongArgumentException {
+        int min = getHeight(0);
+        for(int i = 1; i < NUMCOLUMNS; i++){
+            int h = getHeight(i);
+            if(h < min)
+                min = h;
+        }
+        return min;
+    }
+
     /**
      * Examines all the bookshelf to produce a list of the sizes of all the standalone groups of adjacent tiles
      * of the same type. This method allows the computing of scoring points related to adjacent tiles.
