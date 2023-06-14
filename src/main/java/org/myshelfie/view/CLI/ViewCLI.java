@@ -9,17 +9,17 @@ import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.commandMessages.UserInputEvent;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.GameView;
+import org.myshelfie.network.messages.gameMessages.ImmutableBoard;
 import org.myshelfie.view.View;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+import static org.myshelfie.view.CLI.Color.ULight_gray;
 import static org.myshelfie.view.PrinterCLI.*;
 
 public class ViewCLI implements View{
@@ -161,7 +161,8 @@ public class ViewCLI implements View{
                         print("Insert a Game name  |  --back to go back  |  --refresh to refresh lobbies", 0, 20, false);
                         print("Available games: ", 90, 20, false);
                         for (int i=0; i<this.availableGames.size(); i++) {
-                            print(" -> " + this.availableGames.get(i).getGameName() + " " + this.availableGames.get(i).getNicknames().size() + "/" + this.availableGames.get(i).getMaxPlayers(), 90, 22+i, false);
+                            if(this.availableGames.get(i).getNicknames().size() < this.availableGames.get(i).getMaxPlayers())
+                                print("-> " + this.availableGames.get(i).getGameName() + " " + this.availableGames.get(i).getNicknames().size() + "/" + this.availableGames.get(i).getMaxPlayers(), 90, 22+i, false);
                         }
                         setCursor(0,22);
                         gameName = scanner.nextLine();
@@ -211,7 +212,7 @@ public class ViewCLI implements View{
     private boolean isInLobbyList(String gameName)
     {
         for (int i=0; i<this.availableGames.size(); i++) {
-            if (this.availableGames.get(i).getGameName().equalsIgnoreCase(gameName))
+            if (this.availableGames.get(i).getGameName().equalsIgnoreCase(gameName) && this.availableGames.get(i).getNicknames().size() < this.availableGames.get(i).getMaxPlayers())
                 return true;
         }
         return false;
@@ -410,6 +411,11 @@ public class ViewCLI implements View{
                 }
                 switch (parts[1]) {
                     case "tile", "t":
+                        if(!game.getModelState().equals(ModelState.WAITING_SELECTION_TILE))
+                        {
+                            printError("YOU CAN'T SELECT A TILE NOW");
+                            return;
+                        }
                         if (parts.length != 4) {
                             printError("NUMBER OF ARGUMENTS NOT CORRECT");
                             return;
@@ -423,9 +429,15 @@ public class ViewCLI implements View{
                             printError("ROW OR COLUMN NUMBERS ARE NOT CORRECT");
                             return;
                         }
+                        clear();
                         printAll(game, selectedTiles, nickname);
                         break;
                     case "column", "c":
+                        if(!game.getModelState().equals(ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN))
+                        {
+                            printError("YOU CAN'T SELECT A COLUMN NOW");
+                            return;
+                        }
                         if (parts.length != 3) {
                             printError("NUMBER OF ARGUMENTS NOT CORRECT");
                             return;
@@ -451,6 +463,11 @@ public class ViewCLI implements View{
                 }
                 switch (parts[1]) {
                     case "tile", "t":
+                        if(!game.getModelState().equals(ModelState.WAITING_SELECTION_TILE))
+                        {
+                            printError("YOU CAN'T DESELECT A TILE NOW");
+                            return;
+                        }
                         if (parts.length != 4) {
                             printError("NUMBER OF ARGUMENTS NOT CORRECT");
                             return;
@@ -464,6 +481,7 @@ public class ViewCLI implements View{
                             printError("ROW OR COLUMN NUMBERS ARE NOT CORRECT");
                             return;
                         }
+                        clear();
                         printAll(game, selectedTiles, nickname);
                         break;
                     default:
@@ -472,6 +490,13 @@ public class ViewCLI implements View{
                 }
                 break;
             case "pick", "p":
+                if(!game.getModelState().equals(ModelState.WAITING_1_SELECTION_TILE_FROM_HAND) &&
+                        !game.getModelState().equals(ModelState.WAITING_2_SELECTION_TILE_FROM_HAND) &&
+                        !game.getModelState().equals(ModelState.WAITING_3_SELECTION_TILE_FROM_HAND))
+                {
+                    printError("YOU CAN'T PICK A TILE FROM THE HAND NOW");
+                    return;
+                }
                 if (parts.length != 2) {
                     printError("NUMBER OF ARGUMENTS NOT CORRECT");
                     return;
@@ -486,10 +511,15 @@ public class ViewCLI implements View{
                     printError("NO TILES SELECTED");
                     return;
                 }
+                if(!game.getModelState().equals(ModelState.WAITING_SELECTION_TILE))
+                {
+                    printError("YOU CAN'T CONFIRM THE SELECTION NOW");
+                    return;
+                }
                 confirmSelection();
                 break;
             default:
-                printError("COMMAND DOES NOT EXIST");
+                printError("COMMAND DOES NOT EXIST, TYPE \"help\" TO SEE ALL COMMANDS");
                 return;
         }
     }
@@ -504,8 +534,21 @@ public class ViewCLI implements View{
                 return false;
             }
         }
+
+        if(game.getCurrPlayer().getBookshelf().getMinHeight() + selectedTiles.size() + 1 > Bookshelf.NUMROWS)
+        {
+            printError("SELECTION PREVENTED: U CAN'T FIT THE SELECTED TILES IN THE BOOKSHELF");
+            return false;
+        }
         //TODO: think on what really is the necessary to save
-        selectedTiles.add(new LocatedTile(null, r, c));
+        LocatedTile t = new LocatedTile(null, r, c);
+        selectedTiles.add(t);
+        if(!isTilesGroupSelectable(selectedTiles))
+        {
+            selectedTiles.remove(t);
+            printError("SELECTION PREVENTED: TILE IS NOT SELECTABLE, CHECK THE RULES");
+            return false;
+        }
         return true;
     }
 
@@ -516,7 +559,16 @@ public class ViewCLI implements View{
         for (LocatedTile t : selectedTiles) {
             if (t.getRow() == r && t.getCol() == c) {
                 selectedTiles.remove(t);
-                return true;
+                if(isTilesGroupSelectable(selectedTiles))
+                {
+                    return true;
+                }
+                else
+                {
+                    selectedTiles.add(t);
+                    printError("DESELECTION PREVENTED: YOU CANNOT DESELECT THAT TILE GIVEN THE CURRENT SELECTED TILES");
+                    return false;
+                }
             }
         }
         printError("TILE IS NOT SELECTED");
@@ -546,6 +598,12 @@ public class ViewCLI implements View{
         if(c < 0 || c>= Bookshelf.NUMCOLUMNS)
         {
             printError("COLUMN NUMBER IS NOT VALID");
+            return false;
+        }
+        //if the column is too full for the selected tiles return
+        if(game.getCurrPlayer().getBookshelf().getHeight(c) + game.getCurrPlayer().getTilesPicked().size() > Bookshelf.NUMROWS)
+        {
+            printError("SELECTION PREVENTED: U CAN'T FIT THE SELECTED TILES IN THAT COLUMN");
             return false;
         }
         selectedColumn = c;
@@ -594,5 +652,40 @@ public class ViewCLI implements View{
 
     public void setReconnecting(boolean reconnecting) {
         this.reconnecting = reconnecting;
+    }
+
+    public boolean isTilesGroupSelectable(List<LocatedTile> chosen) {
+        // Add the check that you cannot select more than 3 tiles
+        if (chosen.size() > 3) {
+            return false;
+        }
+
+        //Check that all the selected tiles are indeed selectable on their own (i.e. at least one free border)
+        for (LocatedTile t : chosen) {
+            if (!game.getBoard().hasOneOrMoreFreeBorders(t.getRow(), t.getCol()))
+                return false;
+        }
+
+        // Skip the check if there is only one tile in the selection
+        if (chosen.size() < 2) {
+            // If so, return true since a single tile or no tiles are always in a line
+            return true;
+        }
+
+        // The tiles are horizontal / vertical if all the rows / cols are the same
+        boolean isHorizontal = chosen.stream().map(LocatedTile::getRow).distinct().count() == 1;
+        boolean isVertical = chosen.stream().map(LocatedTile::getCol).distinct().count() == 1;
+
+        if (!isHorizontal && !isVertical)
+            return false;
+
+        // Check that the chosen tile are "sequential" i.e., adjacent to each other
+        SortedSet<Integer> sortedIndexes = new TreeSet<>();
+        if (isHorizontal)
+            sortedIndexes.addAll(chosen.stream().map(LocatedTile::getCol).collect(Collectors.toSet()));
+        if (isVertical)
+            sortedIndexes.addAll(chosen.stream().map(LocatedTile::getRow).collect(Collectors.toSet()));
+
+        return sortedIndexes.last() - sortedIndexes.first() == sortedIndexes.size() - 1;
     }
 }
