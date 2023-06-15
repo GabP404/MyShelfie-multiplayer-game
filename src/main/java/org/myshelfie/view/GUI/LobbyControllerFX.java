@@ -37,9 +37,9 @@ public class LobbyControllerFX implements Initializable{
         MaxNumPlayers_LB.setText(gameDefinition.getMaxPlayers() + "");
         NumPlayersConnected_LB.setText(gameDefinition.getNicknames().size() + "");
         if(gameDefinition.isSimplifyRules()) {
-            Rules_LB.setText("SimplifiedRules");
+            Rules_LB.setText("Simple");
         } else {
-            Rules_LB.setText("StandardRules");
+            Rules_LB.setText("Standard");
         }
         if (this.client == null) {
             System.out.println("UANMUANMUANM CLIENT IS NULL UAUA");

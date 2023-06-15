@@ -13,6 +13,8 @@ import org.myshelfie.network.messages.commandMessages.UserInputEvent;
 import java.net.URL;
 import java.rmi.RemoteException;
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LoginControllerFX implements Initializable{
 
@@ -45,18 +47,34 @@ public class LoginControllerFX implements Initializable{
     @FXML
     void sendNickname(ActionEvent event) {
         String nickname = nickname_LBL.getText();
-        if (nickname.isEmpty()) {
+        if (nickname.isEmpty() || !validateString(nickname) || nickname.length() >= 15) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
             alert.setHeaderText("Nickname not inserted");
+            alert.showAndWait();
         }else {
             this.client.eventManager.notify(UserInputEvent.NICKNAME, nickname);
         }
+        //TODO: handle a nickname not valid
+    }
+
+    void nicknameAlreadyUsed() {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText("Nickname already used");
+        alert.showAndWait();
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         nickname_VB.setManaged(true);
         nickname_VB.setVisible(true);
+    }
+
+    private boolean validateString(String input) {
+        String regex = "^[a-zA-Z0-9]+$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
+        return matcher.matches();
     }
 }

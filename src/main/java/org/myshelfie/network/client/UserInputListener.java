@@ -41,7 +41,8 @@ public class UserInputListener implements Listener<UserInputEvent> {
                     client.endLoginPhase(); // Stop the view thread that was waiting for the nickname
                     client.startServerListener();
                 } else {
-                    System.out.println("Nickname " + args[0] + " already taken!");
+                    client.getView().nicknameAlreadyUsed();
+                    //System.out.println("Nickname " + args[0] + " already taken!");
                 }
             }
             case CREATE_GAME -> {

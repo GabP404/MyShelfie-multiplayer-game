@@ -35,4 +35,6 @@ public interface View extends Runnable {
     void setAvailableGames(List<GameController.GameDefinition> availableGamesList);
 
     void setReconnecting(boolean reconnecting);
+
+    void nicknameAlreadyUsed();
 }

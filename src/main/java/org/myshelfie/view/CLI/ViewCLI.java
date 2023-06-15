@@ -595,4 +595,9 @@ public class ViewCLI implements View{
     public void setReconnecting(boolean reconnecting) {
         this.reconnecting = reconnecting;
     }
+
+    @Override
+    public void nicknameAlreadyUsed() {
+        printError("NICKNAME ALREADY USED");
+    }
 }
