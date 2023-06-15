@@ -64,7 +64,6 @@ public class LobbyController {
 
         gameControllers.get(command.getGameName()).queueAndExecuteInstruction(
                 () -> {
-                    server.log(Level.FINE, "Entered the thread to send the update " + t + "  to the clients");
                     // Send the update to all the clients
                     Server.eventManager.sendToClients();
                 }

@@ -1,5 +1,6 @@
 package org.myshelfie.controller;
 
+import org.myshelfie.model.Bookshelf;
 import org.myshelfie.model.ModelState;
 import org.myshelfie.model.Player;
 import org.myshelfie.model.WrongArgumentException;
@@ -28,6 +29,8 @@ public class SelectColumnCommand implements Command {
         if(!currPlayer.getNickname().equals(nickname)) {
             throw new WrongTurnException();
         }
+        if(selectedColumn < 0 || selectedColumn >= Bookshelf.NUMCOLUMNS) throw new WrongArgumentException("Column out of bounds");
+        if(currPlayer.getBookshelf().getHeight(selectedColumn) + currPlayer.getTilesPicked().size() > Bookshelf.NUMROWS) throw new WrongArgumentException("Column would be too full");
         if(currentModelState != ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN) throw new InvalidCommand("Waiting for Column Selection ");
         currPlayer.setSelectedColumn(selectedColumn);
     }
