@@ -220,8 +220,9 @@ public class PrinterCLI {
                 case WAITING_1_SELECTION_TILE_FROM_HAND, WAITING_2_SELECTION_TILE_FROM_HAND, WAITING_3_SELECTION_TILE_FROM_HAND -> {
                     print("Pick a tile from your hand", boardOffsetX-2, boardOffsetY-4, false);
                 }
-
-
+                case PAUSE -> {
+                    print("The game is paused because at the moment you are the only online player.", boardOffsetX-2, boardOffsetY-4, false);
+                }
             }
         }
 

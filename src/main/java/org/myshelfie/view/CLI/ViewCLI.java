@@ -9,7 +9,6 @@ import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.commandMessages.UserInputEvent;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.GameView;
-import org.myshelfie.network.messages.gameMessages.ImmutableBoard;
 import org.myshelfie.view.View;
 
 import java.rmi.RemoteException;
@@ -19,7 +18,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.myshelfie.view.CLI.Color.ULight_gray;
 import static org.myshelfie.view.PrinterCLI.*;
 
 public class ViewCLI implements View{
@@ -400,6 +398,12 @@ public class ViewCLI implements View{
         if(!game.getCurrPlayer().getNickname().equals(nickname))
         {
             printError("IT'S NOT YOUR TURN");
+            return;
+        }
+
+        //if the game is paused, prevent further actions
+        if (game.getModelState().equals(ModelState.PAUSE)) {
+            printError("GAME IS PAUSED DUE TO OTHER PLAYERS' DISCONNECTION");
             return;
         }
 
