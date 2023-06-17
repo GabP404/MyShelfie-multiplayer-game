@@ -30,8 +30,27 @@
     -fx-background-radius: 50;
 }
 
+#tilesConfirmButton {
+    -fx-padding: 10px 30px; /* more horizontal padding */
+    -fx-background-color: #F4D8CD; /* creamy background */
+    -fx-font-size: 1.3em;
+    -fx-text-fill: #5C3317; /* brown text */
+    -fx-border-color: #5C3317; /* brown border */
+    -fx-border-width: 5px;
+    -fx-border-radius: 10px; /* rounded border */
+    -fx-background-radius: 14px; /* rounded background */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 3, 0.2, 2, 2);
+    -fx-translate-x: 30px;
+    -fx-translate-y: -35px;
+    -fx-cursor: hand;
+}
 
-.pers_hand {
+#tilesConfirmButton:hover {
+    -fx-background-color: #F4BF8D; /* change color on hover */
+}
+
+
+#pers_hand {
     -fx-background-image: url('../graphics/misc/base_dark.jpg');
     -fx-background-size: cover, auto;
 }
