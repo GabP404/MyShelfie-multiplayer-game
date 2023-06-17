@@ -10,6 +10,12 @@
     -fx-background-size: cover, auto;
 }
 
+.nickname-label {
+    -fx-font-size: 2em;
+    -fx-text-fill: #5C3317;
+    -fx-font-weight: bold;
+}
+
 .my-bookshelf {
     -fx-background-image: url('../graphics/boards/bookshelf.png');
     -fx-background-color: #3d311a;

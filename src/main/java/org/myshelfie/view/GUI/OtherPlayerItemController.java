@@ -79,6 +79,7 @@ public class OtherPlayerItemController implements Initializable {
     }
 
     public void updateNickname(String nickname){
+        this.nickname = nickname;
         this.nicknameLabel.setText(nickname);
     }
 
@@ -86,10 +87,12 @@ public class OtherPlayerItemController implements Initializable {
         if (isCurrPlayer) {
             nicknameLabel.setFont(Font.font("System", FontWeight.BOLD, 15));
             nicknameLabel.setEffect(new DropShadow(10, Color.WHITE));
+            nicknameLabel.setText(nickname + " \uD83C\uDFF3\uFE0F");
             nicknameLabel.setVisible(true);
         } else {
             nicknameLabel.setFont(Font.font("System", FontWeight.NORMAL, 10));
             nicknameLabel.setEffect(null);
+            nicknameLabel.setText(nickname);
             nicknameLabel.setVisible(true);
         }
 

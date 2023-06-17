@@ -475,10 +475,12 @@ public class GameControllerFX implements Initializable {
         if (amICurrPlayer) {
             myNickname.setFont(Font.font("System", FontWeight.BOLD, 20));
             myNickname.setEffect(new DropShadow(15, Color.WHITE));
+            myNickname.setText(nickname + " \uD83C\uDFF3\uFE0F");
             myNickname.setVisible(true);
         } else {
             myNickname.setFont(Font.font("System", FontWeight.BOLD, 12));
             myNickname.setEffect(null);
+            myNickname.setText(nickname);
             myNickname.setVisible(true);
         }
     }
