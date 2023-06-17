@@ -258,8 +258,8 @@ public class GameControllerFX implements Initializable {
                         // Create a ScaleTransition with desired properties
                         double finalScale = 1.2; // The final scale value
                         ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), tileImage);
-                        scaleTransition.setToX(finalScale * tileImage.getScaleX());
-                        scaleTransition.setToY(finalScale * tileImage.getScaleY());
+                        scaleTransition.setToX(finalScale);
+                        scaleTransition.setToY(finalScale);
                         scaleTransition.setAutoReverse(false);
                         // Set the final scale values directly at the end of the animation
                         scaleTransition.setOnFinished(event -> {
@@ -271,8 +271,8 @@ public class GameControllerFX implements Initializable {
                     }
                 } else {
                     // un-pick the tile
-                    tileImage.setScaleX(0.9);
-                    tileImage.setScaleY(0.9);
+                    tileImage.setScaleX(1);
+                    tileImage.setScaleY(1);
                     tileImage.setEffect(new DropShadow(5, Color.BLACK));
                     unconfirmedSelectedTiles.remove(t);
                     System.out.println("Deselected tile: " + row + " " + col);
