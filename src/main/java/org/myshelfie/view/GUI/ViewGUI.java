@@ -81,7 +81,6 @@ public class ViewGUI extends Application implements View  {
         scenes.put("EndGame", "/fxml/EndGameFXML.fxml");
         scenes.put("Lobbies", "/fxml/LobbiesFXML.fxml");
         scenes.put("Login", "/fxml/LoginFXML.fxml");
-        scenes.put("WaitGame","/fxml/WaitGameFXML.fxml");
     }
 
 
@@ -181,7 +180,7 @@ public class ViewGUI extends Application implements View  {
 
     @Override
     public void endLobbyPhase() {
-        setScene("WaitGame");
+        setScene("Game");
     }
     @Override
     public String getGameName() {

@@ -1,5 +1,6 @@
 package org.myshelfie.view.GUI;
 
+import javafx.scene.shape.Rectangle;
 import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -13,10 +14,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -36,6 +34,12 @@ import java.util.stream.Collectors;
 public class GameControllerFX implements Initializable {
     @FXML
     private GridPane boardGrid;
+
+    @FXML
+    private StackPane overlay;
+
+    @FXML
+    private Rectangle overlayBackground;
 
     @FXML
     private ImageView boardImage;
@@ -107,6 +111,9 @@ public class GameControllerFX implements Initializable {
         otherPlayerItemControllers = new HashMap<>();
         unconfirmedSelectedTiles = new ArrayList<>();
 
+        overlayBackground.widthProperty().bind(overlay.widthProperty());
+        overlayBackground.heightProperty().bind(overlay.heightProperty());
+
         // set the correct size for the board
         boardGrid.prefWidthProperty().bind(boardImage.fitWidthProperty());
         boardGrid.prefHeightProperty().bind(boardImage.fitHeightProperty());
@@ -153,13 +160,15 @@ public class GameControllerFX implements Initializable {
             unconfirmedSelectedTiles.clear();
         }
 
+        if (!firstSetupDone) {
+            overlay.setVisible(false);
+            updateEverything(game);
+            firstSetupDone = true;
+            return;
+        }
+
         switch (ev) {
             case BOARD_UPDATE -> {
-                if (!firstSetupDone) {
-                    updateEverything(game);
-                    firstSetupDone = true;
-                    return;
-                }
                 // Update board
                 updateBoard(game.getBoard());
                 updateMyBookshelf(me.getBookshelf());
