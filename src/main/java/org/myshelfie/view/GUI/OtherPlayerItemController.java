@@ -3,6 +3,7 @@ package org.myshelfie.view.GUI;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -171,10 +172,31 @@ public class OtherPlayerItemController implements Initializable {
      * @param thisPlayer the player to be updated
      */
     public void updatePlayersInfo(ImmutablePlayer thisPlayer) {
-        updateNickname(thisPlayer.getNickname());
         updateBookshelf(thisPlayer.getBookshelf());
         updateCommonGoalToken(thisPlayer.getCommonGoalTokens());
         updateFinalToken(thisPlayer.getHasFinalToken());
         updateTilesPicked(thisPlayer.getTilesPicked());
+        updateNickname(thisPlayer.getNickname());
+
+        // Gray out the player if he is offline
+        if (!thisPlayer.isOnline()) {
+            ColorAdjust desaturation = new ColorAdjust();
+            desaturation.setSaturation(-1);
+            setEveryItemSaturation(desaturation);
+        } else {
+            setEveryItemSaturation(null);
+        }
+    }
+
+    private void setEveryItemSaturation(ColorAdjust desaturation) {
+        bookshelfGrid.setEffect(desaturation);
+        bookshelfImage.setEffect(desaturation);
+        nicknameLabel.setEffect(desaturation);
+        tileHand1.setEffect(desaturation);
+        tileHand2.setEffect(desaturation);
+        tileHand3.setEffect(desaturation);
+        token1.setEffect(desaturation);
+        token2.setEffect(desaturation);
+        finalToken.setEffect(desaturation);
     }
 }
