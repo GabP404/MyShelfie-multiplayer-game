@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 
 public class ViewGUI extends Application implements View  {
 
@@ -129,12 +130,30 @@ public class ViewGUI extends Application implements View  {
             gameControllerFX.update(ev, msg);
         } else {
             setScene("Game");
+            // Wait for the scene to be set
+            try {
+                waitForRunLater();
+            } catch (InterruptedException ignored) {}
             if (gameControllerFX != null) {
                 gameControllerFX.update(ev, msg);
             } else {
                 System.out.println("GameControllerFX is still null after setting the scene.");
             }
         }
+    }
+
+    /**
+     * Util method to wait for the JavaFX thread to execute a Runnable.
+     * Call this method after executing a command that is queued in the JavaFX thread with
+     * a Platform.runLater call.
+     *
+     * You can find an example in the update method, where the gameControllerFX.update has to be called
+     * after the Game scene is set.
+     */
+    protected static void waitForRunLater() throws InterruptedException {
+        Semaphore semaphore = new Semaphore(0);
+        Platform.runLater(semaphore::release);
+        semaphore.acquire();
     }
 
 

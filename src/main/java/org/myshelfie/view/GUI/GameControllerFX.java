@@ -155,10 +155,13 @@ public class GameControllerFX implements Initializable {
             case BOARD_UPDATE -> {
                 if (!firstSetupDone) {
                     updateEverything(game);
+                    firstSetupDone = true;
                     return;
                 }
                 // Update board
                 updateBoard(game.getBoard());
+                updateMyBookshelf(me.getBookshelf());
+                udpateColSelectionArrows();
             }
             case TILES_PICKED_UPDATE -> {
                 updateBoard(game.getBoard());
