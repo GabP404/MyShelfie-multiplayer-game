@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.myshelfie.controller.GameController;
@@ -53,6 +54,7 @@ public class ViewGUI extends Application implements View  {
 
     @Override
     public void start(Stage stage) {
+        Font.loadFont(getClass().getResource("/fonts/IndieFlower-Regular.ttf").toExternalForm(), 10);
         this.stage = stage;
         stage.getIcons().add(new Image(getClass().getResource("/graphics/publisher/icon.png").toString()));
         stage.setOnCloseRequest((WindowEvent t) -> {
