@@ -635,6 +635,30 @@ public class GameControllerFX implements Initializable {
         myPersonalGoal.setImage(new Image("graphics/persGoalCards/Personal_Goals" + card.getId() + ".png"));
         myPersonalGoal.setFitHeight(PERSONAL_CARD_HEIGHT);
         myPersonalGoal.setEffect(new DropShadow(10, Color.BLACK));
+        myPersonalGoal.setTranslateX(0);
+        myPersonalGoal.setTranslateY(0);
+
+        // Create the scale transition
+        ScaleTransition st = new ScaleTransition(Duration.millis(250), myPersonalGoal);
+        st.setByX(1.5);  // scale by 1.5 in x direction
+        st.setByY(1.5);  // scale by 1.5 in y direction
+
+        // Set the hover property
+        myPersonalGoal.setOnMouseEntered(event -> {
+            // Bring the ImageView to the front
+            myPersonalGoal.toFront();
+
+            // Scale the ImageView up
+            st.playFromStart();
+        });
+
+        myPersonalGoal.setOnMouseExited(event -> {
+            // Reset the scale of ImageView
+            st.stop();
+
+            myPersonalGoal.setScaleX(1.0);
+            myPersonalGoal.setScaleY(1.0);
+        });
         myPersonalGoal.setVisible(true);
     }
 

@@ -28,6 +28,7 @@
     -fx-background-size: cover, auto;
     /*round the borders*/
     -fx-background-radius: 50;
+    -fx-border-radius: 50;
 }
 
 
@@ -39,6 +40,7 @@
 .tooltip {
     -fx-font-size: 1.2em;
     -fx-border-radius: 0.3em;
+    -fx-background-radius: 0.3em;
     -fx-background-color: #F2E5BC; /* This is a parchment-like color */
     -fx-text-fill: #000; /* Black color for the text */
     -fx-max-width: 400px;
