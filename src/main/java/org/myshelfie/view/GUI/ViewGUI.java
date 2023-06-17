@@ -5,6 +5,8 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -46,6 +48,9 @@ public class ViewGUI extends Application implements View  {
 
     private Client client;
 
+    private Media media;
+    private MediaPlayer mediaPlayer;
+
     public static void main(String[] args) {
         isRMI = Boolean.parseBoolean(args[0]);
         serverAddress = args[1];
@@ -63,6 +68,7 @@ public class ViewGUI extends Application implements View  {
         });
         stage.setMinWidth(600);
         stage.setMinHeight(400);
+
         run();
     }
 
@@ -164,6 +170,11 @@ public class ViewGUI extends Application implements View  {
     @Override
     public void run() {
         setScene("Login");
+        // Add some music :)
+        media = new Media(getClass().getResource("/audio/megalovania_lofi.mp3").toExternalForm());
+        mediaPlayer = new MediaPlayer(media);
+        mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+        mediaPlayer.play();
     }
 
 
