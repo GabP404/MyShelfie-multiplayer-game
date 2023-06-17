@@ -31,3 +31,12 @@
     -fx-background-image: url('../graphics/misc/base_dark.jpg');
     -fx-background-size: cover, auto;
 }
+
+.tooltip {
+    -fx-font-size: 1.2em;
+    -fx-border-radius: 0.3em;
+    -fx-background-color: #F2E5BC; /* This is a parchment-like color */
+    -fx-text-fill: #000; /* Black color for the text */
+    -fx-max-width: 400px;
+    -fx-wrap-text: true;
+}

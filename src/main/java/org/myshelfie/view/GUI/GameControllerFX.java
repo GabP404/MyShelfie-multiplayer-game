@@ -9,6 +9,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -20,6 +21,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.util.Duration;
+import org.myshelfie.controller.Configuration;
 import org.myshelfie.model.*;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.commandMessages.UserInputEvent;
@@ -517,11 +519,13 @@ public class GameControllerFX implements Initializable {
                 List<CommonGoalCard> commonGoalCards = gameView.getCommonGoals();
 
                 if (commonGoalCards.size() >= 1) {
-                    commonGoalCard1.setImage(new Image("graphics/commonGoalCards/common_" + commonGoalCards.get(0).getId() + ".jpg"));
+                    String cardId = commonGoalCards.get(0).getId();
+                    commonGoalCard1.setImage(new Image("graphics/commonGoalCards/common_" + cardId + ".jpg"));
+                    Tooltip.install(commonGoalCard1, new Tooltip(Configuration.getCommonGoalCardDescription(cardId)));
                     commonGoalCard1.setVisible(true);
                     commonGoalCard2.setVisible(false);
                     int k = 0;
-                    List<ScoringToken> commonGoalCardTokens = gameView.getCommonGoalTokens(commonGoalCards.get(0).getId());
+                    List<ScoringToken> commonGoalCardTokens = gameView.getCommonGoalTokens(cardId);
                     Collections.reverse(commonGoalCardTokens);
                     for (ScoringToken token : commonGoalCardTokens) {
                         AnchorPane pane = (AnchorPane) commonGoalCard1.getParent();
@@ -537,10 +541,12 @@ public class GameControllerFX implements Initializable {
                     }
                 }
                 if (commonGoalCards.size() == 2) {
-                    commonGoalCard2.setImage(new Image("graphics/commonGoalCards/common_" + commonGoalCards.get(1).getId() + ".jpg"));
+                    String cardId = commonGoalCards.get(1).getId();
+                    commonGoalCard2.setImage(new Image("graphics/commonGoalCards/common_" + cardId + ".jpg"));
+                    Tooltip.install(commonGoalCard2, new Tooltip(Configuration.getCommonGoalCardDescription(cardId)));
                     commonGoalCard2.setVisible(true);
                     int k = 0;
-                    List<ScoringToken> commonGoalCardTokens = gameView.getCommonGoalTokens(commonGoalCards.get(1).getId());
+                    List<ScoringToken> commonGoalCardTokens = gameView.getCommonGoalTokens(cardId);
                     Collections.reverse(commonGoalCardTokens);
                     for (ScoringToken token : commonGoalCardTokens) {
                         AnchorPane pane = (AnchorPane) commonGoalCard2.getParent();

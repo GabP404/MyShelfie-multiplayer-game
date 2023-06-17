@@ -92,7 +92,10 @@ public class ViewGUI extends Application implements View  {
                 scene = new Scene(fxmlLoader.load());
             } catch (IOException e) {
                 e.printStackTrace();
+                System.out.println("Error loading scene " + sceneName);
+                return;
             }
+            scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
             stage.setScene(scene);
             stage.setResizable(false);
             stage.setTitle("MyShelfie");
