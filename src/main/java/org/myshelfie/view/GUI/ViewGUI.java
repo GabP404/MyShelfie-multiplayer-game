@@ -104,7 +104,8 @@ public class ViewGUI extends Application implements View  {
             }
             scene.getStylesheets().add(getClass().getResource("/css/style.css").toExternalForm());
             stage.setScene(scene);
-            stage.setResizable(false);
+            stage.setResizable(true);
+            stage.setMaximized(true);
             stage.setTitle("MyShelfie");
             switch (sceneName) {
                 case "Login":
@@ -112,7 +113,6 @@ public class ViewGUI extends Application implements View  {
                     loginControllerFX.setClient(client);
                     break;
                 case "Game":
-                    stage.setResizable(true);
                     stage.setMinWidth(1280);
                     stage.setMinHeight(720);
                     gameControllerFX = fxmlLoader.getController();

@@ -58,7 +58,7 @@
                                     <children>
                                    </children>
                                  </GridPane>
-                                 <Button fx:id="tilesConfirmButton" layoutY="437.0" visible="false" mnemonicParsing="false" text="Confirm" textAlignment="CENTER">
+                                 <Button fx:id="tilesConfirmButton" styleClass="myshelfie-big-button" layoutY="437.0" visible="false" mnemonicParsing="false" text="Confirm" textAlignment="CENTER">
                                     <font>
                                        <Font size="14.0" />
                                     </font>

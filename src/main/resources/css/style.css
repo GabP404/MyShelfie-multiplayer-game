@@ -5,6 +5,14 @@
 .root {
 }
 
+.h2 {
+    -fx-font-size: 3em;
+}
+
+.h4 {
+    -fx-font-size: 2em;
+}
+
 .board {
     -fx-background-image: url('../graphics/boards/livingroom.png');
     -fx-background-size: cover, auto;
@@ -36,22 +44,28 @@
     -fx-background-radius: 50;
 }
 
-#tilesConfirmButton {
+.myshelfie-big-button {
     -fx-padding: 10px 30px; /* more horizontal padding */
-    -fx-background-color: #F4D8CD; /* creamy background */
     -fx-font-size: 1.3em;
-    -fx-text-fill: #5C3317; /* brown text */
-    -fx-border-color: #5C3317; /* brown border */
     -fx-border-width: 5px;
-    -fx-border-radius: 10px; /* rounded border */
-    -fx-background-radius: 14px; /* rounded background */
+    -fx-border-radius: 5px; /* rounded border */
+    -fx-background-radius: 7px; /* rounded background */
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 3, 0.2, 2, 2);
-    -fx-translate-x: 30px;
-    -fx-translate-y: -35px;
     -fx-cursor: hand;
+    -fx-background-color: #eaeaea;
 }
 
-#tilesConfirmButton:hover {
+#tilesConfirmButton {
+    -fx-translate-x: 30px;
+    -fx-translate-y: -35px;
+    -fx-background-color: #F4D8CD; /* creamy background */
+    -fx-border-color: #5C3317; /* brown border */
+    -fx-border-radius: 10px; /* rounded border */
+    -fx-text-fill: #5C3317; /* brown text */
+    -fx-background-radius: 14px; /* rounded background */
+}
+
+.tilesConfirmButton:hover {
     -fx-background-color: #F4BF8D; /* change color on hover */
 }
 
@@ -68,4 +82,24 @@
     -fx-text-fill: #000; /* Black color for the text */
     -fx-max-width: 400px;
     -fx-wrap-text: true;
+}
+
+.title-page-image {
+    -fx-background-image: url('../graphics/publisher/Display_3.jpg');
+    -fx-background-size: cover, auto;
+}
+
+.login-container {
+    -fx-background-color: #FFFFFFEE;
+    -fx-border-radius: 15px;
+    -fx-background-radius: 15px;
+}
+
+.nickname-input {
+    -fx-font-size: 1.3em;
+    -fx-background-color: #F2E5BC; /* This is a parchment-like color */
+}
+
+.footer {
+    -fx-background-color: #FFFFFFEE;
 }
