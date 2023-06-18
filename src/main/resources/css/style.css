@@ -103,3 +103,10 @@
 .footer {
     -fx-background-color: #FFFFFFEE;
 }
+
+.lobbies-box {
+    -fx-font-size: 1.2em;
+    -fx-background-color: #FFF;
+    -fx-border-radius: 15px;
+    -fx-background-radius: 15px;
+}

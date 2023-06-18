@@ -12,13 +12,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.myshelfie.controller.GameController;
-import org.myshelfie.controller.LobbyController;
 import org.myshelfie.model.util.Pair;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.commandMessages.UserInputEvent;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -82,6 +80,8 @@ public class LobbiesControllerFX implements Initializable {
                 fxmlLoader.setLocation(getClass().getResource("/fxml/LobbyFXML.fxml"));
                 try {
                     HBox lobbyHBox = fxmlLoader.load();
+                    lobbyHBox.maxWidthProperty().bind(LobbyContainer.widthProperty());
+                    lobbyHBox.minWidthProperty().bind(LobbyContainer.widthProperty());
                     LobbyControllerFX lobbyControllerFX = fxmlLoader.getController();
                     lobbyControllerFX.setClient(this.client);
                     lobbiesFX.put(lobby.getGameName(), lobbyControllerFX);

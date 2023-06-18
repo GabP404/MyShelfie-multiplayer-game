@@ -1,25 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.HBox?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
 
-<HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="40.0" prefWidth="500.0" spacing="50.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.myshelfie.view.GUI.LobbyControllerFX">
+<HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="1280.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="80.0" prefWidth="1000.0" styleClass="h4" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.myshelfie.view.GUI.LobbyControllerFX">
    <children>
-      <Label fx:id="GameNameJoin_LB" alignment="CENTER" prefHeight="17.0" prefWidth="69.0" text="GameName" textAlignment="CENTER" />
-      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="117.0" spacing="5.0">
+      <ImageView fx:id="bulletPointTile" fitHeight="60.0" fitWidth="60.0" preserveRatio="true" />
+      <Label fx:id="GameNameJoin_LB" alignment="TOP_LEFT" maxWidth="500.0" minWidth="160.0" prefHeight="17.0" prefWidth="500.0" styleClass="h4" text="GameName">
+         <padding>
+            <Insets left="15.0" />
+         </padding></Label>
+      <HBox alignment="CENTER" minWidth="180.0" prefHeight="100.0" spacing="5.0">
          <children>
-            <Label prefHeight="17.0" prefWidth="50.0" text="Players:" />
-            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="0.0" spacing="5.0">
-               <children>
-                  <Label fx:id="NumPlayersConnected_LB" text="1" />
-                  <Label text="/" />
-                  <Label fx:id="MaxNumPlayers_LB" text="1" />
-               </children>
-            </HBox>
+            <Label prefHeight="17.0" text="Players:" />
+            <Label fx:id="NumPlayersConnected_LB" text="1" />
+            <Label text="/" />
+            <Label fx:id="MaxNumPlayers_LB" text="1" />
          </children>
       </HBox>
-      <Label fx:id="Rules_LB" text="Rules" />
+      <Label fx:id="Rules_LB" text="Rules">
+         <padding>
+            <Insets right="25.0" />
+         </padding></Label>
       <Button fx:id="JoinGame_BTN" mnemonicParsing="false" text="Join" />
    </children>
 </HBox>
