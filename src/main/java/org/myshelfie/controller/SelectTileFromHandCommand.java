@@ -34,7 +34,7 @@ public class SelectTileFromHandCommand implements Command {
         // we need the tile to be already removed from the hand before calling the insertTile method.
         // To avoid removing the tile from the hand when an error occurs inside the insertTile method, we keep a copy of the
         // selected tiles and if necessary restore it.
-        List<Tile> handCopy = new ArrayList<>(currPlayer.getTilesPicked());
+        List<LocatedTile> handCopy = new ArrayList<>(currPlayer.getTilesPicked());
         currPlayer.removeTilesPicked(currPlayer.getTilePicked(index));
 
         try {

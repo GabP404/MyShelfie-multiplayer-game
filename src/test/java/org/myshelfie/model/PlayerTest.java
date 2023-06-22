@@ -41,7 +41,7 @@ class PlayerTest {
         String nick = "User101";
         Player p = new Player(nick,pg);
         assertTrue(p.getTilesPicked().isEmpty());
-        Tile t1 = new Tile(ItemType.BOOK);
+        LocatedTile t1 = new LocatedTile(ItemType.BOOK, 0, 0);
 
         try {
             p.addTilesPicked(t1);
@@ -74,9 +74,9 @@ class PlayerTest {
         assertFalse(p.getHasFinalToken());
         p.setHasFinalToken(true);
         assertTrue(p.getHasFinalToken());
-        List<Tile> t = new ArrayList<>();
-        Tile t1 = new Tile(ItemType.BOOK, 1);
-        Tile t2 = new Tile(ItemType.CAT, 2);
+        List<LocatedTile> t = new ArrayList<>();
+        LocatedTile t1 = new LocatedTile(ItemType.BOOK, 0, 0, 0);
+        LocatedTile t2 = new LocatedTile(ItemType.CAT, 0, 0, 0);
         t.add(t1);
         t.add(t2);
         p.setTilesPicked(t);

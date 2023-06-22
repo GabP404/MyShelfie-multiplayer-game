@@ -1,5 +1,6 @@
 package org.myshelfie.view.GUI;
 
+import javafx.scene.shape.Rectangle;
 import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -9,17 +10,16 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.util.Duration;
+import org.myshelfie.controller.Configuration;
 import org.myshelfie.model.*;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.commandMessages.UserInputEvent;
@@ -34,6 +34,12 @@ import java.util.stream.Collectors;
 public class GameControllerFX implements Initializable {
     @FXML
     private GridPane boardGrid;
+
+    @FXML
+    private StackPane overlay;
+
+    @FXML
+    private Rectangle overlayBackground;
 
     @FXML
     private ImageView boardImage;
@@ -105,6 +111,9 @@ public class GameControllerFX implements Initializable {
         otherPlayerItemControllers = new HashMap<>();
         unconfirmedSelectedTiles = new ArrayList<>();
 
+        overlayBackground.widthProperty().bind(overlay.widthProperty());
+        overlayBackground.heightProperty().bind(overlay.heightProperty());
+
         // set the correct size for the board
         boardGrid.prefWidthProperty().bind(boardImage.fitWidthProperty());
         boardGrid.prefHeightProperty().bind(boardImage.fitHeightProperty());
@@ -151,14 +160,19 @@ public class GameControllerFX implements Initializable {
             unconfirmedSelectedTiles.clear();
         }
 
+        if (!firstSetupDone) {
+            overlay.setVisible(false);
+            updateEverything(game);
+            firstSetupDone = true;
+            return;
+        }
+
         switch (ev) {
             case BOARD_UPDATE -> {
-                if (!firstSetupDone) {
-                    updateEverything(game);
-                    return;
-                }
                 // Update board
                 updateBoard(game.getBoard());
+                updateMyBookshelf(me.getBookshelf());
+                udpateColSelectionArrows();
             }
             case TILES_PICKED_UPDATE -> {
                 updateBoard(game.getBoard());
@@ -253,8 +267,8 @@ public class GameControllerFX implements Initializable {
                         // Create a ScaleTransition with desired properties
                         double finalScale = 1.2; // The final scale value
                         ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), tileImage);
-                        scaleTransition.setToX(finalScale * tileImage.getScaleX());
-                        scaleTransition.setToY(finalScale * tileImage.getScaleY());
+                        scaleTransition.setToX(finalScale);
+                        scaleTransition.setToY(finalScale);
                         scaleTransition.setAutoReverse(false);
                         // Set the final scale values directly at the end of the animation
                         scaleTransition.setOnFinished(event -> {
@@ -266,8 +280,8 @@ public class GameControllerFX implements Initializable {
                     }
                 } else {
                     // un-pick the tile
-                    tileImage.setScaleX(0.9);
-                    tileImage.setScaleY(0.9);
+                    tileImage.setScaleX(1);
+                    tileImage.setScaleY(1);
                     tileImage.setEffect(new DropShadow(5, Color.BLACK));
                     unconfirmedSelectedTiles.remove(t);
                     System.out.println("Deselected tile: " + row + " " + col);
@@ -377,6 +391,8 @@ public class GameControllerFX implements Initializable {
             scaleTransition.setOnFinished(event -> {
                 System.out.println("Selected tile from hand");
                 this.client.eventManager.notify(UserInputEvent.SELECTED_HAND_TILE, tileIndex);
+                tileImage.setOnMouseClicked(null);
+                tileImage.setVisible(false);
             });
 
             // Play the animation
@@ -441,6 +457,7 @@ public class GameControllerFX implements Initializable {
                     arrow.setVisible(true);
                     int copyI = i;
                     arrow.setOnMouseClicked(event -> onArrowClicked(copyI, arrow));
+                    setOnHoverZoom(arrow, 1, 1.075);
                 } else {
                     ImageView arrow = (ImageView) colSelectionArrowsGrid.getChildren().get(i);
                     arrow.setImage(null);
@@ -461,10 +478,12 @@ public class GameControllerFX implements Initializable {
         if (amICurrPlayer) {
             myNickname.setFont(Font.font("System", FontWeight.BOLD, 20));
             myNickname.setEffect(new DropShadow(15, Color.WHITE));
+            myNickname.setText(nickname + " \uD83C\uDFF3\uFE0F");
             myNickname.setVisible(true);
         } else {
             myNickname.setFont(Font.font("System", FontWeight.BOLD, 12));
             myNickname.setEffect(null);
+            myNickname.setText(nickname);
             myNickname.setVisible(true);
         }
     }
@@ -514,11 +533,13 @@ public class GameControllerFX implements Initializable {
                 List<CommonGoalCard> commonGoalCards = gameView.getCommonGoals();
 
                 if (commonGoalCards.size() >= 1) {
-                    commonGoalCard1.setImage(new Image("graphics/commonGoalCards/" + commonGoalCards.get(0).getId() + ".jpg"));
+                    String cardId = commonGoalCards.get(0).getId();
+                    commonGoalCard1.setImage(new Image("graphics/commonGoalCards/common_" + cardId + ".jpg"));
+                    Tooltip.install(commonGoalCard1, new Tooltip(Configuration.getCommonGoalCardDescription(cardId)));
                     commonGoalCard1.setVisible(true);
                     commonGoalCard2.setVisible(false);
                     int k = 0;
-                    List<ScoringToken> commonGoalCardTokens = gameView.getCommonGoalTokens(commonGoalCards.get(0).getId());
+                    List<ScoringToken> commonGoalCardTokens = gameView.getCommonGoalTokens(cardId);
                     Collections.reverse(commonGoalCardTokens);
                     for (ScoringToken token : commonGoalCardTokens) {
                         AnchorPane pane = (AnchorPane) commonGoalCard1.getParent();
@@ -534,10 +555,12 @@ public class GameControllerFX implements Initializable {
                     }
                 }
                 if (commonGoalCards.size() == 2) {
-                    commonGoalCard2.setImage(new Image("graphics/commonGoalCards/" + commonGoalCards.get(1).getId() + ".jpg"));
+                    String cardId = commonGoalCards.get(1).getId();
+                    commonGoalCard2.setImage(new Image("graphics/commonGoalCards/common_" + cardId + ".jpg"));
+                    Tooltip.install(commonGoalCard2, new Tooltip(Configuration.getCommonGoalCardDescription(cardId)));
                     commonGoalCard2.setVisible(true);
                     int k = 0;
-                    List<ScoringToken> commonGoalCardTokens = gameView.getCommonGoalTokens(commonGoalCards.get(1).getId());
+                    List<ScoringToken> commonGoalCardTokens = gameView.getCommonGoalTokens(cardId);
                     Collections.reverse(commonGoalCardTokens);
                     for (ScoringToken token : commonGoalCardTokens) {
                         AnchorPane pane = (AnchorPane) commonGoalCard2.getParent();
@@ -607,6 +630,7 @@ public class GameControllerFX implements Initializable {
                 tileImage.setFitWidth(SELECTED_TILE_DIM);
                 tileImage.setEffect(new DropShadow(10, Color.BLACK));
                 tileImage.setOnMouseClicked(event -> onTileFromHandClicked(tileImage, finalI));
+                setOnHoverZoom(tileImage, 1, 1.05);
                 tileImage.setVisible(true);
 
                 tilesHandGrid.add(tileImage, finalI, 0);
@@ -626,6 +650,9 @@ public class GameControllerFX implements Initializable {
         myPersonalGoal.setImage(new Image("graphics/persGoalCards/Personal_Goals" + card.getId() + ".png"));
         myPersonalGoal.setFitHeight(PERSONAL_CARD_HEIGHT);
         myPersonalGoal.setEffect(new DropShadow(10, Color.BLACK));
+
+        setOnHoverZoom(myPersonalGoal, 1, 1.2);
+
         myPersonalGoal.setVisible(true);
     }
 
@@ -662,6 +689,9 @@ public class GameControllerFX implements Initializable {
         tileImage.setFitWidth(TILE_DIM);
         tileImage.setEffect(new DropShadow(5, Color.BLACK));
 
+        // Set on hover effect
+        setOnHoverZoom(tileImage, 1, 1.07);
+
         boardGrid.add(tileImage, col, row);
     }
 
@@ -680,9 +710,22 @@ public class GameControllerFX implements Initializable {
         this.client = client;
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    /////////////////////////// UTILITY METHODS ///////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
 
-
-
+    private void setOnHoverZoom(Node item, double defaultScale, double zoomedScale) {
+        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), item);
+        scaleTransition.setToX(zoomedScale);
+        scaleTransition.setToY(zoomedScale);
+        // Create a ScaleTransition for revert to initial size
+        ScaleTransition scaleRevertTransition = new ScaleTransition(Duration.millis(200), item);
+        scaleRevertTransition.setToX(defaultScale);
+        scaleRevertTransition.setToY(defaultScale);
+        // Add event handlers to the card
+        item.setOnMouseEntered(event -> scaleTransition.playFromStart());
+        item.setOnMouseExited(event -> scaleRevertTransition.playFromStart());
+    }
 
 
 }

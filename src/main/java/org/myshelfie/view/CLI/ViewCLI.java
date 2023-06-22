@@ -693,4 +693,9 @@ public class ViewCLI implements View{
 
         return sortedIndexes.last() - sortedIndexes.first() == sortedIndexes.size() - 1;
     }
+
+    @Override
+    public void nicknameAlreadyUsed() {
+        printError("NICKNAME ALREADY USED");
+    }
 }
