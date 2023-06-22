@@ -457,7 +457,7 @@ public class GameControllerFX implements Initializable {
                     arrow.setVisible(true);
                     int copyI = i;
                     arrow.setOnMouseClicked(event -> onArrowClicked(copyI, arrow));
-                    setOnHoverZoom(arrow, 1.05);
+                    setOnHoverZoom(arrow, 1, 1.075);
                 } else {
                     ImageView arrow = (ImageView) colSelectionArrowsGrid.getChildren().get(i);
                     arrow.setImage(null);
@@ -630,7 +630,7 @@ public class GameControllerFX implements Initializable {
                 tileImage.setFitWidth(SELECTED_TILE_DIM);
                 tileImage.setEffect(new DropShadow(10, Color.BLACK));
                 tileImage.setOnMouseClicked(event -> onTileFromHandClicked(tileImage, finalI));
-                setOnHoverZoom(tileImage, 1.05);
+                setOnHoverZoom(tileImage, 1, 1.05);
                 tileImage.setVisible(true);
 
                 tilesHandGrid.add(tileImage, finalI, 0);
@@ -651,8 +651,7 @@ public class GameControllerFX implements Initializable {
         myPersonalGoal.setFitHeight(PERSONAL_CARD_HEIGHT);
         myPersonalGoal.setEffect(new DropShadow(10, Color.BLACK));
 
-        double zoomFactor = 1.2;
-        setOnHoverZoom(myPersonalGoal, zoomFactor);
+        setOnHoverZoom(myPersonalGoal, 1, 1.2);
 
         myPersonalGoal.setVisible(true);
     }
@@ -691,8 +690,7 @@ public class GameControllerFX implements Initializable {
         tileImage.setEffect(new DropShadow(5, Color.BLACK));
 
         // Set on hover effect
-        double zoomFactor = 1.02;
-        setOnHoverZoom(tileImage, zoomFactor);
+        setOnHoverZoom(tileImage, 1, 1.07);
 
         boardGrid.add(tileImage, col, row);
     }
@@ -716,14 +714,14 @@ public class GameControllerFX implements Initializable {
     /////////////////////////// UTILITY METHODS ///////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
 
-    private void setOnHoverZoom(Node item, double zoomFactor) {
+    private void setOnHoverZoom(Node item, double defaultScale, double zoomedScale) {
         ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), item);
-        scaleTransition.setToX(zoomFactor * item.getScaleX());
-        scaleTransition.setToY(zoomFactor * item.getScaleY());
+        scaleTransition.setToX(zoomedScale);
+        scaleTransition.setToY(zoomedScale);
         // Create a ScaleTransition for revert to initial size
         ScaleTransition scaleRevertTransition = new ScaleTransition(Duration.millis(200), item);
-        scaleRevertTransition.setToX(item.getScaleX());
-        scaleRevertTransition.setToY(item.getScaleY());
+        scaleRevertTransition.setToX(defaultScale);
+        scaleRevertTransition.setToY(defaultScale);
         // Add event handlers to the card
         item.setOnMouseEntered(event -> scaleTransition.playFromStart());
         item.setOnMouseExited(event -> scaleRevertTransition.playFromStart());
