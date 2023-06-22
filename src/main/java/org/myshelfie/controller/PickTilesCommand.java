@@ -130,7 +130,7 @@ public class PickTilesCommand implements Command {
         if(tilesSet.size() + currPlayer.getBookshelf().getMinHeight() > Bookshelf.NUMROWS) throw new WrongArgumentException("You can't pick that many tiles");
 
         for (LocatedTile t: tiles) {
-            currPlayer.addTilesPicked(b.getTile(t.getRow(),t.getCol()));
+            currPlayer.addTilesPicked(t);
             b.setTile(t.getRow(), t.getCol(), null);
         }
 
