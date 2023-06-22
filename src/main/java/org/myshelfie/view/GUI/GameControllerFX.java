@@ -85,6 +85,8 @@ public class GameControllerFX implements Initializable {
 
     @FXML
     private GridPane tilesHandGrid;
+    @FXML
+    private Label updatesLabel;
 
     private boolean firstSetupDone = false;
 
@@ -201,6 +203,7 @@ public class GameControllerFX implements Initializable {
             }
         }
         // Actions that are performed on every update
+        updateHelper();
         updateTilesConfirmButton();
         updateMyBookshelf(me.getBookshelf());
         updateMyPersGoal(me.getPersonalGoal());
@@ -645,6 +648,35 @@ public class GameControllerFX implements Initializable {
         }
     }
 
+    private void updateHelper() {
+        String helper ="";
+        if (latestGame.getCurrPlayer().getNickname().equals(nickname)) {
+            // My turn
+            helper = "It's your turn! ";
+            switch (latestGame.getModelState()) {
+                case WAITING_SELECTION_TILE -> helper = helper + "Select your tiles from the board.";
+                case WAITING_SELECTION_BOOKSHELF_COLUMN -> helper = helper + "Choose the column.";
+                case WAITING_1_SELECTION_TILE_FROM_HAND, WAITING_2_SELECTION_TILE_FROM_HAND, WAITING_3_SELECTION_TILE_FROM_HAND -> helper = helper + "Select the tile to insert from your hand.";
+                case END_GAME -> helper = "The game is ended.";
+            }
+        } else {
+            // Other player's turn
+            helper = latestGame.getCurrPlayer().getNickname();
+            switch (latestGame.getModelState()) {
+                case WAITING_SELECTION_TILE -> helper = helper + " is selecting tiles from the board.";
+                case WAITING_SELECTION_BOOKSHELF_COLUMN -> helper = helper + " is choosing the column.";
+                case WAITING_1_SELECTION_TILE_FROM_HAND, WAITING_2_SELECTION_TILE_FROM_HAND, WAITING_3_SELECTION_TILE_FROM_HAND -> helper = helper + " is inserting the picked tiles.";
+                case END_GAME -> helper = "The game is ended.";
+            }
+        }
+        final String finalHelper = helper;
+        Platform.runLater(() -> {
+            updatesLabel.setText(finalHelper);
+            updatesLabel.setFont(Font.font("System", FontWeight.BOLD, 14));
+            updatesLabel.setVisible(true);
+        });
+    }
+
 
     private void updateMyPersGoal(PersonalGoalCard card) {
         myPersonalGoal.setImage(new Image("graphics/persGoalCards/Personal_Goals" + card.getId() + ".png"));
@@ -706,14 +738,9 @@ public class GameControllerFX implements Initializable {
         }
     }
 
-    public void setClient(Client client) {
-        this.client = client;
-    }
-
     ////////////////////////////////////////////////////////////////////////////
     /////////////////////////// UTILITY METHODS ///////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
-
     private void setOnHoverZoom(Node item, double defaultScale, double zoomedScale) {
         ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), item);
         scaleTransition.setToX(zoomedScale);
@@ -725,6 +752,10 @@ public class GameControllerFX implements Initializable {
         // Add event handlers to the card
         item.setOnMouseEntered(event -> scaleTransition.playFromStart());
         item.setOnMouseExited(event -> scaleRevertTransition.playFromStart());
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
     }
 
 
