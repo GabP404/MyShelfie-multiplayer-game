@@ -391,6 +391,8 @@ public class GameControllerFX implements Initializable {
             scaleTransition.setOnFinished(event -> {
                 System.out.println("Selected tile from hand");
                 this.client.eventManager.notify(UserInputEvent.SELECTED_HAND_TILE, tileIndex);
+                tileImage.setOnMouseClicked(null);
+                tileImage.setVisible(false);
             });
 
             // Play the animation
