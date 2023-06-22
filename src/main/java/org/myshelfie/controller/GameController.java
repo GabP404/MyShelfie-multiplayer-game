@@ -359,10 +359,13 @@ public class GameController implements Serializable {
     }
 
     public void CheckTokenAchievement() throws WrongArgumentException {
+        Player p = this.game.getCurrPlayer();
         for(CommonGoalCard x: this.game.getCommonGoals()) {
-            if(x.checkGoalSatisfied(this.game.getCurrPlayer().getBookshelf())) {
-                this.game.getCurrPlayer().addScoringToken(this.game.popTopScoringToken(x));
-            }
+            if (
+                p.getCommonGoalTokens().stream().noneMatch(t -> t.getCommonGoalId().equals(x.getId())) &&
+                x.checkGoalSatisfied(p.getBookshelf())
+            )
+                p.addScoringToken(this.game.popTopScoringToken(x));
         }
     }
 

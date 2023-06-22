@@ -68,7 +68,8 @@ public class Player implements Serializable {
      * @param t The token
      */
     public void addScoringToken(ScoringToken t) {
-        this.commonGoalTokens.add(t);
+        if (t == null) return;
+        commonGoalTokens.add(t);
         Server.eventManager.notify(GameEvent.TOKEN_UPDATE, this);
     }
 
