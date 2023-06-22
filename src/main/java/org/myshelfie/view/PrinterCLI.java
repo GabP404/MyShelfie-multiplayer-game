@@ -447,7 +447,12 @@ public class PrinterCLI {
             default ->
                     print("NOT YET IMPLEMENTED", commonGoalOffsetX + 2 + (offset * 60), commonGoalOffsetY + 2, false);
         }
-        print(game.getCommonGoalTokens(String.valueOf(id)).get(0).getPoints().toString(), cordX + 44, cordY + 4, false);
+
+        // Print the points of the top token
+        if (game.getCommonGoalTokens(String.valueOf(id)).size() > 0)
+            print(game.getCommonGoalTokens(String.valueOf(id)).get(0).getPoints().toString(), cordX + 44, cordY + 4, false);
+        else
+            print("-", cordX + 44, cordY + 4, false);
     }
 
     private static void  printCommonGoalBoxes(GameView game)
