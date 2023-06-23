@@ -3,6 +3,8 @@ package org.myshelfie.controller;
 import org.myshelfie.model.*;
 import org.myshelfie.network.messages.commandMessages.*;
 
+import org.myshelfie.network.messages.gameMessages.GameEvent;
+import org.myshelfie.network.server.Server;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URISyntaxException;
@@ -79,6 +81,8 @@ public class GameController implements Serializable {
             endGame();
             try {
                 getGame().setWinner(getGame().getPlayers().stream().filter(Player::isOnline).toList().get(0));
+                Server.eventManager.notify(GameEvent.GAME_END, getGame());
+                Server.eventManager.sendToClients();
             } catch (WrongArgumentException e) {
                 throw new RuntimeException(e);
             } catch (IndexOutOfBoundsException e) {
@@ -207,7 +211,11 @@ public class GameController implements Serializable {
         // Also, set the current player to the next online player (check that it's online).
         // Finally, set the model state to WAITING_SELECTION_TILE (beginning of next turn)
         try {
-            if(this.game.getCurrPlayer().getNickname().equals(nickname)) {
+            if (this.game.getNumOnlinePlayers() == 2) {
+                // Pause the game and send the update to the client
+                this.game.saveState();
+                this.game.setModelState(ModelState.PAUSE);
+            } else if(this.game.getCurrPlayer().getNickname().equals(nickname)) {
                 for (LocatedTile tile : this.game.getCurrPlayer().getTilesPicked()) {
                     // Put the tile back in the board
                     this.game.getBoard().setTile(tile.getRow(), tile.getCol(), new Tile(tile.getItemType(), tile.getItemId()));
@@ -227,6 +235,10 @@ public class GameController implements Serializable {
     }
 
     public void setOnlinePlayer(String nickname) {
+        // If the game is paused, resume it from the starting of the
+        if (this.game.getModelState() == ModelState.PAUSE) {
+            this.game.resumeStateAfterPause();
+        }
         this.game.getPlayers().stream().filter(x -> x.getNickname().equals(nickname)).toList().get(0).setOnline(true);
         if(game.getNumOnlinePlayers() > 1) {
             if(isTimerRunning())
@@ -266,6 +278,9 @@ public class GameController implements Serializable {
     public void executeCommand(CommandMessage command, UserInputEvent t) {
         Command c;
         try {
+            if (this.game.getModelState() == ModelState.PAUSE)
+                throw new WrongTurnException("The game is paused due to disconnection from the other clients.");
+
             switch (t) {
                 case SELECTED_TILES -> c = new PickTilesCommand(game.getBoard(), game.getCurrPlayer(), (PickedTilesCommandMessage) command, this.game.getModelState());
                 case SELECTED_HAND_TILE -> c = new SelectTileFromHandCommand(game.getCurrPlayer(), (SelectedTileFromHandCommandMessage) command, this.game.getModelState());
@@ -401,7 +416,8 @@ public class GameController implements Serializable {
     }
 
     public boolean isGameCreated() {
-        return game != null;
+        if (game == null) return false;
+        return true;
     }
 
     public boolean isGamePlaying() {
