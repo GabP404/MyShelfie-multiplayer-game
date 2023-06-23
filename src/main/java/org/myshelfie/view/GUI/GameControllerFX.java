@@ -1,5 +1,6 @@
 package org.myshelfie.view.GUI;
 
+import javafx.geometry.Pos;
 import javafx.scene.shape.Rectangle;
 import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
@@ -34,12 +35,6 @@ import java.util.stream.Collectors;
 public class GameControllerFX implements Initializable {
     @FXML
     private GridPane boardGrid;
-
-    @FXML
-    private StackPane overlay;
-
-    @FXML
-    private Rectangle overlayBackground;
 
     @FXML
     private ImageView boardImage;
@@ -81,10 +76,22 @@ public class GameControllerFX implements Initializable {
     private VBox otherPlayersLayout;
 
     @FXML
+    private StackPane overlay;
+
+    @FXML
+    private Rectangle overlayBackground;
+
+    @FXML
+    private ImageView spinner;
+
+    @FXML
     private Button tilesConfirmButton;
 
     @FXML
     private GridPane tilesHandGrid;
+
+    @FXML
+    private VBox updatesVBox;
 
     private boolean firstSetupDone = false;
 
@@ -243,6 +250,7 @@ public class GameControllerFX implements Initializable {
             }
         }
         // Actions that are performed on every update
+        updateHelper();
         updateTilesConfirmButton();
         updateMyBookshelf(me.getBookshelf());
         updateMyPersGoal(me.getPersonalGoal());
@@ -252,6 +260,8 @@ public class GameControllerFX implements Initializable {
     }
 
     private void updateEverything(GameView game) {
+        // Update helper
+        updateHelper();
         // Update board
         updateBoard(game.getBoard());
         // Update other players (note that they are controlled by a different controller)
@@ -688,6 +698,63 @@ public class GameControllerFX implements Initializable {
         }
     }
 
+    private void updateHelper() {
+        // Clear helper area
+        for (Node node : updatesVBox.getChildren()) {
+            Platform.runLater(() -> updatesVBox.getChildren().remove(node));
+        }
+
+        if (latestGame.getCurrPlayer().getNickname().equals(nickname)) {
+            // Signals my turn!
+            Platform.runLater(() -> {
+                Label turnLabel = new Label("It's your turn!");
+                turnLabel.setFont(Font.font("System", FontWeight.BOLD, 18));
+                turnLabel.setEffect(new DropShadow(10, Color.WHITE));
+                turnLabel.setAlignment(Pos.CENTER);
+                updatesVBox.getChildren().add(turnLabel);
+            });
+
+            // Add helper text
+            String updateString = "";
+            switch (latestGame.getModelState()) {
+                case WAITING_SELECTION_TILE -> updateString = updateString + "Select the tiles from the board. \nClick Confirm when you are done.";
+                case WAITING_SELECTION_BOOKSHELF_COLUMN -> updateString = updateString + "Choose the column in which \nyou want to insert the tiles.";
+                case WAITING_1_SELECTION_TILE_FROM_HAND, WAITING_2_SELECTION_TILE_FROM_HAND, WAITING_3_SELECTION_TILE_FROM_HAND -> updateString = updateString + "Select one by one the tiles\n to insert from your hand.";
+                case END_GAME -> updateString = "The game is ended.";
+            }
+            String finalUpdateString = updateString;
+            Platform.runLater(() -> {
+                Label updatesLabel = new Label(finalUpdateString);
+                updatesLabel.setText(finalUpdateString);
+                updatesLabel.setFont(Font.font("System", FontWeight.BOLD, 18));
+                updatesLabel.setAlignment(Pos.CENTER);
+                updatesLabel.setEffect(new DropShadow(10, Color.WHITE));
+                updatesLabel.setVisible(true);
+                updatesVBox.getChildren().add(updatesLabel);
+            });
+        } else {
+            // Other player's turn
+            String helperString = "";
+            helperString = latestGame.getCurrPlayer().getNickname();
+            switch (latestGame.getModelState()) {
+                case WAITING_SELECTION_TILE -> helperString = helperString + " is selecting\ntiles from the board.\n ";
+                case WAITING_SELECTION_BOOKSHELF_COLUMN -> helperString = helperString + "\nis choosing the column.\n ";
+                case WAITING_1_SELECTION_TILE_FROM_HAND, WAITING_2_SELECTION_TILE_FROM_HAND, WAITING_3_SELECTION_TILE_FROM_HAND -> helperString = helperString + " is inserting\nthe tiles in the bookshelf.\n ";
+                case END_GAME -> helperString = "The game is ended.";
+            }
+            String finalHelperString = helperString;
+            Platform.runLater(() -> {
+                Label updatesLabel = new Label(finalHelperString);
+                updatesLabel.setText(finalHelperString);
+                updatesLabel.setAlignment(Pos.CENTER);
+                updatesLabel.setFont(Font.font("System", FontWeight.BOLD, 18));
+                updatesLabel.setEffect(new DropShadow(10, Color.WHITE));
+                updatesLabel.setVisible(true);
+                updatesVBox.getChildren().add(updatesLabel);
+            });
+        }
+    }
+
 
     private void updateMyPersGoal(PersonalGoalCard card) {
         myPersonalGoal.setImage(new Image("graphics/persGoalCards/Personal_Goals" + card.getId() + ".png"));
@@ -749,14 +816,9 @@ public class GameControllerFX implements Initializable {
         }
     }
 
-    public void setClient(Client client) {
-        this.client = client;
-    }
-
     ////////////////////////////////////////////////////////////////////////////
     /////////////////////////// UTILITY METHODS ///////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
-
     private void setOnHoverZoom(Node item, double defaultScale, double zoomedScale) {
         ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), item);
         scaleTransition.setToX(zoomedScale);
@@ -768,6 +830,10 @@ public class GameControllerFX implements Initializable {
         // Add event handlers to the card
         item.setOnMouseEntered(event -> scaleTransition.playFromStart());
         item.setOnMouseExited(event -> scaleRevertTransition.playFromStart());
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
     }
 
 
