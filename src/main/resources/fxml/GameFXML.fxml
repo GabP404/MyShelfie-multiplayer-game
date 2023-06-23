@@ -92,16 +92,7 @@
                      </VBox>
                      <VBox fx:id="otherPlayersLayout" alignment="TOP_CENTER" prefHeight="524.0" prefWidth="352.0">
                         <children>
-                           <Label text="Updates">
-                              <font>
-                                 <Font name="System Bold" size="18.0" />
-                              </font>
-                           </Label>
-                           <Label fx:id="updatesLabel" alignment="TOP_CENTER" prefHeight="38.0" prefWidth="321.0" text="...">
-                              <font>
-                                 <Font size="14.0" />
-                              </font>
-                           </Label>
+                           <VBox fx:id="updatesVBox" alignment="CENTER" prefHeight="117.0" prefWidth="322.0" styleClass="helper-wood-sign" />
                         </children></VBox>
                   </children>
                </HBox>
