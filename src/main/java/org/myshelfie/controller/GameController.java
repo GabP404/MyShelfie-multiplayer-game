@@ -22,7 +22,6 @@ public class GameController implements Serializable {
         private final boolean simplifyRules;
 
 
-
         public GameDefinition(GameController gc) {
             this.gameName = gc.getGameName();
             this.maxPlayers = gc.getNumPlayerGame();
@@ -79,15 +78,8 @@ public class GameController implements Serializable {
         @Override
         public void run() {
             endGame();
-            try {
-                getGame().setWinner(getGame().getPlayers().stream().filter(Player::isOnline).toList().get(0));
-                Server.eventManager.notify(GameEvent.GAME_END, getGame());
-                Server.eventManager.sendToClients();
-            } catch (WrongArgumentException e) {
-                throw new RuntimeException(e);
-            } catch (IndexOutOfBoundsException e) {
-                // All the players are offline (get(0) went out of bound), the game ends!
-            }
+            Server.eventManager.notify(GameEvent.GAME_END, getGame());
+            Server.eventManager.sendToClients();
             isRunning = false;
         }
     }

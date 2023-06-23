@@ -171,7 +171,7 @@ public class Player implements Serializable {
         Server.eventManager.notify(GameEvent.PLAYER_ONLINE_UPDATE, this);
     }
 
-    public int getTotalPoints() throws WrongArgumentException{
+    public int getTotalPoints(){
         return getPublicPoints() + this.personalGoal.getPoints(this.bookshelf) +  (this.hasFinalToken ? 1 : 0);
     }
 }

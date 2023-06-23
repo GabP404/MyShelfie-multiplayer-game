@@ -1,9 +1,11 @@
 package org.myshelfie.model;
+import org.myshelfie.model.util.Pair;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.server.Server;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Game implements Serializable {
 
@@ -19,7 +21,6 @@ public class Game implements Serializable {
     // State to resume after reconnection in case the game is paused because there is only one player connected
     private ModelState stateToResume = ModelState.WAITING_SELECTION_TILE;
 
-    private Player winner;
     /**
      * errorState maps every player nickname to a corresponding (possible) error message
      */
@@ -37,7 +38,6 @@ public class Game implements Serializable {
         this.tileBag = tileBag;
         this.currPlayer = players.get(0);
         this.modelState = modelState;
-        this.winner = null;
         this.errorState = new HashMap<>();
         players.forEach( (player) -> errorState.put(player.getNickname(), null) );
 
@@ -159,17 +159,6 @@ public class Game implements Serializable {
         this.modelState = this.stateToResume;
     }
 
-    public Player getWinner() {
-        return winner;
-    }
-
-    public void setWinner(Player winner) throws WrongArgumentException {
-        if (currPlayer == null || !players.contains(currPlayer))
-            throw new WrongArgumentException("Player not found");
-        this.modelState = ModelState.END_GAME;
-        this.winner = winner;
-    }
-
     public int getNumOnlinePlayers() {
         return (int) players.stream().filter(Player::isOnline).count();
     }
@@ -206,5 +195,32 @@ public class Game implements Serializable {
         if (currPlayer.isOnline())
             return currPlayer;
         return null;
+    }
+
+    /**
+     * Return a list of pairs (player, isWinner) ordered by score descending
+     * @return
+     */
+    public List<Pair<Player,Boolean>> getRanking(){
+        List<Player> playersSortedByScore = players.stream()
+                .sorted(Comparator.comparing(Player::getTotalPoints).reversed())
+                .collect(Collectors.toList());
+
+        List<Player> playersOnline = players.stream().filter(Player::isOnline).collect(Collectors.toList());
+        playersOnline.sort(Comparator.comparing(Player::getTotalPoints).reversed());
+        int maxPoints = playersOnline.get(0).getTotalPoints();
+        List<Player> playersWithMaxPoints = playersOnline.stream()
+                .filter(player -> player.getTotalPoints() == maxPoints)
+                .collect(Collectors.toList());
+        List<Pair<Player,Boolean>> ranking = new ArrayList<>();
+        playersWithMaxPoints.forEach(player -> System.out.println(player.getNickname() + " " + player.getTotalPoints()));
+        for (Player p : playersSortedByScore) {
+            if (playersWithMaxPoints.contains(p))
+                ranking.add(new Pair<>(p, true));
+            else
+                ranking.add(new Pair<>(p, false));
+        }
+        ranking.stream().forEach(x -> System.out.println(x.getLeft().getNickname() + " "+ x.getRight()));
+        return ranking;
     }
 }

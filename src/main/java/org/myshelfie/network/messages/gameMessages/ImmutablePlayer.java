@@ -32,11 +32,7 @@ public final class ImmutablePlayer  implements Serializable {
         this.bookshelfPoints = p.getBookshelfPoints();
         this.personalGoalPoints = p.getPersonalGoal().getPoints(p.getBookshelf());
         this.publicPoints = p.getPublicPoints();
-        try {
-            this.totalPoints = p.getTotalPoints();
-        } catch (WrongArgumentException e) {
-            throw new RuntimeException(e);
-        }
+        this.totalPoints = p.getTotalPoints();
         this.online = p.isOnline();
 
     }

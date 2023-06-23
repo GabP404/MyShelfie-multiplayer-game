@@ -40,6 +40,8 @@ public class ViewGUI extends Application implements View  {
 
     private LoginControllerFX loginControllerFX;
 
+    private EndGameControllerFX endGameControllerFX;
+
     private Boolean reconnecting = false;
 
     private static Boolean isRMI = false;
@@ -120,7 +122,10 @@ public class ViewGUI extends Application implements View  {
                     gameControllerFX.setMyNickname(this.nickname);
                     gameControllerFX.setClient(this.client);
                     break;
-                //case "EndGame":
+                case "EndGame":
+                    endGameControllerFX = fxmlLoader.getController();
+                    endGameControllerFX.setClient(client);
+                    break;
                 case "Lobbies":
                     lobbiesControllerFX = fxmlLoader.getController();
                     lobbiesControllerFX.setClient(client);
@@ -131,11 +136,16 @@ public class ViewGUI extends Application implements View  {
     }
 
 
-
+//
 
     @Override
     public void update(GameView msg, GameEvent ev) {
         this.gameName = msg.getGameName();
+        if(ev == GameEvent.GAME_END) {
+            setScene("EndGame");
+            endGameControllerFX.createRankingTable(msg);
+            return;
+        }
         if (gameControllerFX != null) {
             gameControllerFX.update(ev, msg);
         } else {
@@ -150,6 +160,7 @@ public class ViewGUI extends Application implements View  {
                 System.out.println("GameControllerFX is still null after setting the scene.");
             }
         }
+
     }
 
     /**
