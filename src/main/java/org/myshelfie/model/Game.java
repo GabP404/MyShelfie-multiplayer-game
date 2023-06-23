@@ -182,15 +182,13 @@ public class Game implements Serializable {
      */
     public List<Pair<Player,Boolean>> getRanking(){
         List<Player> playersSortedByScore = players.stream()
-                .sorted(Comparator.comparing(Player::getTotalPoints).reversed())
-                .collect(Collectors.toList());
+                .sorted(Comparator.comparing(Player::getTotalPoints).reversed()).toList();
 
         List<Player> playersOnline = players.stream().filter(Player::isOnline).collect(Collectors.toList());
         playersOnline.sort(Comparator.comparing(Player::getTotalPoints).reversed());
         int maxPoints = playersOnline.get(0).getTotalPoints();
         List<Player> playersWithMaxPoints = playersOnline.stream()
-                .filter(player -> player.getTotalPoints() == maxPoints)
-                .collect(Collectors.toList());
+                .filter(player -> player.getTotalPoints() == maxPoints).toList();
         List<Pair<Player,Boolean>> ranking = new ArrayList<>();
         playersWithMaxPoints.forEach(player -> System.out.println(player.getNickname() + " " + player.getTotalPoints()));
         for (Player p : playersSortedByScore) {

@@ -108,58 +108,65 @@ public class PrinterCLI {
     //prints the end game score of all players
     public static void printEndGameScreen(GameView game, String nickname)
     {
-        print("               CommonGoal          PersonalGoal          Bookshelf          End game          Total ", rankingOffsetX, rankingOffsetY - 1, false);
-        print("Nickname         points               points               points             token           points", rankingOffsetX, rankingOffsetY, false);
+        List<Pair<Player,Boolean>> ranking = game.getRanking();
 
-        int playerNum = 1;
-        StringBuilder playerRowPoints = new StringBuilder();
+        print(YELLOW + "╔═════════════════════════════════════════════════════════════════════════════════╗", rankingOffsetX, rankingOffsetY - 1, false);
+        print(YELLOW + "║                                                                                 ║", rankingOffsetX, rankingOffsetY, false);
+        print("LEADERBOARD", rankingOffsetX + 35, rankingOffsetY, false);
+        print(YELLOW + "╠══════════════════╦════════════╦══════════════╦═══════════╦══════════╦═══════════╣", rankingOffsetX, rankingOffsetY + 1, false);
+        print(YELLOW + "║                  ║            ║              ║           ║          ║           ║", rankingOffsetX, rankingOffsetY + 2, false);
+        print("CommonGoal", rankingOffsetX + 21, rankingOffsetY + 2, false);
+        print("PersonalGoal", rankingOffsetX + 34, rankingOffsetY + 2, false);
+        print("Bookshelf", rankingOffsetX + 49, rankingOffsetY + 2, false);
+        print("Bookshelf", rankingOffsetX + 49, rankingOffsetY + 2, false);
+        print("EndToken", rankingOffsetX + 62, rankingOffsetY + 2, false);
 
-        //sorts the players by points with the highest first
-        game.getPlayers().sort((p1, p2) -> {
-            try {
-                return p2.getTotalPoints() - p1.getTotalPoints();
-            } catch (WrongArgumentException e) {
-                throw new RuntimeException(e);
+        print(CYAN + "PLAYER" + RESET, rankingOffsetX + 7, rankingOffsetY + 2, false);
+        print(CYAN + "TOTAL" + RESET, rankingOffsetX + 73, rankingOffsetY + 2, false);
+
+        print(YELLOW + "╠══════════════════╬════════════╬══════════════╬═══════════╬══════════╬═══════════╣", rankingOffsetX, rankingOffsetY + 3, false);
+
+
+        for (int i=0; i<ranking.size(); i++) {
+            print(YELLOW + "║                  ║            ║              ║           ║          ║           ║", rankingOffsetX, rankingOffsetY + 4 + i, false);
+            String nameFormat = "";
+            String pointsFormat = "";
+            Player player = ranking.get(i).getLeft();
+            if (!ranking.get(i).getLeft().isOnline()) {
+                nameFormat = ULight_gray.toString();
+                pointsFormat = ULight_gray.toString();
             }
-        });
-
-        //cycles through all players and prints their nickname and points
-        for(ImmutablePlayer p: game.getPlayers())
-        {
-            //every player sees his name in cyan
-            if(p.getNickname().equals(nickname))
-                print(CYAN);
-            print(p.getNickname() + RESET, rankingOffsetX, rankingOffsetY + 1 + (playerNum * 3), false);
-            print(String.valueOf(p.getPointsScoringTokens()), rankingOffsetX + 19, rankingOffsetY + 1 +(playerNum * 3), false);
-            print(String.valueOf(p.getPersonalGoalPoints()), rankingOffsetX + 40, rankingOffsetY + 1 +(playerNum * 3), false);
-            print(String.valueOf(p.getBookshelfPoints()), rankingOffsetX + 61, rankingOffsetY + 1 +(playerNum * 3), false);
-
-
-            if(p.getHasFinalToken())
-                print( "1", rankingOffsetX + 80, rankingOffsetY + 1 +(playerNum * 3), false);
-            else
-                print( "0", rankingOffsetX + 80, rankingOffsetY + 1 +(playerNum * 3), false);
-
-
-            try {
-                print(String.valueOf(p.getTotalPoints()), rankingOffsetX + 95, rankingOffsetY + 1 +(playerNum * 3), false);
-            } catch (WrongArgumentException e) {
-                throw new RuntimeException(e);
+            else if (ranking.get(i).getLeft().getNickname().equals(nickname)) {
+                nameFormat = GREEN.toString();
+                pointsFormat = GREEN.toString();
             }
-
-
-            try {
-                if(p.getTotalPoints() == game.getPlayers().get(0).getTotalPoints())
-                {
-                    print(YELLOW + "|\\/\\/|\n" ,rankingOffsetX + 105, rankingOffsetY + (playerNum * 3), false);
-                    print(YELLOW + "|____|", rankingOffsetX + 105, rankingOffsetY + 1 + (playerNum * 3), false);
-                }
-            } catch (WrongArgumentException e) {
-                throw new RuntimeException(e);
-            }
-
-            playerNum++;
+            print(nameFormat + player.getNickname() + RESET, rankingOffsetX + 4, rankingOffsetY + 4 + i, false);
+            print(pointsFormat + player.getPublicPoints(), rankingOffsetX + 26, rankingOffsetY + 4 + i, false);
+            // FIXME: missing method to retrieve personal points!!!!
+            // print("", rankingOffsetX + 37, rankingOffsetY + 4 + i, false);
+            print(pointsFormat + player.getBookshelfPoints(), rankingOffsetX + 53, rankingOffsetY + 4 + i, false);
+            print(pointsFormat + player.getTotalPoints() + RESET, rankingOffsetX + 75, rankingOffsetY + 4 + i, false);
         }
+
+        print(YELLOW + "╠══════════════════╩════════════╩══════════════╩═══════════╩══════════╩═══════════╣", rankingOffsetX, rankingOffsetY + 4 + ranking.size(), false);
+        print(YELLOW + "║                                                                                 ║", rankingOffsetX, rankingOffsetY + 5 + ranking.size(), false);
+        print("WINNER", rankingOffsetX + 37, rankingOffsetY + 5 + ranking.size(), false);
+        print(YELLOW + "╠═════════════════════════════════════════════════════════════════════════════════╣", rankingOffsetX, rankingOffsetY + 6 + ranking.size(), false);
+
+        int k=0;
+        for (int i=0; i < ranking.size(); i++) {
+            if (ranking.get(i).getRight()) {
+                print(YELLOW + "║                                                                                 ║", rankingOffsetX, rankingOffsetY + 7 + k + ranking.size(), false);
+                String nameFormat = "";
+                Player player = ranking.get(i).getLeft();
+                if (player.getNickname().equals(nickname))
+                    nameFormat = GREEN.toString();
+                print(nameFormat + player.getNickname() + RESET, rankingOffsetX + 40 - ( player.getNickname().length() / 2), rankingOffsetY + 7 + i + ranking.size(), false);
+                k++;
+            }
+        }
+        print(YELLOW + "╚═════════════════════════════════════════════════════════════════════════════════╝", rankingOffsetX, rankingOffsetY + 7 + ranking.size() + k, false);
+
         print("Type [exit/play] to continue", 0, 1, false);
 
     }
