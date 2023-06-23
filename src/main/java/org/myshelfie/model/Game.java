@@ -115,11 +115,16 @@ public class Game implements Serializable {
         LinkedList<ScoringToken> x = (LinkedList<ScoringToken>) commonGoals.get(c);
         if (x == null)
             throw new WrongArgumentException("CommonGoalCard not found");
-        ScoringToken scoringToken = x.removeFirst();
-        // notify the server that the token stack has changed
-        Server.eventManager.notify(GameEvent.TOKEN_STACK_UPDATE, this);
-        return scoringToken;
+        try {
+            ScoringToken scoringToken = x.removeFirst();
+            // notify the server that the token stack has changed
+            Server.eventManager.notify(GameEvent.TOKEN_STACK_UPDATE, this);
+            return scoringToken;
+        } catch (NoSuchElementException e) {
+            return null; // no more tokens on this card
+        }
     }
+
     public ScoringToken getTopScoringToken(CommonGoalCard c) throws WrongArgumentException{
         LinkedList<ScoringToken> x = (LinkedList<ScoringToken>) commonGoals.get(c);
         if (x == null)
