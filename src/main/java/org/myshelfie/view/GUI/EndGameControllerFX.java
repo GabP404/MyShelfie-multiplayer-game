@@ -11,6 +11,7 @@ import org.myshelfie.model.Player;
 import org.myshelfie.model.util.Pair;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.gameMessages.GameView;
+import org.myshelfie.network.messages.gameMessages.ImmutablePlayer;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -36,9 +37,9 @@ public class EndGameControllerFX implements Initializable {
     }
 
     public void createRankingTable(GameView gameView) {
-        List<Pair<Player,Boolean>> ranking = gameView.getRanking();
+        List<Pair<ImmutablePlayer,Boolean>> ranking = gameView.getRanking();
 
-        for (Pair<Player,Boolean> result: ranking) {
+        for (Pair<ImmutablePlayer,Boolean> result: ranking) {
             FXMLLoader fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(getClass().getResource("/fxml/rankingFXML.fxml"));
             try {

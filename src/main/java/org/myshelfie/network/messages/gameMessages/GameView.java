@@ -23,7 +23,7 @@ public class GameView implements Serializable {
     private final Map<String, String> errorState;
     private final ModelState modelState;
 
-    private final List<Pair<Player,Boolean>> ranking;
+    private final List<Pair<ImmutablePlayer,Boolean>> ranking;
 
     private final String gameName;
     public GameView(Game model) {
@@ -43,7 +43,11 @@ public class GameView implements Serializable {
         this.errorState = new HashMap<>();
         players.forEach( (player) -> errorState.put(player.getNickname(), model.getErrorState(player.getNickname())) );
         this.modelState = model.getModelState();
-        this.ranking = model.getRanking();
+        List<Pair<Player,Boolean>> temp = model.getRanking();
+        this.ranking = new ArrayList<>();
+        for(Pair<Player,Boolean> p: temp) {
+            this.ranking.add(new Pair<>(new ImmutablePlayer(p.getLeft()),p.getRight()));
+        }
     }
 
 
@@ -72,7 +76,7 @@ public class GameView implements Serializable {
         return modelState;
     }
 
-    public List<Pair<Player,Boolean>> getRanking() {
+    public List<Pair<ImmutablePlayer,Boolean>> getRanking() {
         return ranking;
     }
 
