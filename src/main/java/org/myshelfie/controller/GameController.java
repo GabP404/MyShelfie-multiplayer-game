@@ -11,6 +11,7 @@ import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class GameController implements Serializable {
 
@@ -20,6 +21,7 @@ public class GameController implements Serializable {
         private final List<String> nicknames;
 
         private final boolean simplifyRules;
+
 
 
         public GameDefinition(GameController gc) {
@@ -392,8 +394,7 @@ public class GameController implements Serializable {
     }
 
     public boolean isGameCreated() {
-        if (game == null) return false;
-        return true;
+        return game != null;
     }
 
     public boolean isGamePlaying() {
