@@ -177,6 +177,7 @@ public class GameControllerFX implements Initializable {
                 updateBoard(game.getBoard());
                 updateMyBookshelf(me.getBookshelf());
                 udpateColSelectionArrows();
+                updateCommonGoalCards(game);
             }
             case TILES_PICKED_UPDATE -> {
                 updateBoard(game.getBoard());
@@ -190,6 +191,7 @@ public class GameControllerFX implements Initializable {
             }
             case CURR_PLAYER_UPDATE -> {
                 updateAmICurrPlayer(game.getCurrPlayer().getNickname().equals(nickname));
+                updateCommonGoalCards(game);
             }
             case TOKEN_UPDATE -> {
                 updateMyPersGoal(me.getPersonalGoal());
@@ -199,6 +201,7 @@ public class GameControllerFX implements Initializable {
             }
             case FINAL_TOKEN_UPDATE -> {
                 updateMyFinalToken((Boolean) game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get().getHasFinalToken());
+                updateCommonGoalCards(game);
             }
             case ERROR -> {
                 updateEverything(game);
