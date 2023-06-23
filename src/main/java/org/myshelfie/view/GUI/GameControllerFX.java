@@ -178,6 +178,7 @@ public class GameControllerFX implements Initializable {
                 updateMyBookshelf(me.getBookshelf());
                 udpateColSelectionArrows();
                 updateCommonGoalCards(game);
+                updateMyCommonGoalToken(me.getCommonGoalTokens());
             }
             case TILES_PICKED_UPDATE -> {
                 updateBoard(game.getBoard());
@@ -186,12 +187,13 @@ public class GameControllerFX implements Initializable {
                 udpateColSelectionArrows();
             }
             case TOKEN_STACK_UPDATE -> {
-                // Update common goal cards
                 updateCommonGoalCards(game);
+                updateMyCommonGoalToken(me.getCommonGoalTokens());
             }
             case CURR_PLAYER_UPDATE -> {
                 updateAmICurrPlayer(game.getCurrPlayer().getNickname().equals(nickname));
                 updateCommonGoalCards(game);
+                updateMyCommonGoalToken(me.getCommonGoalTokens());
             }
             case TOKEN_UPDATE -> {
                 updateMyPersGoal(me.getPersonalGoal());
