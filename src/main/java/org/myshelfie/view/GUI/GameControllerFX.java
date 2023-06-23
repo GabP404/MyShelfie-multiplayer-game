@@ -171,6 +171,7 @@ public class GameControllerFX implements Initializable {
         ImmutablePlayer me = game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get();
 
         if (game.getModelState().equals(ModelState.PAUSE)) {
+            updateOtherPlayers(game);
             isPaused = true;
             showInfoDialog("The game is paused because you are the only online player!");
             return;

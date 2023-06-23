@@ -218,7 +218,6 @@ public class Game implements Serializable {
             else
                 ranking.add(new Pair<>(p, false));
         }
-        ranking.stream().forEach(x -> System.out.println(x.getLeft().getNickname() + " "+ x.getRight()));
         return ranking;
     }
 }

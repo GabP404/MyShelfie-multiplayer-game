@@ -165,26 +165,10 @@ public class GameController implements Serializable {
         this.game.setModelState(ModelState.END_GAME);
     }
 
-    private void checkWinner() {
-        Player p = this.game.getPlayers().stream().reduce( (a, b) -> {
-            try {
-                return a.getTotalPoints() > b.getTotalPoints() ? a:b;
-            } catch (WrongArgumentException e) {
-                throw new RuntimeException(e);
-            }
-        }).orElse(null);
-        try {
-            this.game.setWinner(p);
-        } catch (WrongArgumentException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private boolean checkEndGameBookShelfFull() {
         if(this.game.getPlayers().stream().anyMatch(x -> x.getBookshelf().isFull())) {
             this.game.getCurrPlayer().setHasFinalToken(true);
             endGame();
-            checkWinner();
             return true;
         }
         return false;

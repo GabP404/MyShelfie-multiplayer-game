@@ -161,7 +161,8 @@ public class PrinterCLI {
                 Player player = ranking.get(i).getLeft();
                 if (player.getNickname().equals(nickname))
                     nameFormat = GREEN.toString();
-                print(nameFormat + player.getNickname() + RESET, rankingOffsetX + 40 - ( player.getNickname().length() / 2), rankingOffsetY + 7 + i + ranking.size(), false);
+                int nameOffset = rankingOffsetX + 40 - ( (int) player.getNickname().length() / 2);
+                print(nameFormat + player.getNickname(), nameOffset, rankingOffsetY + 7 + k + ranking.size(), false);
                 k++;
             }
         }

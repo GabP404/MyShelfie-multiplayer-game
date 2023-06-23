@@ -29,7 +29,6 @@ public class RankingControllerFX implements Initializable {
         Player player = result.getLeft();
         username_LBL.setText(player.getNickname());
         points_LB.setText(String.valueOf(player.getTotalPoints()));
-        System.out.println(result.getLeft().getNickname() + result.getRight());
         if (result.getRight()) {
             winner_IMG.setVisible(true);
         }
