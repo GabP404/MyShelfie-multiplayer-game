@@ -30,8 +30,11 @@ public class RankingControllerFX implements Initializable {
     public void setData(Pair<ImmutablePlayer,Boolean> result) {
         ImmutablePlayer player = result.getLeft();
         username_LBL.setText(player.getNickname());
+        if(!player.isOnline()) {
+            username_LBL.setStyle("-fx-text-fill: grey");
+        }
         try {
-            points_LB.setText(String.valueOf(player.getTotalPoints()));
+            points_LB.setText("Points: "+ String.valueOf(player.getTotalPoints()));
         } catch (WrongArgumentException e) {
             throw new RuntimeException(e);
         }

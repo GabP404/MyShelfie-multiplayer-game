@@ -110,3 +110,69 @@
     -fx-border-radius: 15px;
     -fx-background-radius: 15px;
 }
+
+#EndGameContainer {
+    -fx-font: 1.2em;
+    -fx-background-image: url('../graphics/publisher/Display_5.jpg');
+    -fx-background-size: cover, auto;
+}
+
+.rankingContainer {
+    -fx-background-color: #F2E5BC;
+    -fx-text-fill: #FFFFFFEE;
+}
+
+.rankingContainer .label{
+    -fx-text-fill: #827a2d;
+    -fx-text-transform: italic;
+}
+
+.EndGameContainer {
+    -fx-font: 1.2em;
+    -fx-background-image:url('../graphics/publisher/Display_4.jpg');
+    -fx-background-size: cover, auto;
+}
+
+.EndGameContainer .button{
+    -fx-text-fill: #827a2d;
+    -fx-text-transform: italic;
+    -fx-background-color: #F2E5BC;
+    -fx-background-radius: 0.1em;
+    -fx-border-color: #5C3317;
+    -fx-border-width: 0.1em;
+    -fx-border-radius: 0.1em;
+    -fx-background-insets: 0;
+}
+
+#rankingTable {
+    -fx-background-color: #F2E5BC;
+    -fx-background-radius: 0.1em;
+    -fx-border-color: #5C3317;
+    -fx-border-width: 0.5em;
+    -fx-text-fill: #FFFFFFEE;
+    -fx-border-radius: 0.1em;
+    -fx-background-insets: 0;
+}
+
+#titleEndGame {
+    -fx-text-fill: #5C3317;
+    -fx-text-transform: italic;
+    -fx-background-color: #F2E5BC;
+    -fx-border-color: #5C3317;
+    -fx-border-width: 0.1em;
+    -fx-padding: 0.5em;
+    -fx-border-radius: 0.1em;
+    -fx-background-radius: 0.1;
+    -fx-background-insets: 0;
+}
+
+.rankingContainer .usernameLBL {
+    -fx-text-fill: black;
+}
+
+.rankingContainer .usernameLBL {
+    -fx-text-fill: black;
+}
+.rankingContainer .pointsLBL {
+    -fx-text-fill: #5C3317;
+}
