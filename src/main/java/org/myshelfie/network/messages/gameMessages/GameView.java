@@ -1,6 +1,7 @@
 package org.myshelfie.network.messages.gameMessages;
 
 import org.myshelfie.model.*;
+import org.myshelfie.model.util.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +23,8 @@ public class GameView implements Serializable {
     private final Map<String, String> errorState;
     private final ModelState modelState;
 
+    private final List<Pair<Player,Boolean>> ranking;
+
     private final String gameName;
     public GameView(Game model) {
         this.currPlayer = new ImmutablePlayer(model.getCurrPlayer());
@@ -40,7 +43,9 @@ public class GameView implements Serializable {
         this.errorState = new HashMap<>();
         players.forEach( (player) -> errorState.put(player.getNickname(), model.getErrorState(player.getNickname())) );
         this.modelState = model.getModelState();
+        this.ranking = model.getRanking();
     }
+
 
     public String getErrorState(String nickname) {
         return errorState.get(nickname);
@@ -66,5 +71,10 @@ public class GameView implements Serializable {
     public ModelState getModelState() {
         return modelState;
     }
+
+    public List<Pair<Player,Boolean>> getRanking() {
+        return ranking;
+    }
+
 
 }

@@ -21,7 +21,6 @@ public class GameController implements Serializable {
         private final boolean simplifyRules;
 
 
-
         public GameDefinition(GameController gc) {
             this.gameName = gc.getGameName();
             this.maxPlayers = gc.getNumPlayerGame();
@@ -81,13 +80,7 @@ public class GameController implements Serializable {
         @Override
         public void run() {
             endGame();
-            try {
-                getGame().setWinner(getGame().getPlayers().stream().filter(x -> x.isOnline()).collect(Collectors.toList()).get(0));
-            } catch (WrongArgumentException e) {
-                throw new RuntimeException(e);
-            } catch (IndexOutOfBoundsException e) {
-                // All the players are offline (get(0) went out of bound), the game ends!
-            }
+
             isRunning = false;
         }
     }
@@ -175,26 +168,10 @@ public class GameController implements Serializable {
         this.game.setModelState(ModelState.END_GAME);
     }
 
-    private void checkWinner() {
-        Player p = this.game.getPlayers().stream().reduce( (a, b) -> {
-            try {
-                return a.getTotalPoints() > b.getTotalPoints() ? a:b;
-            } catch (WrongArgumentException e) {
-                throw new RuntimeException(e);
-            }
-        }).orElse(null);
-        try {
-            this.game.setWinner(p);
-        } catch (WrongArgumentException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private boolean checkEndGameBookShelfFull() {
         if(this.game.getPlayers().stream().filter(x -> x.getBookshelf().isFull()).count() > 0) {
             this.game.getCurrPlayer().setHasFinalToken(true);
             endGame();
-            checkWinner();
             return true;
         }
         return false;
