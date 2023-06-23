@@ -103,6 +103,7 @@ public class GameControllerFX implements Initializable {
     final double TILE_DIM = 45;
 
     private Client client;
+    private boolean isPaused = false;
 
 
     @Override
@@ -135,12 +136,25 @@ public class GameControllerFX implements Initializable {
     }
 
     public void showErrorDialog(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error!");
-        alert.setHeaderText("Message:");
-        alert.setContentText(message);
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error!");
+            alert.setHeaderText("A small message for you from the MyShelfie overlord");
+            alert.setContentText(message);
 
-        alert.showAndWait();
+            alert.showAndWait();
+        });
+    }
+
+    public void showInfoDialog(String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("FYI");
+            alert.setHeaderText("A small message for you by the MyShelfie overlord");
+            alert.setContentText(message);
+
+            alert.showAndWait();
+        });
     }
 
 
@@ -155,6 +169,20 @@ public class GameControllerFX implements Initializable {
         latestGame = game;
         System.out.println("STATUS: "+ game.getModelState());
         ImmutablePlayer me = game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get();
+
+        if (game.getModelState().equals(ModelState.PAUSE)) {
+            updateOtherPlayers(game);
+            isPaused = true;
+            showInfoDialog("The game is paused because you are the only online player!");
+            return;
+        }
+
+        if (isPaused) {
+            if (!game.getModelState().equals(ModelState.PAUSE)) {
+                isPaused = false;
+                showInfoDialog("The game resumed!");
+            }
+        }
 
         if (ev != GameEvent.PLAYER_ONLINE_UPDATE) {
             unconfirmedSelectedTiles.clear();

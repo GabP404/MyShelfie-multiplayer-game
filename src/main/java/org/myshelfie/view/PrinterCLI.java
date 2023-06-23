@@ -140,15 +140,14 @@ public class PrinterCLI {
                 nameFormat = GREEN.toString();
                 pointsFormat = GREEN.toString();
             }
-            print(nameFormat + player.getNickname() + RESET, rankingOffsetX + 4, rankingOffsetY + 4 + i, false);
-            print(pointsFormat + player.getPublicPoints(), rankingOffsetX + 26, rankingOffsetY + 4 + i, false);
-            // FIXME: missing method to retrieve personal points!!!!
-            // print("", rankingOffsetX + 37, rankingOffsetY + 4 + i, false);
-            print(pointsFormat + player.getBookshelfPoints(), rankingOffsetX + 53, rankingOffsetY + 4 + i, false);
             try {
-                print(pointsFormat + player.getTotalPoints() + RESET, rankingOffsetX + 75, rankingOffsetY + 4 + i, false);
+                print(nameFormat + player.getNickname() + RESET, rankingOffsetX + 4, rankingOffsetY + 4 + i, false);
+                print(pointsFormat + player.getPublicPoints(), rankingOffsetX + 26, rankingOffsetY + 4 + i, false);
+                print(pointsFormat + player.getPersonalGoalPoints(), rankingOffsetX + 37, rankingOffsetY + 4 + i, false);
+                print(pointsFormat + player.getBookshelfPoints(), rankingOffsetX + 53, rankingOffsetY + 4 + i, false);
+                print(pointsFormat + player.getTotalPoints()+ RESET, rankingOffsetX + 75, rankingOffsetY + 4 + i, false);
             } catch (WrongArgumentException e) {
-                throw new RuntimeException(e);
+                //
             }
         }
 
@@ -165,7 +164,8 @@ public class PrinterCLI {
                 ImmutablePlayer player = ranking.get(i).getLeft();
                 if (player.getNickname().equals(nickname))
                     nameFormat = GREEN.toString();
-                print(nameFormat + player.getNickname() + RESET, rankingOffsetX + 40 - ( player.getNickname().length() / 2), rankingOffsetY + 7 + i + ranking.size(), false);
+                int nameOffset = rankingOffsetX + 40 - ( (int) player.getNickname().length() / 2);
+                print(nameFormat + player.getNickname(), nameOffset, rankingOffsetY + 7 + k + ranking.size(), false);
                 k++;
             }
         }
@@ -231,8 +231,9 @@ public class PrinterCLI {
                 case WAITING_1_SELECTION_TILE_FROM_HAND, WAITING_2_SELECTION_TILE_FROM_HAND, WAITING_3_SELECTION_TILE_FROM_HAND -> {
                     print("Pick a tile from your hand", boardOffsetX-2, boardOffsetY-4, false);
                 }
-
-
+                case PAUSE -> {
+                    print("The game is paused because at the moment you are the only online player.", boardOffsetX-2, boardOffsetY-4, false);
+                }
             }
         }
 
@@ -458,7 +459,12 @@ public class PrinterCLI {
             default ->
                     print("NOT YET IMPLEMENTED", commonGoalOffsetX + 2 + (offset * 60), commonGoalOffsetY + 2, false);
         }
-        print(game.getCommonGoalTokens(String.valueOf(id)).get(0).getPoints().toString(), cordX + 44, cordY + 4, false);
+
+        // Print the points of the top token
+        if (game.getCommonGoalTokens(String.valueOf(id)).size() > 0)
+            print(game.getCommonGoalTokens(String.valueOf(id)).get(0).getPoints().toString(), cordX + 44, cordY + 4, false);
+        else
+            print("-", cordX + 44, cordY + 4, false);
     }
 
     private static void  printCommonGoalBoxes(GameView game)

@@ -18,6 +18,9 @@ public class Game implements Serializable {
 
     private ModelState modelState;
 
+    // State to resume after reconnection in case the game is paused because there is only one player connected
+    private ModelState stateToResume = ModelState.WAITING_SELECTION_TILE;
+
     /**
      * errorState maps every player nickname to a corresponding (possible) error message
      */
@@ -142,6 +145,20 @@ public class Game implements Serializable {
             Server.eventManager.notify(GameEvent.GAME_END, this);
     }
 
+    /**
+     * Save the current state of the game, to be resumed after a pause due to too many disconnections.
+     */
+    public void saveState() {
+        this.stateToResume = this.modelState;
+    }
+
+    /**
+     * Resume the state of the game after some player reconnects.
+     */
+    public void resumeStateAfterPause() {
+        this.modelState = this.stateToResume;
+    }
+
     public int getNumOnlinePlayers() {
         return (int) players.stream().filter(Player::isOnline).count();
     }
@@ -173,6 +190,10 @@ public class Game implements Serializable {
                 return players.get(pos);
             count++;
         }
+
+        // There are no other online players (maybe only the current)
+        if (currPlayer.isOnline())
+            return currPlayer;
         return null;
     }
 
@@ -197,7 +218,6 @@ public class Game implements Serializable {
             else
                 ranking.add(new Pair<>(p, false));
         }
-        ranking.stream().forEach(x -> System.out.println(x.getLeft().getNickname() + " "+ x.getRight()));
         return ranking;
     }
 }

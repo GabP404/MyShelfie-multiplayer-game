@@ -38,7 +38,6 @@ public class RankingControllerFX implements Initializable {
         } catch (WrongArgumentException e) {
             throw new RuntimeException(e);
         }
-        System.out.println(result.getLeft().getNickname() + result.getRight());
         if (result.getRight()) {
             winner_IMG.setVisible(true);
         }
