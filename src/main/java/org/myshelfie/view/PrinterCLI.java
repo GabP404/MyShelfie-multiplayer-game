@@ -108,7 +108,7 @@ public class PrinterCLI {
     //prints the end game score of all players
     public static void printEndGameScreen(GameView game, String nickname)
     {
-        List<Pair<Player,Boolean>> ranking = game.getRanking();
+        List<Pair<ImmutablePlayer,Boolean>> ranking = game.getRanking();
 
         print(YELLOW + "╔═════════════════════════════════════════════════════════════════════════════════╗", rankingOffsetX, rankingOffsetY - 1, false);
         print(YELLOW + "║                                                                                 ║", rankingOffsetX, rankingOffsetY, false);
@@ -131,7 +131,7 @@ public class PrinterCLI {
             print(YELLOW + "║                  ║            ║              ║           ║          ║           ║", rankingOffsetX, rankingOffsetY + 4 + i, false);
             String nameFormat = "";
             String pointsFormat = "";
-            Player player = ranking.get(i).getLeft();
+            ImmutablePlayer player = ranking.get(i).getLeft();
             if (!ranking.get(i).getLeft().isOnline()) {
                 nameFormat = ULight_gray.toString();
                 pointsFormat = ULight_gray.toString();
@@ -140,12 +140,15 @@ public class PrinterCLI {
                 nameFormat = GREEN.toString();
                 pointsFormat = GREEN.toString();
             }
-            print(nameFormat + player.getNickname() + RESET, rankingOffsetX + 4, rankingOffsetY + 4 + i, false);
-            print(pointsFormat + player.getPublicPoints(), rankingOffsetX + 26, rankingOffsetY + 4 + i, false);
-            // FIXME: missing method to retrieve personal points!!!!
-            // print("", rankingOffsetX + 37, rankingOffsetY + 4 + i, false);
-            print(pointsFormat + player.getBookshelfPoints(), rankingOffsetX + 53, rankingOffsetY + 4 + i, false);
-            print(pointsFormat + player.getTotalPoints() + RESET, rankingOffsetX + 75, rankingOffsetY + 4 + i, false);
+            try {
+                print(nameFormat + player.getNickname() + RESET, rankingOffsetX + 4, rankingOffsetY + 4 + i, false);
+                print(pointsFormat + player.getPublicPoints(), rankingOffsetX + 26, rankingOffsetY + 4 + i, false);
+                print(pointsFormat + player.getPersonalGoalPoints(), rankingOffsetX + 37, rankingOffsetY + 4 + i, false);
+                print(pointsFormat + player.getBookshelfPoints(), rankingOffsetX + 53, rankingOffsetY + 4 + i, false);
+                print(pointsFormat + player.getTotalPoints()+ RESET, rankingOffsetX + 75, rankingOffsetY + 4 + i, false);
+            } catch (WrongArgumentException e) {
+                //
+            }
         }
 
         print(YELLOW + "╠══════════════════╩════════════╩══════════════╩═══════════╩══════════╩═══════════╣", rankingOffsetX, rankingOffsetY + 4 + ranking.size(), false);
@@ -158,7 +161,7 @@ public class PrinterCLI {
             if (ranking.get(i).getRight()) {
                 print(YELLOW + "║                                                                                 ║", rankingOffsetX, rankingOffsetY + 7 + k + ranking.size(), false);
                 String nameFormat = "";
-                Player player = ranking.get(i).getLeft();
+                ImmutablePlayer player = ranking.get(i).getLeft();
                 if (player.getNickname().equals(nickname))
                     nameFormat = GREEN.toString();
                 int nameOffset = rankingOffsetX + 40 - ( (int) player.getNickname().length() / 2);
