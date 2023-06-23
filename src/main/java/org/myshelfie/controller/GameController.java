@@ -25,7 +25,7 @@ public class GameController implements Serializable {
             this.gameName = gc.getGameName();
             this.maxPlayers = gc.getNumPlayerGame();
             this.nicknames = new ArrayList<>(gc.getNicknames());
-            this.simplifyRules = gc.getNumGoalCards() == 1 ? true : false;
+            this.simplifyRules = gc.getNumGoalCards() == 1;
         }
 
         public String getGameName() {
@@ -45,10 +45,7 @@ public class GameController implements Serializable {
         }
 
         public boolean isFull() {
-            if(nicknames.size() == maxPlayers) {
-                return true;
-            }
-            return false;
+            return nicknames.size() == maxPlayers;
         }
     }
     private transient Timer timer; // declared as transient to not serialize it
@@ -126,7 +123,7 @@ public class GameController implements Serializable {
         }
         HashMap<CommonGoalCard,List<ScoringToken>> commonGoal = new HashMap<>();
         for (CommonGoalCard x : commonGoalCards) {
-            commonGoal.put(x, (List<ScoringToken>) createTokensCommonGoalCard(x.getId(),numPlayerGame));
+            commonGoal.put(x, createTokensCommonGoalCard(x.getId(),numPlayerGame));
         }
         TileBag tileBag = new TileBag();
 
@@ -142,23 +139,21 @@ public class GameController implements Serializable {
     private LinkedList<ScoringToken> createTokensCommonGoalCard(String id, int numPlayer) {
         LinkedList<ScoringToken> tokens = new LinkedList<>();
         switch (numPlayer) {
-            case 2:
-                tokens.add(new ScoringToken(8,id));
-                tokens.add(new ScoringToken(4,id));
-                break;
-
-            case 3:
-                tokens.add(new ScoringToken(8,id));
-                tokens.add(new ScoringToken(6,id));
-                tokens.add(new ScoringToken(4,id));
-                break;
-
-            case 4:
-                tokens.add(new ScoringToken(8,id));
-                tokens.add(new ScoringToken(6,id));
-                tokens.add(new ScoringToken(4,id));
-                tokens.add(new ScoringToken(2,id));
-                break;
+            case 2 -> {
+                tokens.add(new ScoringToken(8, id));
+                tokens.add(new ScoringToken(4, id));
+            }
+            case 3 -> {
+                tokens.add(new ScoringToken(8, id));
+                tokens.add(new ScoringToken(6, id));
+                tokens.add(new ScoringToken(4, id));
+            }
+            case 4 -> {
+                tokens.add(new ScoringToken(8, id));
+                tokens.add(new ScoringToken(6, id));
+                tokens.add(new ScoringToken(4, id));
+                tokens.add(new ScoringToken(2, id));
+            }
         }
         return tokens;
     }
@@ -169,7 +164,7 @@ public class GameController implements Serializable {
     }
 
     private boolean checkEndGameBookShelfFull() {
-        if(this.game.getPlayers().stream().filter(x -> x.getBookshelf().isFull()).count() > 0) {
+        if(this.game.getPlayers().stream().anyMatch(x -> x.getBookshelf().isFull())) {
             this.game.getCurrPlayer().setHasFinalToken(true);
             endGame();
             return true;
@@ -180,7 +175,8 @@ public class GameController implements Serializable {
 
     /**
      * Set the player with the given nickname offline.
-     * If the player is the current player, set the current player to the next online player.
+     * If the player is the current player, set the current player to the next online player, and
+     * reset the Board if the player had some tiles in hand.
      * If there are no more online players, end the game.
      * @param nickname the nickname of the player to set offline
      */
@@ -190,6 +186,10 @@ public class GameController implements Serializable {
         // Finally, set the model state to WAITING_SELECTION_TILE (beginning of next turn)
         try {
             if(this.game.getCurrPlayer().getNickname().equals(nickname)) {
+                for (LocatedTile tile : this.game.getCurrPlayer().getTilesPicked()) {
+                    // Put the tile back in the board
+                    this.game.getBoard().setTile(tile.getRow(), tile.getCol(), new Tile(tile.getItemType(), tile.getItemId()));
+                }
                 this.game.getCurrPlayer().clearHand();
                 this.game.getCurrPlayer().clearSelectedColumn();
                 this.game.setCurrPlayer(this.game.getNextOnlinePlayer());
@@ -200,12 +200,12 @@ public class GameController implements Serializable {
             this.endGame();
             throw new RuntimeException(e);
         }
-        this.game.getPlayers().stream().filter(x -> x.getNickname().equals(nickname)).collect(Collectors.toList()).get(0).setOnline(false);
+        this.game.getPlayers().stream().filter(x -> x.getNickname().equals(nickname)).toList().get(0).setOnline(false);
         checkPlayersOnline();
     }
 
     public void setOnlinePlayer(String nickname) {
-        this.game.getPlayers().stream().filter(x -> x.getNickname().equals(nickname)).collect(Collectors.toList()).get(0).setOnline(true);
+        this.game.getPlayers().stream().filter(x -> x.getNickname().equals(nickname)).toList().get(0).setOnline(true);
         if(game.getNumOnlinePlayers() > 1) {
             if(isTimerRunning())
                 stopTimer();
@@ -379,8 +379,7 @@ public class GameController implements Serializable {
     }
 
     public boolean isGameCreated() {
-        if (game == null) return false;
-        return true;
+        return game != null;
     }
 
     public boolean isGamePlaying() {

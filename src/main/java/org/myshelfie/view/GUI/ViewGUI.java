@@ -221,11 +221,14 @@ public class ViewGUI extends Application implements View  {
 
     @Override
     public void setAvailableGames(List<GameController.GameDefinition> availableGamesList) {
-        if (lobbiesControllerFX != null) {
-            lobbiesControllerFX.updateLobbiesOptimized(availableGamesList);
-        } else {
-            System.out.println("LobbiesControllerFX is null. Unable to update available games.");
-        }
+        Platform.runLater(() -> {
+            if (lobbiesControllerFX != null) {
+                lobbiesControllerFX.updateLobbies(availableGamesList);
+                // lobbiesControllerFX.updateLobbiesOptimized(availableGamesList);
+            } else {
+                System.out.println("LobbiesControllerFX is null. Unable to set available games.");
+            }
+        });
     }
 
     @Override

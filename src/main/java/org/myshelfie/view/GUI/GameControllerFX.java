@@ -391,6 +391,8 @@ public class GameControllerFX implements Initializable {
             scaleTransition.setOnFinished(event -> {
                 System.out.println("Selected tile from hand");
                 this.client.eventManager.notify(UserInputEvent.SELECTED_HAND_TILE, tileIndex);
+                tileImage.setOnMouseClicked(null);
+                tileImage.setVisible(false);
             });
 
             // Play the animation
@@ -455,6 +457,7 @@ public class GameControllerFX implements Initializable {
                     arrow.setVisible(true);
                     int copyI = i;
                     arrow.setOnMouseClicked(event -> onArrowClicked(copyI, arrow));
+                    setOnHoverZoom(arrow, 1, 1.075);
                 } else {
                     ImageView arrow = (ImageView) colSelectionArrowsGrid.getChildren().get(i);
                     arrow.setImage(null);
@@ -627,6 +630,7 @@ public class GameControllerFX implements Initializable {
                 tileImage.setFitWidth(SELECTED_TILE_DIM);
                 tileImage.setEffect(new DropShadow(10, Color.BLACK));
                 tileImage.setOnMouseClicked(event -> onTileFromHandClicked(tileImage, finalI));
+                setOnHoverZoom(tileImage, 1, 1.05);
                 tileImage.setVisible(true);
 
                 tilesHandGrid.add(tileImage, finalI, 0);
@@ -646,6 +650,9 @@ public class GameControllerFX implements Initializable {
         myPersonalGoal.setImage(new Image("graphics/persGoalCards/Personal_Goals" + card.getId() + ".png"));
         myPersonalGoal.setFitHeight(PERSONAL_CARD_HEIGHT);
         myPersonalGoal.setEffect(new DropShadow(10, Color.BLACK));
+
+        setOnHoverZoom(myPersonalGoal, 1, 1.2);
+
         myPersonalGoal.setVisible(true);
     }
 
@@ -682,6 +689,9 @@ public class GameControllerFX implements Initializable {
         tileImage.setFitWidth(TILE_DIM);
         tileImage.setEffect(new DropShadow(5, Color.BLACK));
 
+        // Set on hover effect
+        setOnHoverZoom(tileImage, 1, 1.07);
+
         boardGrid.add(tileImage, col, row);
     }
 
@@ -700,9 +710,22 @@ public class GameControllerFX implements Initializable {
         this.client = client;
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    /////////////////////////// UTILITY METHODS ///////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
 
-
-
+    private void setOnHoverZoom(Node item, double defaultScale, double zoomedScale) {
+        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), item);
+        scaleTransition.setToX(zoomedScale);
+        scaleTransition.setToY(zoomedScale);
+        // Create a ScaleTransition for revert to initial size
+        ScaleTransition scaleRevertTransition = new ScaleTransition(Duration.millis(200), item);
+        scaleRevertTransition.setToX(defaultScale);
+        scaleRevertTransition.setToY(defaultScale);
+        // Add event handlers to the card
+        item.setOnMouseEntered(event -> scaleTransition.playFromStart());
+        item.setOnMouseExited(event -> scaleRevertTransition.playFromStart());
+    }
 
 
 }
