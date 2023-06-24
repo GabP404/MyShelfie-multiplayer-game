@@ -21,11 +21,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class LobbyController {
-    private Server server;
+    private static Server server;
 
     private static LobbyController single_istance;
 
-    private HashMap<String,GameController> gameControllers;
+    private static HashMap<String,GameController> gameControllers;
 
     private LobbyController(Server server) {
         this.server = server;
@@ -69,23 +69,7 @@ public class LobbyController {
                 }
         );
 
-        gameControllers.get(command.getGameName()).queueAndExecuteInstruction(
-                () -> {
-                    // Delete the game if it has ended - the update has already been sent to the clients
-                    if (gameControllers.get(command.getGameName()).getGame().getModelState() == ModelState.END_GAME) {
-                        // Unsubscribe all the clients that were listening to this game
-                        gameControllers.get(command.getGameName()).getGame().getPlayers().forEach(
-                                (player) -> {
-                                    Client toUnregister = server.getClient(player.getNickname());
-                                    server.unregister(toUnregister);
-                                }
-                        );
-
-                        // Delete the game from the map
-                        gameControllers.remove(command.getGameName());
-                    }
-                }
-        );
+        gameControllers.get(command.getGameName()).queueAndExecuteInstruction(() -> removeGame(command.getGameName()));
 
         // Queue the operation of saving the server status.
         // This operation is done inside the executor thread at the end of every command so that the status is kept consistent.
@@ -99,6 +83,23 @@ public class LobbyController {
                     }
                 }
         );
+    }
+
+    public static void removeGame(String gameName) {
+        // Delete the game if it has ended - the update has already been sent to the clients
+        if (gameControllers.get(gameName).getGame().getModelState() == ModelState.END_GAME) {
+            // Unsubscribe all the clients that were listening to this game
+            gameControllers.get(gameName).getGame().getPlayers().forEach(
+                    (player) -> {
+                        Client toUnregister = server.getClient(player.getNickname());
+                        server.unregister(toUnregister);
+                    }
+            );
+            // Clear the list of nicknames
+            gameControllers.get(gameName).getNicknames().clear();
+            // Delete the game from the map
+            gameControllers.remove(gameName);
+        }
     }
 
 
