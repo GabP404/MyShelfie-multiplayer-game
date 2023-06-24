@@ -183,13 +183,11 @@ public class ViewGUI extends Application implements View  {
     @Override
     public void run() {
         setScene("Login");
-        /*
         // Add some music :)
-        media = new Media(getClass().getResource("/audio/megalovania_lofi.mp3").toExternalForm());
-        mediaPlayer = new MediaPlayer(media);
-        mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
-        mediaPlayer.play();
-         */
+//        media = new Media(getClass().getResource("/audio/megalovania_lofi.mp3").toExternalForm());
+//        mediaPlayer = new MediaPlayer(media);
+//        mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+//        mediaPlayer.play();
     }
 
 
