@@ -11,6 +11,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.myshelfie.controller.GameController;
+import org.myshelfie.model.ModelState;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.GameView;
@@ -141,7 +142,7 @@ public class ViewGUI extends Application implements View  {
     @Override
     public void update(GameView msg, GameEvent ev) {
         this.gameName = msg.getGameName();
-        if(ev == GameEvent.GAME_END) {
+        if(ev == GameEvent.GAME_END || msg.getModelState() == ModelState.END_GAME) {
             setScene("EndGame");
             Platform.runLater(() -> {
                 endGameControllerFX.createRankingTable(msg);
@@ -162,7 +163,6 @@ public class ViewGUI extends Application implements View  {
                 System.out.println("GameControllerFX is still null after setting the scene.");
             }
         }
-
     }
 
     /**
