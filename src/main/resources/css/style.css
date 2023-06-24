@@ -176,3 +176,10 @@
 .rankingContainer .pointsLBL {
     -fx-text-fill: #5C3317;
 }
+
+.helper-wood-sign {
+    -fx-background-image: url('../graphics/misc/woodSign.png');
+    -fx-background-size: contain, auto;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+}

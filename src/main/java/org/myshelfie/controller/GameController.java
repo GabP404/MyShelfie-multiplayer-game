@@ -295,15 +295,15 @@ public class GameController implements Serializable {
                 nextState = ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN;
                 break;
             case WAITING_3_SELECTION_TILE_FROM_HAND:
-                CheckTokenAchievement();
+                checkTokenAchievement();
                 nextState = ModelState.WAITING_2_SELECTION_TILE_FROM_HAND;
                 break;
             case WAITING_2_SELECTION_TILE_FROM_HAND:
-                CheckTokenAchievement();
+                checkTokenAchievement();
                 nextState = ModelState.WAITING_1_SELECTION_TILE_FROM_HAND;
                 break;
             case WAITING_1_SELECTION_TILE_FROM_HAND:
-                CheckTokenAchievement();
+                checkTokenAchievement();
                 if(checkEndGameBookShelfFull()) {
                     nextState = ModelState.END_GAME;
                 }else {
@@ -351,11 +351,14 @@ public class GameController implements Serializable {
         }
     }
 
-    public void CheckTokenAchievement() throws WrongArgumentException {
+    public void checkTokenAchievement() throws WrongArgumentException {
+        Player p = this.game.getCurrPlayer();
         for(CommonGoalCard x: this.game.getCommonGoals()) {
-            if(x.checkGoalSatisfied(this.game.getCurrPlayer().getBookshelf())) {
-                this.game.getCurrPlayer().addScoringToken(this.game.popTopScoringToken(x));
-            }
+            if (
+                p.getCommonGoalTokens().stream().noneMatch(t -> t.getCommonGoalId().equals(x.getId())) &&
+                x.checkGoalSatisfied(p.getBookshelf())
+            )
+                p.addScoringToken(this.game.popTopScoringToken(x));
         }
     }
 

@@ -1,5 +1,6 @@
 package org.myshelfie.view.GUI;
 
+import javafx.geometry.Pos;
 import javafx.scene.shape.Rectangle;
 import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
@@ -34,12 +35,6 @@ import java.util.stream.Collectors;
 public class GameControllerFX implements Initializable {
     @FXML
     private GridPane boardGrid;
-
-    @FXML
-    private StackPane overlay;
-
-    @FXML
-    private Rectangle overlayBackground;
 
     @FXML
     private ImageView boardImage;
@@ -81,10 +76,22 @@ public class GameControllerFX implements Initializable {
     private VBox otherPlayersLayout;
 
     @FXML
+    private StackPane overlay;
+
+    @FXML
+    private Rectangle overlayBackground;
+
+    @FXML
+    private ImageView spinner;
+
+    @FXML
     private Button tilesConfirmButton;
 
     @FXML
     private GridPane tilesHandGrid;
+
+    @FXML
+    private VBox updatesVBox;
 
     private boolean firstSetupDone = false;
 
@@ -165,6 +172,10 @@ public class GameControllerFX implements Initializable {
      * @param game
      */
     public void update(GameEvent ev, GameView game) {
+        Platform.runLater(() -> updateButForReal(ev, game));
+    }
+
+    private void updateButForReal(GameEvent ev, GameView game) {
         // TODO: check that all the GameEvents are covered
         latestGame = game;
         System.out.println("STATUS: "+ game.getModelState());
@@ -201,6 +212,8 @@ public class GameControllerFX implements Initializable {
                 updateBoard(game.getBoard());
                 updateMyBookshelf(me.getBookshelf());
                 udpateColSelectionArrows();
+                updateCommonGoalCards(game);
+                updateMyCommonGoalToken(me.getCommonGoalTokens());
             }
             case TILES_PICKED_UPDATE -> {
                 updateBoard(game.getBoard());
@@ -209,14 +222,23 @@ public class GameControllerFX implements Initializable {
                 udpateColSelectionArrows();
             }
             case TOKEN_STACK_UPDATE -> {
-                // Update common goal cards
                 updateCommonGoalCards(game);
+                updateMyCommonGoalToken(me.getCommonGoalTokens());
             }
             case CURR_PLAYER_UPDATE -> {
                 updateAmICurrPlayer(game.getCurrPlayer().getNickname().equals(nickname));
+                updateCommonGoalCards(game);
+                updateMyCommonGoalToken(me.getCommonGoalTokens());
+            }
+            case TOKEN_UPDATE -> {
+                updateMyPersGoal(me.getPersonalGoal());
+                updateOtherPlayers(game);
+                updateCommonGoalCards(game);
+                updateMyCommonGoalToken(me.getCommonGoalTokens());
             }
             case FINAL_TOKEN_UPDATE -> {
                 updateMyFinalToken((Boolean) game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get().getHasFinalToken());
+                updateCommonGoalCards(game);
             }
             case ERROR -> {
                 updateEverything(game);
@@ -229,6 +251,7 @@ public class GameControllerFX implements Initializable {
             }
         }
         // Actions that are performed on every update
+        updateHelper();
         updateTilesConfirmButton();
         updateMyBookshelf(me.getBookshelf());
         updateMyPersGoal(me.getPersonalGoal());
@@ -238,6 +261,8 @@ public class GameControllerFX implements Initializable {
     }
 
     private void updateEverything(GameView game) {
+        // Update helper
+        updateHelper();
         // Update board
         updateBoard(game.getBoard());
         // Update other players (note that they are controlled by a different controller)
@@ -555,56 +580,57 @@ public class GameControllerFX implements Initializable {
      * @param gameView
      */
     private void updateCommonGoalCards(GameView gameView) {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                List<CommonGoalCard> commonGoalCards = gameView.getCommonGoals();
+        List<CommonGoalCard> commonGoalCards = gameView.getCommonGoals();
 
-                if (commonGoalCards.size() >= 1) {
-                    String cardId = commonGoalCards.get(0).getId();
-                    commonGoalCard1.setImage(new Image("graphics/commonGoalCards/common_" + cardId + ".jpg"));
-                    Tooltip.install(commonGoalCard1, new Tooltip(Configuration.getCommonGoalCardDescription(cardId)));
-                    commonGoalCard1.setVisible(true);
-                    commonGoalCard2.setVisible(false);
-                    int k = 0;
-                    List<ScoringToken> commonGoalCardTokens = gameView.getCommonGoalTokens(cardId);
-                    Collections.reverse(commonGoalCardTokens);
-                    for (ScoringToken token : commonGoalCardTokens) {
-                        AnchorPane pane = (AnchorPane) commonGoalCard1.getParent();
-                        ImageView tokenImage = new ImageView("graphics/tokens/scoring_" + token.getPoints() + ".jpg");
-                        pane.getChildren().add(tokenImage);
-                        tokenImage.setX(commonGoalCard1.getX() + 5 * k + commonGoalCard1.getFitWidth() * 0.6);
-                        tokenImage.setY(commonGoalCard1.getY() + 5 * k + commonGoalCard1.getFitHeight() * 0.25);
-                        tokenImage.setFitWidth(40);
-                        tokenImage.setFitHeight(40);
-                        tokenImage.setVisible(true);
-                        tokenImage.toFront();
-                        k++;
-                    }
-                }
-                if (commonGoalCards.size() == 2) {
-                    String cardId = commonGoalCards.get(1).getId();
-                    commonGoalCard2.setImage(new Image("graphics/commonGoalCards/common_" + cardId + ".jpg"));
-                    Tooltip.install(commonGoalCard2, new Tooltip(Configuration.getCommonGoalCardDescription(cardId)));
-                    commonGoalCard2.setVisible(true);
-                    int k = 0;
-                    List<ScoringToken> commonGoalCardTokens = gameView.getCommonGoalTokens(cardId);
-                    Collections.reverse(commonGoalCardTokens);
-                    for (ScoringToken token : commonGoalCardTokens) {
-                        AnchorPane pane = (AnchorPane) commonGoalCard2.getParent();
-                        ImageView tokenImage = new ImageView("graphics/tokens/scoring_" + token.getPoints() + ".jpg");
-                        pane.getChildren().add(tokenImage);
-                        tokenImage.setX(commonGoalCard2.getX() + 5 * k + commonGoalCard2.getFitWidth() * 0.6);
-                        tokenImage.setY(commonGoalCard2.getY() + 5 * k + commonGoalCard2.getFitHeight() * 0.25);
-                        tokenImage.setFitWidth(40);
-                        tokenImage.setFitHeight(40);
-                        tokenImage.setVisible(true);
-                        tokenImage.toFront();
-                        k++;
-                    }
-                }
+        if (commonGoalCards.size() >= 1) {
+            String cardId = commonGoalCards.get(0).getId();
+            commonGoalCard1.setImage(new Image("graphics/commonGoalCards/common_" + cardId + ".jpg"));
+            Tooltip.install(commonGoalCard1, new Tooltip(Configuration.getCommonGoalCardDescription(cardId)));
+            commonGoalCard1.setVisible(true);
+            commonGoalCard2.setVisible(false);
+            int k = 0;
+            List<ScoringToken> commonGoalCardTokens = gameView.getCommonGoalTokens(cardId);
+            Collections.reverse(commonGoalCardTokens);
+
+            // remove all the tokens from the pane
+            AnchorPane pane = (AnchorPane) commonGoalCard1.getParent();
+            pane.getChildren().removeIf(node -> node instanceof ImageView && node != commonGoalCard1);
+            for (ScoringToken token : commonGoalCardTokens) {
+                ImageView tokenImage = new ImageView("graphics/tokens/scoring_" + token.getPoints() + ".jpg");
+                pane.getChildren().add(tokenImage);
+                tokenImage.setX(commonGoalCard1.getX() + 5 * k + commonGoalCard1.getFitWidth() * 0.6);
+                tokenImage.setY(commonGoalCard1.getY() + 5 * k + commonGoalCard1.getFitHeight() * 0.25);
+                tokenImage.setFitWidth(40);
+                tokenImage.setFitHeight(40);
+                tokenImage.setVisible(true);
+                tokenImage.toFront();
+                k++;
             }
-        });
+        }
+        if (commonGoalCards.size() == 2) {
+            String cardId = commonGoalCards.get(1).getId();
+            commonGoalCard2.setImage(new Image("graphics/commonGoalCards/common_" + cardId + ".jpg"));
+            Tooltip.install(commonGoalCard2, new Tooltip(Configuration.getCommonGoalCardDescription(cardId)));
+            commonGoalCard2.setVisible(true);
+            int k = 0;
+            List<ScoringToken> commonGoalCardTokens = gameView.getCommonGoalTokens(cardId);
+            Collections.reverse(commonGoalCardTokens);
+
+            // remove all the tokens from the pane
+            AnchorPane pane = (AnchorPane) commonGoalCard2.getParent();
+            pane.getChildren().removeIf(node -> node instanceof ImageView && node != commonGoalCard2);
+            for (ScoringToken token : commonGoalCardTokens) {
+                ImageView tokenImage = new ImageView("graphics/tokens/scoring_" + token.getPoints() + ".jpg");
+                pane.getChildren().add(tokenImage);
+                tokenImage.setX(commonGoalCard2.getX() + 5 * k + commonGoalCard2.getFitWidth() * 0.6);
+                tokenImage.setY(commonGoalCard2.getY() + 5 * k + commonGoalCard2.getFitHeight() * 0.25);
+                tokenImage.setFitWidth(40);
+                tokenImage.setFitHeight(40);
+                tokenImage.setVisible(true);
+                tokenImage.toFront();
+                k++;
+            }
+        }
     }
 
 
@@ -673,6 +699,63 @@ public class GameControllerFX implements Initializable {
         }
     }
 
+    private void updateHelper() {
+        // Clear helper area
+        for (Node node : updatesVBox.getChildren()) {
+            Platform.runLater(() -> updatesVBox.getChildren().remove(node));
+        }
+
+        if (latestGame.getCurrPlayer().getNickname().equals(nickname)) {
+            // Signals my turn!
+            Platform.runLater(() -> {
+                Label turnLabel = new Label("It's your turn!");
+                turnLabel.setFont(Font.font("System", FontWeight.BOLD, 18));
+                turnLabel.setEffect(new DropShadow(10, Color.WHITE));
+                turnLabel.setAlignment(Pos.CENTER);
+                updatesVBox.getChildren().add(turnLabel);
+            });
+
+            // Add helper text
+            String updateString = "";
+            switch (latestGame.getModelState()) {
+                case WAITING_SELECTION_TILE -> updateString = updateString + "Select the tiles from the board. \nClick Confirm when you are done.";
+                case WAITING_SELECTION_BOOKSHELF_COLUMN -> updateString = updateString + "Choose the column in which \nyou want to insert the tiles.";
+                case WAITING_1_SELECTION_TILE_FROM_HAND, WAITING_2_SELECTION_TILE_FROM_HAND, WAITING_3_SELECTION_TILE_FROM_HAND -> updateString = updateString + "Select one by one the tiles\n to insert from your hand.";
+                case END_GAME -> updateString = "The game is ended.";
+            }
+            String finalUpdateString = updateString;
+            Platform.runLater(() -> {
+                Label updatesLabel = new Label(finalUpdateString);
+                updatesLabel.setText(finalUpdateString);
+                updatesLabel.setFont(Font.font("System", FontWeight.BOLD, 18));
+                updatesLabel.setAlignment(Pos.CENTER);
+                updatesLabel.setEffect(new DropShadow(10, Color.WHITE));
+                updatesLabel.setVisible(true);
+                updatesVBox.getChildren().add(updatesLabel);
+            });
+        } else {
+            // Other player's turn
+            String helperString = "";
+            helperString = latestGame.getCurrPlayer().getNickname();
+            switch (latestGame.getModelState()) {
+                case WAITING_SELECTION_TILE -> helperString = helperString + " is selecting\ntiles from the board.\n ";
+                case WAITING_SELECTION_BOOKSHELF_COLUMN -> helperString = helperString + "\nis choosing the column.\n ";
+                case WAITING_1_SELECTION_TILE_FROM_HAND, WAITING_2_SELECTION_TILE_FROM_HAND, WAITING_3_SELECTION_TILE_FROM_HAND -> helperString = helperString + " is inserting\nthe tiles in the bookshelf.\n ";
+                case END_GAME -> helperString = "The game is ended.";
+            }
+            String finalHelperString = helperString;
+            Platform.runLater(() -> {
+                Label updatesLabel = new Label(finalHelperString);
+                updatesLabel.setText(finalHelperString);
+                updatesLabel.setAlignment(Pos.CENTER);
+                updatesLabel.setFont(Font.font("System", FontWeight.BOLD, 18));
+                updatesLabel.setEffect(new DropShadow(10, Color.WHITE));
+                updatesLabel.setVisible(true);
+                updatesVBox.getChildren().add(updatesLabel);
+            });
+        }
+    }
+
 
     private void updateMyPersGoal(PersonalGoalCard card) {
         myPersonalGoal.setImage(new Image("graphics/persGoalCards/Personal_Goals" + card.getId() + ".png"));
@@ -734,14 +817,9 @@ public class GameControllerFX implements Initializable {
         }
     }
 
-    public void setClient(Client client) {
-        this.client = client;
-    }
-
     ////////////////////////////////////////////////////////////////////////////
     /////////////////////////// UTILITY METHODS ///////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
-
     private void setOnHoverZoom(Node item, double defaultScale, double zoomedScale) {
         ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), item);
         scaleTransition.setToX(zoomedScale);
@@ -753,6 +831,10 @@ public class GameControllerFX implements Initializable {
         // Add event handlers to the card
         item.setOnMouseEntered(event -> scaleTransition.playFromStart());
         item.setOnMouseExited(event -> scaleRevertTransition.playFromStart());
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
     }
 
 
