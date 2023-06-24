@@ -503,17 +503,19 @@ public class GameControllerFX implements Initializable {
     }
 
     private void updateAmICurrPlayer(boolean amICurrPlayer) {
-        if (amICurrPlayer) {
-            myNickname.setFont(Font.font("System", FontWeight.BOLD, 20));
-            myNickname.setEffect(new DropShadow(15, Color.WHITE));
-            myNickname.setText(nickname + " \uD83C\uDFF3\uFE0F");
-            myNickname.setVisible(true);
-        } else {
-            myNickname.setFont(Font.font("System", FontWeight.BOLD, 12));
-            myNickname.setEffect(null);
-            myNickname.setText(nickname);
-            myNickname.setVisible(true);
-        }
+        Platform.runLater(() -> {
+            if (amICurrPlayer) {
+                myNickname.setFont(Font.font("System", FontWeight.BOLD, 20));
+                myNickname.setEffect(new DropShadow(15, Color.WHITE));
+                myNickname.setText(nickname + " \uD83C\uDFF3\uFE0F");
+                myNickname.setVisible(true);
+            } else {
+                myNickname.setFont(Font.font("System", FontWeight.BOLD, 12));
+                myNickname.setEffect(null);
+                myNickname.setText(nickname);
+                myNickname.setVisible(true);
+            }
+        });
     }
 
     private void updateTilesConfirmButton() {

@@ -63,9 +63,8 @@ public class EndGameControllerFX implements Initializable {
 
     public void handleExitGame() {
         javafx.application.Platform.exit();
+        System.exit(0);
     }
-
-
 
 
 }
