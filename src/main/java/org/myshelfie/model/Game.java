@@ -199,7 +199,7 @@ public class Game implements Serializable {
 
     /**
      * Return a list of pairs (player, isWinner) ordered by score descending
-     * @return
+     *@return
      */
     public List<Pair<Player,Boolean>> getRanking(){
         List<Player> playersSortedByScore = players.stream()
@@ -211,7 +211,6 @@ public class Game implements Serializable {
         List<Player> playersWithMaxPoints = playersOnline.stream()
                 .filter(player -> player.getTotalPoints() == maxPoints).toList();
         List<Pair<Player,Boolean>> ranking = new ArrayList<>();
-        playersWithMaxPoints.forEach(player -> System.out.println(player.getNickname() + " " + player.getTotalPoints()));
         for (Player p : playersSortedByScore) {
             if (playersWithMaxPoints.contains(p))
                 ranking.add(new Pair<>(p, true));
