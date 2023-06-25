@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * Common Goal Card: four cards are of this type.
  * - card 5: Three columns each formed by 6 tiles of maximum three different types.
  *           One column can show the same or a different combination of another column.
  * - card 8: Four lines each formed by 5 tiles of maximum three different types. One line can
@@ -40,10 +41,10 @@ public class SlightlyDifferentLines extends CommonGoalCard {
     }
 
     /**
-     * Check satisfaction of constraint in the form of: entire rows or entire columns made of tiles with at least numMinTypes different
-     * types or with up to numMaxTypes different types.
-     * @param bookshelf Bookshelf to be analysed
-     * @return Boolean.TRUE if the constraints are satisfied, FALSE if not
+     * Check if the goal is satisfied.
+     * @param bookshelf the bookshelf to check
+     * @return true if the goal is satisfied, false otherwise
+     * @throws WrongArgumentException when trying to access a tile outside the bookshelf
      */
     @Override
     public Boolean checkGoalSatisfied(Bookshelf bookshelf) throws WrongArgumentException {

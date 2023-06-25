@@ -1,5 +1,8 @@
 package org.myshelfie.model;
 
+/**
+ * Enumerates the possible states of a Game.
+ */
 public enum ModelState {
 
     WAITING_SELECTION_TILE,

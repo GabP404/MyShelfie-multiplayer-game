@@ -3,9 +3,12 @@ package org.myshelfie.model;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * Class representing a Tile.
+ */
 public class Tile implements Serializable {
-    private ItemType itemType;
-    private int itemId;
+    private final ItemType itemType;
+    private final int itemId;
 
 
     public Tile(ItemType itemType) {
@@ -13,10 +16,6 @@ public class Tile implements Serializable {
         this.itemId = 1;
     }
 
-
-    public boolean equals(Tile t) {
-        return this.itemType.equals(t.getItemType()) && this.itemId == t.getItemId();
-    }
 
     public Tile(Tile t) {
         this.itemType = t.getItemType();
@@ -28,11 +27,21 @@ public class Tile implements Serializable {
         this.itemId = itemId;
     }
 
+    /**
+     * @return The type of the tile.
+     */
     public ItemType getItemType() {
         return itemType;
     }
 
+    /**
+     * @return The id of this tile, used to distinguish different tiles of the same type.
+     */
     public int getItemId() { return itemId; }
+
+    public boolean equals(Tile t) {
+        return this.itemType.equals(t.getItemType()) && this.itemId == t.getItemId();
+    }
 
     @Override
     public boolean equals(Object o) {
