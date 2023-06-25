@@ -213,12 +213,22 @@ public class GameController implements Serializable {
     }
 
     public void setOnlinePlayer(String nickname) {
-        // If the game is paused, resume it from the starting of the
-        if (this.game.getModelState() == ModelState.PAUSE) {
-            this.game.resumeStateAfterPause();
-        }
+        // If the game was paused, resume it
         this.game.getPlayers().stream().filter(x -> x.getNickname().equals(nickname)).toList().get(0).setOnline(true);
         if(game.getNumOnlinePlayers() > 1) {
+            if (this.game.getModelState() == ModelState.PAUSE) {
+                this.game.resumeStateAfterPause();
+
+                // If the current player is still offline, set it to the next online player so that the others can continue playing
+                if (!this.game.getCurrPlayer().isOnline()) {
+                    // Force setting the player online and offline again, to trigger the handling
+                    // of the turns and possibly clearing the hand of the player
+                    // Note that this does not send an update to the players, as
+                    // `sendToClients` is called only at the end of the method
+                    this.game.getCurrPlayer().setOnline(true);
+                    setPlayerOffline(this.game.getCurrPlayer().getNickname());
+                }
+            }
             if(isTimerRunning())
                 stopTimer();
         }
