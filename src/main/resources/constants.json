@@ -463,7 +463,7 @@
     "5": 5,
     "6": 8
   },
-  "timer_timeout": 60000,
+  "timer_timeout": 30000,
   "server": {
     "address": "localhost",
     "socket_port": 1234,
@@ -471,5 +471,20 @@
     "backup_file_name": "serverBackup.ser",
     "log_file_name": "server.log",
     "default_logging_level": "INFO"
+  },
+  "common_goal_cards_description": {
+    "1": "Six groups each containing at least 2 tiles of the same type. The tiles of one group can be different from those of another group.",
+    "2": "Four groups each containing at least 4 tiles of the same type. The tiles of one group can be different from those of another group.",
+    "3": "Four tiles of the same type in the four corners of the bookshelf.",
+    "4": "Two groups each containing 4 tiles of the same type in a 2x2 square. The tiles of one square can be different from those of the other square.",
+    "5": "Three columns each formed by 6 tiles of maximum three different types. One column can show the same or a different combination of another column.",
+    "6": "Eight tiles of the same type. There’s no restriction about the position of these tiles.",
+    "7": "Five tiles of the same type forming a diagonal.",
+    "8": "Four lines each formed by 5 tiles of maximum three different types. One line can show the same or a different combination of another line.",
+    "9": "Two columns each formed by 6 different types of tiles.",
+    "10": "Two lines each formed by 5 different types of tiles. One line can show the same or a different combination of the other line.",
+    "11": "Five tiles of the same type forming an X.",
+    "12": "Five columns of increasing or decreasing height. Tiles can be of any type."
   }
+
 }

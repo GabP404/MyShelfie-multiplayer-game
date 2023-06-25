@@ -15,7 +15,7 @@ public class Player implements Serializable {
     private Boolean hasFinalToken;
     private PersonalGoalCard personalGoal;
     private Bookshelf bookshelf;
-    private List<Tile> tilesPicked;
+    private List<LocatedTile> tilesPicked;
     private int selectedColumn;
     private boolean online;
 
@@ -32,7 +32,7 @@ public class Player implements Serializable {
         this.hasFinalToken = false;
         this.personalGoal = persGoal;
         this.bookshelf = new Bookshelf();
-        this.tilesPicked = new ArrayList<Tile>();
+        this.tilesPicked = new ArrayList<>();
         this.selectedColumn = -1;
         this.online = true;
     }
@@ -68,7 +68,8 @@ public class Player implements Serializable {
      * @param t The token
      */
     public void addScoringToken(ScoringToken t) {
-        this.commonGoalTokens.add(t);
+        if (t == null) return;
+        commonGoalTokens.add(t);
         Server.eventManager.notify(GameEvent.TOKEN_UPDATE, this);
     }
 
@@ -79,19 +80,19 @@ public class Player implements Serializable {
         return commonGoalTokens;
     }
 
-    public List<Tile> getTilesPicked() {
+    public List<LocatedTile> getTilesPicked() {
         return tilesPicked;
     }
-    public void setTilesPicked(List<Tile> tilesPicked) {
+    public void setTilesPicked(List<LocatedTile> tilesPicked) {
         this.tilesPicked = new ArrayList<>(tilesPicked);
     }
 
-    public Tile getTilePicked(int index) throws WrongArgumentException {
+    public LocatedTile getTilePicked(int index) throws WrongArgumentException {
         if(index < 0 || index > this.tilesPicked.size()) throw new WrongArgumentException("Tile's index out of bound");
         return this.tilesPicked.get(index);
     }
 
-    public void addTilesPicked(Tile t) throws WrongArgumentException{
+    public void addTilesPicked(LocatedTile t) throws WrongArgumentException{
         if(this.tilesPicked.size() == DIM_TILESPICKED) throw new WrongArgumentException("Maximum number of tiles picked reached");
         this.tilesPicked.add(t);
     }
@@ -127,17 +128,17 @@ public class Player implements Serializable {
         return points_group;
     }
 
-    public void removeTilesPicked(Tile t) throws WrongArgumentException{
+    public void removeTilesPicked(LocatedTile t) throws WrongArgumentException{
         if (!this.tilesPicked.contains(t)) throw new WrongArgumentException("Tile not found");
         this.tilesPicked.remove(t);
         Server.eventManager.notify(GameEvent.TILES_PICKED_UPDATE, this);
     }
 
-    public void removeTilesPicked(List<Tile> tilesRemoved) throws WrongArgumentException{
-        for(Tile t: tilesRemoved) {
+    public void removeTilesPicked(List<LocatedTile> tilesRemoved) throws WrongArgumentException{
+        for(LocatedTile t: tilesRemoved) {
             if(!this.tilesPicked.contains(t)) throw new WrongArgumentException("Tile not found");
         }
-        for(Tile t: tilesRemoved) {
+        for(LocatedTile t: tilesRemoved) {
             this.tilesPicked.remove(t);
         }
     }

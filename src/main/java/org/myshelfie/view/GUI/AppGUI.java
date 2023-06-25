@@ -8,16 +8,9 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import org.myshelfie.controller.Command;
-import org.myshelfie.controller.WrongTurnException;
-import org.myshelfie.model.*;
-import org.myshelfie.network.messages.gameMessages.GameView;
+import org.myshelfie.model.Game;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 public class AppGUI extends Application {
 
@@ -49,9 +42,7 @@ public class AppGUI extends Application {
             scene = new Scene(new Label("Error loading the scene"));
         }
         stage.setScene(scene);
-        stage.setResizable(false);
         stage.setTitle("MyShelfie");
-        stage.setResizable(true);
         stage.show();
         controller = fxmlLoader.getController();
     }

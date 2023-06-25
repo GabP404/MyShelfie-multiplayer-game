@@ -11,6 +11,8 @@ public enum Color {
     YELLOW("\033[33m"),
     BLUE("\033[34m"),
     LIGHT_GRAY("\033[37m"),
+    UWhite("\033[4;37m"),
+    ULight_gray("\033[4;38;2;105;105;105m"),
     MAGENTA("\033[35m"),
     CYAN("\033[36m"),
     BG_RED("\033[41m"),

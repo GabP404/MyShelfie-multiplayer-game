@@ -70,7 +70,7 @@ public class GameControllerTest {
         assertEquals(game.getModelState(),ModelState.WAITING_2_SELECTION_TILE_FROM_HAND);
         assertEquals(game.getCurrPlayer().getSelectedColumn(),0);
 
-        List<Tile> x = game.getCurrPlayer().getTilesPicked();
+        List<LocatedTile> x = game.getCurrPlayer().getTilesPicked();
         SelectedTileFromHandCommandMessage stfhc = new SelectedTileFromHandCommandMessage("User1",gameName, 0, x.get(1).getItemType());
         wrapper = new CommandMessageWrapper(stfhc, UserInputEvent.SELECTED_HAND_TILE);
         messageType = wrapper.getType();
@@ -92,7 +92,7 @@ public class GameControllerTest {
 
     @Test
     public void testEndTurn() throws WrongArgumentException, IOException, URISyntaxException {
-        Tile x = null;
+        LocatedTile x = null;
         assertNotNull(gameController.getGame());
         gameController.setupGame();
         Game game = gameController.getGame();
@@ -102,7 +102,7 @@ public class GameControllerTest {
             }
         }
         assertNotNull(game.getBoard().getTile(Board.DIMBOARD - 1,4));
-        x = game.getBoard().removeTile(Board.DIMBOARD - 1,4);
+        x = (LocatedTile) game.getBoard().removeTile(Board.DIMBOARD - 1,4);
         game.getCurrPlayer().addTilesPicked(x);
         game.setModelState(ModelState.WAITING_1_SELECTION_TILE_FROM_HAND);
         game.getCurrPlayer().setSelectedColumn(0);

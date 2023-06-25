@@ -18,6 +18,7 @@ public final class ImmutablePlayer  implements Serializable {
     private final int personalGoalPoints;
     private final int publicPoints;
     private final int totalPoints;
+    private final boolean online;
     private static int DIM_TILESPICKED = 3;
 
     public ImmutablePlayer(Player p) {
@@ -36,6 +37,7 @@ public final class ImmutablePlayer  implements Serializable {
         } catch (WrongArgumentException e) {
             throw new RuntimeException(e);
         }
+        this.online = p.isOnline();
 
     }
 
@@ -90,5 +92,9 @@ public final class ImmutablePlayer  implements Serializable {
             x+= s.getPoints();
         }
         return x;
+    }
+
+    public boolean isOnline() {
+        return online;
     }
 }

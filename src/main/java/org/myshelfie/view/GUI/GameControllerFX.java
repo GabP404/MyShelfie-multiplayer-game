@@ -1,5 +1,7 @@
 package org.myshelfie.view.GUI;
 
+import javafx.geometry.Pos;
+import javafx.scene.shape.Rectangle;
 import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -9,17 +11,16 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.util.Duration;
+import org.myshelfie.controller.Configuration;
 import org.myshelfie.model.*;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.commandMessages.UserInputEvent;
@@ -75,10 +76,22 @@ public class GameControllerFX implements Initializable {
     private VBox otherPlayersLayout;
 
     @FXML
+    private StackPane overlay;
+
+    @FXML
+    private Rectangle overlayBackground;
+
+    @FXML
+    private ImageView spinner;
+
+    @FXML
     private Button tilesConfirmButton;
 
     @FXML
     private GridPane tilesHandGrid;
+
+    @FXML
+    private VBox updatesVBox;
 
     private boolean firstSetupDone = false;
 
@@ -97,6 +110,7 @@ public class GameControllerFX implements Initializable {
     final double TILE_DIM = 45;
 
     private Client client;
+    private boolean isPaused = false;
 
 
     @Override
@@ -104,6 +118,9 @@ public class GameControllerFX implements Initializable {
         latestGame = null;
         otherPlayerItemControllers = new HashMap<>();
         unconfirmedSelectedTiles = new ArrayList<>();
+
+        overlayBackground.widthProperty().bind(overlay.widthProperty());
+        overlayBackground.heightProperty().bind(overlay.heightProperty());
 
         // set the correct size for the board
         boardGrid.prefWidthProperty().bind(boardImage.fitWidthProperty());
@@ -126,12 +143,25 @@ public class GameControllerFX implements Initializable {
     }
 
     public void showErrorDialog(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error!");
-        alert.setHeaderText("Message:");
-        alert.setContentText(message);
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error!");
+            alert.setHeaderText("A small message for you from the MyShelfie overlord");
+            alert.setContentText(message);
 
-        alert.showAndWait();
+            alert.showAndWait();
+        });
+    }
+
+    public void showInfoDialog(String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("FYI");
+            alert.setHeaderText("A small message for you by the MyShelfie overlord");
+            alert.setContentText(message);
+
+            alert.showAndWait();
+        });
     }
 
 
@@ -142,23 +172,47 @@ public class GameControllerFX implements Initializable {
      * @param game
      */
     public void update(GameEvent ev, GameView game) {
+        Platform.runLater(() -> updateButForReal(ev, game));
+    }
+
+    private void updateButForReal(GameEvent ev, GameView game) {
         // TODO: check that all the GameEvents are covered
         latestGame = game;
         System.out.println("STATUS: "+ game.getModelState());
         ImmutablePlayer me = game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get();
 
+        if (game.getModelState().equals(ModelState.PAUSE)) {
+            isPaused = true;
+            showInfoDialog("The game is paused because you are the only online player!");
+            return;
+        }
+
+        if (isPaused) {
+            if (!game.getModelState().equals(ModelState.PAUSE)) {
+                isPaused = false;
+                showInfoDialog("The game resumed!");
+            }
+        }
+
         if (ev != GameEvent.PLAYER_ONLINE_UPDATE) {
             unconfirmedSelectedTiles.clear();
         }
 
+        if (!firstSetupDone) {
+            overlay.setVisible(false);
+            updateEverything(game);
+            firstSetupDone = true;
+            return;
+        }
+
         switch (ev) {
             case BOARD_UPDATE -> {
-                if (!firstSetupDone) {
-                    updateEverything(game);
-                    return;
-                }
                 // Update board
                 updateBoard(game.getBoard());
+                updateMyBookshelf(me.getBookshelf());
+                udpateColSelectionArrows();
+                updateCommonGoalCards(game);
+                updateMyCommonGoalToken(me.getCommonGoalTokens());
             }
             case TILES_PICKED_UPDATE -> {
                 updateBoard(game.getBoard());
@@ -167,14 +221,23 @@ public class GameControllerFX implements Initializable {
                 udpateColSelectionArrows();
             }
             case TOKEN_STACK_UPDATE -> {
-                // Update common goal cards
                 updateCommonGoalCards(game);
+                updateMyCommonGoalToken(me.getCommonGoalTokens());
             }
             case CURR_PLAYER_UPDATE -> {
                 updateAmICurrPlayer(game.getCurrPlayer().getNickname().equals(nickname));
+                updateCommonGoalCards(game);
+                updateMyCommonGoalToken(me.getCommonGoalTokens());
+            }
+            case TOKEN_UPDATE -> {
+                updateMyPersGoal(me.getPersonalGoal());
+                updateOtherPlayers(game);
+                updateCommonGoalCards(game);
+                updateMyCommonGoalToken(me.getCommonGoalTokens());
             }
             case FINAL_TOKEN_UPDATE -> {
                 updateMyFinalToken((Boolean) game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get().getHasFinalToken());
+                updateCommonGoalCards(game);
             }
             case ERROR -> {
                 updateEverything(game);
@@ -182,9 +245,12 @@ public class GameControllerFX implements Initializable {
             }
             default -> {
                 System.out.println("Entering the default updates...");
+                updateEverything(game);
+                return;
             }
         }
         // Actions that are performed on every update
+        updateHelper();
         updateTilesConfirmButton();
         updateMyBookshelf(me.getBookshelf());
         updateMyPersGoal(me.getPersonalGoal());
@@ -194,6 +260,8 @@ public class GameControllerFX implements Initializable {
     }
 
     private void updateEverything(GameView game) {
+        // Update helper
+        updateHelper();
         // Update board
         updateBoard(game.getBoard());
         // Update other players (note that they are controlled by a different controller)
@@ -251,8 +319,8 @@ public class GameControllerFX implements Initializable {
                         // Create a ScaleTransition with desired properties
                         double finalScale = 1.2; // The final scale value
                         ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), tileImage);
-                        scaleTransition.setToX(finalScale * tileImage.getScaleX());
-                        scaleTransition.setToY(finalScale * tileImage.getScaleY());
+                        scaleTransition.setToX(finalScale);
+                        scaleTransition.setToY(finalScale);
                         scaleTransition.setAutoReverse(false);
                         // Set the final scale values directly at the end of the animation
                         scaleTransition.setOnFinished(event -> {
@@ -264,8 +332,8 @@ public class GameControllerFX implements Initializable {
                     }
                 } else {
                     // un-pick the tile
-                    tileImage.setScaleX(0.9);
-                    tileImage.setScaleY(0.9);
+                    tileImage.setScaleX(1);
+                    tileImage.setScaleY(1);
                     tileImage.setEffect(new DropShadow(5, Color.BLACK));
                     unconfirmedSelectedTiles.remove(t);
                     System.out.println("Deselected tile: " + row + " " + col);
@@ -375,6 +443,8 @@ public class GameControllerFX implements Initializable {
             scaleTransition.setOnFinished(event -> {
                 System.out.println("Selected tile from hand");
                 this.client.eventManager.notify(UserInputEvent.SELECTED_HAND_TILE, tileIndex);
+                tileImage.setOnMouseClicked(null);
+                tileImage.setVisible(false);
             });
 
             // Play the animation
@@ -439,6 +509,7 @@ public class GameControllerFX implements Initializable {
                     arrow.setVisible(true);
                     int copyI = i;
                     arrow.setOnMouseClicked(event -> onArrowClicked(copyI, arrow));
+                    setOnHoverZoom(arrow, 1, 1.075);
                 } else {
                     ImageView arrow = (ImageView) colSelectionArrowsGrid.getChildren().get(i);
                     arrow.setImage(null);
@@ -459,10 +530,12 @@ public class GameControllerFX implements Initializable {
         if (amICurrPlayer) {
             myNickname.setFont(Font.font("System", FontWeight.BOLD, 20));
             myNickname.setEffect(new DropShadow(15, Color.WHITE));
+            myNickname.setText(nickname + " \uD83C\uDFF3\uFE0F");
             myNickname.setVisible(true);
         } else {
             myNickname.setFont(Font.font("System", FontWeight.BOLD, 12));
             myNickname.setEffect(null);
+            myNickname.setText(nickname);
             myNickname.setVisible(true);
         }
     }
@@ -506,48 +579,57 @@ public class GameControllerFX implements Initializable {
      * @param gameView
      */
     private void updateCommonGoalCards(GameView gameView) {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                List<CommonGoalCard> commonGoalCards = gameView.getCommonGoals();
+        List<CommonGoalCard> commonGoalCards = gameView.getCommonGoals();
 
-                if (commonGoalCards.size() >= 1) {
-                    commonGoalCard1.setImage(new Image("graphics/commonGoalCards/" + commonGoalCards.get(0).getId() + ".jpg"));
-                    commonGoalCard1.setVisible(true);
-                    commonGoalCard2.setVisible(false);
-                    int k = 0;
-                    for (ScoringToken token : gameView.getCommonGoalTokens(commonGoalCards.get(0).getId())) {
-                        AnchorPane pane = (AnchorPane) commonGoalCard1.getParent();
-                        ImageView tokenImage = new ImageView("graphics/tokens/scoring_" + token.getPoints() + ".jpg");
-                        pane.getChildren().add(tokenImage);
-                        tokenImage.setX(commonGoalCard1.getX() + 5 * k + commonGoalCard1.getFitWidth() * 0.6);
-                        tokenImage.setY(commonGoalCard1.getY() + 5 * k + commonGoalCard1.getFitHeight() * 0.25);
-                        tokenImage.setFitWidth(40);
-                        tokenImage.setFitHeight(40);
-                        tokenImage.setVisible(true);
-                        tokenImage.toFront();
-                        k++;
-                    }
-                }
-                if (commonGoalCards.size() == 2) {
-                    commonGoalCard2.setImage(new Image("graphics/commonGoalCards/" + commonGoalCards.get(1).getId() + ".jpg"));
-                    commonGoalCard2.setVisible(true);
-                    int k = 0;
-                    for (ScoringToken token : gameView.getCommonGoalTokens(commonGoalCards.get(1).getId())) {
-                        AnchorPane pane = (AnchorPane) commonGoalCard2.getParent();
-                        ImageView tokenImage = new ImageView("graphics/tokens/scoring_" + token.getPoints() + ".jpg");
-                        pane.getChildren().add(tokenImage);
-                        tokenImage.setX(commonGoalCard2.getX() + 5 * k + commonGoalCard2.getFitWidth() * 0.6);
-                        tokenImage.setY(commonGoalCard2.getY() + 5 * k + commonGoalCard2.getFitHeight() * 0.25);
-                        tokenImage.setFitWidth(40);
-                        tokenImage.setFitHeight(40);
-                        tokenImage.setVisible(true);
-                        tokenImage.toFront();
-                        k++;
-                    }
-                }
+        if (commonGoalCards.size() >= 1) {
+            String cardId = commonGoalCards.get(0).getId();
+            commonGoalCard1.setImage(new Image("graphics/commonGoalCards/common_" + cardId + ".jpg"));
+            Tooltip.install(commonGoalCard1, new Tooltip(Configuration.getCommonGoalCardDescription(cardId)));
+            commonGoalCard1.setVisible(true);
+            commonGoalCard2.setVisible(false);
+            int k = 0;
+            List<ScoringToken> commonGoalCardTokens = gameView.getCommonGoalTokens(cardId);
+            Collections.reverse(commonGoalCardTokens);
+
+            // remove all the tokens from the pane
+            AnchorPane pane = (AnchorPane) commonGoalCard1.getParent();
+            pane.getChildren().removeIf(node -> node instanceof ImageView && node != commonGoalCard1);
+            for (ScoringToken token : commonGoalCardTokens) {
+                ImageView tokenImage = new ImageView("graphics/tokens/scoring_" + token.getPoints() + ".jpg");
+                pane.getChildren().add(tokenImage);
+                tokenImage.setX(commonGoalCard1.getX() + 5 * k + commonGoalCard1.getFitWidth() * 0.6);
+                tokenImage.setY(commonGoalCard1.getY() + 5 * k + commonGoalCard1.getFitHeight() * 0.25);
+                tokenImage.setFitWidth(40);
+                tokenImage.setFitHeight(40);
+                tokenImage.setVisible(true);
+                tokenImage.toFront();
+                k++;
             }
-        });
+        }
+        if (commonGoalCards.size() == 2) {
+            String cardId = commonGoalCards.get(1).getId();
+            commonGoalCard2.setImage(new Image("graphics/commonGoalCards/common_" + cardId + ".jpg"));
+            Tooltip.install(commonGoalCard2, new Tooltip(Configuration.getCommonGoalCardDescription(cardId)));
+            commonGoalCard2.setVisible(true);
+            int k = 0;
+            List<ScoringToken> commonGoalCardTokens = gameView.getCommonGoalTokens(cardId);
+            Collections.reverse(commonGoalCardTokens);
+
+            // remove all the tokens from the pane
+            AnchorPane pane = (AnchorPane) commonGoalCard2.getParent();
+            pane.getChildren().removeIf(node -> node instanceof ImageView && node != commonGoalCard2);
+            for (ScoringToken token : commonGoalCardTokens) {
+                ImageView tokenImage = new ImageView("graphics/tokens/scoring_" + token.getPoints() + ".jpg");
+                pane.getChildren().add(tokenImage);
+                tokenImage.setX(commonGoalCard2.getX() + 5 * k + commonGoalCard2.getFitWidth() * 0.6);
+                tokenImage.setY(commonGoalCard2.getY() + 5 * k + commonGoalCard2.getFitHeight() * 0.25);
+                tokenImage.setFitWidth(40);
+                tokenImage.setFitHeight(40);
+                tokenImage.setVisible(true);
+                tokenImage.toFront();
+                k++;
+            }
+        }
     }
 
 
@@ -601,6 +683,7 @@ public class GameControllerFX implements Initializable {
                 tileImage.setFitWidth(SELECTED_TILE_DIM);
                 tileImage.setEffect(new DropShadow(10, Color.BLACK));
                 tileImage.setOnMouseClicked(event -> onTileFromHandClicked(tileImage, finalI));
+                setOnHoverZoom(tileImage, 1, 1.05);
                 tileImage.setVisible(true);
 
                 tilesHandGrid.add(tileImage, finalI, 0);
@@ -615,11 +698,71 @@ public class GameControllerFX implements Initializable {
         }
     }
 
+    private void updateHelper() {
+        // Clear helper area
+        for (Node node : updatesVBox.getChildren()) {
+            Platform.runLater(() -> updatesVBox.getChildren().remove(node));
+        }
+
+        if (latestGame.getCurrPlayer().getNickname().equals(nickname)) {
+            // Signals my turn!
+            Platform.runLater(() -> {
+                Label turnLabel = new Label("It's your turn!");
+                turnLabel.setFont(Font.font("System", FontWeight.BOLD, 18));
+                turnLabel.setEffect(new DropShadow(10, Color.WHITE));
+                turnLabel.setAlignment(Pos.CENTER);
+                updatesVBox.getChildren().add(turnLabel);
+            });
+
+            // Add helper text
+            String updateString = "";
+            switch (latestGame.getModelState()) {
+                case WAITING_SELECTION_TILE -> updateString = updateString + "Select the tiles from the board. \nClick Confirm when you are done.";
+                case WAITING_SELECTION_BOOKSHELF_COLUMN -> updateString = updateString + "Choose the column in which \nyou want to insert the tiles.";
+                case WAITING_1_SELECTION_TILE_FROM_HAND, WAITING_2_SELECTION_TILE_FROM_HAND, WAITING_3_SELECTION_TILE_FROM_HAND -> updateString = updateString + "Select one by one the tiles\n to insert from your hand.";
+                case END_GAME -> updateString = "The game is ended.";
+            }
+            String finalUpdateString = updateString;
+            Platform.runLater(() -> {
+                Label updatesLabel = new Label(finalUpdateString);
+                updatesLabel.setText(finalUpdateString);
+                updatesLabel.setFont(Font.font("System", FontWeight.BOLD, 18));
+                updatesLabel.setAlignment(Pos.CENTER);
+                updatesLabel.setEffect(new DropShadow(10, Color.WHITE));
+                updatesLabel.setVisible(true);
+                updatesVBox.getChildren().add(updatesLabel);
+            });
+        } else {
+            // Other player's turn
+            String helperString = "";
+            helperString = latestGame.getCurrPlayer().getNickname();
+            switch (latestGame.getModelState()) {
+                case WAITING_SELECTION_TILE -> helperString = helperString + " is selecting\ntiles from the board.\n ";
+                case WAITING_SELECTION_BOOKSHELF_COLUMN -> helperString = helperString + "\nis choosing the column.\n ";
+                case WAITING_1_SELECTION_TILE_FROM_HAND, WAITING_2_SELECTION_TILE_FROM_HAND, WAITING_3_SELECTION_TILE_FROM_HAND -> helperString = helperString + " is inserting\nthe tiles in the bookshelf.\n ";
+                case END_GAME -> helperString = "The game is ended.";
+            }
+            String finalHelperString = helperString;
+            Platform.runLater(() -> {
+                Label updatesLabel = new Label(finalHelperString);
+                updatesLabel.setText(finalHelperString);
+                updatesLabel.setAlignment(Pos.CENTER);
+                updatesLabel.setFont(Font.font("System", FontWeight.BOLD, 18));
+                updatesLabel.setEffect(new DropShadow(10, Color.WHITE));
+                updatesLabel.setVisible(true);
+                updatesVBox.getChildren().add(updatesLabel);
+            });
+        }
+    }
+
 
     private void updateMyPersGoal(PersonalGoalCard card) {
         myPersonalGoal.setImage(new Image("graphics/persGoalCards/Personal_Goals" + card.getId() + ".png"));
         myPersonalGoal.setFitHeight(PERSONAL_CARD_HEIGHT);
         myPersonalGoal.setEffect(new DropShadow(10, Color.BLACK));
+
+        setOnHoverZoom(myPersonalGoal, 1, 1.2);
+
         myPersonalGoal.setVisible(true);
     }
 
@@ -656,6 +799,9 @@ public class GameControllerFX implements Initializable {
         tileImage.setFitWidth(TILE_DIM);
         tileImage.setEffect(new DropShadow(5, Color.BLACK));
 
+        // Set on hover effect
+        setOnHoverZoom(tileImage, 1, 1.07);
+
         boardGrid.add(tileImage, col, row);
     }
 
@@ -670,13 +816,25 @@ public class GameControllerFX implements Initializable {
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    /////////////////////////// UTILITY METHODS ///////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+    private void setOnHoverZoom(Node item, double defaultScale, double zoomedScale) {
+        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), item);
+        scaleTransition.setToX(zoomedScale);
+        scaleTransition.setToY(zoomedScale);
+        // Create a ScaleTransition for revert to initial size
+        ScaleTransition scaleRevertTransition = new ScaleTransition(Duration.millis(200), item);
+        scaleRevertTransition.setToX(defaultScale);
+        scaleRevertTransition.setToY(defaultScale);
+        // Add event handlers to the card
+        item.setOnMouseEntered(event -> scaleTransition.playFromStart());
+        item.setOnMouseExited(event -> scaleRevertTransition.playFromStart());
+    }
+
     public void setClient(Client client) {
         this.client = client;
     }
-
-
-
-
 
 
 }
