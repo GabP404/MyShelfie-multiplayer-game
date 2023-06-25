@@ -2,16 +2,15 @@ package org.myshelfie.controller;
 
 import org.myshelfie.model.*;
 import org.myshelfie.network.messages.commandMessages.*;
-
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.server.Server;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 public class GameController implements Serializable {
 
@@ -242,7 +241,6 @@ public class GameController implements Serializable {
     public void queueAndExecuteCommand(CommandMessage queuedCommand, UserInputEvent queuedEvent) {
         commandExecutor.execute(() -> {
             executeCommand(queuedCommand, queuedEvent);
-            System.out.println("Executed command " + queuedCommand.getClass().getSimpleName());
         });
     }
 

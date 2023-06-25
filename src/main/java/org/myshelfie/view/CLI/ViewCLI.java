@@ -258,6 +258,7 @@ public class ViewCLI implements View{
             clear();
             printEndGameScreen(game, nickname);
             setCursor(inputOffsetX, inputOffsetY);
+            client.stopHeartbeatThread();
         }
         else    //else print the new gameView
         {

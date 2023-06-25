@@ -4,7 +4,6 @@ import org.myshelfie.controller.Configuration;
 import org.myshelfie.controller.GameController;
 import org.myshelfie.controller.LobbyController;
 import org.myshelfie.model.util.Pair;
-import org.myshelfie.network.server.ServerEventManager;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.client.ClientRMIInterface;
 import org.myshelfie.network.messages.commandMessages.*;
@@ -169,6 +168,9 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
      * @param client the client to unregister
      */
     public void unregister(Client client) {
+        if (client == null) {
+            return;
+        }
         this.clients.remove(client);
         GameListener toUnsubscribe = (GameListener) eventManager.getListener(GameEvent.class, (l) -> {
             GameListener gl = (GameListener) l;
@@ -189,13 +191,19 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
         //Get the client from the nickname sent in the message
         Client client = this.getClient(msg.getMessage().getNickname());
         if (client == null) {
+            // Ignore heartbeat messages, as they probably come from clients that have just been unregistered because
+            // their game has ended
+            if (msg.getType() == UserInputEvent.HEARTBEAT) {
+                logger.fine("Received heartbeat from client " + msg.getMessage().getNickname() + " that is not registered anymore - ignoring");
+                return;
+            }
             throw new RemoteException("Client not registered!");
         }
 
         // unwrap the message
         UserInputEvent messageType = msg.getType();
         CommandMessage messageCommand = msg.getMessage();
-        logger.fine("Server received event " + messageType);
+        logger.fine("Server received event " + messageType + " from " + client.getNickname());
 
         // If the message is a heartbeat, update the last heartbeat time of the client and return (nothing to execute)
         if (messageType == UserInputEvent.HEARTBEAT) {

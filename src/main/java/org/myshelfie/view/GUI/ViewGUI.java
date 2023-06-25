@@ -143,6 +143,7 @@ public class ViewGUI extends Application implements View  {
     public void update(GameView msg, GameEvent ev) {
         this.gameName = msg.getGameName();
         if(ev == GameEvent.GAME_END || msg.getModelState() == ModelState.END_GAME) {
+            client.stopHeartbeatThread();
             setScene("EndGame");
             Platform.runLater(() -> {
                 endGameControllerFX.createRankingTable(msg);
