@@ -6,11 +6,9 @@ import java.util.HashMap;
 
 public class JoinGameCommand implements Command{
 
-    private HashMap<String,GameController> gameControllers;
-
-    private String nickname;
-
-    private String gameName;
+    private final HashMap<String,GameController> gameControllers;
+    private final String nickname;
+    private final String gameName;
 
 
     public JoinGameCommand(HashMap<String, GameController> gameControllers, JoinGameMessage message){;
@@ -19,6 +17,10 @@ public class JoinGameCommand implements Command{
         this.gameName = message.getGameName();
     }
 
+    /**
+     * Check if the game is joinable and add the player to the list of players of the corresponding {@link GameController}
+     * @throws IllegalArgumentException If the game is not found or not joinable
+     */
     @Override
     public void execute() throws IllegalArgumentException {
         if(!gameControllers.containsKey(gameName))

@@ -84,8 +84,9 @@ public class Configuration {
     }
 
     /**
-     * Get a map of the number of completed goals to the number of points
-     * @return
+     * Return the association between the number of tiles matching a personal goal
+     * and the corresponding number of points.
+     * @return The map of points for each number of matches
      */
     static public Map<Integer, Integer> getPersonalGoalPoints() {
         JSONObject jo = getJSON().getJSONObject("personal_goal_cards");
@@ -231,8 +232,8 @@ public class Configuration {
     }
 
     /**
-     * Get the name of the file used to backup the server state.
-     * @return The name of the file used to backup the server state
+     * Get the name of the file used to back up the server state.
+     * @return The name of the file used to back up the server state
      */
     public static String getServerBackupFileName() {
         JSONObject serverInfo = getJSON().getJSONObject("server");

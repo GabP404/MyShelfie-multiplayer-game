@@ -9,24 +9,26 @@ import java.util.UUID;
 
 public class CreateGameCommand implements Command {
 
-    private HashMap<String,GameController> gameControllers;
+    private final HashMap<String, GameController> gameControllers;
 
-    private String nickname;
+    private final int numPlayerGame;
 
-    private int numPlayerGame;
+    private final int numGoalCards;
 
-    private int numGoalCards;
-
-    private String gameName;
+    private final String gameName;
 
     public CreateGameCommand(HashMap<String,GameController> gameControllers, CreateGameMessage message){
         this.gameControllers = gameControllers;
-        this.nickname = message.getNickname();
         this.numPlayerGame = message.getNumPlayers();
-        this.numGoalCards = (message.isSimplifiedRules() == true) ? 1 : 2;
+        this.numGoalCards = (message.isSimplifiedRules()) ? 1 : 2;
         this.gameName = message.getGameName();
     }
 
+    /**
+     * Creates a new {@link org.myshelfie.controller.GameController} object with the given name, number of players and
+     * number of common goal cards. Put that object in the map of controllers in {@link org.myshelfie.controller.LobbyController}.
+     * @throws IllegalArgumentException if the game already exists
+     */
     @Override
     public void execute() throws IllegalArgumentException {
         if(gameControllers.containsKey(gameName))

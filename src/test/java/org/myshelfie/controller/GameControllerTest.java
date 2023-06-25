@@ -1,6 +1,5 @@
 package org.myshelfie.controller;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.myshelfie.model.*;
@@ -12,7 +11,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class GameControllerTest {
 
@@ -39,7 +37,7 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testExecuteCommandPickTilesCommand() throws InvalidCommand, WrongTurnException, WrongArgumentException {
+    public void testExecuteCommandPickTilesCommand() throws InvalidCommandException, WrongTurnException, WrongArgumentException {
         //Try selecting a list of tiles: (0, 3) and (0, 4)
         assertNotNull(gameController.getGame());
         Game game = gameController.getGame();
