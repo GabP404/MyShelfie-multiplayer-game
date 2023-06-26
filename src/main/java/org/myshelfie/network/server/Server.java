@@ -27,6 +27,10 @@ import java.util.List;
 import java.util.logging.*;
 
 
+/**
+ * Server class. It handles the communication with the clients and the game logic.
+ * There should be only one instance of this class, even with multiple games.
+ */
 public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     private List<Client> clients;
     private LobbyController controller;
@@ -35,7 +39,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     private static Boolean RESUME_FROM_BACKUP = Boolean.FALSE;
     private String RMI_SERVER_NAME = Configuration.getServerRMIName();
     private ServerSocket serverSocket;
-    private static final int HEARTBEAT_TIMEOUT = 10000; // TODO move to configuration
+    private static final int HEARTBEAT_TIMEOUT = Configuration.getHeartbeatTimeout();
 
     private static Registry registry;
 
@@ -87,6 +91,16 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
         logger.info("Logging level set to " + loggingLevel);
     }
 
+    /**
+     * Main class to start the server.
+     * Usage example: {@code java -jar server.jar [--server-address=&lt;server-address&gt;] [--backup] [--logging=&lt;debug|info|error&gt;]}
+     * <ul>
+     * <li>{@code --server-address}: The IP address of the interface to publish the RMI server on
+     * <li>{@code --backup}: If present, the server will try to resume from a backup file (serverBackup.ser)
+     * <li>{@code --logging}: The logging level to set (debug, info, error)
+     * </ul>
+     * @param args An array of CLI arguments
+     */
     public static void main( String[] args ) {
         // Usage example: java -jar server.jar [--server-address=<server-address>] [--backup] [--logging=<debug|info|error>]
 
@@ -127,14 +141,21 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     }
 
 
+    /**
+     * Get the registered client that has the given nickname
+     * @param nickname the nickname of the client to get
+     * @return the client with the given nickname, or {@code null} if there is no client with that nickname
+     */
     public Client getClient(String nickname) {
         return this.clients.stream().filter(c -> c.getNickname().equals(nickname)).findFirst().orElse(null);
     }
 
 
     /**
-     * Register a client to the server
+     * Register a client to the server. The client has to have a nickname that is not already taken.
+     * Registering a client will allow for the client to receive updates from the server and vice-versa.
      * @param client the client to register
+     * @throws IllegalArgumentException if there is already a client with the same nickname
      */
     public void register(Client client) throws IllegalArgumentException {
         //Throws an exception if there is already a client with the same nickname
@@ -165,7 +186,8 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     }
 
     /**
-     * Unregister a client from the server
+     * Unregister a client from the server.
+     * This will make it impossible for the client to send updates to the server.
      * @param client the client to unregister
      */
     public void unregister(Client client) {
@@ -207,8 +229,8 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     }
 
     /**
-     * Update of the server after a client send a message. This method forwards the message produced by the View (which is
-     * observed by the client) to the controller, specifying the client that generated the event.
+     * Update of the server after a client send a message, before the game begins (pre-game phase).
+     * In this phase, the controller logic is handled differently, since the game has not started yet.
      * @param clientRMIInterface  the client that generated the event
      * @param msg wrapped message received from the client
      */
@@ -258,7 +280,10 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
         }
     }
 
-    // Method to start the server
+    /**
+     * Start the server, both RMI and socket
+     * @param lock A lock that will be notified when the socket server is ready to accept connections
+     */
     public void startServer(Object lock) {
         try {
             // Start the RMI server
@@ -272,8 +297,11 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
         }
     }
 
-    // Method to start the RMI server
-    public void startRMIServer() throws RemoteException, MalformedURLException {
+    /**
+     * Start the RMI server, binding the server object to the registry.
+     * @throws RemoteException if the registry cannot be created or the binding fails
+     */
+    public void startRMIServer() throws RemoteException {
         registry = null;
         try {
             // Create the RMI registry
@@ -289,7 +317,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     }
 
     /**
-     * Start the socket server
+     * Start the socket server.
      * @param lock the lock to notify when the server is started
      */
     public void startSocketServer(Object lock) {
@@ -328,7 +356,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     }
 
     /**
-     * Stop the socket server
+     * Stop the socket server, not listening for connections anymore.
      */
     public void stopSocketServer() {
         try {
@@ -339,7 +367,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     }
 
     /**
-     * Stop the RMI server
+     * Stop the RMI server.
      */
     public void stopRMIServer() {
         try {
@@ -350,7 +378,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     }
 
     /**
-     * Stop the server (both RMI and socket)
+     * Stop the server (both RMI and socket).
      */
     public void stopServer() {
         stopSocketServer();
@@ -358,8 +386,9 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     }
 
     /**
-     * Method to send a message to a client
-     * @param clientSocket
+     * Send a message to a client over a socket connection.
+     * @param clientSocket the socket to send the message to. Can be obtained with {@link Client#getClientSocket}
+     * @param message the message to send the client
      */
     public void sendTo(Socket clientSocket, Serializable message) {
         ObjectOutputStream output;
@@ -372,18 +401,26 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
         }
     }
 
-    // Inner class to handle client connections
+    /**
+     * Inner class to handle socket connections. Every client has its own handler thread.
+     * Every message sent by the client is first read and handled by its handler, and then,
+     * if necessary, forwarded to the controller or the appropriate method.
+     */
     class SocketClientHandler extends Thread {
         private Socket clientSocket;
         private Client client;
 
-        // Socket client handler constructor
+        /**
+         * Create a new client handler thread.
+         * @param socket The client socket to handle
+         * @param client The client object associated with the socket
+         */
         public SocketClientHandler(Socket socket, Client client) {
             this.clientSocket = socket;
             this.client = client;
         }
 
-        // Thread function that will handle the client requests
+        @Override
         public void run() {
             try {
                 // Create a new input stream to read serialized objects from the client socket
@@ -510,9 +547,9 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     }
 
     /**
-     * Handle the heartbeat message sent by a client
+     * Handle the heartbeat message sent by a client, updating the last heartbeat timestamp.
      * @param client The client (RMIInterface) that sent the heartbeat
-     * @throws RemoteException
+     * @throws RemoteException If the client is not registered
      */
     @Override
     public void heartbeat(ClientRMIInterface client, HeartBeatMessage msg) throws RemoteException {
@@ -527,10 +564,19 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
         c.setLastHeartbeat(System.currentTimeMillis());
     }
 
+    /**
+     * Returns a list of the games currently available on the server (to be shown in the lobby).
+     * @return A list of the games currently available on the server
+     */
     public List<GameController.GameDefinition> getGames() throws RemoteException {
         return this.controller.getGames();
     }
 
+    /**
+     * Create a new game with the given settings
+     * @param message Message containing the game settings and the client information
+     * @return True if the game was created successfully, false otherwise
+     */
     public boolean createGame(CreateGameMessage message) throws RemoteException {
         try {
             this.controller.createGame(message);
@@ -540,6 +586,11 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
         }
     }
 
+    /**
+     * Make a client join an existing game
+     * @param message Message containing the game identifier and the client information
+     * @return True if the client joined the game successfully, false otherwise
+     */
     public boolean joinGame(JoinGameMessage message) throws RemoteException {
         try {
             this.controller.joinGame(message);
@@ -549,13 +600,19 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
         }
     }
 
+    /**
+     * Returns whether the {@code --backup} command line option was set, i.e., whether the server should try to
+     * resume its status from the backup file.
+     * @return True if the server should resume from backup, false otherwise
+     */
     public boolean shouldResumeFromBackup()
     {
         return RESUME_FROM_BACKUP;
     }
 
     /**
-     * Log a message
+     * Log a message.
+     * This will be forwarded to the logger, which will log the message to the console and to the log file.
      * @param logLevel The log level (FINE, INFO, WARNING, SEVERE, ...)
      * @param message The message to log
      */
