@@ -1,0 +1,32 @@
+# Project information
+site_name: 'My Shelfie - GC07'
+site_description: 'Software Engineering project - documentation web site'
+
+# Repository
+repo_name: 'GabP404/ing-sw-2023-Puglisi-Vicenzotto-Santelmo-Steduto'
+repo_url: 'https://github.com/GabP404/ing-sw-2023-Puglisi-Vicenzotto-Santelmo-Steduto'
+
+# Configuration
+theme:
+  name: 'material'
+  custom_dir: 'overrides'
+  palette:
+    primary: teal
+  font:
+    text: 'Open Sans'
+    code: 'Roboto Mono'
+  logo: 'images/logo_banner.png'
+  favicon: 'images/icon.png'
+
+# Extensions
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.details # collapsible admonitions
+  - pymdownx.superfences # fenced code blocks with syntax highlighting
+
+# Plugins
+plugins:
+  - search
+  - awesome-pages:
+      collapse_single_pages: true
