@@ -1,14 +1,14 @@
 package org.myshelfie.network.client;
 
-import org.myshelfie.network.messages.commandMessages.CreateGameMessage;
-import org.myshelfie.network.messages.commandMessages.JoinGameMessage;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.GameView;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.UUID;
 
+/**
+ * Interface implemented by a client to receive updates from the server using Remote Method Invocation.
+ */
 public interface ClientRMIInterface extends Remote {
     /**
      * Update of the client after the GameView has been modifies (or an Error has been received)
@@ -16,13 +16,6 @@ public interface ClientRMIInterface extends Remote {
      * @param ev Type of the information received
      */
     void update(GameView argument, GameEvent ev) throws RemoteException;
-
-    /**
-     * Returns a Client instance that can be registered on the server
-     * @return
-     * @throws RemoteException
-     */
-    Client getClientInstance() throws RemoteException;
 
     /**
      * Returns the nickname of the client

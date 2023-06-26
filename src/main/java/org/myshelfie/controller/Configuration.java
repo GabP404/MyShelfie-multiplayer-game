@@ -261,4 +261,21 @@ public class Configuration {
             return Level.INFO;
         }
     }
+
+    /**
+     * Get the interval, in milliseconds, at which the clients send a heartbeat message to the server
+     * @return The heartbeat interval
+     */
+    public static int getHeartbeatInterval() {
+        return getJSON().getInt("heartbeat_interval");
+    }
+
+    /**
+     * Get the timeout, in milliseconds, after which the server considers a client disconnected if it does not receive
+     * a heartbeat message from it
+     * @return The heartbeat timeout
+     */
+    public static int getHeartbeatTimeout() {
+        return getJSON().getInt("heartbeat_timeout");
+    }
 }

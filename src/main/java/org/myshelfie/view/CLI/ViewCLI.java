@@ -255,7 +255,7 @@ public class ViewCLI implements View{
         try {
             this.client = new Client(false, isRMI, serverAddress);
             client.connect();
-            client.initializeViewCLI(this);
+            client.initializeView(this);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }

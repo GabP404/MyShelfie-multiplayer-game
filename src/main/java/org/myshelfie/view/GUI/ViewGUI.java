@@ -76,7 +76,7 @@ public class ViewGUI extends Application implements View  {
         try {
             this.client = new Client(true, isRMI, serverAddress);
             client.connect();
-            client.initializeViewGUI(this);
+            client.initializeView(this);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
