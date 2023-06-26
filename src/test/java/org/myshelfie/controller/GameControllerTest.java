@@ -1,18 +1,16 @@
 package org.myshelfie.controller;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.myshelfie.model.*;
 import org.myshelfie.network.messages.commandMessages.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class GameControllerTest {
 
@@ -102,7 +100,8 @@ public class GameControllerTest {
             }
         }
         assertNotNull(game.getBoard().getTile(Board.DIMBOARD - 1,4));
-        x = (LocatedTile) game.getBoard().removeTile(Board.DIMBOARD - 1,4);
+        Tile t = game.getBoard().removeTile(Board.DIMBOARD - 1,4);
+        x = new LocatedTile(t.getItemType(),Board.DIMBOARD - 1,4);
         game.getCurrPlayer().addTilesPicked(x);
         game.setModelState(ModelState.WAITING_1_SELECTION_TILE_FROM_HAND);
         game.getCurrPlayer().setSelectedColumn(0);
@@ -116,6 +115,7 @@ public class GameControllerTest {
         gameController.executeCommand(messageCommand,messageType);
         assertFalse(game.getBoard().isRefillNeeded());
     }
+
 
 
 }

@@ -42,9 +42,11 @@ class PlayerTest {
         Player p = new Player(nick,pg);
         assertTrue(p.getTilesPicked().isEmpty());
         LocatedTile t1 = new LocatedTile(ItemType.BOOK, 0, 0);
+        LocatedTile t2 = new LocatedTile(ItemType.BOOK, 0, 1);
 
         try {
             p.addTilesPicked(t1);
+            p.addTilesPicked(t2);
         } catch (WrongArgumentException e) {
             fail("Exception thrown" + e.getMessage());
         }
@@ -56,11 +58,9 @@ class PlayerTest {
             fail("Exception thrown" + e.getMessage());
         }
         assertFalse(p.getTilesPicked().contains(t1));
-/*
-        p.removeTilesPicked(t);
-        assertFalse(p.getTilesPicked().contains(t1));
-        assertFalse(p.getTilesPicked().contains(t2));
- */
+        assertFalse(p.getTilesPicked().isEmpty());
+        p.clearHand();
+        assertTrue(p.getTilesPicked().isEmpty());
     }
 
     @Test

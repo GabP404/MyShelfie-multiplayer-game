@@ -102,15 +102,6 @@ public class Configuration {
      * @param id The id of the card
      * @return The description of the card
      */
-    public static String getCommonGoalCardDescription(int id) {
-        return getCommonGoalCardDescription(String.valueOf(id));
-    }
-
-    /**
-     * Return the description of the common goal card with the given id
-     * @param id The id of the card
-     * @return The description of the card
-     */
     public static String getCommonGoalCardDescription(String id) {
         return getJSON()
                 .getJSONObject("common_goal_cards_description")

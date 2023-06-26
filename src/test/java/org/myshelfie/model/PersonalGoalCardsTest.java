@@ -31,6 +31,8 @@ public class PersonalGoalCardsTest {
         PersonalGoalDeck deck = PersonalGoalDeck.getInstance();
         PersonalGoalCard card = deck.draw(1).get(0);
         assertEquals(card.getPoints(b), 0);
+        assertInstanceOf(Integer.class, card.getId());
+        assertDoesNotThrow(() -> card.getConstraints().get(0).getLeft().getLeft());
     }
 
     @DisplayName("Drawing cards from the deck")

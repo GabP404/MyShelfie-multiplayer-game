@@ -55,9 +55,6 @@ public class Player implements Serializable {
         return personalGoal;
     }
 
-    public void setPersonalGoal(PersonalGoalCard personalGoal) {
-        this.personalGoal = personalGoal;
-    }
 
     public Bookshelf getBookshelf() {
         return bookshelf;
@@ -132,15 +129,6 @@ public class Player implements Serializable {
         if (!this.tilesPicked.contains(t)) throw new WrongArgumentException("Tile not found");
         this.tilesPicked.remove(t);
         Server.eventManager.notify(GameEvent.TILES_PICKED_UPDATE, this);
-    }
-
-    public void removeTilesPicked(List<LocatedTile> tilesRemoved) throws WrongArgumentException{
-        for(LocatedTile t: tilesRemoved) {
-            if(!this.tilesPicked.contains(t)) throw new WrongArgumentException("Tile not found");
-        }
-        for(LocatedTile t: tilesRemoved) {
-            this.tilesPicked.remove(t);
-        }
     }
 
     public int getSelectedColumn() {

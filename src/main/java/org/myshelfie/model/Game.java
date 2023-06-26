@@ -169,7 +169,7 @@ public class Game implements Serializable {
     }
 
     public void setWinner(Player winner) throws WrongArgumentException {
-        if (currPlayer == null || !players.contains(currPlayer))
+        if (winner == null || !players.contains(winner))
             throw new WrongArgumentException("Player not found");
         this.modelState = ModelState.END_GAME;
         this.winner = winner;
@@ -185,12 +185,6 @@ public class Game implements Serializable {
 
     public boolean isPlaying() {
         return playing;
-    }
-
-    public void setPlaying(boolean playing) {
-        // TODO: to handle player's disconnection a notify with a specific event will be required
-        //  (also for the setter of Player's online attribute)
-        this.playing = playing;
     }
 
     /**
