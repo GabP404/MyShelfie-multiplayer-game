@@ -54,6 +54,8 @@ public class ViewGUI extends Application implements View  {
     private Media media;
     private MediaPlayer mediaPlayer;
 
+    private Scene scene;
+
     public static void main(String[] args) {
         isRMI = Boolean.parseBoolean(args[0]);
         serverAddress = args[1];
@@ -90,16 +92,22 @@ public class ViewGUI extends Application implements View  {
         scenes.put("EndGame", "/fxml/EndGameFXML.fxml");
         scenes.put("Lobbies", "/fxml/LobbiesFXML.fxml");
         scenes.put("Login", "/fxml/LoginFXML.fxml");
+        fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(getClass().getResource(scenes.get("Login")));
+        try {
+            scene = new Scene(fxmlLoader.load());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
     public void setScene(String sceneName) {
         Platform.runLater(() -> {
-            Scene scene = null;
             fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(getClass().getResource(scenes.get(sceneName)));
             try {
-                scene = new Scene(fxmlLoader.load());
+                scene.setRoot(fxmlLoader.load());
             } catch (IOException e) {
                 e.printStackTrace();
                 System.out.println("Error loading scene " + sceneName);
