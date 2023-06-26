@@ -4,10 +4,10 @@ import org.junit.jupiter.api.Test;
 import org.myshelfie.model.ItemType;
 import org.myshelfie.model.LocatedTile;
 import org.myshelfie.model.util.Pair;
+import org.myshelfie.network.client.UserInputEvent;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;

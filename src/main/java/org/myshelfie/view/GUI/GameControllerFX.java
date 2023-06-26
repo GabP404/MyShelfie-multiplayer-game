@@ -23,7 +23,7 @@ import javafx.util.Duration;
 import org.myshelfie.controller.Configuration;
 import org.myshelfie.model.*;
 import org.myshelfie.network.client.Client;
-import org.myshelfie.network.messages.commandMessages.UserInputEvent;
+import org.myshelfie.network.client.UserInputEvent;
 import org.myshelfie.network.messages.gameMessages.*;
 
 import java.io.IOException;

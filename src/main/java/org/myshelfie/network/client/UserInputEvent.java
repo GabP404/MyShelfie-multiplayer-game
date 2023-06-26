@@ -1,4 +1,4 @@
-package org.myshelfie.network.messages.commandMessages;
+package org.myshelfie.network.client;
 
 import java.io.Serializable;
 

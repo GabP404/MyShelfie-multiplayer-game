@@ -4,7 +4,6 @@ import org.myshelfie.controller.Configuration;
 import org.myshelfie.network.EventManager;
 import org.myshelfie.network.messages.commandMessages.CommandMessageWrapper;
 import org.myshelfie.network.messages.commandMessages.HeartBeatMessage;
-import org.myshelfie.network.messages.commandMessages.UserInputEvent;
 import org.myshelfie.network.messages.gameMessages.EventWrapper;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.GameView;

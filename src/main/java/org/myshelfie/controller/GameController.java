@@ -1,6 +1,7 @@
 package org.myshelfie.controller;
 
 import org.myshelfie.model.*;
+import org.myshelfie.network.client.UserInputEvent;
 import org.myshelfie.network.messages.commandMessages.*;
 
 import org.myshelfie.network.messages.gameMessages.GameEvent;

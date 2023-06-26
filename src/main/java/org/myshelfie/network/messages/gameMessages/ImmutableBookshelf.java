@@ -9,10 +9,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Immutable version of {@link Bookshelf}, used to send the bookshelf to the clients.
+ */
 public final class ImmutableBookshelf  implements Serializable {
     public final int NUMROWS;
     public final int NUMCOLUMNS;
-
     private final Tile[][] tiles;
 
     public ImmutableBookshelf(Bookshelf b) {
@@ -57,7 +59,12 @@ public final class ImmutableBookshelf  implements Serializable {
         return NUMROWS - r;
     }
 
-    //method that returns the minimum height of the bookshelf
+    /**
+     * Method that cheks all the columns and returns the height of the shortest one.
+     * This is used in {@link org.myshelfie.controller.PickTilesCommand#execute} to prevent the player from
+     * picking tiles that would make the bookshelf exceed the maximum height.
+     * @return The minimum height of the bookshelf
+     */
     public int getMinHeight(){
         int min = getHeight(0);
         for(int i = 1; i < NUMCOLUMNS; i++){

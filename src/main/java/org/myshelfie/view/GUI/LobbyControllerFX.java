@@ -11,7 +11,7 @@ import javafx.scene.image.ImageView;
 import org.myshelfie.controller.GameController;
 import org.myshelfie.model.ItemType;
 import org.myshelfie.network.client.Client;
-import org.myshelfie.network.messages.commandMessages.UserInputEvent;
+import org.myshelfie.network.client.UserInputEvent;
 
 import java.net.URL;
 import java.util.ResourceBundle;

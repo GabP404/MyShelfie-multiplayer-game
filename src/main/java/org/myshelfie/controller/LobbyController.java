@@ -6,7 +6,7 @@ import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.commandMessages.CommandMessage;
 import org.myshelfie.network.messages.commandMessages.CreateGameMessage;
 import org.myshelfie.network.messages.commandMessages.JoinGameMessage;
-import org.myshelfie.network.messages.commandMessages.UserInputEvent;
+import org.myshelfie.network.client.UserInputEvent;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.server.GameListener;
 import org.myshelfie.network.server.Server;

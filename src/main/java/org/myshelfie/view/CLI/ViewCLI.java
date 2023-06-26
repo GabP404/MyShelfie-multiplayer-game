@@ -6,7 +6,7 @@ import org.myshelfie.model.Bookshelf;
 import org.myshelfie.model.LocatedTile;
 import org.myshelfie.model.ModelState;
 import org.myshelfie.network.client.Client;
-import org.myshelfie.network.messages.commandMessages.UserInputEvent;
+import org.myshelfie.network.client.UserInputEvent;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.GameView;
 import org.myshelfie.view.View;

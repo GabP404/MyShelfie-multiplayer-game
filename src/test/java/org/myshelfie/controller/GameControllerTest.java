@@ -3,6 +3,7 @@ package org.myshelfie.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.myshelfie.model.*;
+import org.myshelfie.network.client.UserInputEvent;
 import org.myshelfie.network.messages.commandMessages.*;
 
 import static org.junit.jupiter.api.Assertions.*;

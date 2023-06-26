@@ -4,7 +4,7 @@ import org.myshelfie.controller.Configuration;
 import org.myshelfie.controller.GameController;
 import org.myshelfie.controller.LobbyController;
 import org.myshelfie.model.util.Pair;
-import org.myshelfie.network.server.ServerEventManager;
+import org.myshelfie.network.client.UserInputEvent;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.client.ClientRMIInterface;
 import org.myshelfie.network.messages.commandMessages.*;
