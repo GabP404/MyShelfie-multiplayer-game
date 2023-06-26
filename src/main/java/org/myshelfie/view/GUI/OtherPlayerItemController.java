@@ -22,39 +22,38 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * This class controls the view of other players' public items,
+ * which are their bookshelf, their nickname, their hand and their tokens.
+ * Thus, all the methods refers to a player which will be different from the
+ * one referred as "me" in the main class {@link GameControllerFX}.
+ */
 public class OtherPlayerItemController implements Initializable {
     @FXML
     private GridPane bookshelfGrid;
-
     @FXML
     private ImageView bookshelfImage;
-
     @FXML
     private ImageView finalToken;
-
     @FXML
     private Label nicknameLabel;
-
     @FXML
     private ImageView tileHand1;
-
     @FXML
     private ImageView tileHand2;
-
     @FXML
     private ImageView tileHand3;
-
     @FXML
     private ImageView token1;
-
     @FXML
     private ImageView token2;
-
     String nickname;
     final int TOKEN_DIM = 45;
 
-
-
+    /**
+     * Updates the player's bookshelf
+     * @param bookshelf the bookshelf to be updated
+     */
     private void updateBookshelf(ImmutableBookshelf bookshelf) {
         for (int r = 0; r < Bookshelf.NUMROWS; r++) {
             for (int c = 0; c < Bookshelf.NUMCOLUMNS; c++) {
@@ -78,11 +77,19 @@ public class OtherPlayerItemController implements Initializable {
         }
     }
 
+    /**
+     * Updates the player's nickname
+     * @param nickname The nickname of the player
+     */
     public void updateNickname(String nickname){
         this.nickname = nickname;
         this.nicknameLabel.setText(nickname);
     }
 
+    /**
+     * Updates the player name's style to show if it's the current player
+     * @param isCurrPlayer True if the player is the current player, false otherwise
+     */
     public void updateCurrPlayer(boolean isCurrPlayer) {
         if (isCurrPlayer) {
             nicknameLabel.setFont(Font.font("System", FontWeight.BOLD, 15));
@@ -98,6 +105,10 @@ public class OtherPlayerItemController implements Initializable {
 
     }
 
+    /**
+     * Updates the player's common goal tokens
+     * @param commonGoalTokens The list of common goal tokens
+     */
     private void updateCommonGoalToken(List<ScoringToken> commonGoalTokens) {
         if (commonGoalTokens.size() >= 1) {
             token1.setImage(new Image("graphics/tokens/scoring_" + commonGoalTokens.get(0).getPoints() + ".jpg"));
@@ -122,6 +133,10 @@ public class OtherPlayerItemController implements Initializable {
         }
     }
 
+    /**
+     * Updates the view of the final token if the player has it.
+     * @param hasFinalToken True if the player has the final token, false otherwise
+     */
     private void updateFinalToken(boolean hasFinalToken) {
         if (hasFinalToken) {
             this.finalToken.setImage(new Image("graphics/tokens/endGame.jpg"));
@@ -133,6 +148,10 @@ public class OtherPlayerItemController implements Initializable {
         }
     }
 
+    /**
+     * Updates the player's hand
+     * @param tileHand The list of tiles in the player's hand
+     */
     private void updateTilesPicked(List<Tile> tileHand) {
         if (tileHand.size() >= 1) {
             tileHand1.setImage(new Image("graphics/tiles/" + tileHand.get(0).getItemType() + "_" + tileHand.get(0).getItemId() + ".png"));
@@ -156,18 +175,9 @@ public class OtherPlayerItemController implements Initializable {
         }
     }
 
-    /**
-     * Initializes all the elements that show the player's information (nickname, bookshelf, tokens, tiles in hand etc.)
-     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        /*
-        updateNickname("Player");
-        updateCurrPlayer(false);
-        updateBookshelf(new ImmutableBookshelf(new Bookshelf()));
-        updateCommonGoalToken(new ArrayList<ScoringToken>());
-        updateFinalToken(false);
-        updateTilesPicked(new ArrayList<Tile>());*/
+
     }
 
     /**
@@ -191,6 +201,11 @@ public class OtherPlayerItemController implements Initializable {
         }
     }
 
+    /**
+     * Sets the saturation of every item in the player's view. This is used to
+     * gray out the player if he/she is offline.
+     * @param desaturation The desaturation to be applied
+     */
     private void setEveryItemSaturation(ColorAdjust desaturation) {
         bookshelfGrid.setEffect(desaturation);
         bookshelfImage.setEffect(desaturation);

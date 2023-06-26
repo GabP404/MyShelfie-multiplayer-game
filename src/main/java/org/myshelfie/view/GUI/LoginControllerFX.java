@@ -16,32 +16,31 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LoginControllerFX implements Initializable{
-
-    public static final String LOGIN_FXML = "/org/myshelfie/view/GUI/Login.fxml";
-
-    @FXML
-    private Button endLoginPhaseButton_BTN;
-
     @FXML
     private TextField nickname_LBL;
-
     @FXML
     private VBox nickname_VB;
-
     private Client client;
 
-
+    /**
+     * @return The client associated with this controller
+     */
     Client getClient() {
         return client;
     }
 
+    /**
+     * Link this controller to the client that is using it.
+     * @param client The client that is using this controller
+     */
     public void setClient(Client client) {
         this.client = client;
     }
 
     /**
-     * after clicking the join game button, this method sends the username to the server
-     * @param event
+     * Check the validity of the nickname and send it to the server if it is valid,
+     * by calling the {@link org.myshelfie.network.EventManager#notify notify} method of the event manager.
+     * @param event The event that triggered this method
      */
     @FXML
     void sendNickname(ActionEvent event) {
@@ -54,9 +53,11 @@ public class LoginControllerFX implements Initializable{
         }else {
             this.client.eventManager.notify(UserInputEvent.NICKNAME, nickname);
         }
-        //TODO: handle a nickname not valid
     }
 
+    /**
+     * Show an error message if the nickname is already used.
+     */
     void nicknameAlreadyUsed() {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");
@@ -70,6 +71,11 @@ public class LoginControllerFX implements Initializable{
         nickname_VB.setVisible(true);
     }
 
+    /**
+     * Check if the string is valid, i.e. it contains only letters and numbers.
+     * @param input The string to check
+     * @return True if the string is valid, false otherwise
+     */
     private boolean validateString(String input) {
         String regex = "^[a-zA-Z0-9]+$";
         Pattern pattern = Pattern.compile(regex);

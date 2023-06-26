@@ -13,33 +13,28 @@ public class ClientApp {
      */
     public static void main( String[] args ) {
         boolean isGUI = true;
-        Boolean isRMI = false;
+        boolean isRMI = false;
         // Get the deafult server address from the configuration file
         String serverAddress = Configuration.getServerAddress();
 
         // For all the arguments, check if one of them is "--cli"
         // If so, set the isCLI variable to true
         for (String arg : args) {
-            if (arg.equals("--cli")) {
+            if (arg.equals("--cli"))
                 isGUI = false;
-            }
-            if (arg.equals("--gui")) {
+            if (arg.equals("--gui"))
                 isGUI = true;
-            }
-            if (arg.equals("--rmi")) {
+            if (arg.equals("--rmi"))
                 isRMI = true;
-            }
-            if (arg.equals("--socket")) {
+            if (arg.equals("--socket"))
                 isRMI = false;
-            }
             // Get the server address
-            if (arg.startsWith("--server-address=")) {
+            if (arg.startsWith("--server-address="))
                 serverAddress = arg.substring(17);
-            }
         }
 
         String[] arguments = new String[2];
-        arguments[0] = isRMI.toString();
+        arguments[0] = Boolean.toString(isRMI);
         arguments[1] = serverAddress;
         if (isGUI) {
             ViewGUI.main(arguments); //Starts the JavaFX application

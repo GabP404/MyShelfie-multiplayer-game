@@ -23,34 +23,29 @@ import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Controller responsible for the Lobby screen
+ */
 public class LobbiesControllerFX implements Initializable {
-
     @FXML
     private Button CreateGame_BTN;
-
     @FXML
     private VBox LobbyContainer;
-
     @FXML
     private ChoiceBox<Integer> Players_CB;
-
     @FXML
     private ChoiceBox<String> Rules_CB;
-
     @FXML
     private Button refresh_BTN;
-
     @FXML
     private TextField CreateGameName_TXT;
-
-
     private HashMap<String,LobbyControllerFX> lobbiesFX;
-
     private Client client;
-
     private String gameName;
 
-
+    /**
+     * Initialization method called by JavaFX
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         lobbiesFX = new HashMap<>();
@@ -60,19 +55,20 @@ public class LobbiesControllerFX implements Initializable {
         Rules_CB.setItems(ruleOptions);
     }
 
-
+    /**
+     * Link this controller to the client that is using it.
+     * @param client The client that is using this controller
+     */
     public void setClient(Client client) {
         this.client = client;
     }
 
-    public String getGameName() {
-        return gameName;
-    }
-
-    public void setGameName(String gameName) {
-        this.gameName = gameName;
-    }
-
+    /**
+     * This method is responsible for the creation of the Lobby screen. In particular,
+     * it instantiates different LobbyControllerFX objects, one for each lobby, which will handle
+     * separately the display of the information of each lobby.
+     * @param lobbies The list of lobbies to be displayed, in the form of {@link GameController.GameDefinition} objects
+     */
     public void createLobbies(List<GameController.GameDefinition> lobbies) {
         for(GameController.GameDefinition lobby : lobbies) {
             if (!lobby.isFull()) {
@@ -94,12 +90,19 @@ public class LobbiesControllerFX implements Initializable {
         }
     }
 
+    /**
+     * This method is called to update the view showing the available games.
+     * @param lobbies The list of lobbies to be displayed, in the form of {@link GameController.GameDefinition} objects
+     */
     public void updateLobbies(List<GameController.GameDefinition> lobbies) {
         LobbyContainer.getChildren().clear();
         createLobbies(lobbies);
     }
 
-
+    /**
+     * Optimized version of {@link LobbiesControllerFX#updateLobbies updateLobbies}.
+     * @param lobbies The list of lobbies to be displayed, in the form of {@link GameController.GameDefinition} objects
+     */
     public void updateLobbiesOptimized(List<GameController.GameDefinition> lobbies) {
         for (GameController.GameDefinition lobby: lobbies) {
             if (lobby.isFull() && lobbiesFX.containsKey(lobby.getGameName())) {
@@ -122,18 +125,20 @@ public class LobbiesControllerFX implements Initializable {
         }
     }
 
-    public void HandleLobbyMessage(Pair<Boolean,List<GameController.GameDefinition>> response) {
-        if(response.getLeft()) {
-            createLobbies(response.getRight());
-        }else {
-            //handle error
-        }
-    }
-
+    /**
+     * This method is called whenever the user clicks on the "Refresh" button.
+     * It calls the {@link org.myshelfie.network.EventManager#notify notify} method
+     * to request the updated list of available games.
+     */
     public void refresh() {
         this.client.eventManager.notify(UserInputEvent.REFRESH_AVAILABLE_GAMES);
     }
 
+    /**
+     * This method is called whenever the user clicks on the "Create Game" button.
+     * It validates the parameters inserted by the user and, if they are correct,
+     * it calls the {@link org.myshelfie.network.EventManager#notify notify} method.
+     */
     public void createGame() {
         if(CreateGameName_TXT.getText().isEmpty() || !validateString(CreateGameName_TXT.getText())) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -162,6 +167,11 @@ public class LobbiesControllerFX implements Initializable {
         this.client.eventManager.notify(UserInputEvent.CREATE_GAME, CreateGameName_TXT.getText(), Players_CB.getValue(), Rules_CB.getValue().equals("Simple"));
     }
 
+    /**
+     * This method validates a string, checking that it contains only alphanumeric characters.
+     * @param input The string to be validated
+     * @return True if the string is valid, false otherwise
+     */
     private boolean validateString(String input) {
         String regex = "^[a-zA-Z0-9]+$";
         Pattern pattern = Pattern.compile(regex);

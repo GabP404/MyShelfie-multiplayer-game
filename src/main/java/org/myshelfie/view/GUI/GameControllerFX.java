@@ -32,76 +32,61 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * Controller for the GameFXML scene, i.e. the main game scene.
+ * This class is responsible for handling all the events that happen in the game, updating
+ * the GUI accordingly to the events received by the server, and collecting the input from the user
+ * and notify the {@link org.myshelfie.network.EventManager EventManager} to update the Server.
+ */
 public class GameControllerFX implements Initializable {
     @FXML
     private GridPane boardGrid;
-
     @FXML
     private ImageView boardImage;
-
     @FXML
     private GridPane colSelectionArrowsGrid;
-
     @FXML
     private ImageView commonGoalCard1;
-
     @FXML
     private ImageView commonGoalCard2;
-
     @FXML
     private GridPane myBookshelfGrid;
-
     @FXML
     private ImageView myBookshelfImage;
-
     @FXML
     private AnchorPane myBookshelfPane;
-
     @FXML
     private ImageView myFinalToken;
-
     @FXML
     private Label myNickname;
-
     @FXML
     private ImageView myPersonalGoal;
-
     @FXML
     private ImageView myToken1;
-
     @FXML
     private ImageView myToken2;
-
     @FXML
     private VBox otherPlayersLayout;
-
     @FXML
     private StackPane overlay;
-
     @FXML
     private Rectangle overlayBackground;
-
     @FXML
     private ImageView spinner;
-
     @FXML
     private Button tilesConfirmButton;
-
     @FXML
     private GridPane tilesHandGrid;
-
     @FXML
     private VBox updatesVBox;
 
     private boolean firstSetupDone = false;
-
     private String nickname = null;
-
     private Map<String, OtherPlayerItemController> otherPlayerItemControllers;
-
     GameView latestGame;
     List<LocatedTile> unconfirmedSelectedTiles;
-    private int selectedColumn = -1;
+    private Client client;
+    private boolean isPaused = false;
 
     final int TOKEN_DIM = 50;
     final int PERSONAL_CARD_HEIGHT = 200;
@@ -109,10 +94,10 @@ public class GameControllerFX implements Initializable {
     final int SEL_COL_ARROW_WIDTH = 50;
     final double TILE_DIM = 45;
 
-    private Client client;
-    private boolean isPaused = false;
 
-
+    /**
+     * Initializes the controller. This is called automatically by JavaFX.
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         latestGame = null;
@@ -135,6 +120,10 @@ public class GameControllerFX implements Initializable {
         colSelectionArrowsGrid.setVisible(true);
     }
 
+    /**
+     * Set the nickname of the player that is using this GUI.
+     * @param nickname The nickname of the player
+     */
     public void setMyNickname(String nickname) {
         this.nickname = nickname;
         myNickname.setText(nickname);
@@ -142,41 +131,35 @@ public class GameControllerFX implements Initializable {
         myNickname.setVisible(true);
     }
 
-    public void showErrorDialog(String message) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error!");
-            alert.setHeaderText("A small message for you from the MyShelfie overlord");
-            alert.setContentText(message);
-
-            alert.showAndWait();
-        });
+    /**
+     * Link this controller to the client that is using it.
+     * @param client The client that is using this controller
+     */
+    public void setClient(Client client) {
+        this.client = client;
     }
 
-    public void showInfoDialog(String message) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("FYI");
-            alert.setHeaderText("A small message for you by the MyShelfie overlord");
-            alert.setContentText(message);
-
-            alert.showAndWait();
-        });
-    }
-
-
-    ///////////////////////////// MAIN UPDATE METHOD ///////////////////////////
+    /////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////// MAIN UPDATE METHOD ////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Main method to update the GUI
-     * @param game
+     * Forwards the update of the GUI by scheduling it using a Platform.runLater() call
+     * is called directly by {@link ViewGUI#update(GameView, GameEvent)}.
+     * @param ev The event that triggered the update
+     * @param game The game view object containing the updated game state
      */
     public void update(GameEvent ev, GameView game) {
         Platform.runLater(() -> updateButForReal(ev, game));
     }
 
+    /**
+     * This is the actual update method. Based on the type of {@link GameEvent} this method
+     * chooses which items of the view will be updated and calls the corresponding methods.
+     * @param ev The {@link GameEvent} that triggered the update
+     * @param game The {@link GameView} object containing the updated game state
+     */
     private void updateButForReal(GameEvent ev, GameView game) {
-        // TODO: check that all the GameEvents are covered
         latestGame = game;
         System.out.println("STATUS: "+ game.getModelState());
         ImmutablePlayer me = game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get();
@@ -259,6 +242,10 @@ public class GameControllerFX implements Initializable {
         updateOtherPlayers(game);
     }
 
+    /**
+     * Updates all the possible items of the view, regardless of the type of event that triggered the update.
+     * @param game The {@link GameView} object containing the updated game state.
+     */
     private void updateEverything(GameView game) {
         // Update helper
         updateHelper();
@@ -266,7 +253,6 @@ public class GameControllerFX implements Initializable {
         updateBoard(game.getBoard());
         // Update other players (note that they are controlled by a different controller)
         updateOtherPlayers(game);
-
         // Update all MY stuff
         ImmutablePlayer me = game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get();
         updateMyBookshelf(me.getBookshelf());
@@ -326,7 +312,6 @@ public class GameControllerFX implements Initializable {
                         scaleTransition.setOnFinished(event -> {
                             System.out.println("Selected tile: " + row + " " + col + " -> you've already selected " + unconfirmedSelectedTiles.size() + " tiles");
                         });
-
                         // Play the animation
                         scaleTransition.play();
                     }
@@ -344,6 +329,13 @@ public class GameControllerFX implements Initializable {
         }
     }
 
+    /**
+     * Method that is called every time the user tries to select a Tile.
+     * It is used to check wheter the current list of tiles is valid or not.
+     * @param board The board of the game
+     * @param unconfirmedSelectedTiles The temporary list of tiles that the user is trying to select
+     * @return True if the list is valid, false otherwise
+     */
     private boolean isTilesGroupSelectable(ImmutableBoard board, List<LocatedTile> unconfirmedSelectedTiles) {
         boolean invalid = unconfirmedSelectedTiles.stream().map(
                 t -> {
@@ -379,9 +371,13 @@ public class GameControllerFX implements Initializable {
     }
 
 
+    /**
+     * Method that is called when a bookshelf column is selected. It's bound to the on click event of the arrowImage object.
+     * Calls the {@link org.myshelfie.network.EventManager#notify notify} method to send this information to the server.
+     * @param column The index of the bookshelf's column that has been selected
+     * @param arrowImage The ImageView object representing the arrow that has been clicked
+     */
     private void onArrowClicked(int column, ImageView arrowImage) {
-        // TODO: implement controls that prevent the player from selecting a column that cannot contains the tiles he selected
-        selectedColumn = column;
         ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), arrowImage);
         scaleTransition.setToX(arrowImage.getScaleX() * 1.1);
         scaleTransition.setToY(arrowImage.getScaleY() * 1.1);
@@ -397,7 +393,12 @@ public class GameControllerFX implements Initializable {
         scaleTransition.play();
     }
 
-
+    /**
+     * Method called when the user clicks on the confirm button.
+     * It's bound to the on click event of the confirmButton object.
+     * It sends the selected tiles to the server by calling the
+     * {@link org.myshelfie.network.EventManager#notify notify} method.
+     */
     private void onConfirmTilesSelection() {
         // TODO: implement controls that prevent the player from selecting to many tiles when he has
         //       not enough space in at least one of the columns of the bookshelf
@@ -423,6 +424,14 @@ public class GameControllerFX implements Initializable {
         }
     }
 
+    /**
+     * Method called when the user clicks on a tile from their hand.
+     * It's bound to the on click event of the tileImage object.
+     * It sends the selected tile index to the server by calling the
+     * {@link org.myshelfie.network.EventManager#notify notify} method.
+     * @param tileImage The ImageView object representing the tile that has been clicked
+     * @param tileIndex The index of the tile that has been clicked
+     */
     private void onTileFromHandClicked(ImageView tileImage, int tileIndex) {
         if (tileIndex >= latestGame.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get().getTilesPicked().size()) {
             showErrorDialog("You can't pick this tile!");
@@ -452,13 +461,49 @@ public class GameControllerFX implements Initializable {
         }
     }
 
+    ////////////////////////////////////////////////////////////////////
+    ////////////////////// DIALOG MESSAGE METHODS //////////////////////
+    ////////////////////////////////////////////////////////////////////
+
+    /**
+     * Update method used to show a dialog with an error message.
+     * @param message The message to show
+     */
+    public void showErrorDialog(String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error!");
+            alert.setHeaderText("A small message for you from the MyShelfie overlord");
+            alert.setContentText(message);
+
+            alert.showAndWait();
+        });
+    }
+
+    /**
+     * Update method used to show a dialog with an info message.
+     * @param message The message to show
+     */
+    public void showInfoDialog(String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("FYI");
+            alert.setHeaderText("A small message for you by the MyShelfie overlord");
+            alert.setContentText(message);
+
+            alert.showAndWait();
+        });
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     /////////////////////////// VIEW UPDATE METHODS ///////////////////////////
     ///////////////////////////////////////////////////////////////////////////
 
-
-
+    /**
+     * This method makes use of the {@link OtherPlayerItemController} class to update the
+     * view of the other players items.
+     * @param gameView The {@link GameView} object containing the updated game state
+     */
     public void updateOtherPlayers(GameView gameView) {
         if (nickname == null)
             return;
@@ -494,7 +539,10 @@ public class GameControllerFX implements Initializable {
     }
 
 
-
+    /**
+     * This method updates the view of the arrows used to select the column.
+     * They're shown only if the current state is {@link ModelState#WAITING_SELECTION_BOOKSHELF_COLUMN}.
+     */
     private void udpateColSelectionArrows() {
         if (latestGame.getCurrPlayer().getNickname().equals(nickname) && latestGame.getModelState() == ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN) {
             colSelectionArrowsGrid.setVisible(true);
@@ -526,6 +574,11 @@ public class GameControllerFX implements Initializable {
         }
     }
 
+    /**
+     * This method updates the view of the nickname for the player using this view.
+     * If this player is the current one, a flag and a shadow are added to the nickname.
+     * @param amICurrPlayer True if the player using this view is the current player
+     */
     private void updateAmICurrPlayer(boolean amICurrPlayer) {
         if (amICurrPlayer) {
             myNickname.setFont(Font.font("System", FontWeight.BOLD, 20));
@@ -540,6 +593,10 @@ public class GameControllerFX implements Initializable {
         }
     }
 
+    /**
+     * This method is used to enable and show the confirm button for the tiles' selection,
+     * when the game state is {@link ModelState#WAITING_SELECTION_TILE}.
+     */
     private void updateTilesConfirmButton() {
         if (latestGame.getCurrPlayer().getNickname().equals(nickname) && latestGame.getModelState() == ModelState.WAITING_SELECTION_TILE) {
             tilesConfirmButton.setOnMouseClicked(ev -> onConfirmTilesSelection());
@@ -550,7 +607,10 @@ public class GameControllerFX implements Initializable {
         }
     }
 
-
+    /**
+     * This method updates the view of the bookshelf of the player using this view.
+     * @param bookshelf The {@link ImmutableBookshelf} object containing the updated bookshelf
+     */
     private void updateMyBookshelf(ImmutableBookshelf bookshelf) {
         for (int r = 0; r < Bookshelf.NUMROWS; r++) {
             for (int c = 0; c < Bookshelf.NUMCOLUMNS; c++) {
@@ -576,7 +636,7 @@ public class GameControllerFX implements Initializable {
 
     /**
      * This method updates the view of the common goal cards together with their tokens.
-     * @param gameView
+     * @param gameView The {@link GameView} object containing the updated information
      */
     private void updateCommonGoalCards(GameView gameView) {
         List<CommonGoalCard> commonGoalCards = gameView.getCommonGoals();
@@ -633,7 +693,10 @@ public class GameControllerFX implements Initializable {
     }
 
 
-
+    /**
+     * This method updates the view of the common goal tokens obtained by the player using this view.
+     * @param myCommonGoalTokens The list of {@link ScoringToken} objects representing the obatined tokens
+     */
     private void updateMyCommonGoalToken(List<ScoringToken> myCommonGoalTokens) {
         if (myCommonGoalTokens.size() >= 1) {
             myToken1.setImage(new Image("graphics/tokens/scoring_" + myCommonGoalTokens.get(0).getPoints() + ".jpg"));
@@ -658,7 +721,10 @@ public class GameControllerFX implements Initializable {
         }
     }
 
-
+    /**
+     * Method used to show the final token of the player using this view if he/she has it.
+     * @param hasFinalToken True if the player has the final token, false otherwise
+     */
     private void updateMyFinalToken(boolean hasFinalToken) {
         if (hasFinalToken) {
             this.myFinalToken.setImage(new Image("graphics/tokens/endGame.jpg"));
@@ -670,7 +736,10 @@ public class GameControllerFX implements Initializable {
         }
     }
 
-
+    /**
+     * Updates the view of the tiles in the hand of the player using this view.
+     * @param tileHand The list of {@link Tile} objects representing the tiles in the hand
+     */
     private void updateMyTilesPicked(List<Tile> tileHand) {
         Platform.runLater(this::clearTilesPicked);
 
@@ -691,6 +760,9 @@ public class GameControllerFX implements Initializable {
         }
     }
 
+    /**
+     * Clears the list of tiles in the hand of the player using this view.
+     */
     private void clearTilesPicked() {
         for (Node node : tilesHandGrid.getChildren()) {
             node.setOnMouseClicked(null);
@@ -698,6 +770,9 @@ public class GameControllerFX implements Initializable {
         }
     }
 
+    /**
+     * Updates the view of the helper panel showing the current state of the game.
+     */
     private void updateHelper() {
         // Clear helper area
         for (Node node : updatesVBox.getChildren()) {
@@ -755,7 +830,10 @@ public class GameControllerFX implements Initializable {
         }
     }
 
-
+    /**
+     * Updates the view of the personal goals of the player using this view.
+     * @param card The personal goal card that will be shown
+     */
     private void updateMyPersGoal(PersonalGoalCard card) {
         myPersonalGoal.setImage(new Image("graphics/persGoalCards/Personal_Goals" + card.getId() + ".png"));
         myPersonalGoal.setFitHeight(PERSONAL_CARD_HEIGHT);
@@ -787,9 +865,11 @@ public class GameControllerFX implements Initializable {
         }
     }
 
-
     /**
      * This method allows you to add a tile in the form of an ImageView to the board's gridPane.
+     * @param tile The tile that will be added
+     * @param row The row in which the tile will be added
+     * @param col The column in which the tile will be added
      */
     private void addTileToBoard(Tile tile, int row, int col) {
         ImageView tileImage = new ImageView(new Image("graphics/tiles/" + tile.getItemType() + "_" + tile.getItemId() + ".png"));
@@ -819,6 +899,13 @@ public class GameControllerFX implements Initializable {
     ////////////////////////////////////////////////////////////////////////////
     /////////////////////////// UTILITY METHODS ///////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Utility method used to create an onHover effect for a generic {@link Node}.
+     * @param item The node on which the effect will be applied
+     * @param defaultScale The default scale of the node
+     * @param zoomedScale The scale of the node when the mouse is over it
+     */
     private void setOnHoverZoom(Node item, double defaultScale, double zoomedScale) {
         ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), item);
         scaleTransition.setToX(zoomedScale);
@@ -831,10 +918,5 @@ public class GameControllerFX implements Initializable {
         item.setOnMouseEntered(event -> scaleTransition.playFromStart());
         item.setOnMouseExited(event -> scaleRevertTransition.playFromStart());
     }
-
-    public void setClient(Client client) {
-        this.client = client;
-    }
-
 
 }
