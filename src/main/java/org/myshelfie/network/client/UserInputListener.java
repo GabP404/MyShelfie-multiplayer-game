@@ -23,7 +23,8 @@ public class UserInputListener implements Listener<UserInputEvent> {
     /**
      * This method is responsible for packaging and sending the appropriate message to the server.
      * The type of message is determined by the event that was fired.
-     * This kind of listener handles the response direclty after sending the message.
+     * This kind of listener handles the response directly after sending the message, which is directly sent
+     * on every event (unlike {@link org.myshelfie.network.server.GameListener GameListener}).
      * @param ev  The event that was fired. NOTE: This must be an element of an enumeration
      * @param args Arguments included in the message sent to the server. The number and types
      *             of these parameters may vary based on the event the user generated.12
