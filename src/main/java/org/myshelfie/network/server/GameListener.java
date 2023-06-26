@@ -90,6 +90,9 @@ public class GameListener implements Listener<GameEvent> {
      * @return true if the object that triggered the event belongs to the game that this listener is listening to.
      */
     private boolean isMyGameChanged(GameEvent ev, Object changedItem) {
+        if (listenedGame == null || listenedGame.getPlayers() == null || listenedGame.getBoard() == null) {
+            return false;
+        }
         switch (ev) {
             case BOARD_UPDATE -> {
                 // this kind of event is directly triggered by a Board object

@@ -69,7 +69,7 @@ public class LobbyController {
                 }
         );
 
-        gameControllers.get(command.getGameName()).queueAndExecuteInstruction(() -> removeGame(command.getGameName()));
+        gameControllers.get(command.getGameName()).queueAndExecuteInstruction(() -> removeGameWhenFinished(command.getGameName()));
 
         // Queue the operation of saving the server status.
         // This operation is done inside the executor thread at the end of every command so that the status is kept consistent.
@@ -85,9 +85,10 @@ public class LobbyController {
         );
     }
 
-    public static void removeGame(String gameName) {
+    public static void removeGameWhenFinished(String gameName) {
         // Delete the game if it has ended - the update has already been sent to the clients
         if (gameControllers.get(gameName).getGame().getModelState() == ModelState.END_GAME) {
+            server.log(Level.INFO, "Removing game " + gameName + " from the server");
             // Unsubscribe all the clients that were listening to this game
             gameControllers.get(gameName).getGame().getPlayers().forEach(
                     (player) -> {

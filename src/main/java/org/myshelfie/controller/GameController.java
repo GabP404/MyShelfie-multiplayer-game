@@ -82,7 +82,7 @@ public class GameController implements Serializable {
             Server.eventManager.notify(GameEvent.GAME_END, getGame());
             Server.eventManager.sendToClients();
             isRunning = false;
-            LobbyController.removeGame(getGameName());
+            LobbyController.removeGameWhenFinished(getGameName());
         }
     }
 
