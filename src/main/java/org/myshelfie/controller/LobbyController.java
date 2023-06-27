@@ -104,8 +104,7 @@ public class LobbyController {
 
     //remove player lobby
     public void deleteGame(String gameName) {
-        GameController gameController = gameControllers.get(gameName);
-        gameControllers.remove(gameController);
+        GameController gameController = gameControllers.remove(gameName);
     }
 
     public void setPlayerOffline(String nickname, String gameName) {
