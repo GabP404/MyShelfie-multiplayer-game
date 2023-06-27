@@ -132,7 +132,8 @@ public class PrinterCLI {
             String nameFormat = "";
             String pointsFormat = "";
             ImmutablePlayer player = playersRanking.get(i);
-            if (player.isOnline()) {
+            if (!player.isOnline()) {
+                // If the player is offline
                 nameFormat = ULight_gray.toString();
                 pointsFormat = ULight_gray.toString();
             }

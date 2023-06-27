@@ -315,6 +315,7 @@ public class GameController implements Serializable {
             case WAITING_1_SELECTION_TILE_FROM_HAND:
                 checkTokenAchievement();
                 if(checkEndGameBookShelfFull()) {
+                    findWinners();
                     nextState = ModelState.END_GAME;
                 }else {
                     // TODO optimize this with a check to send the player update only once
