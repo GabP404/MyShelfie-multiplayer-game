@@ -11,6 +11,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.myshelfie.controller.GameController;
+import org.myshelfie.model.ModelState;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.GameView;
@@ -33,12 +34,16 @@ public class ViewGUI extends Application implements View  {
     private LobbiesControllerFX lobbiesControllerFX;
     private LoginControllerFX loginControllerFX;
 
+    private EndGameControllerFX endGameControllerFX;
+
     private Boolean reconnecting = false;
     private static Boolean isRMI = false;
     private static String serverAddress;
     private Client client;
     private Media media;
     private MediaPlayer mediaPlayer;
+
+    private Scene scene;
 
     public static void main(String[] args) {
         isRMI = Boolean.parseBoolean(args[0]);
@@ -85,6 +90,13 @@ public class ViewGUI extends Application implements View  {
         scenes.put("EndGame", "/fxml/EndGameFXML.fxml");
         scenes.put("Lobbies", "/fxml/LobbiesFXML.fxml");
         scenes.put("Login", "/fxml/LoginFXML.fxml");
+        fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(getClass().getResource(scenes.get("Login")));
+        try {
+            scene = new Scene(fxmlLoader.load());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -93,11 +105,10 @@ public class ViewGUI extends Application implements View  {
      */
     public void setScene(String sceneName) {
         Platform.runLater(() -> {
-            Scene scene;
             fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(getClass().getResource(scenes.get(sceneName)));
             try {
-                scene = new Scene(fxmlLoader.load());
+                scene.setRoot(fxmlLoader.load());
             } catch (IOException e) {
                 e.printStackTrace();
                 System.out.println("Error loading scene " + sceneName);
@@ -121,7 +132,9 @@ public class ViewGUI extends Application implements View  {
                     gameControllerFX.setMyNickname(this.nickname);
                     gameControllerFX.setClient(this.client);
                     break;
-                //case "EndGame":
+                case "EndGame":
+                    endGameControllerFX = fxmlLoader.getController();
+                    break;
                 case "Lobbies":
                     lobbiesControllerFX = fxmlLoader.getController();
                     lobbiesControllerFX.setClient(client);
@@ -142,6 +155,14 @@ public class ViewGUI extends Application implements View  {
     @Override
     public void update(GameView msg, GameEvent ev) {
         this.gameName = msg.getGameName();
+        if(ev == GameEvent.GAME_END || msg.getModelState() == ModelState.END_GAME) {
+            client.stopHeartbeatThread();
+            setScene("EndGame");
+            Platform.runLater(() -> {
+                endGameControllerFX.createRankingTable(msg);
+            });
+            return;
+        }
         if (gameControllerFX != null) {
             gameControllerFX.update(ev, msg);
         } else {
@@ -180,10 +201,14 @@ public class ViewGUI extends Application implements View  {
     public void run() {
         setScene("Login");
         // Add some music :)
-//        media = new Media(getClass().getResource("/audio/megalovania_lofi.mp3").toExternalForm());
-//        mediaPlayer = new MediaPlayer(media);
-//        mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
-//        mediaPlayer.play();
+        try {
+            media = new Media(getClass().getResource("/audio/megalovania_lofi.mp3").toExternalForm());
+            mediaPlayer = new MediaPlayer(media);
+            mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+            mediaPlayer.play();
+        } catch (Exception e) {
+            System.out.println("Error loading music. Nevermind, it's not that important.");
+        }
     }
 
     /**
@@ -209,6 +234,18 @@ public class ViewGUI extends Application implements View  {
     @Override
     public void endLobbyPhase() {
         setScene("Game");
+        if (client.getNickname().toLowerCase().contains("napol")) {
+            Platform.runLater(() -> {gameControllerFX.setEasterEgg("Napoli");});
+            try {
+                mediaPlayer.stop();
+                media = new Media(getClass().getResource("/audio/sonata_quarta_corda_Bach.mp3").toExternalForm());
+                mediaPlayer = new MediaPlayer(media);
+                mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+                mediaPlayer.play();
+            } catch (Exception e) {
+                System.out.println("Error loading music. Nevermind, it's not that important.");
+            }
+        }
     }
 
     /**

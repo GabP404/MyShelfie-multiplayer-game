@@ -1,9 +1,11 @@
 package org.myshelfie.model;
+import org.myshelfie.model.util.Pair;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.server.Server;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Class representing a Game. This is the main class and is considered the model.
@@ -18,6 +20,12 @@ public class Game implements Serializable {
     private ModelState modelState;
     // State to resume after reconnection in case the game is paused because there is only one player connected
     private ModelState stateToResume = ModelState.WAITING_SELECTION_TILE;
+
+    /**
+     * errorState maps every player nickname to a corresponding (possible) error message
+     */
+    private Map<String, String> errorState;
+
     private Player winner;
     // errorState maps every player nickname to a corresponding (possible) error message
      private Map<String, String> errorState;
@@ -48,7 +56,6 @@ public class Game implements Serializable {
         this.tileBag = tileBag;
         this.currPlayer = players.get(0);
         this.modelState = modelState;
-        this.winner = null;
         this.errorState = new HashMap<>();
         players.forEach( (player) -> errorState.put(player.getNickname(), null) );
         this.gameName = gameName;
@@ -277,4 +284,6 @@ public class Game implements Serializable {
             return currPlayer;
         return null;
     }
+
+
 }

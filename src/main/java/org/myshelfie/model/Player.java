@@ -20,6 +20,8 @@ public class Player implements Serializable {
     private final Bookshelf bookshelf;
     private List<LocatedTile> tilesPicked;
     private int selectedColumn;
+
+    private boolean winner;
     private boolean online;
 
     private static final int DIM_TILESPICKED = 3;
@@ -38,6 +40,15 @@ public class Player implements Serializable {
         this.tilesPicked = new ArrayList<>();
         this.selectedColumn = -1;
         this.online = true;
+        this.winner = false;
+    }
+
+    public boolean isWinner() {
+        return winner;
+    }
+
+    public void setWinner(boolean winner) {
+        this.winner = winner;
     }
 
     public String getNickname() {
@@ -135,6 +146,14 @@ public class Player implements Serializable {
         return points_scoringToken + points_group;
     }
 
+    public int getCommonGoalPoints() {
+        int points_scoringToken = 0;
+        for (ScoringToken s : this.commonGoalTokens) {
+            points_scoringToken += s.getPoints();
+        }
+        return points_scoringToken;
+    }
+
     /**
      * Getter for the points earned from groups of adjacent tiles of the same type.
      * @return number of private points
@@ -220,7 +239,7 @@ public class Player implements Serializable {
      * Method to retrieve the overall score for this player.
      * @return The overall score
      */
-    public int getTotalPoints() throws WrongArgumentException{
+    public int getTotalPoints(){
         return getPublicPoints() + this.personalGoal.getPoints(this.bookshelf) +  (this.hasFinalToken ? 1 : 0);
     }
 }

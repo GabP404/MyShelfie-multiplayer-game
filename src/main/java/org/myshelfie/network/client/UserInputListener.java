@@ -36,13 +36,15 @@ public class UserInputListener implements Listener<UserInputEvent> {
                 Pair<ConnectingStatuses, List<GameController.GameDefinition>> response = (Pair<ConnectingStatuses, List<GameController.GameDefinition>>) client.updateServerPreGame(
                         new CommandMessageWrapper(new NicknameMessage((String) args[0]), ev)
                 );
-                client.setNickname((String) args[0]);
-                client.startHeartBeatThread();
                 if (response.getLeft() == ConnectingStatuses.CONFIRMED) {
+                    client.setNickname((String) args[0]);
+                    client.startHeartBeatThread();
                     client.endLoginPhase(); // Stop the view thread that was waiting for the nickname
                     client.getView().setAvailableGames(response.getRight());
                     System.out.println("Successfully set nickname to " + args[0]);
                 } else if (response.getLeft() == ConnectingStatuses.RECONNECTING) {
+                    client.setNickname((String) args[0]);
+                    client.startHeartBeatThread();
                     System.out.println("Successfully set nickname to " + args[0]);
                     client.getView().setReconnecting(true);
                     System.out.println("Reconnected to a game!");

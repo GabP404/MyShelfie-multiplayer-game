@@ -11,7 +11,6 @@ public class ServerEventManager extends EventManager {
         List<Listener<?>> eventListeners = listeners.get(GameEvent.class);
         if (eventListeners != null) {
             for (Listener<?> listener : eventListeners) {
-                System.out.println("SEM: Sending to client: " + listener);
                 GameListener gameListener = (GameListener) listener;
                 gameListener.sendLastEvent();
             }

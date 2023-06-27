@@ -113,6 +113,8 @@ public class OtherPlayerItemController implements Initializable {
         if (commonGoalTokens.size() >= 1) {
             token1.setImage(new Image("graphics/tokens/scoring_" + commonGoalTokens.get(0).getPoints() + ".jpg"));
             token1.setVisible(true);
+            token1.setLayoutX(2);
+            token1.setLayoutY(10);
             token1.setFitHeight(TOKEN_DIM);
             token1.setFitWidth(TOKEN_DIM);
         } else {
@@ -124,8 +126,9 @@ public class OtherPlayerItemController implements Initializable {
         if (commonGoalTokens.size() >= 2) {
             token2.setImage(new Image("graphics/tokens/scoring_" + commonGoalTokens.get(1).getPoints() + ".jpg"));
             token2.setVisible(true);
-            token2.setX(token1.getX() + 15);
-            token2.setY(token1.getY() + 15);
+            token2.setLayoutX(32);
+            token2.setLayoutY(-4);
+            token2.toFront();
             token2.setFitHeight(TOKEN_DIM);
             token2.setFitWidth(TOKEN_DIM);
         } else {

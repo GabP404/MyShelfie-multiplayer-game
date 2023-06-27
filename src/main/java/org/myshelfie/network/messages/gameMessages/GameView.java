@@ -1,6 +1,7 @@
 package org.myshelfie.network.messages.gameMessages;
 
 import org.myshelfie.model.*;
+import org.myshelfie.model.util.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -102,5 +103,7 @@ public class GameView implements Serializable {
     public ModelState getModelState() {
         return modelState;
     }
+
+
 
 }

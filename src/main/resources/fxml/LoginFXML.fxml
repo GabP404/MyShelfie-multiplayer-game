@@ -30,7 +30,7 @@
          <children>
             <ImageView fx:id="logoImageView" fitHeight="100" fitWidth="100">
                <image>
-                  <Image url="/graphics/publisher/Publisher.png" />
+                  <Image url="@../graphics/publisher/Publisher.png" />
                </image>
             </ImageView>
             <VBox>

@@ -191,6 +191,9 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
      * @param client the client to unregister
      */
     public void unregister(Client client) {
+        if (client == null) {
+            return;
+        }
         this.clients.remove(client);
         GameListener toUnsubscribe = (GameListener) eventManager.getListener(GameEvent.class, (l) -> {
             GameListener gl = (GameListener) l;
@@ -211,13 +214,19 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
         //Get the client from the nickname sent in the message
         Client client = this.getClient(msg.getMessage().getNickname());
         if (client == null) {
+            // Ignore heartbeat messages, as they probably come from clients that have just been unregistered because
+            // their game has ended
+            if (msg.getType() == UserInputEvent.HEARTBEAT) {
+                logger.warning("Received heartbeat from client " + msg.getMessage().getNickname() + " that is not registered anymore - ignoring");
+                return;
+            }
             throw new RemoteException("Client not registered!");
         }
 
         // unwrap the message
         UserInputEvent messageType = msg.getType();
         CommandMessage messageCommand = msg.getMessage();
-        logger.fine("Server received event " + messageType);
+        logger.fine("Server received event " + messageType + " from " + client.getNickname());
 
         // If the message is a heartbeat, update the last heartbeat time of the client and return (nothing to execute)
         if (messageType == UserInputEvent.HEARTBEAT) {
@@ -440,6 +449,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                         inputValid = true;
                     } catch (IllegalArgumentException e) {
                         // The nickname is probably already taken!
+                        logger.fine("Generated IllegalArgumentException before sending response.");
                         response = new Pair<>(ConnectingStatuses.ERROR, new ArrayList<>());
                         sendTo(clientSocket, response);
                     } catch (EOFException e) {
@@ -456,11 +466,13 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
                 if (reconnecting) {
                     // The client is reconnecting to a game.
                     // Skip sending the list of games and wait directly for the game messages.
+                    logger.fine("Sending list of games to RECONNECTING client " + client.getNickname());
                     response = new Pair<>(ConnectingStatuses.RECONNECTING, Server.this.getGames());
                     sendTo(clientSocket, response);
                 } else {
                     // The client is not reconnecting to any game.
                     // Send confirm and list of games
+                    logger.fine("Sending list of games to client " + client.getNickname());
                     response = new Pair<>(ConnectingStatuses.CONFIRMED, Server.this.getGames());
                     sendTo(clientSocket, response);
 

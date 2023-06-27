@@ -34,6 +34,8 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
     private static final int HEARTBEAT_INTERVAL = Configuration.getHeartbeatInterval();
     private long lastHeartbeat = System.currentTimeMillis();
 
+    private Thread heartbeatThread; // Thread that sends heartbeats to the server
+
     protected String nickname;
     protected static String SERVER_ADDRESS = Configuration.getServerAddress();
     protected static final int SERVER_PORT = Configuration.getServerSocketPort();
@@ -276,7 +278,6 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
      * Start a heartbeat thread, that will periodically send a heartbeat message to the server.
      */
     public void startHeartBeatThread() {
-        Thread heartbeatThread;
         if (isRMI) {
             heartbeatThread = new Thread(this::sendHeartbeatRMI);
         } else {
@@ -284,6 +285,13 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
         }
         heartbeatThread.start();
         System.out.println("Heartbeat thread started!");
+    }
+
+    /**
+     * Stop the thread that periodically send the heartbeat message to the server.
+     */
+    public void stopHeartbeatThread() {
+        heartbeatThread.interrupt();
     }
 
     @Override
@@ -354,8 +362,9 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
                 HeartBeatMessage msg = new HeartBeatMessage(this.nickname);
                 rmiServer.heartbeat(this, msg);
                 Thread.sleep(HEARTBEAT_INTERVAL);
-            } catch (RemoteException | InterruptedException e) {
-                // Handle exceptions as needed
+            } catch (InterruptedException | RemoteException e) {
+                // Thread was stopped, so the game is probably over. Terminate the thread
+                break;
             }
         }
     }
@@ -375,7 +384,8 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
                 output.writeObject(heartbeatMsg);
                 Thread.sleep(HEARTBEAT_INTERVAL);
             } catch (IOException | InterruptedException e) {
-                // Handle exceptions as needed
+                // Thread was stopped, so the game is probably over. Terminate the thread
+                break;
             }
         }
     }
