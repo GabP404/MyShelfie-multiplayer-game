@@ -18,7 +18,10 @@ public final class ImmutablePlayer  implements Serializable {
     private final int personalGoalPoints;
     private final int publicPoints;
     private final int totalPoints;
+    private final int commonGoalPoints;
     private final boolean online;
+
+    private final boolean winner;
     private static int DIM_TILESPICKED = 3;
 
     public ImmutablePlayer(Player p) {
@@ -33,8 +36,18 @@ public final class ImmutablePlayer  implements Serializable {
         this.personalGoalPoints = p.getPersonalGoal().getPoints(p.getBookshelf());
         this.publicPoints = p.getPublicPoints();
         this.totalPoints = p.getTotalPoints();
+        this.commonGoalPoints = p.getCommonGoalPoints();
         this.online = p.isOnline();
+        this.winner = p.isWinner();
 
+    }
+
+    public boolean isWinner() {
+        return winner;
+    }
+
+    public int getCommonGoalPoints() {
+        return commonGoalPoints;
     }
 
     public String getNickname() {
@@ -65,7 +78,7 @@ public final class ImmutablePlayer  implements Serializable {
         return selectedColumn;
     }
 
-    public int getTotalPoints() throws WrongArgumentException {
+    public int getTotalPoints(){
         return totalPoints;
     }
     public int getPublicPoints() {

@@ -133,7 +133,6 @@ public class ViewGUI extends Application implements View  {
                     break;
                 case "EndGame":
                     endGameControllerFX = fxmlLoader.getController();
-                    endGameControllerFX.setClient(client);
                     break;
                 case "Lobbies":
                     lobbiesControllerFX = fxmlLoader.getController();
