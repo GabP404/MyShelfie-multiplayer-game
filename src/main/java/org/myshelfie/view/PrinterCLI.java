@@ -170,7 +170,7 @@ public class PrinterCLI {
         }
         print(YELLOW + "╚═════════════════════════════════════════════════════════════════════════════════╝", rankingOffsetX, rankingOffsetY + 7 + playersRanking.size() + k, false);
 
-        print("Type [exit/play] to continue", 0, 1, false);
+        print("Type exit to leave", 0, 1, false);
 
     }
 
