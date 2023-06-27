@@ -15,14 +15,23 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<StackPane styleClass="table" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.myshelfie.view.GUI.GameControllerFX">
+<StackPane styleClass="table" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.myshelfie.view.GUI.GameControllerFX" fx:id="globalPane">
    <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0">
       <children>
          <VBox alignment="CENTER" prefHeight="59.0" prefWidth="1280.0">
             <children>
-               <ImageView fitHeight="70" preserveRatio="true">
-                  <Image url="@../graphics/publisher/Title2000x618px.png" />
-               </ImageView>
+               <HBox prefHeight="100.0" prefWidth="200.0">
+                  <children>
+                     <ImageView fitHeight="70" preserveRatio="true">
+                        <Image url="@../graphics/publisher/Title2000x618px.png" />
+                     </ImageView>
+                     <Label fx:id="gameNameLabel" alignment="BOTTOM_LEFT" prefHeight="70.0" prefWidth="504.0" text="">
+                        <font>
+                           <Font size="32.0" />
+                        </font>
+                     </Label>
+                  </children>
+               </HBox>
             </children>
          </VBox>
          <HBox alignment="CENTER" prefHeight="625.0" prefWidth="1280.0" spacing="20.0">
@@ -72,6 +81,11 @@
                                        <Font size="14.0" />
                                     </font>
                                  </Button>
+                                 <ImageView fx:id="bookshelfPointsTable" fitHeight="63.0" fitWidth="150.0" layoutX="312.0" layoutY="388.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                       <Image url="@../graphics/boards/bookshelfPoints.png" />
+                                    </image>
+                                 </ImageView>
                               </children>
                            </AnchorPane>
                            <HBox alignment="CENTER" prefHeight="200.0" prefWidth="200.0" spacing="20.0">

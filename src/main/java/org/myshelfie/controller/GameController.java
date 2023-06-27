@@ -2,9 +2,9 @@ package org.myshelfie.controller;
 
 import org.myshelfie.model.*;
 import org.myshelfie.network.messages.commandMessages.*;
-
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.server.Server;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URISyntaxException;
@@ -79,16 +79,11 @@ public class GameController implements Serializable {
         @Override
         public void run() {
             endGame();
-            try {
-                getGame().setWinner(getGame().getPlayers().stream().filter(Player::isOnline).toList().get(0));
-                Server.eventManager.notify(GameEvent.GAME_END, getGame());
-                Server.eventManager.sendToClients();
-            } catch (WrongArgumentException e) {
-                throw new RuntimeException(e);
-            } catch (IndexOutOfBoundsException e) {
-                // All the players are offline (get(0) went out of bound), the game ends!
-            }
+            GameController.this.findWinners();
+            Server.eventManager.notify(GameEvent.GAME_END, getGame());
+            Server.eventManager.sendToClients();
             isRunning = false;
+            LobbyController.removeGameWhenFinished(getGameName());
         }
     }
 
@@ -173,26 +168,10 @@ public class GameController implements Serializable {
         this.game.setModelState(ModelState.END_GAME);
     }
 
-    private void checkWinner() {
-        Player p = this.game.getPlayers().stream().reduce( (a, b) -> {
-            try {
-                return a.getTotalPoints() > b.getTotalPoints() ? a:b;
-            } catch (WrongArgumentException e) {
-                throw new RuntimeException(e);
-            }
-        }).orElse(null);
-        try {
-            this.game.setWinner(p);
-        } catch (WrongArgumentException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private boolean checkEndGameBookShelfFull() {
         if(this.game.getPlayers().stream().anyMatch(x -> x.getBookshelf().isFull())) {
             this.game.getCurrPlayer().setHasFinalToken(true);
             endGame();
-            checkWinner();
             return true;
         }
         return false;
@@ -235,12 +214,22 @@ public class GameController implements Serializable {
     }
 
     public void setOnlinePlayer(String nickname) {
-        // If the game is paused, resume it from the starting of the
-        if (this.game.getModelState() == ModelState.PAUSE) {
-            this.game.resumeStateAfterPause();
-        }
+        // If the game was paused, resume it
         this.game.getPlayers().stream().filter(x -> x.getNickname().equals(nickname)).toList().get(0).setOnline(true);
         if(game.getNumOnlinePlayers() > 1) {
+            if (this.game.getModelState() == ModelState.PAUSE) {
+                this.game.resumeStateAfterPause();
+
+                // If the current player is still offline, set it to the next online player so that the others can continue playing
+                if (!this.game.getCurrPlayer().isOnline()) {
+                    // Force setting the player online and offline again, to trigger the handling
+                    // of the turns and possibly clearing the hand of the player
+                    // Note that this does not send an update to the players, as
+                    // `sendToClients` is called only at the end of the method
+                    this.game.getCurrPlayer().setOnline(true);
+                    setPlayerOffline(this.game.getCurrPlayer().getNickname());
+                }
+            }
             if(isTimerRunning())
                 stopTimer();
         }
@@ -263,7 +252,6 @@ public class GameController implements Serializable {
     public void queueAndExecuteCommand(CommandMessage queuedCommand, UserInputEvent queuedEvent) {
         commandExecutor.execute(() -> {
             executeCommand(queuedCommand, queuedEvent);
-            System.out.println("Executed command " + queuedCommand.getClass().getSimpleName());
         });
     }
 
@@ -327,6 +315,7 @@ public class GameController implements Serializable {
             case WAITING_1_SELECTION_TILE_FROM_HAND:
                 checkTokenAchievement();
                 if(checkEndGameBookShelfFull()) {
+                    findWinners();
                     nextState = ModelState.END_GAME;
                 }else {
                     // TODO optimize this with a check to send the player update only once
@@ -361,6 +350,7 @@ public class GameController implements Serializable {
                 }
                 break;
             case END_GAME:
+                findWinners();
                 nextState = ModelState.END_GAME;
                 break;
         }
@@ -371,6 +361,22 @@ public class GameController implements Serializable {
         if(game.getBoard().isRefillNeeded()) {
             this.game.getBoard().refillBoard(this.getNumPlayerGame(), this.game.getTileBag());
         }
+    }
+
+
+    /**
+     * Setting the winner attribute to true of the players who have the maximum points and are online.
+     * Draw is possible
+     */
+    private void findWinners(){
+        int maxPointsOnlinePlayers = this.game.getPlayers().stream().filter(Player::isOnline).mapToInt(x -> x.getTotalPoints()).max().getAsInt();
+        for (Player p : this.game.getPlayers()) {
+            if (p.getTotalPoints() == maxPointsOnlinePlayers && p.isOnline()) {
+                p.setWinner(true);
+                System.out.println(p.getNickname() + " is the winner!");
+            }
+        }
+
     }
 
     public void checkTokenAchievement() throws WrongArgumentException {
@@ -419,8 +425,7 @@ public class GameController implements Serializable {
     }
 
     public boolean isGameCreated() {
-        if (game == null) return false;
-        return true;
+        return game != null;
     }
 
     public boolean isGamePlaying() {

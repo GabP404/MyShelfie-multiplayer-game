@@ -14,6 +14,7 @@ import javafx.scene.layout.VBox;
 import org.myshelfie.controller.GameController;
 import org.myshelfie.model.util.Pair;
 import org.myshelfie.network.client.Client;
+import org.myshelfie.network.messages.commandMessages.CreateGameMessage;
 import org.myshelfie.network.messages.commandMessages.UserInputEvent;
 
 import java.net.URL;
@@ -99,29 +100,6 @@ public class LobbiesControllerFX implements Initializable {
         createLobbies(lobbies);
     }
 
-
-    public void updateLobbiesOptimized(List<GameController.GameDefinition> lobbies) {
-        for (GameController.GameDefinition lobby: lobbies) {
-            if (lobby.isFull() && lobbiesFX.containsKey(lobby.getGameName())) {
-                LobbyContainer.getChildren().remove((lobbiesFX.get(lobby.getGameName())));
-                lobbiesFX.remove(lobby.getGameName());
-            } else if (!lobby.isFull() && !lobbiesFX.containsKey(lobby.getGameName())) {
-                FXMLLoader fxmlLoader = new FXMLLoader();
-                fxmlLoader.setLocation(getClass().getResource("/fxml/LobbyFXML.fxml"));
-                try {
-                    HBox lobbyHBox = fxmlLoader.load();
-                    LobbyControllerFX lobbyControllerFX = fxmlLoader.getController();
-                    lobbyControllerFX.setClient(this.client);
-                    lobbiesFX.put(lobby.getGameName(), lobbyControllerFX);
-                    lobbyControllerFX.setData(lobby);
-                    LobbyContainer.getChildren().add(lobbyHBox);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
     public void HandleLobbyMessage(Pair<Boolean,List<GameController.GameDefinition>> response) {
         if(response.getLeft()) {
             createLobbies(response.getRight());
@@ -140,6 +118,14 @@ public class LobbiesControllerFX implements Initializable {
             alert.setTitle("Error");
             alert.setHeaderText("Error");
             alert.setContentText("Please enter a game name");
+            alert.showAndWait();
+            return;
+        }
+        if(CreateGameName_TXT.getText().length() > 20) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Error");
+            alert.setContentText("Game name must be less than 20 characters");
             alert.showAndWait();
             return;
         }

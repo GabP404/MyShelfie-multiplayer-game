@@ -6,7 +6,9 @@ import org.myshelfie.network.messages.gameMessages.GameView;
 import org.myshelfie.network.messages.gameMessages.ImmutableBoard;
 import org.myshelfie.network.messages.gameMessages.ImmutablePlayer;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.myshelfie.view.CLI.Color.*;
 import static org.myshelfie.view.CLI.Color.BLUE;
@@ -108,58 +110,66 @@ public class PrinterCLI {
     //prints the end game score of all players
     public static void printEndGameScreen(GameView game, String nickname)
     {
-        print("               CommonGoal          PersonalGoal          Bookshelf          End game          Total ", rankingOffsetX, rankingOffsetY - 1, false);
-        print("Nickname         points               points               points             token           points", rankingOffsetX, rankingOffsetY, false);
+            List<ImmutablePlayer> playersRanking = game.getPlayers().stream().sorted(Comparator.comparingInt(ImmutablePlayer::getTotalPoints).reversed()).collect(Collectors.toList());
+        print(YELLOW + "╔═════════════════════════════════════════════════════════════════════════════════╗", rankingOffsetX, rankingOffsetY - 1, false);
+        print(YELLOW + "║                                                                                 ║", rankingOffsetX, rankingOffsetY, false);
+        print("LEADERBOARD", rankingOffsetX + 35, rankingOffsetY, false);
+        print(YELLOW + "╠══════════════════╦════════════╦══════════════╦═══════════╦══════════╦═══════════╣", rankingOffsetX, rankingOffsetY + 1, false);
+        print(YELLOW + "║                  ║            ║              ║           ║          ║           ║", rankingOffsetX, rankingOffsetY + 2, false);
+        print("CommonGoal", rankingOffsetX + 21, rankingOffsetY + 2, false);
+        print("PersonalGoal", rankingOffsetX + 34, rankingOffsetY + 2, false);
+        print("Bookshelf", rankingOffsetX + 49, rankingOffsetY + 2, false);
+        print("EndToken", rankingOffsetX + 62, rankingOffsetY + 2, false);
 
-        int playerNum = 1;
-        StringBuilder playerRowPoints = new StringBuilder();
+        print(CYAN + "PLAYER" + RESET, rankingOffsetX + 7, rankingOffsetY + 2, false);
+        print(CYAN + "TOTAL" + RESET, rankingOffsetX + 73, rankingOffsetY + 2, false);
 
-        //sorts the players by points with the highest first
-        game.getPlayers().sort((p1, p2) -> {
-            try {
-                return p2.getTotalPoints() - p1.getTotalPoints();
-            } catch (WrongArgumentException e) {
-                throw new RuntimeException(e);
+        print(YELLOW + "╠══════════════════╬════════════╬══════════════╬═══════════╬══════════╬═══════════╣", rankingOffsetX, rankingOffsetY + 3, false);
+
+
+        for (int i=0; i<playersRanking.size(); i++) {
+            print(YELLOW + "║                  ║            ║              ║           ║          ║           ║", rankingOffsetX, rankingOffsetY + 4 + i, false);
+            String nameFormat = "";
+            String pointsFormat = "";
+            ImmutablePlayer player = playersRanking.get(i);
+            if (!player.isOnline()) {
+                // If the player is offline
+                nameFormat = ULight_gray.toString();
+                pointsFormat = ULight_gray.toString();
             }
-        });
-
-        //cycles through all players and prints their nickname and points
-        for(ImmutablePlayer p: game.getPlayers())
-        {
-            //every player sees his name in cyan
-            if(p.getNickname().equals(nickname))
-                print(CYAN);
-            print(p.getNickname() + RESET, rankingOffsetX, rankingOffsetY + 1 + (playerNum * 3), false);
-            print(String.valueOf(p.getPointsScoringTokens()), rankingOffsetX + 19, rankingOffsetY + 1 +(playerNum * 3), false);
-            print(String.valueOf(p.getPersonalGoalPoints()), rankingOffsetX + 40, rankingOffsetY + 1 +(playerNum * 3), false);
-            print(String.valueOf(p.getBookshelfPoints()), rankingOffsetX + 61, rankingOffsetY + 1 +(playerNum * 3), false);
-
-
-            if(p.getHasFinalToken())
-                print( "1", rankingOffsetX + 80, rankingOffsetY + 1 +(playerNum * 3), false);
-            else
-                print( "0", rankingOffsetX + 80, rankingOffsetY + 1 +(playerNum * 3), false);
-
-
-            try {
-                print(String.valueOf(p.getTotalPoints()), rankingOffsetX + 95, rankingOffsetY + 1 +(playerNum * 3), false);
-            } catch (WrongArgumentException e) {
-                throw new RuntimeException(e);
+            else if (player.isWinner()) {
+                nameFormat = GREEN.toString();
+                pointsFormat = GREEN.toString();
             }
+            print(nameFormat + player.getNickname() + RESET, rankingOffsetX + 8 - (player.getNickname().length() / 2), rankingOffsetY + 4 + i, false);
+            print(pointsFormat + player.getCommonGoalPoints(), rankingOffsetX + 25, rankingOffsetY + 4 + i, false);
+            print(pointsFormat + player.getPersonalGoalPoints(), rankingOffsetX + 39, rankingOffsetY + 4 + i, false);
+            print(pointsFormat + player.getBookshelfPoints(), rankingOffsetX + 52, rankingOffsetY + 4 + i, false);
+            print(pointsFormat + (player.getHasFinalToken() ? "1" : "0"), rankingOffsetX + 64, rankingOffsetY + 4 + i, false);
+            print(pointsFormat + player.getTotalPoints()+ RESET, rankingOffsetX + 75, rankingOffsetY + 4 + i, false);
 
-
-            try {
-                if(p.getTotalPoints() == game.getPlayers().get(0).getTotalPoints())
-                {
-                    print(YELLOW + "|\\/\\/|\n" ,rankingOffsetX + 105, rankingOffsetY + (playerNum * 3), false);
-                    print(YELLOW + "|____|", rankingOffsetX + 105, rankingOffsetY + 1 + (playerNum * 3), false);
-                }
-            } catch (WrongArgumentException e) {
-                throw new RuntimeException(e);
-            }
-
-            playerNum++;
         }
+
+        print(YELLOW + "╠══════════════════╩════════════╩══════════════╩═══════════╩══════════╩═══════════╣", rankingOffsetX, rankingOffsetY + 4 + playersRanking.size(), false);
+        print(YELLOW + "║                                                                                 ║", rankingOffsetX, rankingOffsetY + 5 + playersRanking.size(), false);
+        print("WINNER", rankingOffsetX + 37, rankingOffsetY + 5 + playersRanking.size(), false);
+        print(YELLOW + "╠═════════════════════════════════════════════════════════════════════════════════╣", rankingOffsetX, rankingOffsetY + 6 + playersRanking.size(), false);
+
+        int k=0;
+        for (int i=0; i < playersRanking.size(); i++) {
+            if (playersRanking.get(i).isWinner()) {
+                print(YELLOW + "║                                                                                 ║", rankingOffsetX, rankingOffsetY + 7 + k + playersRanking.size(), false);
+                String nameFormat = "";
+                ImmutablePlayer player = playersRanking.get(i);
+                if (player.getNickname().equals(nickname))
+                    nameFormat = GREEN.toString();
+                int nameOffset = rankingOffsetX + 40 - ( (int) player.getNickname().length() / 2);
+                print(nameFormat + player.getNickname(), nameOffset, rankingOffsetY + 7 + k + playersRanking.size(), false);
+                k++;
+            }
+        }
+        print(YELLOW + "╚═════════════════════════════════════════════════════════════════════════════════╝", rankingOffsetX, rankingOffsetY + 7 + playersRanking.size() + k, false);
+
         print("Type [exit/play] to continue", 0, 1, false);
 
     }
@@ -197,10 +207,10 @@ public class PrinterCLI {
 
     }
 
-    public static void printAll(GameView game,List<LocatedTile> selectedTiles, String nickname)
-    {
+    public static void printAll(GameView game,List<LocatedTile> selectedTiles, String nickname) {
         for(int i = 0; i < errorOffsetY-2; i++)
             clearRow(0,i);
+        printGameName(game);
         printCommonGoals(game);
         printBoard(game, selectedTiles);
         printAllBookshelves(game, nickname);
@@ -228,8 +238,11 @@ public class PrinterCLI {
 
     }
 
-    private static void printBoard(GameView game, List<LocatedTile> selectedTiles)
-    {
+    private static void printGameName(GameView game) {
+        print(YELLOW + game.getGameName(), 58 - (game.getGameName().length() / 2), 0, false);
+    }
+
+    private static void printBoard(GameView game, List<LocatedTile> selectedTiles) {
         print("BOARD: ",boardOffsetX-2, boardOffsetY-2,false);
         print(BG_LIGHT_CYAN + "                      ",boardOffsetX - 2, boardOffsetY-1,false);
         for(int i = 0; i< Board.DIMBOARD; i++)

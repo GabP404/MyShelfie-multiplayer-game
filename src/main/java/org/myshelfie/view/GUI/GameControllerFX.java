@@ -92,7 +92,14 @@ public class GameControllerFX implements Initializable {
 
     @FXML
     private VBox updatesVBox;
+    @FXML
+    private Label gameNameLabel;
+    @FXML
+    private ImageView bookshelfPointsTable;
+    @FXML
+    private StackPane globalPane;
 
+    private String easterEgg = "";
     private boolean firstSetupDone = false;
 
     private String nickname = null;
@@ -133,6 +140,9 @@ public class GameControllerFX implements Initializable {
         myNickname.setVisible(true);
         otherPlayersLayout.setVisible(true);
         colSelectionArrowsGrid.setVisible(true);
+
+        bookshelfPointsTable.setVisible(true);
+        setOnHoverZoom(bookshelfPointsTable, 1, 1.4);
     }
 
     public void setMyNickname(String nickname) {
@@ -182,6 +192,8 @@ public class GameControllerFX implements Initializable {
         ImmutablePlayer me = game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get();
 
         if (game.getModelState().equals(ModelState.PAUSE)) {
+            updateOtherPlayers(game);
+            updateHelper();
             isPaused = true;
             showInfoDialog("The game is paused because you are the only online player!");
             return;
@@ -201,6 +213,7 @@ public class GameControllerFX implements Initializable {
         if (!firstSetupDone) {
             overlay.setVisible(false);
             updateEverything(game);
+            updateGameName(game.getGameName());
             firstSetupDone = true;
             return;
         }
@@ -220,12 +233,7 @@ public class GameControllerFX implements Initializable {
             case SELECTED_COLUMN_UPDATE -> {
                 udpateColSelectionArrows();
             }
-            case TOKEN_STACK_UPDATE -> {
-                updateCommonGoalCards(game);
-                updateMyCommonGoalToken(me.getCommonGoalTokens());
-            }
-            case CURR_PLAYER_UPDATE -> {
-                updateAmICurrPlayer(game.getCurrPlayer().getNickname().equals(nickname));
+            case TOKEN_STACK_UPDATE, CURR_PLAYER_UPDATE -> {
                 updateCommonGoalCards(game);
                 updateMyCommonGoalToken(me.getCommonGoalTokens());
             }
@@ -236,7 +244,7 @@ public class GameControllerFX implements Initializable {
                 updateMyCommonGoalToken(me.getCommonGoalTokens());
             }
             case FINAL_TOKEN_UPDATE -> {
-                updateMyFinalToken((Boolean) game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get().getHasFinalToken());
+                updateMyFinalToken(game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get().getHasFinalToken());
                 updateCommonGoalCards(game);
             }
             case ERROR -> {
@@ -250,6 +258,7 @@ public class GameControllerFX implements Initializable {
             }
         }
         // Actions that are performed on every update
+        updateAmICurrPlayer(game.getCurrPlayer().getNickname().equals(nickname));
         updateHelper();
         updateTilesConfirmButton();
         updateMyBookshelf(me.getBookshelf());
@@ -313,6 +322,13 @@ public class GameControllerFX implements Initializable {
                             showErrorDialog("You can't pick this tile!");
                             return;
                         }
+                        //check if the tiles can fit in the bookshelf
+                        if (latestGame.getCurrPlayer().getBookshelf().getMinHeight()+ unconfirmedSelectedTiles.size() > Bookshelf.NUMROWS)
+                        {
+                            unconfirmedSelectedTiles.remove(t);
+                            showErrorDialog("You can't pick this tile because it doesn't fit in your bookshelf!");
+                            return;
+                        }
                         tileImage.setEffect(new DropShadow(15, Color.GREEN));
                         tileImage.toFront();
 
@@ -332,10 +348,16 @@ public class GameControllerFX implements Initializable {
                     }
                 } else {
                     // un-pick the tile
+                    unconfirmedSelectedTiles.remove(t);
+                    if(!isTilesGroupSelectable(latestGame.getBoard(), unconfirmedSelectedTiles))
+                    {
+                        unconfirmedSelectedTiles.add(t);
+                        showErrorDialog("You can't un-pick this tile!");
+                        return;
+                    }
                     tileImage.setScaleX(1);
                     tileImage.setScaleY(1);
                     tileImage.setEffect(new DropShadow(5, Color.BLACK));
-                    unconfirmedSelectedTiles.remove(t);
                     System.out.println("Deselected tile: " + row + " " + col);
                 }
             }
@@ -380,7 +402,12 @@ public class GameControllerFX implements Initializable {
 
 
     private void onArrowClicked(int column, ImageView arrowImage) {
-        // TODO: implement controls that prevent the player from selecting a column that cannot contains the tiles he selected
+        //control that prevents the player from selecting a column that cannot contain the tiles he selected
+        if(latestGame.getCurrPlayer().getBookshelf().getHeight(column) + latestGame.getCurrPlayer().getTilesPicked().size() > Bookshelf.NUMROWS)
+        {
+            showErrorDialog("You can't fit the selected tiles in this column!");
+            return;
+        }
         selectedColumn = column;
         ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), arrowImage);
         scaleTransition.setToX(arrowImage.getScaleX() * 1.1);
@@ -399,8 +426,6 @@ public class GameControllerFX implements Initializable {
 
 
     private void onConfirmTilesSelection() {
-        // TODO: implement controls that prevent the player from selecting to many tiles when he has
-        //       not enough space in at least one of the columns of the bookshelf
         if (unconfirmedSelectedTiles.size() >= 1) {
             Platform.runLater(() -> {
                 // Remove the selected tiles from the board
@@ -476,7 +501,7 @@ public class GameControllerFX implements Initializable {
                                 HBox otherPlayerItem = loader.load();
                                 OtherPlayerItemController controller = loader.getController();
                                 // save the controller inside the map
-                                otherPlayerItemControllers.put(player.getNickname(), controller);
+                                    otherPlayerItemControllers.put(player.getNickname(), controller);
                                 // add the item to the layout
                                 otherPlayersLayout.getChildren().add(otherPlayerItem);
                             } catch (IOException e) {
@@ -493,6 +518,13 @@ public class GameControllerFX implements Initializable {
         });
     }
 
+    private void updateGameName(String gameName) {
+        Platform.runLater(() -> {
+            gameNameLabel.setText(gameName);
+            gameNameLabel.setFont(Font.font("System", FontWeight.BOLD, 30));
+            gameNameLabel.setVisible(true);
+        });
+    }
 
 
     private void udpateColSelectionArrows() {
@@ -527,17 +559,19 @@ public class GameControllerFX implements Initializable {
     }
 
     private void updateAmICurrPlayer(boolean amICurrPlayer) {
-        if (amICurrPlayer) {
-            myNickname.setFont(Font.font("System", FontWeight.BOLD, 20));
-            myNickname.setEffect(new DropShadow(15, Color.WHITE));
-            myNickname.setText(nickname + " \uD83C\uDFF3\uFE0F");
-            myNickname.setVisible(true);
-        } else {
-            myNickname.setFont(Font.font("System", FontWeight.BOLD, 12));
-            myNickname.setEffect(null);
-            myNickname.setText(nickname);
-            myNickname.setVisible(true);
-        }
+        Platform.runLater(() -> {
+            if (amICurrPlayer) {
+                myNickname.setFont(Font.font("System", FontWeight.BOLD, 20));
+                myNickname.setEffect(new DropShadow(15, Color.WHITE));
+                myNickname.setText(nickname + " \uD83C\uDFF3\uFE0F");
+                myNickname.setVisible(true);
+            } else {
+                myNickname.setFont(Font.font("System", FontWeight.BOLD, 12));
+                myNickname.setEffect(null);
+                myNickname.setText(nickname);
+                myNickname.setVisible(true);
+            }
+        });
     }
 
     private void updateTilesConfirmButton() {
@@ -700,10 +734,25 @@ public class GameControllerFX implements Initializable {
 
     private void updateHelper() {
         // Clear helper area
-        for (Node node : updatesVBox.getChildren()) {
-            Platform.runLater(() -> updatesVBox.getChildren().remove(node));
+        for (Node node : updatesVBox.getChildren())
+            Platform.runLater(() -> {
+                node.setVisible(false);
+                updatesVBox.getChildren().remove(node);
+            });
+
+        if (latestGame.getModelState() == ModelState.PAUSE) {
+            // Signals my turn!
+            Platform.runLater(() -> {
+                Label helperPause = new Label("The game is paused because you're\n the only player online.");
+                helperPause.setFont(Font.font("System", FontWeight.BOLD, 18));
+                helperPause.setEffect(new DropShadow(10, Color.WHITE));
+                helperPause.setAlignment(Pos.CENTER);
+                updatesVBox.getChildren().add(helperPause);
+            });
+            return;
         }
 
+        // Add helper text
         if (latestGame.getCurrPlayer().getNickname().equals(nickname)) {
             // Signals my turn!
             Platform.runLater(() -> {
@@ -755,13 +804,12 @@ public class GameControllerFX implements Initializable {
         }
     }
 
-
     private void updateMyPersGoal(PersonalGoalCard card) {
         myPersonalGoal.setImage(new Image("graphics/persGoalCards/Personal_Goals" + card.getId() + ".png"));
         myPersonalGoal.setFitHeight(PERSONAL_CARD_HEIGHT);
         myPersonalGoal.setEffect(new DropShadow(10, Color.BLACK));
 
-        setOnHoverZoom(myPersonalGoal, 1, 1.2);
+        setOnHoverZoom(myPersonalGoal, 1, 1.3);
 
         myPersonalGoal.setVisible(true);
     }
@@ -772,7 +820,6 @@ public class GameControllerFX implements Initializable {
      */
     private void updateBoard(ImmutableBoard board) {
         Platform.runLater(this::clearBoard);
-
         // Fill the board with the tiles
         for (int r = 0; r < Board.DIMBOARD; r++) {
             for (int c = 0; c < Board.DIMBOARD; c++) {
@@ -792,7 +839,10 @@ public class GameControllerFX implements Initializable {
      * This method allows you to add a tile in the form of an ImageView to the board's gridPane.
      */
     private void addTileToBoard(Tile tile, int row, int col) {
-        ImageView tileImage = new ImageView(new Image("graphics/tiles/" + tile.getItemType() + "_" + tile.getItemId() + ".png"));
+        String extra = "";
+        if (tile.getItemType() == ItemType.TROPHY)
+            extra = easterEgg;
+        ImageView tileImage = new ImageView(new Image("graphics/tiles/" + tile.getItemType() + "_" + tile.getItemId() + extra + ".png"));
         tileImage.setVisible(true);
         tileImage.setOnMouseClicked(mouseEvent -> onTileClicked(tileImage, row, col));
         tileImage.setFitHeight(TILE_DIM);
@@ -836,5 +886,14 @@ public class GameControllerFX implements Initializable {
         this.client = client;
     }
 
+    public void setEasterEgg(String str) {
+        easterEgg = str;
+        applyEasterEgg();
+    }
 
+    private void applyEasterEgg() {
+        boardImage.setImage(new Image("/graphics/boards/livingroom" + easterEgg + ".png"));
+        myBookshelfImage.setImage(new Image("/graphics/boards/bookshelf" + easterEgg + ".png"));
+        globalPane.setStyle("-fx-background-image: url('/graphics/misc/parquet" + easterEgg + ".jpg')");
+    }
 }

@@ -1,9 +1,11 @@
 package org.myshelfie.model;
+import org.myshelfie.model.util.Pair;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.server.Server;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Game implements Serializable {
 
@@ -19,7 +21,6 @@ public class Game implements Serializable {
     // State to resume after reconnection in case the game is paused because there is only one player connected
     private ModelState stateToResume = ModelState.WAITING_SELECTION_TILE;
 
-    private Player winner;
     /**
      * errorState maps every player nickname to a corresponding (possible) error message
      */
@@ -37,7 +38,6 @@ public class Game implements Serializable {
         this.tileBag = tileBag;
         this.currPlayer = players.get(0);
         this.modelState = modelState;
-        this.winner = null;
         this.errorState = new HashMap<>();
         players.forEach( (player) -> errorState.put(player.getNickname(), null) );
 
@@ -164,17 +164,6 @@ public class Game implements Serializable {
         this.modelState = this.stateToResume;
     }
 
-    public Player getWinner() {
-        return winner;
-    }
-
-    public void setWinner(Player winner) throws WrongArgumentException {
-        if (winner == null || !players.contains(winner))
-            throw new WrongArgumentException("Player not found");
-        this.modelState = ModelState.END_GAME;
-        this.winner = winner;
-    }
-
     public int getNumOnlinePlayers() {
         return (int) players.stream().filter(Player::isOnline).count();
     }
@@ -185,6 +174,12 @@ public class Game implements Serializable {
 
     public boolean isPlaying() {
         return playing;
+    }
+
+    public void setPlaying(boolean playing) {
+        // TODO: to handle player's disconnection a notify with a specific event will be required
+        //  (also for the setter of Player's online attribute)
+        this.playing = playing;
     }
 
     /**
@@ -206,4 +201,6 @@ public class Game implements Serializable {
             return currPlayer;
         return null;
     }
+
+
 }
