@@ -192,10 +192,14 @@ public class ViewGUI extends Application implements View  {
     public void run() {
         setScene("Login");
         // Add some music :)
-//        media = new Media(getClass().getResource("/audio/megalovania_lofi.mp3").toExternalForm());
-//        mediaPlayer = new MediaPlayer(media);
-//        mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
-//        mediaPlayer.play();
+        try {
+            media = new Media(getClass().getResource("/audio/megalovania_lofi.mp3").toExternalForm());
+            mediaPlayer = new MediaPlayer(media);
+            mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+            mediaPlayer.play();
+        } catch (Exception e) {
+            System.out.println("Error loading music. Nevermind, it's not that important.");
+        }
     }
 
 
