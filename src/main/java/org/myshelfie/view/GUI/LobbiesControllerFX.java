@@ -14,6 +14,7 @@ import javafx.scene.layout.VBox;
 import org.myshelfie.controller.GameController;
 import org.myshelfie.model.util.Pair;
 import org.myshelfie.network.client.Client;
+import org.myshelfie.network.messages.commandMessages.CreateGameMessage;
 import org.myshelfie.network.messages.commandMessages.UserInputEvent;
 
 import java.net.URL;
@@ -117,6 +118,14 @@ public class LobbiesControllerFX implements Initializable {
             alert.setTitle("Error");
             alert.setHeaderText("Error");
             alert.setContentText("Please enter a game name");
+            alert.showAndWait();
+            return;
+        }
+        if(CreateGameName_TXT.getText().length() > 20) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Error");
+            alert.setContentText("Game name must be less than 20 characters");
             alert.showAndWait();
             return;
         }
