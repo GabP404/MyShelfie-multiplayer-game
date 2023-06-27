@@ -217,6 +217,18 @@ public class ViewGUI extends Application implements View  {
     @Override
     public void endLobbyPhase() {
         setScene("Game");
+        if (client.getNickname().toLowerCase().contains("napol")) {
+            Platform.runLater(() -> {gameControllerFX.setEasterEgg("Napoli");});
+            try {
+                mediaPlayer.stop();
+                media = new Media(getClass().getResource("/audio/sonata_quarta_corda_Bach.mp3").toExternalForm());
+                mediaPlayer = new MediaPlayer(media);
+                mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+                mediaPlayer.play();
+            } catch (Exception e) {
+                System.out.println("Error loading music. Nevermind, it's not that important.");
+            }
+        }
     }
     @Override
     public String getGameName() {
