@@ -32,6 +32,8 @@ class LobbyControllerTest {
     private static ServerEventManager serverEventManager;
     @Mock
     private static EventManager eventManager;
+    @Mock
+    private static Client client;
     @InjectMocks
     private static LobbyController single_istance;
 
@@ -39,32 +41,23 @@ class LobbyControllerTest {
 
     @BeforeAll
     static void beforeAll() throws IllegalAccessException {
-        //MOKITO STUFF, tried to make it work for 2 hours, gave up
-        //FYKI:
-        //last attempt was trying to use FieldUtils.writeField to set the inner fields of the singleton
-        //didn't know if it made even sense to do it, but I was desperate
-        //added the dependency for that in the pom.xml
         server = Mockito.mock(Server.class);
-        gameListener = Mockito.mock(GameListener.class);
-        serverEventManager = Mockito.mock(ServerEventManager.class);
-        eventManager = Mockito.mock(EventManager.class);
+        Server.eventManager = Mockito.mock(ServerEventManager.class);
+
         MockitoAnnotations.openMocks(LobbyControllerTest.class);
-//        try {
-//            Mockito.doNothing().when(server).update(Mockito.any(), Mockito.any());
-//            Mockito.doNothing().when(server).sendTo(Mockito.any(), Mockito.any());
-//            Mockito.doNothing().when(gameListener).update(Mockito.any(), Mockito.any());
-//            Mockito.doNothing().when(gameListener).sendLastEvent();
-//            Mockito.doNothing().when(serverEventManager).sendToClients();
-//            Mockito.doNothing().when(serverEventManager).notify(Mockito.any(), Mockito.any());
-//            Mockito.doNothing().when(eventManager).notify(Mockito.any(), Mockito.any());
-//        } catch (RemoteException e) {
-//            throw new RuntimeException(e);
-//        }
+        try {
+            Mockito.doNothing().when(server).update(Mockito.any(), Mockito.any());
+            Mockito.doNothing().when(server).sendTo(Mockito.any(), Mockito.any());
+            Mockito.doReturn(new Client()).when(server).getClient(Mockito.any());
+            Mockito.doNothing().when(server).unregister(Mockito.any());
+            Mockito.doNothing().when(server).log(Mockito.any(), Mockito.any());
+            Mockito.doNothing().when(Server.eventManager).sendToClients();
+            Mockito.doReturn(true).when(server).shouldResumeFromBackup();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
 
         single_istance = LobbyController.getInstance(server);
-//        FieldUtils.writeField(single_istance, "gameListener", gameListener, true);
-//        FieldUtils.writeField(single_istance, "serverEventManager", serverEventManager, true);
-//        FieldUtils.writeField(single_istance, "eventManager", eventManager, true);
 
 
         single_istance.createGame(new CreateGameMessage("User1", "testGame", 4, false));
@@ -98,13 +91,20 @@ class LobbyControllerTest {
         assertEquals(0, single_istance.getGames().size(), "There should be no games");
     }
 
-    @BeforeEach
-    void setUp(){
+    @Test
+    void NoResumeFromBackup(){
+        //TODO: does not work
+
+//        Server noResumeServer = null;
+//        single_istance = null;
+//        try {
+//            noResumeServer = new Server();
+//        } catch (RemoteException e) {
+//            throw new RuntimeException(e);
+//        }
+//        single_istance = LobbyController.getInstance(noResumeServer);
     }
 
-    @AfterEach
-    void tearDown() {
-    }
 
     @Test
     void executeCommand() {
@@ -114,23 +114,36 @@ class LobbyControllerTest {
             single_istance.executeCommand(cmw.getMessage(),cmw.getType());
         });
         CommandMessageWrapper ColMessage = new CommandMessageWrapper(new SelectedColumnMessage("User1", "testGame", 0), UserInputEvent.SELECTED_BOOKSHELF_COLUMN);
-        //single_istance.executeCommand(ColMessage.getMessage(),ColMessage.getType());
+        single_istance.executeCommand(ColMessage.getMessage(),ColMessage.getType());
     }
 
     @Test
     void getGameNameFromPlayerNickname() {
         assertEquals("testGame",single_istance.getGameNameFromPlayerNickname("User1"));
+        assertNull(single_istance.getGameNameFromPlayerNickname("User5"));
     }
 
     @Test
     void handleClientDisconnectionReconnection() {
-//        single_istance.handleClientDisconnection("User1");
-//        Game game = single_istance.retrieveGame("testGame");
-//        assertEquals(3, game.getPlayers().size());
-//        single_istance.handleClientReconnection("User1");
-//        game = single_istance.retrieveGame("testGame");
-//        assertEquals(4, game.getPlayers().size());
+        single_istance.handleClientDisconnection("User1");
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        Game game = single_istance.retrieveGame("testGame");
+        assertEquals(Boolean.FALSE, game.getPlayers().get(0).isOnline());
+        single_istance.handleClientReconnection("User1");
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        game = single_istance.retrieveGame("testGame");
+        assertEquals(Boolean.TRUE, game.getPlayers().get(0).isOnline());
     }
+
+
 
 
 }
