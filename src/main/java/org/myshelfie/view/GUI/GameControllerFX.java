@@ -329,10 +329,16 @@ public class GameControllerFX implements Initializable {
                     }
                 } else {
                     // un-pick the tile
+                    unconfirmedSelectedTiles.remove(t);
+                    if(!isTilesGroupSelectable(latestGame.getBoard(), unconfirmedSelectedTiles))
+                    {
+                        unconfirmedSelectedTiles.add(t);
+                        showErrorDialog("You can't un-pick this tile!");
+                        return;
+                    }
                     tileImage.setScaleX(1);
                     tileImage.setScaleY(1);
                     tileImage.setEffect(new DropShadow(5, Color.BLACK));
-                    unconfirmedSelectedTiles.remove(t);
                     System.out.println("Deselected tile: " + row + " " + col);
                 }
             }
