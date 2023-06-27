@@ -32,6 +32,8 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static org.myshelfie.view.PrinterCLI.printError;
+
 public class GameControllerFX implements Initializable {
     @FXML
     private GridPane boardGrid;
@@ -314,6 +316,13 @@ public class GameControllerFX implements Initializable {
                             showErrorDialog("You can't pick this tile!");
                             return;
                         }
+                        //check if the tiles can fit in the bookshelf
+                        if (latestGame.getCurrPlayer().getBookshelf().getMinHeight()+ unconfirmedSelectedTiles.size() > Bookshelf.NUMROWS)
+                        {
+                            unconfirmedSelectedTiles.remove(t);
+                            showErrorDialog("You can't pick this tile because it doesn't fit in your bookshelf!");
+                            return;
+                        }
                         tileImage.setEffect(new DropShadow(15, Color.GREEN));
                         tileImage.toFront();
 
@@ -333,10 +342,16 @@ public class GameControllerFX implements Initializable {
                     }
                 } else {
                     // un-pick the tile
+                    unconfirmedSelectedTiles.remove(t);
+                    if(!isTilesGroupSelectable(latestGame.getBoard(), unconfirmedSelectedTiles))
+                    {
+                        unconfirmedSelectedTiles.add(t);
+                        showErrorDialog("You can't un-pick this tile!");
+                        return;
+                    }
                     tileImage.setScaleX(1);
                     tileImage.setScaleY(1);
                     tileImage.setEffect(new DropShadow(5, Color.BLACK));
-                    unconfirmedSelectedTiles.remove(t);
                     System.out.println("Deselected tile: " + row + " " + col);
                 }
             }
@@ -381,7 +396,12 @@ public class GameControllerFX implements Initializable {
 
 
     private void onArrowClicked(int column, ImageView arrowImage) {
-        // TODO: implement controls that prevent the player from selecting a column that cannot contains the tiles he selected
+        //control that prevents the player from selecting a column that cannot contain the tiles he selected
+        if(latestGame.getCurrPlayer().getBookshelf().getHeight(column) + latestGame.getCurrPlayer().getTilesPicked().size() > Bookshelf.NUMROWS)
+        {
+            showErrorDialog("You can't fit the selected tiles in this column!");
+            return;
+        }
         selectedColumn = column;
         ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), arrowImage);
         scaleTransition.setToX(arrowImage.getScaleX() * 1.1);
@@ -400,8 +420,6 @@ public class GameControllerFX implements Initializable {
 
 
     private void onConfirmTilesSelection() {
-        // TODO: implement controls that prevent the player from selecting to many tiles when he has
-        //       not enough space in at least one of the columns of the bookshelf
         if (unconfirmedSelectedTiles.size() >= 1) {
             Platform.runLater(() -> {
                 // Remove the selected tiles from the board
