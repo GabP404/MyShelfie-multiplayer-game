@@ -221,12 +221,7 @@ public class GameControllerFX implements Initializable {
             case SELECTED_COLUMN_UPDATE -> {
                 udpateColSelectionArrows();
             }
-            case TOKEN_STACK_UPDATE -> {
-                updateCommonGoalCards(game);
-                updateMyCommonGoalToken(me.getCommonGoalTokens());
-            }
-            case CURR_PLAYER_UPDATE -> {
-                updateAmICurrPlayer(game.getCurrPlayer().getNickname().equals(nickname));
+            case TOKEN_STACK_UPDATE, CURR_PLAYER_UPDATE -> {
                 updateCommonGoalCards(game);
                 updateMyCommonGoalToken(me.getCommonGoalTokens());
             }
@@ -237,7 +232,7 @@ public class GameControllerFX implements Initializable {
                 updateMyCommonGoalToken(me.getCommonGoalTokens());
             }
             case FINAL_TOKEN_UPDATE -> {
-                updateMyFinalToken((Boolean) game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get().getHasFinalToken());
+                updateMyFinalToken(game.getPlayers().stream().filter(p -> p.getNickname().equals(nickname)).findFirst().get().getHasFinalToken());
                 updateCommonGoalCards(game);
             }
             case ERROR -> {
@@ -251,6 +246,7 @@ public class GameControllerFX implements Initializable {
             }
         }
         // Actions that are performed on every update
+        updateAmICurrPlayer(game.getCurrPlayer().getNickname().equals(nickname));
         updateHelper();
         updateTilesConfirmButton();
         updateMyBookshelf(me.getBookshelf());
@@ -703,10 +699,12 @@ public class GameControllerFX implements Initializable {
 
     private void updateHelper() {
         // Clear helper area
-        for (Node node : updatesVBox.getChildren()) {
-            Platform.runLater(() -> updatesVBox.getChildren().remove(node));
-        }
-
+        for (Node node : updatesVBox.getChildren())
+            Platform.runLater(() -> {
+                node.setVisible(false);
+                updatesVBox.getChildren().remove(node);
+            });
+        // Add helper text
         if (latestGame.getCurrPlayer().getNickname().equals(nickname)) {
             // Signals my turn!
             Platform.runLater(() -> {
@@ -758,7 +756,6 @@ public class GameControllerFX implements Initializable {
         }
     }
 
-
     private void updateMyPersGoal(PersonalGoalCard card) {
         myPersonalGoal.setImage(new Image("graphics/persGoalCards/Personal_Goals" + card.getId() + ".png"));
         myPersonalGoal.setFitHeight(PERSONAL_CARD_HEIGHT);
@@ -775,7 +772,6 @@ public class GameControllerFX implements Initializable {
      */
     private void updateBoard(ImmutableBoard board) {
         Platform.runLater(this::clearBoard);
-
         // Fill the board with the tiles
         for (int r = 0; r < Board.DIMBOARD; r++) {
             for (int c = 0; c < Board.DIMBOARD; c++) {
