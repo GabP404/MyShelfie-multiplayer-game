@@ -96,7 +96,10 @@ public class GameControllerFX implements Initializable {
     private Label gameNameLabel;
     @FXML
     private ImageView bookshelfPointsTable;
+    @FXML
+    private StackPane globalPane;
 
+    private String easterEgg = "";
     private boolean firstSetupDone = false;
 
     private String nickname = null;
@@ -498,7 +501,7 @@ public class GameControllerFX implements Initializable {
                                 HBox otherPlayerItem = loader.load();
                                 OtherPlayerItemController controller = loader.getController();
                                 // save the controller inside the map
-                                otherPlayerItemControllers.put(player.getNickname(), controller);
+                                    otherPlayerItemControllers.put(player.getNickname(), controller);
                                 // add the item to the layout
                                 otherPlayersLayout.getChildren().add(otherPlayerItem);
                             } catch (IOException e) {
@@ -836,7 +839,10 @@ public class GameControllerFX implements Initializable {
      * This method allows you to add a tile in the form of an ImageView to the board's gridPane.
      */
     private void addTileToBoard(Tile tile, int row, int col) {
-        ImageView tileImage = new ImageView(new Image("graphics/tiles/" + tile.getItemType() + "_" + tile.getItemId() + ".png"));
+        String extra = "";
+        if (tile.getItemType() == ItemType.TROPHY)
+            extra = easterEgg;
+        ImageView tileImage = new ImageView(new Image("graphics/tiles/" + tile.getItemType() + "_" + tile.getItemId() + extra + ".png"));
         tileImage.setVisible(true);
         tileImage.setOnMouseClicked(mouseEvent -> onTileClicked(tileImage, row, col));
         tileImage.setFitHeight(TILE_DIM);
@@ -880,5 +886,14 @@ public class GameControllerFX implements Initializable {
         this.client = client;
     }
 
+    public void setEasterEgg(String str) {
+        easterEgg = str;
+        applyEasterEgg();
+    }
 
+    private void applyEasterEgg() {
+        boardImage.setImage(new Image("/graphics/boards/livingroom" + easterEgg + ".png"));
+        myBookshelfImage.setImage(new Image("/graphics/boards/bookshelf" + easterEgg + ".png"));
+        globalPane.setStyle("-fx-background-image: url('/graphics/misc/parquet" + easterEgg + ".jpg')");
+    }
 }
