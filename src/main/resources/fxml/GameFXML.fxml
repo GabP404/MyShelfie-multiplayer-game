@@ -81,6 +81,11 @@
                                        <Font size="14.0" />
                                     </font>
                                  </Button>
+                                 <ImageView fx:id="bookshelfPointsTable" fitHeight="63.0" fitWidth="150.0" layoutX="312.0" layoutY="388.0" pickOnBounds="true" preserveRatio="true">
+                                    <image>
+                                       <Image url="@../graphics/boards/bookshelfPoints.png" />
+                                    </image>
+                                 </ImageView>
                               </children>
                            </AnchorPane>
                            <HBox alignment="CENTER" prefHeight="200.0" prefWidth="200.0" spacing="20.0">

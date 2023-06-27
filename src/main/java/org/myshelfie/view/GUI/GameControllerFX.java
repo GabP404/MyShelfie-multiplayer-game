@@ -32,8 +32,6 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static org.myshelfie.view.PrinterCLI.printError;
-
 public class GameControllerFX implements Initializable {
     @FXML
     private GridPane boardGrid;
@@ -96,6 +94,8 @@ public class GameControllerFX implements Initializable {
     private VBox updatesVBox;
     @FXML
     private Label gameNameLabel;
+    @FXML
+    private ImageView bookshelfPointsTable;
 
     private boolean firstSetupDone = false;
 
@@ -137,6 +137,9 @@ public class GameControllerFX implements Initializable {
         myNickname.setVisible(true);
         otherPlayersLayout.setVisible(true);
         colSelectionArrowsGrid.setVisible(true);
+
+        bookshelfPointsTable.setVisible(true);
+        setOnHoverZoom(bookshelfPointsTable, 1, 1.4);
     }
 
     public void setMyNickname(String nickname) {
@@ -803,7 +806,7 @@ public class GameControllerFX implements Initializable {
         myPersonalGoal.setFitHeight(PERSONAL_CARD_HEIGHT);
         myPersonalGoal.setEffect(new DropShadow(10, Color.BLACK));
 
-        setOnHoverZoom(myPersonalGoal, 1, 1.2);
+        setOnHoverZoom(myPersonalGoal, 1, 1.3);
 
         myPersonalGoal.setVisible(true);
     }
