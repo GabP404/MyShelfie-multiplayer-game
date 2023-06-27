@@ -72,14 +72,14 @@
       </AnchorPane>
       <VBox alignment="TOP_CENTER" prefHeight="207.0" prefWidth="139.0" spacing="20.0">
          <children>
-            <Label fx:id="nicknameLabel" text="player2" textAlignment="CENTER" styleClass="nickname-label" />
+            <Label fx:id="nicknameLabel" styleClass="nickname-label" text="player2" textAlignment="CENTER" />
             <HBox alignment="CENTER" prefHeight="68.0" prefWidth="146.0" spacing="10.0">
                <children>
                   <ImageView fx:id="finalToken" fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 5, 0, 0, 0);" />
                   <AnchorPane prefHeight="200.0" prefWidth="200.0">
                      <children>
-                        <ImageView fx:id="token2" fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 5, 0, 0, 0);" />
-                        <ImageView fx:id="token1" fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 5, 0, 0, 0);" />
+                        <ImageView fx:id="token2" fitHeight="60.0" fitWidth="60.0" layoutX="32.0" layoutY="-4.0" pickOnBounds="true" preserveRatio="true" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 5, 0, 0, 0);" />
+                        <ImageView fx:id="token1" fitHeight="60.0" fitWidth="60.0" layoutX="2.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true" style="-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 5, 0, 0, 0);" />
                      </children>
                   </AnchorPane>
                </children>
