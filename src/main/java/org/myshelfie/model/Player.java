@@ -17,6 +17,8 @@ public class Player implements Serializable {
     private Bookshelf bookshelf;
     private List<LocatedTile> tilesPicked;
     private int selectedColumn;
+
+    private boolean winner;
     private boolean online;
 
     private static int DIM_TILESPICKED = 3;
@@ -35,6 +37,15 @@ public class Player implements Serializable {
         this.tilesPicked = new ArrayList<>();
         this.selectedColumn = -1;
         this.online = true;
+        this.winner = false;
+    }
+
+    public boolean isWinner() {
+        return winner;
+    }
+
+    public void setWinner(boolean winner) {
+        this.winner = winner;
     }
 
     public String getNickname() {
@@ -107,6 +118,14 @@ public class Player implements Serializable {
         }
         int points_group = getBookshelfPoints();
         return points_scoringToken + points_group;
+    }
+
+    public int getCommonGoalPoints() {
+        int points_scoringToken = 0;
+        for (ScoringToken s : this.commonGoalTokens) {
+            points_scoringToken += s.getPoints();
+        }
+        return points_scoringToken;
     }
 
     public int getBookshelfPoints() {

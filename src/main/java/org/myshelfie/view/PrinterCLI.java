@@ -6,7 +6,9 @@ import org.myshelfie.network.messages.gameMessages.GameView;
 import org.myshelfie.network.messages.gameMessages.ImmutableBoard;
 import org.myshelfie.network.messages.gameMessages.ImmutablePlayer;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.myshelfie.view.CLI.Color.*;
 import static org.myshelfie.view.CLI.Color.BLUE;
@@ -108,8 +110,7 @@ public class PrinterCLI {
     //prints the end game score of all players
     public static void printEndGameScreen(GameView game, String nickname)
     {
-        List<Pair<ImmutablePlayer,Boolean>> ranking = game.getRanking();
-
+            List<ImmutablePlayer> playersRanking = game.getPlayers().stream().sorted(Comparator.comparingInt(ImmutablePlayer::getTotalPoints).reversed()).collect(Collectors.toList());
         print(YELLOW + "╔═════════════════════════════════════════════════════════════════════════════════╗", rankingOffsetX, rankingOffsetY - 1, false);
         print(YELLOW + "║                                                                                 ║", rankingOffsetX, rankingOffsetY, false);
         print("LEADERBOARD", rankingOffsetX + 35, rankingOffsetY, false);
@@ -127,49 +128,46 @@ public class PrinterCLI {
         print(YELLOW + "╠══════════════════╬════════════╬══════════════╬═══════════╬══════════╬═══════════╣", rankingOffsetX, rankingOffsetY + 3, false);
 
 
-        for (int i=0; i<ranking.size(); i++) {
+        for (int i=0; i<playersRanking.size(); i++) {
             print(YELLOW + "║                  ║            ║              ║           ║          ║           ║", rankingOffsetX, rankingOffsetY + 4 + i, false);
             String nameFormat = "";
             String pointsFormat = "";
-            ImmutablePlayer player = ranking.get(i).getLeft();
-            if (!ranking.get(i).getLeft().isOnline()) {
+            ImmutablePlayer player = playersRanking.get(i);
+            if (player.isOnline()) {
                 nameFormat = ULight_gray.toString();
                 pointsFormat = ULight_gray.toString();
             }
-            else if (ranking.get(i).getLeft().getNickname().equals(nickname)) {
+            else if (player.isWinner()) {
                 nameFormat = GREEN.toString();
                 pointsFormat = GREEN.toString();
             }
-            try {
-                print(nameFormat + player.getNickname() + RESET, rankingOffsetX + 4, rankingOffsetY + 4 + i, false);
-                print(pointsFormat + player.getPublicPoints(), rankingOffsetX + 26, rankingOffsetY + 4 + i, false);
-                print(pointsFormat + player.getPersonalGoalPoints(), rankingOffsetX + 37, rankingOffsetY + 4 + i, false);
-                print(pointsFormat + player.getBookshelfPoints(), rankingOffsetX + 53, rankingOffsetY + 4 + i, false);
-                print(pointsFormat + player.getTotalPoints()+ RESET, rankingOffsetX + 75, rankingOffsetY + 4 + i, false);
-            } catch (WrongArgumentException e) {
-                //
-            }
+            print(nameFormat + player.getNickname() + RESET, rankingOffsetX + 4, rankingOffsetY + 4 + i, false);
+            print(pointsFormat + player.getCommonGoalPoints(), rankingOffsetX + 26, rankingOffsetY + 4 + i, false);
+            print(pointsFormat + player.getPersonalGoalPoints(), rankingOffsetX + 37, rankingOffsetY + 4 + i, false);
+            print(pointsFormat + player.getBookshelfPoints(), rankingOffsetX + 53, rankingOffsetY + 4 + i, false);
+            print(pointsFormat + player.getTotalPoints()+ RESET, rankingOffsetX + 75, rankingOffsetY + 4 + i, false);
+
         }
 
-        print(YELLOW + "╠══════════════════╩════════════╩══════════════╩═══════════╩══════════╩═══════════╣", rankingOffsetX, rankingOffsetY + 4 + ranking.size(), false);
-        print(YELLOW + "║                                                                                 ║", rankingOffsetX, rankingOffsetY + 5 + ranking.size(), false);
-        print("WINNER", rankingOffsetX + 37, rankingOffsetY + 5 + ranking.size(), false);
-        print(YELLOW + "╠═════════════════════════════════════════════════════════════════════════════════╣", rankingOffsetX, rankingOffsetY + 6 + ranking.size(), false);
+        print(YELLOW + "╠══════════════════╩════════════╩══════════════╩═══════════╩══════════╩═══════════╣", rankingOffsetX, rankingOffsetY + 4 + playersRanking.size(), false);
+        print(YELLOW + "║                                                                                 ║", rankingOffsetX, rankingOffsetY + 5 + playersRanking.size(), false);
+        print("WINNER", rankingOffsetX + 37, rankingOffsetY + 5 + playersRanking.size(), false);
+        print(YELLOW + "╠═════════════════════════════════════════════════════════════════════════════════╣", rankingOffsetX, rankingOffsetY + 6 + playersRanking.size(), false);
 
         int k=0;
-        for (int i=0; i < ranking.size(); i++) {
-            if (ranking.get(i).getRight()) {
-                print(YELLOW + "║                                                                                 ║", rankingOffsetX, rankingOffsetY + 7 + k + ranking.size(), false);
+        for (int i=0; i < playersRanking.size(); i++) {
+            if (playersRanking.get(i).isWinner()) {
+                print(YELLOW + "║                                                                                 ║", rankingOffsetX, rankingOffsetY + 7 + k + playersRanking.size(), false);
                 String nameFormat = "";
-                ImmutablePlayer player = ranking.get(i).getLeft();
+                ImmutablePlayer player = playersRanking.get(i);
                 if (player.getNickname().equals(nickname))
                     nameFormat = GREEN.toString();
                 int nameOffset = rankingOffsetX + 40 - ( (int) player.getNickname().length() / 2);
-                print(nameFormat + player.getNickname(), nameOffset, rankingOffsetY + 7 + k + ranking.size(), false);
+                print(nameFormat + player.getNickname(), nameOffset, rankingOffsetY + 7 + k + playersRanking.size(), false);
                 k++;
             }
         }
-        print(YELLOW + "╚═════════════════════════════════════════════════════════════════════════════════╝", rankingOffsetX, rankingOffsetY + 7 + ranking.size() + k, false);
+        print(YELLOW + "╚═════════════════════════════════════════════════════════════════════════════════╝", rankingOffsetX, rankingOffsetY + 7 + playersRanking.size() + k, false);
 
         print("Type [exit/play] to continue", 0, 1, false);
 

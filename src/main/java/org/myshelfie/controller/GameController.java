@@ -79,6 +79,7 @@ public class GameController implements Serializable {
         @Override
         public void run() {
             endGame();
+            GameController.this.findWinners();
             Server.eventManager.notify(GameEvent.GAME_END, getGame());
             Server.eventManager.sendToClients();
             isRunning = false;
@@ -348,6 +349,7 @@ public class GameController implements Serializable {
                 }
                 break;
             case END_GAME:
+                findWinners();
                 nextState = ModelState.END_GAME;
                 break;
         }
@@ -358,6 +360,22 @@ public class GameController implements Serializable {
         if(game.getBoard().isRefillNeeded()) {
             this.game.getBoard().refillBoard(this.getNumPlayerGame(), this.game.getTileBag());
         }
+    }
+
+
+    /**
+     * Setting the winner attribute to true of the players who have the maximum points and are online.
+     * Draw is possible
+     */
+    private void findWinners(){
+        int maxPointsOnlinePlayers = this.game.getPlayers().stream().filter(Player::isOnline).mapToInt(x -> x.getTotalPoints()).max().getAsInt();
+        for (Player p : this.game.getPlayers()) {
+            if (p.getTotalPoints() == maxPointsOnlinePlayers && p.isOnline()) {
+                p.setWinner(true);
+                System.out.println(p.getNickname() + " is the winner!");
+            }
+        }
+
     }
 
     public void checkTokenAchievement() throws WrongArgumentException {

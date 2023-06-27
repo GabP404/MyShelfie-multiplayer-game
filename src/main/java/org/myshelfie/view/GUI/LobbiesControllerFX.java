@@ -99,29 +99,6 @@ public class LobbiesControllerFX implements Initializable {
         createLobbies(lobbies);
     }
 
-
-    public void updateLobbiesOptimized(List<GameController.GameDefinition> lobbies) {
-        for (GameController.GameDefinition lobby: lobbies) {
-            if (lobby.isFull() && lobbiesFX.containsKey(lobby.getGameName())) {
-                LobbyContainer.getChildren().remove((lobbiesFX.get(lobby.getGameName())));
-                lobbiesFX.remove(lobby.getGameName());
-            } else if (!lobby.isFull() && !lobbiesFX.containsKey(lobby.getGameName())) {
-                FXMLLoader fxmlLoader = new FXMLLoader();
-                fxmlLoader.setLocation(getClass().getResource("/fxml/LobbyFXML.fxml"));
-                try {
-                    HBox lobbyHBox = fxmlLoader.load();
-                    LobbyControllerFX lobbyControllerFX = fxmlLoader.getController();
-                    lobbyControllerFX.setClient(this.client);
-                    lobbiesFX.put(lobby.getGameName(), lobbyControllerFX);
-                    lobbyControllerFX.setData(lobby);
-                    LobbyContainer.getChildren().add(lobbyHBox);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
     public void HandleLobbyMessage(Pair<Boolean,List<GameController.GameDefinition>> response) {
         if(response.getLeft()) {
             createLobbies(response.getRight());

@@ -202,26 +202,5 @@ public class Game implements Serializable {
         return null;
     }
 
-    /**
-     * Return a list of pairs (player, isWinner) ordered by score descending
-     *@return
-     */
-    public List<Pair<Player,Boolean>> getRanking(){
-        List<Player> playersSortedByScore = players.stream()
-                .sorted(Comparator.comparing(Player::getTotalPoints).reversed()).toList();
 
-        List<Player> playersOnline = players.stream().filter(Player::isOnline).collect(Collectors.toList());
-        playersOnline.sort(Comparator.comparing(Player::getTotalPoints).reversed());
-        int maxPoints = playersOnline.get(0).getTotalPoints();
-        List<Player> playersWithMaxPoints = playersOnline.stream()
-                .filter(player -> player.getTotalPoints() == maxPoints).toList();
-        List<Pair<Player,Boolean>> ranking = new ArrayList<>();
-        for (Player p : playersSortedByScore) {
-            if (playersWithMaxPoints.contains(p))
-                ranking.add(new Pair<>(p, true));
-            else
-                ranking.add(new Pair<>(p, false));
-        }
-        return ranking;
-    }
 }
