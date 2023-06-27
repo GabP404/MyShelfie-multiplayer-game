@@ -120,7 +120,7 @@
 }
 
 #EndGameContainer {
-    -fx-font: 1.2em;
+    -fx-font-size: 1.2em;
     -fx-background-image: url('../graphics/publisher/Display_5.jpg');
     -fx-background-size: cover, auto;
 }
@@ -136,7 +136,7 @@
 }
 
 .EndGameContainer {
-    -fx-font: 1.2em;
+    -fx-font-size: 1.2em;
     -fx-background-image:url('../graphics/publisher/Display_4.jpg');
     -fx-background-size: cover, auto;
 }
@@ -209,7 +209,7 @@
     -fx-background-color: F2E5BC;
     -fx-alignment: center;
     -fx-border-color: transparent;
-    -fx-font-style: 1.5em;
+    -fx-font-size: 1.5em;
 }
 
 #leaderboardTable .table-column-header {
