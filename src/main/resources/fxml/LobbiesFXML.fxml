@@ -26,16 +26,16 @@
                <children>
                   <Label />
                   <TextField fx:id="CreateGameName_TXT" prefHeight="26.0" prefWidth="94.0" promptText="GameName" />
-                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="286.0" spacing="10.0">
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="199.0" spacing="10.0">
                      <children>
                         <Label text="Rules" />
-                        <ChoiceBox fx:id="Rules_CB" prefHeight="26.0" prefWidth="65.0" />
+                        <ChoiceBox fx:id="Rules_CB" prefHeight="26.0" prefWidth="148.0" />
                      </children>
                   </HBox>
-                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="244.0" spacing="10.0">
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="171.0" spacing="10.0">
                      <children>
                         <Label text="#Players" />
-                        <ChoiceBox fx:id="Players_CB" prefHeight="26.0" prefWidth="65.0" />
+                        <ChoiceBox fx:id="Players_CB" prefHeight="26.0" prefWidth="77.0" />
                      </children>
                   </HBox>
                   <Button fx:id="CreateGame_BTN" mnemonicParsing="false" onAction="#createGame" text="Create Game" />
