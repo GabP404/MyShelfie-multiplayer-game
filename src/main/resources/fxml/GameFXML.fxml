@@ -20,9 +20,18 @@
       <children>
          <VBox alignment="CENTER" prefHeight="59.0" prefWidth="1280.0">
             <children>
-               <ImageView fitHeight="70" preserveRatio="true">
-                  <Image url="@../graphics/publisher/Title2000x618px.png" />
-               </ImageView>
+               <HBox prefHeight="100.0" prefWidth="200.0">
+                  <children>
+                     <ImageView fitHeight="70" preserveRatio="true">
+                        <Image url="@../graphics/publisher/Title2000x618px.png" />
+                     </ImageView>
+                     <Label fx:id="gameNameLabel" alignment="BOTTOM_LEFT" prefHeight="70.0" prefWidth="504.0" text="">
+                        <font>
+                           <Font size="32.0" />
+                        </font>
+                     </Label>
+                  </children>
+               </HBox>
             </children>
          </VBox>
          <HBox alignment="CENTER" prefHeight="625.0" prefWidth="1280.0" spacing="20.0">

@@ -92,6 +92,8 @@ public class GameControllerFX implements Initializable {
 
     @FXML
     private VBox updatesVBox;
+    @FXML
+    private Label gameNameLabel;
 
     private boolean firstSetupDone = false;
 
@@ -183,6 +185,7 @@ public class GameControllerFX implements Initializable {
 
         if (game.getModelState().equals(ModelState.PAUSE)) {
             updateOtherPlayers(game);
+            updateHelper();
             isPaused = true;
             showInfoDialog("The game is paused because you are the only online player!");
             return;
@@ -202,6 +205,7 @@ public class GameControllerFX implements Initializable {
         if (!firstSetupDone) {
             overlay.setVisible(false);
             updateEverything(game);
+            updateGameName(game.getGameName());
             firstSetupDone = true;
             return;
         }
@@ -490,6 +494,13 @@ public class GameControllerFX implements Initializable {
         });
     }
 
+    private void updateGameName(String gameName) {
+        Platform.runLater(() -> {
+            gameNameLabel.setText(gameName);
+            gameNameLabel.setFont(Font.font("System", FontWeight.BOLD, 30));
+            gameNameLabel.setVisible(true);
+        });
+    }
 
 
     private void udpateColSelectionArrows() {
@@ -704,6 +715,19 @@ public class GameControllerFX implements Initializable {
                 node.setVisible(false);
                 updatesVBox.getChildren().remove(node);
             });
+
+        if (latestGame.getModelState() == ModelState.PAUSE) {
+            // Signals my turn!
+            Platform.runLater(() -> {
+                Label helperPause = new Label("The game is paused because you're\n the only player online.");
+                helperPause.setFont(Font.font("System", FontWeight.BOLD, 18));
+                helperPause.setEffect(new DropShadow(10, Color.WHITE));
+                helperPause.setAlignment(Pos.CENTER);
+                updatesVBox.getChildren().add(helperPause);
+            });
+            return;
+        }
+
         // Add helper text
         if (latestGame.getCurrPlayer().getNickname().equals(nickname)) {
             // Signals my turn!

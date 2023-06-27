@@ -119,7 +119,6 @@ public class PrinterCLI {
         print("CommonGoal", rankingOffsetX + 21, rankingOffsetY + 2, false);
         print("PersonalGoal", rankingOffsetX + 34, rankingOffsetY + 2, false);
         print("Bookshelf", rankingOffsetX + 49, rankingOffsetY + 2, false);
-        print("Bookshelf", rankingOffsetX + 49, rankingOffsetY + 2, false);
         print("EndToken", rankingOffsetX + 62, rankingOffsetY + 2, false);
 
         print(CYAN + "PLAYER" + RESET, rankingOffsetX + 7, rankingOffsetY + 2, false);
@@ -141,10 +140,11 @@ public class PrinterCLI {
                 nameFormat = GREEN.toString();
                 pointsFormat = GREEN.toString();
             }
-            print(nameFormat + player.getNickname() + RESET, rankingOffsetX + 4, rankingOffsetY + 4 + i, false);
-            print(pointsFormat + player.getCommonGoalPoints(), rankingOffsetX + 26, rankingOffsetY + 4 + i, false);
-            print(pointsFormat + player.getPersonalGoalPoints(), rankingOffsetX + 37, rankingOffsetY + 4 + i, false);
-            print(pointsFormat + player.getBookshelfPoints(), rankingOffsetX + 53, rankingOffsetY + 4 + i, false);
+            print(nameFormat + player.getNickname() + RESET, rankingOffsetX + 8 - (player.getNickname().length() / 2), rankingOffsetY + 4 + i, false);
+            print(pointsFormat + player.getCommonGoalPoints(), rankingOffsetX + 25, rankingOffsetY + 4 + i, false);
+            print(pointsFormat + player.getPersonalGoalPoints(), rankingOffsetX + 39, rankingOffsetY + 4 + i, false);
+            print(pointsFormat + player.getBookshelfPoints(), rankingOffsetX + 52, rankingOffsetY + 4 + i, false);
+            print(pointsFormat + (player.getHasFinalToken() ? "1" : "0"), rankingOffsetX + 64, rankingOffsetY + 4 + i, false);
             print(pointsFormat + player.getTotalPoints()+ RESET, rankingOffsetX + 75, rankingOffsetY + 4 + i, false);
 
         }
@@ -206,10 +206,10 @@ public class PrinterCLI {
 
     }
 
-    public static void printAll(GameView game,List<LocatedTile> selectedTiles, String nickname)
-    {
+    public static void printAll(GameView game,List<LocatedTile> selectedTiles, String nickname) {
         for(int i = 0; i < errorOffsetY-2; i++)
             clearRow(0,i);
+        printGameName(game);
         printCommonGoals(game);
         printBoard(game, selectedTiles);
         printAllBookshelves(game, nickname);
@@ -237,8 +237,11 @@ public class PrinterCLI {
 
     }
 
-    private static void printBoard(GameView game, List<LocatedTile> selectedTiles)
-    {
+    private static void printGameName(GameView game) {
+        print(YELLOW + game.getGameName(), 58 - (game.getGameName().length() / 2), 0, false);
+    }
+
+    private static void printBoard(GameView game, List<LocatedTile> selectedTiles) {
         print("BOARD: ",boardOffsetX-2, boardOffsetY-2,false);
         print(BG_LIGHT_CYAN + "                      ",boardOffsetX - 2, boardOffsetY-1,false);
         for(int i = 0; i< Board.DIMBOARD; i++)
