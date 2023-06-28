@@ -12,6 +12,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * This class tests the GameController class.
+ */
 public class GameControllerTest {
 
     static GameController gameController;
@@ -36,6 +39,9 @@ public class GameControllerTest {
         }
     }
 
+    /**
+     * Tests the correct execution of a {@link PickTilesCommand} command.
+     */
     @Test
     public void testExecuteCommandPickTilesCommand() throws InvalidCommand, WrongTurnException, WrongArgumentException {
         //Try selecting a list of tiles: (0, 3) and (0, 4)
@@ -88,7 +94,10 @@ public class GameControllerTest {
     }
 
     @Test
-    public void ThreeTilesInHand() throws WrongArgumentException {
+    public void testThreeTilesInsertion() throws WrongArgumentException {
+        // This is a test specific for the case in which the player has 3 tiles in hand.
+        // Differently from other tests, this one doesn't use the setupGame() method, because at the begginning
+        // of the game there are not 3 selecteable tiles.
         List<LocatedTile> handT = new ArrayList<>();
         handT.add(new LocatedTile(ItemType.BOOK,0,0));
         handT.add(new LocatedTile(ItemType.CAT,0,0));
@@ -154,7 +163,7 @@ public class GameControllerTest {
     }
 
     @Test
-    void startStopTimer() {
+    void testCorrectStartStopTimer() {
         gameController.startTimer();
         assertEquals(Boolean.TRUE,gameController.isTimerRunning());
         gameController.stopTimer();
@@ -162,8 +171,8 @@ public class GameControllerTest {
     }
 
     @Test
-    void generateCommonGoal() {
-        //3 players, 1 common goal card
+    void testCorrectNumberOfCommonGoalCards() {
+        // 3 players, 1 common goal card
         gameController = new GameController("testCommonG", 3, 1);
         List<String> nicknames = new ArrayList<>();
         nicknames.add("User1");
@@ -183,7 +192,7 @@ public class GameControllerTest {
     }
 
     @Test
-    void checkEndGameBookShelfFullTest() throws WrongArgumentException {
+    void testCheckEndGameBookShelfFullTest() throws WrongArgumentException {
 
         //two for loop nested, the first is 5 times, the second is 6 times
         for (int i = 0; i < Bookshelf.NUMCOLUMNS; i++) {
@@ -212,7 +221,7 @@ public class GameControllerTest {
     }
 
     @Test
-    void PauseAndReconnection()
+    void testPauseAndReconnection()
     {
         gameController.getGame().setModelState(ModelState.PAUSE);
         gameController.setPlayerOffline("User2");
@@ -236,7 +245,7 @@ public class GameControllerTest {
     }
 
     @Test
-    void getterTest()
+    void testGetters()
     {
         assertDoesNotThrow(() -> gameController.getGame());
         List<String> nicknames = gameController.getNicknames();
@@ -252,7 +261,7 @@ public class GameControllerTest {
     }
 
     @Test
-    void removePlayerTest()
+    void testRemovePlayer()
     {
         gameController.removePlayer("User1");
         assertEquals(3,gameController.getNicknames().size());
@@ -265,8 +274,7 @@ public class GameControllerTest {
     }
 
     @Test
-    void executeWhenPause() throws WrongArgumentException {
-
+    void testExecuteWhenPause() throws WrongArgumentException {
         //pauses the game then sends a command message that sets an error for the user
         List<LocatedTile> handT = new ArrayList<>();
         gameController.getGame().getPlayers().get(0).setTilesPicked(handT);

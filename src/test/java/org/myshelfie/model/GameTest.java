@@ -61,6 +61,7 @@ public class GameTest {
         assertEquals(this.g1.getNumOnlinePlayers(), 2);
     }
 
+    // Utility method to create scoring tokens for personal goal cards
     public static LinkedList<ScoringToken> createTokensPersonalGoalCard(String id, int numPlayer) {
         LinkedList<ScoringToken> tokens = new LinkedList<>();
         switch (numPlayer) {
@@ -83,9 +84,6 @@ public class GameTest {
         return tokens;
     }
 
-    /**
-     * Test that the getNextOnlinePlayer method returns the correct player
-     */
     @Test
     public void testGetNextOnlinePlayer() throws WrongArgumentException {
         List<Player> playerCopy = new ArrayList<>(players);
@@ -105,7 +103,7 @@ public class GameTest {
     @Test
     public void testStatesProgression() {
         for (CommonGoalCard x : cgc) {
-            commonGoal.put(x, (List<ScoringToken>) createTokensPersonalGoalCard(x.getId(),numPlayer));
+            commonGoal.put(x, createTokensPersonalGoalCard(x.getId(),numPlayer));
         }
         this.g1 = new Game();
         this.g1.setupGame(players, new Board(numPlayer),commonGoal,tb,ModelState.WAITING_SELECTION_TILE, "testGame");

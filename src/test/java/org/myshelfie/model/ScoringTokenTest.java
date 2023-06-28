@@ -10,12 +10,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
-/*
-Questi test coprono tutte le linee di codice della classe ScoringToken.
- Il test "testConstructorAndGetters" copre il costruttore e i metodi getPoints e getCommonGoalId,
- mentre i test "testGetPoints" e "testGetCommonGoalId" coprono i singoli metodi getPoints e getCommonGoalId.
- */
-
 @DisplayName("ScoringToken")
 public class ScoringTokenTest {
 

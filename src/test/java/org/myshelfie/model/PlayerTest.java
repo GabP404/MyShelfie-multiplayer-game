@@ -34,6 +34,7 @@ class PlayerTest {
 
     @Test
     public void testAddTilesPickedAndRemovedTilesPicked()  {
+        // Tests insertion and removal of tiles in the hand
         Pair<Pair<Integer,Integer>,Tile> p2 = new Pair<>(new Pair<>(0,0),new Tile(ItemType.BOOK));
         List<Pair<Pair<Integer,Integer>,Tile>> lp = new ArrayList<>();
         lp.add(p2);

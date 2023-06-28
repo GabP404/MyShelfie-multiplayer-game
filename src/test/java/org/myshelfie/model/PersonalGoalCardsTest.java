@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PersonalGoalCardsTest {
     @DisplayName("Normal behaviour - create a deck from the JSON file")
     @Test
-    protected void createDeckFromJSON() {
+    protected void testCreateDeckFromJSON() {
         try {
             PersonalGoalDeck deck = PersonalGoalDeck.getInstance();
             assertInstanceOf(PersonalGoalDeck.class, deck);
@@ -26,7 +26,7 @@ public class PersonalGoalCardsTest {
 
     @DisplayName("Checking if PersonalGoal is satisfied or not")
     @Test
-    protected void checkGoal() throws IOException, URISyntaxException, WrongArgumentException {
+    protected void testPersonalGoalSatisfied() throws IOException, URISyntaxException, WrongArgumentException {
         Bookshelf b = new Bookshelf();
         PersonalGoalDeck deck = PersonalGoalDeck.getInstance();
         PersonalGoalCard card = deck.draw(1).get(0);
@@ -38,7 +38,7 @@ public class PersonalGoalCardsTest {
     @DisplayName("Drawing cards from the deck")
     @ParameterizedTest
     @CsvSource({"-1, 0", "0, 0", "5, 5", "126, 12"})
-    protected void drawCards(int n_cards, int expected_length) {
+    protected void testDrawCards(int n_cards, int expected_length) {
         try {
             PersonalGoalDeck deck = PersonalGoalDeck.getInstance();
             List<PersonalGoalCard> drawn = deck.draw(n_cards);

@@ -9,7 +9,13 @@ import java.util.logging.Level;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+/**
+ * This class contains the tests for the Configuration class, which allows
+ * to retrieve all the parameters of the game that are stored in a JSON
+ * configuration file. This choice is made to allow more flexibility.
+ */
 public class ConfigurationTest {
+    // The tests actually do tests only that the methods are loaded a value.
     @Test
     public void testCreatePersonalGoalDeck() {
         List<PersonalGoalCard> result = Configuration.createPersonalGoalDeck();

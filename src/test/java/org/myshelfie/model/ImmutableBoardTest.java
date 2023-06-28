@@ -6,6 +6,7 @@ import org.myshelfie.network.messages.gameMessages.ImmutableBoard;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ImmutableBoardTest {
+    // NOTE: since these tests address an immutable class, only observable behavior is tested
 
     @Test
     public void testConstructor() {

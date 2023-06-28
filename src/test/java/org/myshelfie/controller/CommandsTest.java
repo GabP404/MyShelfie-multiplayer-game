@@ -19,7 +19,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * This class contains the tests for all the classes that represents a command.
+ * This class contains the tests for all the classes that represents a command
+ * used from the client to request an action to the server.
  */
 public class CommandsTest {
     static Game game;
@@ -64,7 +65,6 @@ public class CommandsTest {
         List<LocatedTile> tiles = new ArrayList<>();
         tiles.add(new LocatedTile(ItemType.BOOK,4,1));
         tiles.add(new LocatedTile(ItemType.CAT,5,1));
-
 
         // Select and execute the tiles from the board
         PickTilesCommand pt = new PickTilesCommand(game.getBoard(), players.get(0), new PickedTilesCommandMessage("User0", "testGame", tiles), ModelState.WAITING_SELECTION_TILE);
