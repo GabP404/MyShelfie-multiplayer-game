@@ -71,9 +71,8 @@ public class ViewGUI extends Application implements View  {
             Platform.exit();
             System.exit(0);
         });
-        stage.setMinWidth(600);
-        stage.setMinHeight(400);
-
+        stage.setMinWidth(1280);
+        stage.setMinHeight(760);
         run();
     }
 

@@ -10,7 +10,7 @@
 <VBox fx:id="leaderboardPane" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="760.0" prefWidth="1280.0" spacing="50.0" styleClass="EndGameContainer" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.myshelfie.view.GUI.EndGameControllerFX">
     <children>
         <Label id="titleEndGame" styleClass="h2" stylesheets="@../css/style.css" text="LEADERBOARD" />
-        <TableView fx:id="leaderboardTable" prefHeight="200.0" prefWidth="1100.0" stylesheets="@../css/style.css">
+        <TableView fx:id="leaderboardTable" prefHeight="300.0" prefWidth="1100.0" stylesheets="@../css/style.css">
         </TableView>
       <Label id="titleEndGame" fx:id="winner_LBL" styleClass="h4" stylesheets="@../css/style.css" text="WINNER" />
         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="30.0">
