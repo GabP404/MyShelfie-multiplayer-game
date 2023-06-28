@@ -56,6 +56,7 @@ class LobbyControllerTest {
         try{
             single_istance.deleteGame("testGame");
             single_istance.deleteGame("anotherTestGame");
+            single_istance.deleteGame("simpleGame");
         }
         catch (Exception e){
             System.out.println("Game already deleted");
@@ -89,6 +90,8 @@ class LobbyControllerTest {
     static void afterAll() {
         try{
             single_istance.deleteGame("testGame");
+            single_istance.deleteGame("anotherTestGame");
+            single_istance.deleteGame("simpleGame");
         }
         catch (Exception e){
             System.out.println("Game already deleted");
@@ -195,6 +198,25 @@ class LobbyControllerTest {
     }
 
 
+    @Test
+    void gameDefinitionTest() {
+        //creating a game with simplified ruleset
+        single_istance.createGame(new CreateGameMessage("simple1", "simpleGame", 2, true));
+        assertEquals(Boolean.FALSE,single_istance.getGames().get(0).isFull(),"There should be only 1 player in the game");
 
+        single_istance.joinGame(new JoinGameMessage("Simple2", "simpleGame"));
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        assertTrue(single_istance.getGames().get(0).isSimplifyRules());
+        assertEquals("simpleGame",single_istance.getGames().get(0).getGameName());
+        assertEquals(2,single_istance.getGames().get(0).getMaxPlayers());
+        List<String> nicks = single_istance.getGames().get(0).getNicknames();
+        assertEquals("simple1",nicks.get(0));
+        assertEquals("Simple2",nicks.get(1));
+
+    }
 
 }
