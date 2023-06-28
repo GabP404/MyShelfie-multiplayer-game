@@ -108,9 +108,8 @@ public class PrinterCLI {
     }
 
     //prints the end game score of all players
-    public static void printEndGameScreen(GameView game, String nickname)
-    {
-            List<ImmutablePlayer> playersRanking = game.getPlayers().stream().sorted(Comparator.comparingInt(ImmutablePlayer::getTotalPoints).reversed()).collect(Collectors.toList());
+    public static void printEndGameScreen(GameView game, String nickname) {
+        List<ImmutablePlayer> playersRanking = game.getPlayers().stream().sorted(Comparator.comparingInt(ImmutablePlayer::getTotalPoints).reversed()).collect(Collectors.toList());
         print(YELLOW + "╔═════════════════════════════════════════════════════════════════════════════════╗", rankingOffsetX, rankingOffsetY - 1, false);
         print(YELLOW + "║                                                                                 ║", rankingOffsetX, rankingOffsetY, false);
         print("LEADERBOARD", rankingOffsetX + 35, rankingOffsetY, false);
@@ -120,7 +119,6 @@ public class PrinterCLI {
         print("PersonalGoal", rankingOffsetX + 34, rankingOffsetY + 2, false);
         print("Bookshelf", rankingOffsetX + 49, rankingOffsetY + 2, false);
         print("EndToken", rankingOffsetX + 62, rankingOffsetY + 2, false);
-
         print(CYAN + "PLAYER" + RESET, rankingOffsetX + 7, rankingOffsetY + 2, false);
         print(CYAN + "TOTAL" + RESET, rankingOffsetX + 73, rankingOffsetY + 2, false);
 
@@ -137,7 +135,7 @@ public class PrinterCLI {
                 nameFormat = ULight_gray.toString();
                 pointsFormat = ULight_gray.toString();
             }
-            else if (player.isWinner()) {
+            else if (player.equals(playersRanking.get(i))) {
                 nameFormat = GREEN.toString();
                 pointsFormat = GREEN.toString();
             }
@@ -170,7 +168,7 @@ public class PrinterCLI {
         }
         print(YELLOW + "╚═════════════════════════════════════════════════════════════════════════════════╝", rankingOffsetX, rankingOffsetY + 7 + playersRanking.size() + k, false);
 
-        print("Type [exit/play] to continue", 0, 1, false);
+        print("Type exit to leave", 0, 1, false);
 
     }
 

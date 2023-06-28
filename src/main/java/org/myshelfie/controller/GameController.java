@@ -1,7 +1,6 @@
 package org.myshelfie.controller;
 
 import org.myshelfie.model.*;
-import org.myshelfie.network.client.UserInputEvent;
 import org.myshelfie.network.messages.commandMessages.*;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.server.Server;
@@ -63,26 +62,9 @@ public class GameController implements Serializable {
         public boolean isSimplifyRules() {
             return simplifyRules;
         }
+
         public boolean isFull() {
             return nicknames.size() == maxPlayers;
-        }
-
-    }
-
-    /**
-     * Timer task used to delete a game a certain amount of time after only one player has been online (with game paused).
-     * When the {@link #run()} method is called, the END_GAME event is sent to the client and the game is deleted.
-     */
-    // TODO: add reference when PR is merged
-    private class GameTimerTask extends TimerTask {
-        @Override
-        public void run() {
-            endGame();
-            GameController.this.findWinners();
-            Server.eventManager.notify(GameEvent.GAME_END, getGame());
-            Server.eventManager.sendToClients();
-            isRunning = false;
-            LobbyController.removeGameWhenFinished(getGameName());
         }
 
     }
@@ -108,6 +90,22 @@ public class GameController implements Serializable {
 
     public boolean isTimerRunning() {
         return isRunning;
+    }
+
+    /**
+     * Timer task used to delete a game a certain amount of time after only one player has been online (with game paused).
+     * When the {@link #run()} method is called, the END_GAME event is sent to the client and the game is deleted.
+     */
+    private class GameTimerTask extends TimerTask {
+        @Override
+        public void run() {
+            endGame();
+            GameController.this.findWinners();
+            Server.eventManager.notify(GameEvent.GAME_END, getGame());
+            Server.eventManager.sendToClients();
+            isRunning = false;
+            LobbyController.removeGameWhenFinished(getGameName());
+        }
     }
 
 
@@ -203,39 +201,11 @@ public class GameController implements Serializable {
         this.game.setModelState(ModelState.END_GAME);
     }
 
-/**
+
+    /**
      * Method used to check if the game is ended by looking if any player has completed the bookshelf.
      * @return True if the game is ended, false otherwise.
      */
-    private boolean checkEndGameBookShelfFull() {
-        if(this.game.getPlayers().stream().anyMatch(x -> x.getBookshelf().isFull())) {
-            this.game.getCurrPlayer().setHasFinalToken(true);
-            checkWinner();
-            return true;
-        }
-        return false;
-    }
-
-
-    // TODO: this probably is not used anymore, check after PR is merged
-    /**
-     * Method that checks if this game has a winner and sets it.
-     */
-    private void checkWinner() {
-        Player p = this.game.getPlayers().stream().reduce( (a, b) -> {
-            try {
-                return a.getTotalPoints() > b.getTotalPoints() ? a:b;
-            } catch (WrongArgumentException e) {
-                throw new RuntimeException(e);
-            }
-        }).orElse(null);
-        try {
-            this.game.setWinner(p);
-        } catch (WrongArgumentException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private boolean checkEndGameBookShelfFull() {
         if(this.game.getPlayers().stream().anyMatch(x -> x.getBookshelf().isFull())) {
             this.game.getCurrPlayer().setHasFinalToken(true);
@@ -417,25 +387,10 @@ public class GameController implements Serializable {
                         case 1 -> ModelState.WAITING_1_SELECTION_TILE_FROM_HAND;
                         default -> null;
                     };
-            case END_GAME -> nextState = ModelState.END_GAME;
-                break;
-            case WAITING_SELECTION_BOOKSHELF_COLUMN:
-                switch (this.game.getCurrPlayer().getTilesPicked().size()){
-                    case 3:
-                        nextState = ModelState.WAITING_3_SELECTION_TILE_FROM_HAND;
-                        break;
-                    case 2:
-                        nextState = ModelState.WAITING_2_SELECTION_TILE_FROM_HAND;
-                        break;
-                    case 1:
-                        nextState = ModelState.WAITING_1_SELECTION_TILE_FROM_HAND;
-                        break;
-                }
-                break;
-            case END_GAME:
+            case END_GAME -> {
                 findWinners();
                 nextState = ModelState.END_GAME;
-                break;
+            }
         }
         game.setModelState(nextState);
     }

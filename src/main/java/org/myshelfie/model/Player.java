@@ -73,9 +73,6 @@ public class Player implements Serializable {
         return personalGoal;
     }
 
-    public void setPersonalGoal(PersonalGoalCard personalGoal) {
-        this.personalGoal = personalGoal;
-    }
 
     public Bookshelf getBookshelf() {
         return bookshelf;

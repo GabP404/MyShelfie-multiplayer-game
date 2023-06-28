@@ -111,8 +111,7 @@ public class ViewCLI implements View{
                                     int playerNum = Integer.parseInt(parts[1]);
                                     if(playerNum >= 2 && playerNum <= 4)
                                     {
-                                        if(validateString(parts[0]))
-                                        {
+                                        if(validateString(parts[0]) && parts[0].length() <= 20) {
                                             if(parts.length > 2 && parts[2].equalsIgnoreCase("simple"))
                                                 hasSimpleRules = true;
                                             print("Creating game: "+ parts[0],0,25,true);
@@ -129,7 +128,7 @@ public class ViewCLI implements View{
                                         }
                                         else{
                                             clear();
-                                            print("game name is not valid, it cannot contain symbols ", 0, 25, false);
+                                            print("game name is not valid, it cannot contain symbols and the maximum length is 20 ", 0, 25, false);
                                         }
                                     }
                                     else {
@@ -679,6 +678,19 @@ public class ViewCLI implements View{
         this.client.eventManager.notify(UserInputEvent.SELECTED_HAND_TILE, selectedHandIndex);
         return true;
 
+    }
+
+
+    public List<LocatedTile> getSelectedTiles() {
+        return selectedTiles;
+    }
+
+    public int getSelectedColumn() {
+        return selectedColumn;
+    }
+
+    public int getSelectedHandIndex() {
+        return selectedHandIndex;
     }
 
     /**

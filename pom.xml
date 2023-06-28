@@ -110,6 +110,7 @@
       <scope>test</scope>
     </dependency>
 
+    <!-- Provides a nice TextLabel for the GUI -->
     <dependency>
       <groupId>com.gluonhq</groupId>
       <artifactId>charm-glisten</artifactId>
