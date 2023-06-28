@@ -103,28 +103,11 @@ public class LobbyController {
         }
     }
 
-
     //remove player lobby
     public void deleteGame(String gameName) {
         GameController gameController = gameControllers.remove(gameName);
     }
 
-    public void setPlayerOffline(String nickname, String gameName) {
-        GameController gameController = gameControllers.get(gameName);
-        gameController.setPlayerOffline(nickname);
-    }
-
-    public void setPlayerOffline(String nickname) {
-        for (GameController g : gameControllers.values()) {
-            if (g.getNicknames().contains(nickname))
-                g.setPlayerOffline(nickname);
-        }
-    }
-
-    public void removePlayerLobby(String nickname, String gameName) {
-        GameController gameController = gameControllers.get(gameName);
-        gameController.removePlayer(nickname);
-    }
 
     public List<GameController.GameDefinition> getGames() {
         ArrayList<GameController.GameDefinition> l = new ArrayList<>();

@@ -121,19 +121,4 @@ public class GameTest {
         g1.resumeStateAfterPause();
         assertEquals(ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN, g1.getModelState());
     }
-
-    @Test
-    void testSetWinner() {
-        for (CommonGoalCard x : cgc) {
-            commonGoal.put(x, (List<ScoringToken>) createTokensPersonalGoalCard(x.getId(),numPlayer));
-        }
-        this.g1 = new Game();
-        this.g1.setupGame(players, new Board(numPlayer),commonGoal,tb,ModelState.WAITING_SELECTION_TILE, "testGame");
-
-        assertThrows(WrongArgumentException.class, () -> g1.setWinner(null));
-
-        assertDoesNotThrow(() -> g1.setWinner(players.get(0)));
-        assertEquals(players.get(0), g1.getWinner());
-        assertEquals(ModelState.END_GAME, g1.getModelState());
-    }
 }

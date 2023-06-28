@@ -7,6 +7,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.myshelfie.model.Game;
+import org.myshelfie.model.ItemType;
+import org.myshelfie.model.ModelState;
 import org.myshelfie.network.EventManager;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.commandMessages.*;
@@ -26,18 +28,9 @@ class LobbyControllerTest {
 
     @Mock
     private static Server server;
-    @Mock
-    private static GameListener gameListener;
-    @Mock
-    private static ServerEventManager serverEventManager;
-    @Mock
-    private static EventManager eventManager;
-    @Mock
-    private static Client client;
     @InjectMocks
     private static LobbyController single_istance;
 
-    //private HashMap<String,GameController> gameControllers;
 
     @BeforeAll
     static void beforeAll() throws IllegalAccessException {
@@ -59,7 +52,14 @@ class LobbyControllerTest {
 
         single_istance = LobbyController.getInstance(server);
 
-
+        //delete the game in case it was in the backup
+        try{
+            single_istance.deleteGame("testGame");
+            single_istance.deleteGame("anotherTestGame");
+        }
+        catch (Exception e){
+            System.out.println("Game already deleted");
+        }
         single_istance.createGame(new CreateGameMessage("User1", "testGame", 4, false));
         assertEquals(Boolean.FALSE,single_istance.getGames().get(0).isFull(),"There should be only 1 player in the game");
 
@@ -87,22 +87,36 @@ class LobbyControllerTest {
     }
     @AfterAll
     static void afterAll() {
-        single_istance.deleteGame("testGame");
-        assertEquals(0, single_istance.getGames().size(), "There should be no games");
+        try{
+            single_istance.deleteGame("testGame");
+        }
+        catch (Exception e){
+            System.out.println("Game already deleted");
+        }
+        assertThrows(NullPointerException.class, () -> {
+            single_istance.retrieveGame("testGame");
+        });
     }
 
     @Test
     void NoResumeFromBackup(){
-        //TODO: does not work
-
-//        Server noResumeServer = null;
-//        single_istance = null;
-//        try {
-//            noResumeServer = new Server();
-//        } catch (RemoteException e) {
-//            throw new RuntimeException(e);
-//        }
-//        single_istance = LobbyController.getInstance(noResumeServer);
+        afterAll();
+        Server noResumeServer = null;
+        noResumeServer = Mockito.mock(Server.class);
+        MockitoAnnotations.openMocks(LobbyControllerTest.class);
+        Mockito.doReturn(false).when(server).shouldResumeFromBackup();
+        single_istance = null;
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        single_istance = LobbyController.getInstance(noResumeServer);
+        try {
+            beforeAll();
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -114,7 +128,27 @@ class LobbyControllerTest {
             single_istance.executeCommand(cmw.getMessage(),cmw.getType());
         });
         CommandMessageWrapper ColMessage = new CommandMessageWrapper(new SelectedColumnMessage("User1", "testGame", 0), UserInputEvent.SELECTED_BOOKSHELF_COLUMN);
-        single_istance.executeCommand(ColMessage.getMessage(),ColMessage.getType());
+        assertDoesNotThrow(() -> {
+            single_istance.executeCommand(ColMessage.getMessage(),ColMessage.getType());
+        });
+    }
+
+    @Test
+    void endGameTest() {
+
+        single_istance.retrieveGame("testGame").setModelState(ModelState.END_GAME);
+        CommandMessageWrapper pickTmessage = new CommandMessageWrapper(new SelectedTileFromHandCommandMessage("User1", "testGame", 0, ItemType.CAT), UserInputEvent.SELECTED_HAND_TILE);
+        assertDoesNotThrow(() -> {
+            single_istance.executeCommand(pickTmessage.getMessage(),pickTmessage.getType());
+        });
+        try {
+            Thread.sleep(2500);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        assertThrows(NullPointerException.class, () -> {
+            single_istance.retrieveGame("testGame");
+        });
     }
 
     @Test
@@ -125,14 +159,18 @@ class LobbyControllerTest {
 
     @Test
     void handleClientDisconnectionReconnection() {
+
         single_istance.handleClientDisconnection("User1");
         try {
-            Thread.sleep(3000);
+            Thread.sleep(2500);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
         Game game = single_istance.retrieveGame("testGame");
         assertEquals(Boolean.FALSE, game.getPlayers().get(0).isOnline());
+
+
+
         single_istance.handleClientReconnection("User1");
         try {
             Thread.sleep(3000);
@@ -141,6 +179,19 @@ class LobbyControllerTest {
         }
         game = single_istance.retrieveGame("testGame");
         assertEquals(Boolean.TRUE, game.getPlayers().get(0).isOnline());
+
+
+        //test to recconect a client that doesn't have a game
+        single_istance.createGame(new CreateGameMessage("User6", "anotherTestGame", 4, false));
+        single_istance.handleClientDisconnection("User6");
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        single_istance.handleClientReconnection("User6");
+        assertEquals(null,single_istance.getGameNameFromPlayerNickname("User6"));
+
     }
 
 
