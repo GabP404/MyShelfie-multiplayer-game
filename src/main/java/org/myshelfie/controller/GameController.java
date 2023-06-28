@@ -287,15 +287,6 @@ public class GameController implements Serializable {
         }
     }
 
-    private void checkState(UserInputEvent t) throws InvalidCommand{
-        ModelState currentGameState = game.getModelState();
-        if(currentGameState == ModelState.WAITING_SELECTION_TILE && t != UserInputEvent.SELECTED_TILES) throw new InvalidCommand("waiting for Tile Selection ");
-        if(currentGameState == ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN && t != UserInputEvent.SELECTED_BOOKSHELF_COLUMN) throw new InvalidCommand("waiting for Column Selection ");
-        if(currentGameState == ModelState.END_GAME) throw new InvalidCommand("game ended");
-        if(currentGameState == ModelState.WAITING_3_SELECTION_TILE_FROM_HAND && t != UserInputEvent.SELECTED_HAND_TILE) throw new InvalidCommand("waiting for Tile Selection Hand ");
-        if(currentGameState == ModelState.WAITING_2_SELECTION_TILE_FROM_HAND && t != UserInputEvent.SELECTED_HAND_TILE) throw new InvalidCommand("waiting for Tile Selection Hand ");
-        if(currentGameState == ModelState.WAITING_1_SELECTION_TILE_FROM_HAND && t != UserInputEvent.SELECTED_HAND_TILE) throw new InvalidCommand("waiting for Tile Selection Hand ");
-    }
 
     private void nextState() throws WrongArgumentException {
         ModelState currentGameState = game.getModelState();
@@ -402,15 +393,6 @@ public class GameController implements Serializable {
             this.nicknames.remove(nickname);
     }
 
-    public void removeAllPlayer() {
-        this.nicknames = new ArrayList<>();
-    }
-
-    public void deleteGame() {
-        this.game = null;
-        this.numPlayerGame = 0;
-        this.numGoalCards = 0;
-    }
 
     public Game getGame() {
         return game;

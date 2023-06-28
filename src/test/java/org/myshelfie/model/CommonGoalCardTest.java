@@ -26,7 +26,7 @@ public class CommonGoalCardTest {
     /*
         COMMON GOAL CARDS
      */
-    CommonGoalCard equalEightCard;
+    CommonGoalCard eightEqualsTilesCard;
     CommonGoalCard equalCornersCard;
     CommonGoalCard crossTilesCard;
     CommonGoalCard diagonalTilesCard;
@@ -40,7 +40,8 @@ public class CommonGoalCardTest {
     CommonGoalCard slightlyDifferentLines_2col_6to6;
 
 
-    void fillBookshelf(Bookshelf b, int[][] mat) {
+    // Utility method to fill a bookshelf
+    private void fillBookshelf(Bookshelf b, int[][] mat) {
         for (int r = Bookshelf.NUMROWS - 1; r >= 0; r--) {
             for (int c = 0; c < Bookshelf.NUMCOLUMNS; c++) {
                 try {
@@ -56,7 +57,8 @@ public class CommonGoalCardTest {
 
     @BeforeEach
     void setUp() {
-        equalEightCard = new EqualEight("EqualEightCard");
+        // Initialize all the possible common goal cards
+        eightEqualsTilesCard = new EqualEight("EqualEightCard");
         equalCornersCard = new EqualCorners("EqualCornersCard");
         crossTilesCard = new CrossTiles("CrossTilesCard");
         diagonalTilesCard = new DiagonalTiles("DiagonalTilesCard");
@@ -69,6 +71,7 @@ public class CommonGoalCardTest {
         slightlyDifferentLines_4row_1to3 = new SlightlyDifferentLines("slightlyDifferentLines_4row_1to3",false, 3, 1, 4);
         slightlyDifferentLines_2col_6to6 = new SlightlyDifferentLines("slightlyDifferentLines_2col_6to6",  true, 6, 6, 2);
 
+        // Create a bunch of different bookshelves        
         int[][] complete = {
                 {5,  5,  0,  0,  3},
                 {5,  5,  5,  4,  2},
@@ -217,20 +220,22 @@ public class CommonGoalCardTest {
         bksEmpty = new Bookshelf();
     }
 
+    // Test all the common goals using the different bookshelves
+    
     @Test
-    void EqualEightTest() throws WrongArgumentException {
-        assertEquals(Boolean.TRUE, equalEightCard.checkGoalSatisfied(bksComplete));
-        assertEquals(Boolean.TRUE, equalEightCard.checkGoalSatisfied(bksCats));
-        assertEquals(Boolean.FALSE, equalEightCard.checkGoalSatisfied(bksCorners));
-        assertEquals(Boolean.FALSE, equalEightCard.checkGoalSatisfied(bksCross));
-        assertEquals(Boolean.FALSE, equalEightCard.checkGoalSatisfied(bksDiagonal));
-        assertEquals(Boolean.TRUE, equalEightCard.checkGoalSatisfied(bksSquare));
-        assertEquals(Boolean.FALSE, equalEightCard.checkGoalSatisfied(bksStair));
-        assertEquals(Boolean.FALSE, equalEightCard.checkGoalSatisfied(bksEmpty));
+    void testEightEquals() throws WrongArgumentException {
+        assertEquals(Boolean.TRUE, eightEqualsTilesCard.checkGoalSatisfied(bksComplete));
+        assertEquals(Boolean.TRUE, eightEqualsTilesCard.checkGoalSatisfied(bksCats));
+        assertEquals(Boolean.FALSE, eightEqualsTilesCard.checkGoalSatisfied(bksCorners));
+        assertEquals(Boolean.FALSE, eightEqualsTilesCard.checkGoalSatisfied(bksCross));
+        assertEquals(Boolean.FALSE, eightEqualsTilesCard.checkGoalSatisfied(bksDiagonal));
+        assertEquals(Boolean.TRUE, eightEqualsTilesCard.checkGoalSatisfied(bksSquare));
+        assertEquals(Boolean.FALSE, eightEqualsTilesCard.checkGoalSatisfied(bksStair));
+        assertEquals(Boolean.FALSE, eightEqualsTilesCard.checkGoalSatisfied(bksEmpty));
     }
 
     @Test
-    void EqualCornersTest() throws WrongArgumentException {
+    void testEqualCorners() throws WrongArgumentException {
         assertEquals(Boolean.FALSE, equalCornersCard.checkGoalSatisfied(bksComplete));
         assertEquals(Boolean.TRUE, equalCornersCard.checkGoalSatisfied(bksCats));
         assertEquals(Boolean.TRUE, equalCornersCard.checkGoalSatisfied(bksCorners));
@@ -243,7 +248,7 @@ public class CommonGoalCardTest {
     }
 
     @Test
-    void CrossTilesTest() throws WrongArgumentException {
+    void testTilesCross() throws WrongArgumentException {
         assertEquals(Boolean.TRUE, crossTilesCard.checkGoalSatisfied(bksComplete));
         assertEquals(Boolean.TRUE, crossTilesCard.checkGoalSatisfied(bksCats));
         assertEquals(Boolean.FALSE, crossTilesCard.checkGoalSatisfied(bksCorners));
@@ -255,7 +260,7 @@ public class CommonGoalCardTest {
     }
 
     @Test
-    void DiagonalTilesTest() throws WrongArgumentException {
+    void testSameTypeDiagonal() throws WrongArgumentException {
         assertEquals(Boolean.FALSE, diagonalTilesCard.checkGoalSatisfied(bksComplete));
         assertEquals(Boolean.TRUE, diagonalTilesCard.checkGoalSatisfied(bksCats));
         assertEquals(Boolean.FALSE, diagonalTilesCard.checkGoalSatisfied(bksCorners));
@@ -268,7 +273,7 @@ public class CommonGoalCardTest {
     }
 
     @Test
-    void SquareTilesTest() throws WrongArgumentException {
+    void testTwoSquares() throws WrongArgumentException {
         assertEquals(Boolean.FALSE, squareTilesCard.checkGoalSatisfied(bksComplete));
         assertEquals(Boolean.FALSE, squareTilesCard.checkGoalSatisfied(bksCats));
         assertEquals(Boolean.FALSE, squareTilesCard.checkGoalSatisfied(bksCorners));
@@ -281,7 +286,7 @@ public class CommonGoalCardTest {
     }
 
     @Test
-    void StairTilesTest() throws WrongArgumentException {
+    void testStairTiles() throws WrongArgumentException {
         assertEquals(Boolean.FALSE, stairTilesCard.checkGoalSatisfied(bksComplete));
         assertEquals(Boolean.FALSE, stairTilesCard.checkGoalSatisfied(bksCats));
         assertEquals(Boolean.FALSE, stairTilesCard.checkGoalSatisfied(bksCorners));
@@ -293,7 +298,7 @@ public class CommonGoalCardTest {
     }
 
     @Test
-    void SameTypeGroupingsTest() throws WrongArgumentException {
+    void testSameTypeGroupings() throws WrongArgumentException {
         assertEquals(Boolean.TRUE, sameTypeGroupings_4x5.checkGoalSatisfied(bksComplete));
         assertEquals(Boolean.TRUE, sameTypeGroupings_2x3.checkGoalSatisfied(bksComplete));
         assertEquals(Boolean.FALSE, sameTypeGroupings_1x10.checkGoalSatisfied(bksComplete));
@@ -309,19 +314,10 @@ public class CommonGoalCardTest {
         assertEquals(Boolean.FALSE, sameTypeGroupings_4x5.checkGoalSatisfied(bksCats));
         assertEquals(Boolean.FALSE, sameTypeGroupings_2x3.checkGoalSatisfied(bksCats));
         assertEquals(Boolean.TRUE, sameTypeGroupings_1x10.checkGoalSatisfied(bksCats));
-
-        /*assertEquals(Boolean.FALSE, equalCornersCard.checkGoalSatisfied(bksComplete));
-        assertEquals(Boolean.TRUE, equalCornersCard.checkGoalSatisfied(bksCats));
-        assertEquals(Boolean.TRUE, equalCornersCard.checkGoalSatisfied(bksCorners));
-        assertEquals(Boolean.TRUE, equalCornersCard.checkGoalSatisfied(bksCross));
-        assertEquals(Boolean.FALSE, equalCornersCard.checkGoalSatisfied(bksDiagonal));
-        assertEquals(Boolean.FALSE, equalCornersCard.checkGoalSatisfied(bksSquare));
-        assertEquals(Boolean.FALSE, equalCornersCard.checkGoalSatisfied(bksStair));
-        assertEquals(Boolean.FALSE, equalCornersCard.checkGoalSatisfied(bksEmpty)); */
     }
 
     @Test
-    void SlightlyDifferentLinesTest () throws WrongArgumentException {
+    void testSlightlyDifferentLines() throws WrongArgumentException {
         assertEquals(Boolean.TRUE, slightlyDifferentLines_4row_1to3.checkGoalSatisfied(bksComplete));
         assertEquals(Boolean.FALSE, slightlyDifferentLines_2col_6to6.checkGoalSatisfied(bksComplete));
         assertEquals(Boolean.TRUE, slightlyDifferentLines_3row_2to3.checkGoalSatisfied(bksComplete));
@@ -334,24 +330,4 @@ public class CommonGoalCardTest {
         assertEquals(Boolean.FALSE, slightlyDifferentLines_2col_6to6.checkGoalSatisfied(bksSemiComplete));
         assertEquals(Boolean.FALSE, slightlyDifferentLines_3row_2to3.checkGoalSatisfied(bksSemiComplete));
     }
-    /*
-        DOES NOT WORK.
-
-        @DisplayName("Should analyze the cards correctly")
-        @ParameterizedTest(name = "{index} => res={Boolean.TRUE}, b={bksComplete}")
-        @MethodSource("bookShelfProvider")
-        void MyEqualEightTest(boolean res, Bookshelf b) {
-            assertEquals(res, equalEightCard.checkGoalSatisfied(b));
-        }
-
-        private static Stream<Arguments> bookShelfProvider() {
-            return Stream.of(
-                    Arguments.of(Boolean.TRUE, bksComplete),
-                    Arguments.of(Boolean.TRUE, bksCats),
-                    Arguments.of(Boolean.FALSE, bksEmpty)
-            );
-        }
-     */
-
-
 }

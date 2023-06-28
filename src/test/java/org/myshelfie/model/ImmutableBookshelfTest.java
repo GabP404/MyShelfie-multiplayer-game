@@ -9,7 +9,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ImmutableBookshelfTest {
-
+    // NOTE: since these tests address an immutable class, only observable behavior is tested
     private static ImmutableBookshelf b;
 
     @BeforeAll
@@ -57,7 +57,7 @@ class ImmutableBookshelfTest {
     }
 
     @Test
-    public void getAdjacentSizes() {
+    public void testAdjacentTilesSize() {
         List<Integer> groupSizes = b.getAdjacentSizes();
         Integer[] expectedResults = {6, 6, 5, 3, 1};
         assertEquals(groupSizes.size(), 6);
@@ -65,13 +65,13 @@ class ImmutableBookshelfTest {
     }
 
     @Test
-    public void getTile() throws WrongArgumentException {
+    public void testGetTile() throws WrongArgumentException {
         Tile t = b.getTile(5,0);
         assertNotNull(t);
         assertEquals(t.getItemType(),ItemType.CAT);
     }
     @Test
-    public void getHeight() {
+    public void testGetColumnsHeight() {
         assertEquals(b.getHeight(0),5);
         assertEquals(b.getHeight(1),4);
         assertEquals(b.getHeight(2),3);

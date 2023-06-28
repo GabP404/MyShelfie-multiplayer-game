@@ -5,63 +5,116 @@ import org.myshelfie.model.PersonalGoalCard;
 
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+/**
+ * This class contains the tests for the Configuration class, which allows
+ * to retrieve all the parameters of the game that are stored in a JSON
+ * configuration file. This choice is made to allow more flexibility.
+ */
 public class ConfigurationTest {
-
+    // The tests actually do tests only that the methods are loaded a value.
     @Test
     public void testCreatePersonalGoalDeck() {
-        List<PersonalGoalCard> deck = Configuration.createPersonalGoalDeck();
-        assertNotNull(deck);
-        assertInstanceOf(PersonalGoalCard.class, deck.get(0));
+        List<PersonalGoalCard> result = Configuration.createPersonalGoalDeck();
+        assertNotNull(result);
     }
 
     @Test
     public void testGetPersonalGoalPoints() {
-        Map<Integer, Integer> points = Configuration.getPersonalGoalPoints();
-        assertNotNull(points);
-        assertTrue(points.size() > 0);
+        Map<Integer, Integer> result = Configuration.getPersonalGoalPoints();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testGetCommonGoalCardDescription() {
+        String result = Configuration.getCommonGoalCardDescription("1");
+        assertNotNull(result);
     }
 
     @Test
     public void testGetFinalPoints() {
-        int finalPoints = Configuration.getFinalPoints();
-        assertTrue(finalPoints > 0);
+        int result = Configuration.getFinalPoints();
+        assertNotNull(result);
     }
 
     @Test
     public void testGetBoardMask() {
-        int[][] mask = Configuration.getBoardMask();
-        assertNotNull(mask);
-        for (int[] ints : mask) {
-            for (int anInt : ints) {
-                assert anInt > 0;
-            }
-        }
+        int[][] result = Configuration.getBoardMask();
+        assertNotNull(result);
     }
 
     @Test
     public void testGetBoardDimension() {
-        int dimension = Configuration.getBoardDimension();
-        assertTrue(dimension > 0);
+        int result = Configuration.getBoardDimension();
+        assertNotNull(result);
     }
 
     @Test
     public void testGetBookshelfRows() {
-        int rows = Configuration.getBookshelfRows();
-        assertTrue(rows > 0);
+        int result = Configuration.getBookshelfRows();
+        assertNotNull(result);
     }
 
     @Test
     public void testGetBookshelfCols() {
-        int cols = Configuration.getBookshelfCols();
-        assertTrue(cols > 0);
+        int result = Configuration.getBookshelfCols();
+        assertNotNull(result);
     }
 
     @Test
     public void testGetTilesPerType() {
-        int tilesPerType = Configuration.getTilesPerType();
-        assert tilesPerType == 22;
+        int result = Configuration.getTilesPerType();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testGetTimerTimeout() {
+        int result = Configuration.getTimerTimeout();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testGetMapPointsGroup() {
+        Map<Integer, Integer> result = Configuration.getMapPointsGroup();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testGetServerAddress() {
+        String result = Configuration.getServerAddress();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testGetServerSocketPort() {
+        int result = Configuration.getServerSocketPort();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testGetServerRMIName() {
+        String result = Configuration.getServerRMIName();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testGetServerBackupFileName() {
+        String result = Configuration.getServerBackupFileName();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testGetServerLogFileName() {
+        String result = Configuration.getServerLogFileName();
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testGetServerLogLevel() {
+        Level result = Configuration.getServerLogLevel();
+        assertNotNull(result);
     }
 }

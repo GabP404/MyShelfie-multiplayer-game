@@ -14,17 +14,17 @@ public class BookshelfTest {
     private Bookshelf shelf;
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         shelf = new Bookshelf();
     }
 
     @AfterEach
-    void tearDown() {
+    public void tearDown() {
         shelf = null;
     }
 
     @Test
-    void insertTile() {
+    public void testTileInsertion() {
         assertDoesNotThrow(() -> {
             for(int i = 0; i < Bookshelf.NUMROWS; i++) {
                 Tile t = new Tile(ItemType.values()[0]);
@@ -39,7 +39,7 @@ public class BookshelfTest {
 
     @DisplayName("Getting a tile in an empty bookshelf")
     @Test
-    void getTileWithEmptyBookshelf() {
+    public void testGetterForEmptyBookshelf() {
         assertDoesNotThrow(() -> {
             for(int i = 0; i < Bookshelf.NUMROWS; i++) {
                 for (int j = 0; j < Bookshelf.NUMCOLUMNS; j++) {
@@ -51,14 +51,14 @@ public class BookshelfTest {
     
     @DisplayName("Getting a tile out of bounds")
     @Test
-    void getUnreachableTile() {
+    public void testOutOfBoundTile() {
         assertThrows(WrongArgumentException.class, () -> shelf.getTile(Bookshelf.NUMROWS + 1, 0));
         assertThrows(WrongArgumentException.class, () -> shelf.getTile(0, Bookshelf.NUMCOLUMNS + 1));
     }
     
     @DisplayName("Getting a tile in normal conditions")
     @Test
-    void getTile() {
+    public void testGetExistingTile() {
         try {
             shelf.insertTile(new Tile(ItemType.values()[0]), 0);
             shelf.insertTile(new Tile(ItemType.values()[0]), 0);
@@ -72,7 +72,7 @@ public class BookshelfTest {
     }
 
     @Test
-    void getHeight() {
+    public void testGetColumnHeight() {
         try {
             for (int i = 0; i < Bookshelf.NUMCOLUMNS; i++) {
                 assertEquals(shelf.getHeight(i), 0);
@@ -92,7 +92,7 @@ public class BookshelfTest {
     }
 
     @Test
-    void getAdjacentSizes() {
+    public void testGetAdjacentGroupSize() {
         /*Create this bookshelf:
         - - - - -
         C - - B B
@@ -134,6 +134,7 @@ public class BookshelfTest {
             shelf.insertTile(new Tile(ItemType.BOOK), 4);
             shelf.insertTile(new Tile(ItemType.BOOK), 4);
 
+            // Check the size of the adjacent groups
             List<Integer> groupSizes = shelf.getAdjacentSizes();
             Integer[] expectedResults = {6, 6, 5, 3, 1};
             assertEquals(groupSizes.size(), 6);

@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class BoardTest {
 
     @Test
-    public void testConstructor() {
+    public void testBoardCreation() {
         Board board = new Board();
         assertNotNull(board);
         assertNull(board.getTile(0, 0));
@@ -61,7 +61,7 @@ public class BoardTest {
     }
 
     @Test
-    public void testSetAndGetTile() {
+    public void testSetAndGetTileFromBoard() {
         Board board = new Board();
         Tile tile = new Tile(ItemType.BOOK);
         board.setTile(0, 0, tile);

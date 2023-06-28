@@ -14,11 +14,6 @@ public class PickTilesCommand implements Command {
     private String nickname;
     private ModelState currentModelState;
 
-    public PickTilesCommand(Board b, List<LocatedTile> tiles) {
-        this.b = b;
-        this.tiles = tiles;
-    }
-
     /**
      * Deserialize the command
      * @param b Board of the game
@@ -54,24 +49,6 @@ public class PickTilesCommand implements Command {
 
     public boolean isCellSelectable(LocatedTile t) {
         return isCellSelectable(t.getRow(), t.getCol());
-    }
-
-    /**
-     *
-     * @param b The board of the game
-     * @return List of the LocatedTiles that can be selected on the board
-     */
-    public List<LocatedTile> getSelectable(Board b) {
-        List<LocatedTile> selectables = new ArrayList<>();
-        for (int row = 0; row < Bookshelf.NUMROWS; row++) {
-            for (int col = 0; col < Bookshelf.NUMCOLUMNS; col++) {
-                if (isCellSelectable(row, col)) {
-                    selectables.add(new LocatedTile(b.getTile(row, col).getItemType(), row, col));
-                }
-            }
-        }
-
-        return selectables;
     }
 
     /**
@@ -117,8 +94,6 @@ public class PickTilesCommand implements Command {
 
 
     public void execute() throws  WrongTurnException, InvalidCommand, WrongArgumentException {
-        if (!currPlayer.getNickname().equals(nickname))
-            throw new WrongTurnException();
         if (tiles.size() == 0)
             throw new WrongArgumentException("You have to select at least one tile!");
         if(currentModelState != ModelState.WAITING_SELECTION_TILE) throw new InvalidCommand("Waiting for Tile Selection ");

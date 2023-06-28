@@ -10,6 +10,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ImmutablePlayerTest {
+    // NOTE: since these tests address an immutable class, only observable behavior is tested
 
     @Test
     public void testConstructorAndGetterPlayer() throws IOException, URISyntaxException {
@@ -29,7 +30,7 @@ class ImmutablePlayerTest {
         assertNotNull(x.getNickname());
         assertNotNull(x.getTilesPicked());
         assertNotNull(x.getPersonalGoal());
-        assertTrue(x.getPointsScoringTokens() == 12);
+        assertEquals(12, x.getPointsScoringTokens());
     }
 
 
