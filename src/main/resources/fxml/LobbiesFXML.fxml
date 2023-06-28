@@ -54,7 +54,7 @@
          <top>
             <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0" spacing="50.0" styleClass="lobbies-box" BorderPane.alignment="CENTER">
                <children>
-                  <Label text="Match Availables" />
+                  <Label text="Available matches" />
                   <Button fx:id="refresh_BTN" mnemonicParsing="false" onAction="#refresh" text="Refresh" />
                </children>
                <BorderPane.margin>
