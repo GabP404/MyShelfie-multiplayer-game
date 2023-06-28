@@ -4,6 +4,7 @@ import org.myshelfie.model.*;
 import org.myshelfie.network.messages.commandMessages.*;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.server.Server;
+import org.myshelfie.network.client.UserInputEvent;
 
 import java.io.IOException;
 import java.io.Serializable;
