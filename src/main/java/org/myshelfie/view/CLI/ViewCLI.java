@@ -108,8 +108,7 @@ public class ViewCLI implements View{
                                     int playerNum = Integer.parseInt(parts[1]);
                                     if(playerNum >= 2 && playerNum <= 4)
                                     {
-                                        if(validateString(parts[0]))
-                                        {
+                                        if(validateString(parts[0]) && parts[0].length() <= 20) {
                                             if(parts.length > 2 && parts[2].equalsIgnoreCase("simple"))
                                                 hasSimpleRules = true;
                                             print("Creating game: "+ parts[0],0,25,true);
@@ -126,7 +125,7 @@ public class ViewCLI implements View{
                                         }
                                         else{
                                             clear();
-                                            print("game name is not valid, it cannot contain symbols ", 0, 25, false);
+                                            print("game name is not valid, it cannot contain symbols and the maximum length is 20 ", 0, 25, false);
                                         }
                                     }
                                     else {
@@ -369,16 +368,6 @@ public class ViewCLI implements View{
         switch (parts[0]) {
             case "exit" -> {
                 System.exit(0);
-                return;
-            }
-            case "play" -> {
-                //TODO: TEST THIS OPTION
-                if(game.getModelState().equals(ModelState.END_GAME))
-                {
-                    clear();
-                    threadChoice.run();
-                }
-                //threadChoice.run();
                 return;
             }
             case "help", "h" -> {
