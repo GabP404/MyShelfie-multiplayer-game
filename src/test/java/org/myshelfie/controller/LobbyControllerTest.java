@@ -50,16 +50,19 @@ class LobbyControllerTest {
             single_istance.deleteGame("testGame");
             single_istance.deleteGame("anotherTestGame");
             single_istance.deleteGame("simpleGame");
+            single_istance.deleteGame("gameToBeDeleted");
         }
         catch (Exception e){
             System.out.println("Game already deleted");
         }
         single_istance.createGame(new CreateGameMessage("User1", "testGame", 4, false));
+        single_istance.createGame(new CreateGameMessage("UserTBD1", "gameToBeDeleted", 2, false));
         assertEquals(Boolean.FALSE,single_istance.getGames().get(0).isFull(),"There should be only 1 player in the game");
 
         single_istance.joinGame(new JoinGameMessage("User2", "testGame"));
         single_istance.joinGame(new JoinGameMessage("User3", "testGame"));
         single_istance.joinGame(new JoinGameMessage("User4", "testGame"));
+        single_istance.joinGame(new JoinGameMessage("UserTBD2", "gameToBeDeleted"));
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
@@ -85,6 +88,7 @@ class LobbyControllerTest {
             single_istance.deleteGame("testGame");
             single_istance.deleteGame("anotherTestGame");
             single_istance.deleteGame("simpleGame");
+            single_istance.deleteGame("gameToBeDeleted");
         }
         catch (Exception e){
             System.out.println("Game already deleted");
@@ -132,8 +136,8 @@ class LobbyControllerTest {
     @Test
     void testEndGame() {
 
-        single_istance.retrieveGame("testGame").setModelState(ModelState.END_GAME);
-        CommandMessageWrapper pickTmessage = new CommandMessageWrapper(new SelectedTileFromHandCommandMessage("User1", "testGame", 0, ItemType.CAT), UserInputEvent.SELECTED_HAND_TILE);
+        single_istance.retrieveGame("gameToBeDeleted").setModelState(ModelState.END_GAME);
+        CommandMessageWrapper pickTmessage = new CommandMessageWrapper(new SelectedTileFromHandCommandMessage("UserTBD1", "gameToBeDeleted", 0, ItemType.CAT), UserInputEvent.SELECTED_HAND_TILE);
         assertDoesNotThrow(() -> {
             single_istance.executeCommand(pickTmessage.getMessage(),pickTmessage.getType());
         });
@@ -143,7 +147,7 @@ class LobbyControllerTest {
             throw new RuntimeException(e);
         }
         assertThrows(NullPointerException.class, () -> {
-            single_istance.retrieveGame("testGame");
+            single_istance.retrieveGame("gameToBeDeleted");
         });
     }
 
