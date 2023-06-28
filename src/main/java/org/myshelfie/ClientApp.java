@@ -13,7 +13,7 @@ public class ClientApp {
      */
     public static void main( String[] args ) {
         boolean isGUI = true;
-        Boolean isRMI = false;
+        boolean isRMI = false;
         // Get the deafult server address from the configuration file
         String serverAddress = Configuration.getServerAddress();
 
@@ -39,7 +39,7 @@ public class ClientApp {
         }
 
         String[] arguments = new String[2];
-        arguments[0] = isRMI.toString();
+        arguments[0] = Boolean.toString(isRMI);
         arguments[1] = serverAddress;
         if (isGUI) {
             ViewGUI.main(arguments); //Starts the JavaFX application
