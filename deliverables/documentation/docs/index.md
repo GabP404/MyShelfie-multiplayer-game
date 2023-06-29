@@ -13,8 +13,8 @@ This project is a digital adaptation of the game, developed by the **GC07** team
 
 The team members are:
 
-- [Gabriele Puglisi]()
-- [Matteo Santelmo]()
+- [Gabriele Puglisi](https://github.com/GabP404)
+- [Matteo Santelmo](https://github.com/matsant01)
 - [Giuseppe Steduto](https://github.com/giuseppe-steduto)
 - [Mattia Vicenzotto](https://github.com/Vice41)
 

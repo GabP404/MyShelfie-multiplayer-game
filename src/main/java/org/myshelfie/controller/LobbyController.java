@@ -54,6 +54,12 @@ public class LobbyController {
         }
     }
 
+    /**
+     * Main execution method, called by {@link Server#update}. Makes the correct {@link GameController} execute the command.
+     * Send the update to all the interested clients. Check if the game has ended and delete it if so. Save the server status.
+     * @param command The command to execute
+     * @param t The event that triggered the command
+     */
     public void executeCommand(CommandMessage command, UserInputEvent t) {
         // Queue the command
         gameControllers.get(command.getGameName()).queueAndExecuteCommand(command, t);
