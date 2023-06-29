@@ -37,7 +37,7 @@
         <artifactId>javafx-maven-plugin</artifactId>
         <version>${javafx.maven.plugin.version}</version>
         <configuration>
-          <mainClass>org.myshelfie.ClientApp</mainClass>
+          <mainClass>org.myshelfie.view.ClientApp</mainClass>
         </configuration>
       </plugin>
 
@@ -51,7 +51,7 @@
             <configuration>
               <archive>
                 <manifest>
-                  <mainClass>org.myshelfie.ClientApp</mainClass>
+                  <mainClass>org.myshelfie.view.ClientApp</mainClass>
                 </manifest>
               </archive>
               <descriptorRefs>
