@@ -563,9 +563,9 @@
 <div><h1 id="server-documentation">Server documentation</h1>
 <p>This documentation page aims to provide you with detailed instructions on how to set up and run the server-side software of the game.</p>
 <h2 id="running-the-server">Running the Server</h2>
-<p>Initiating the server requires a few simple steps. First, navigate to the <code>deliverables/jar</code> directory. In this directory, you'll find the <code>server.jar</code> file which contains the server program.</p>
+<p>Initiating the server requires a few simple steps. First, navigate to the <code>deliverables/jar</code> directory. In this directory, you'll find the <code>server-myshelfie.jar</code> file which contains the server program.</p>
 <p>The format of the command to run the server is the following:</p>
-<div class="highlight"><pre><span></span><code>java<span class="w"> </span>-jar<span class="w"> </span>./server.jar<span class="w"> </span><span class="o">[</span>--logging<span class="o">=</span>&lt;debug<span class="p">|</span>info<span class="p">|</span>error&gt;<span class="o">]</span><span class="w"> </span><span class="o">[</span>--server-address<span class="o">=</span>&lt;server-address&gt;<span class="o">]</span>
+<div class="highlight"><pre><span></span><code>java<span class="w"> </span>-jar<span class="w"> </span>./server-myshelfie.jar<span class="w"> </span><span class="o">[</span>--logging<span class="o">=</span>&lt;debug<span class="p">|</span>info<span class="p">|</span>error&gt;<span class="o">]</span><span class="w"> </span><span class="o">[</span>--server-address<span class="o">=</span>&lt;server-address&gt;<span class="o">]</span>
 </code></pre></div>
 <h3 id="command-line-arguments">Command-line arguments</h3>
 <p>For custom server configurations, we provide several optional command-line parameters:</p>
@@ -580,7 +580,7 @@
 flag to restore the previous state. If you want to learn more about how the server state is backed up, head over to the <a href="../advanced-features/persistence/index.html">persistence</a> page.</p>
 </div>
 <p>Here's an example of using these parameters:</p>
-<div class="highlight"><pre><span></span><code><span class="go">java -jar ./server.jar --server-address=192.168.1.51 --logging=debug</span>
+<div class="highlight"><pre><span></span><code><span class="go">java -jar ./server-myshelfie.jar --server-address=192.168.1.51 --logging=debug</span>
 </code></pre></div>
 <h2 id="logging">Logging</h2>
 <p>Our server features robust logging capabilities, designed to provide comprehensive insights into server operations.

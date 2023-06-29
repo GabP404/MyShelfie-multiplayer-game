@@ -8,12 +8,12 @@ This documentation page aims to provide you with detailed instructions on how to
 
 ## Running the Server
 
-Initiating the server requires a few simple steps. First, navigate to the `deliverables/jar` directory. In this directory, you'll find the `server.jar` file which contains the server program.
+Initiating the server requires a few simple steps. First, navigate to the `deliverables/jar` directory. In this directory, you'll find the `server-myshelfie.jar` file which contains the server program.
 
 The format of the command to run the server is the following:
 
 ```sh
-java -jar ./server.jar [--logging=<debug|info|error>] [--server-address=<server-address>]
+java -jar ./server-myshelfie.jar [--logging=<debug|info|error>] [--server-address=<server-address>]
 ```
 
 ### Command-line arguments
@@ -31,7 +31,7 @@ For custom server configurations, we provide several optional command-line param
 Here's an example of using these parameters:
 
 ```console
-java -jar ./server.jar --server-address=192.168.1.51 --logging=debug
+java -jar ./server-myshelfie.jar --server-address=192.168.1.51 --logging=debug
 ```
 
 ## Logging

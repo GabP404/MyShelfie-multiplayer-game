@@ -9,7 +9,7 @@ public class ClientApp {
 
     /**
      *
-     * Usage: java -jar client.jar [--cli | --gui] [--rmi | --socket] --server-address=<server-address>
+     * Usage: java -jar client-myshelfie.jar [--cli | --gui] [--rmi | --socket] --server-address=<server-address>
      */
     public static void main( String[] args ) {
         boolean isGUI = true;

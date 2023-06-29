@@ -583,14 +583,14 @@ of the game.</p>
 Head over to the <a href="../server/index.html">server documentation</a> for instructions on how to do that.</p>
 </div>
 <h2 id="prerequisites">Prerequisites</h2>
-<p>The Softeng-gc07 client is built on Java, therefore it requires a Java Runtime Environment (JRE) to function. Please make sure that you have JRE installed on your system and it is of version 19 or later.</p>
+<p>The MyShelfie client is built on Java, therefore it requires a Java Runtime Environment (JRE) to function. Please make sure that you have JRE installed on your system and it is of version 19 or later.</p>
 <p>To check your Java version, use the following command in your terminal or command prompt:</p>
 <div class="highlight"><pre><span></span><code>java<span class="w"> </span>-version
 </code></pre></div>
 <h2 id="getting-started">Getting Started</h2>
-<p>Kickstarting the client is a straightforward process. First, navigate to the <code>deliverables/jar</code> directory. The file <code>client.jar</code> is what you're looking for, this is the compiled JAR file for the client.</p>
+<p>Kickstarting the client is a straightforward process. First, navigate to the <code>deliverables/jar</code> directory. The file <code>client-myshelfie.jar</code> is what you're looking for, this is the compiled JAR file for the client.</p>
 <p>The format of the command to run the client is the following:</p>
-<div class="highlight"><pre><span></span><code>java<span class="w"> </span>-jar<span class="w"> </span>./softeng-gc07.jar<span class="w"> </span><span class="o">[</span>--cli<span class="p">|</span>--gui<span class="o">]</span><span class="w"> </span><span class="o">[</span>--server-address<span class="o">=</span>&lt;server-address&gt;<span class="o">]</span><span class="w"> </span><span class="o">[</span>--socket<span class="p">|</span>--rmi<span class="o">]</span>
+<div class="highlight"><pre><span></span><code>java<span class="w"> </span>-jar<span class="w"> </span>./client-myshelfie.jar<span class="w"> </span><span class="o">[</span>--cli<span class="p">|</span>--gui<span class="o">]</span><span class="w"> </span><span class="o">[</span>--server-address<span class="o">=</span>&lt;server-address&gt;<span class="o">]</span><span class="w"> </span><span class="o">[</span>--socket<span class="p">|</span>--rmi<span class="o">]</span>
 </code></pre></div>
 <h3 id="command-line-arguments">Command-line arguments</h3>
 <p>To customize your gaming experience, there are several optional command-line parameters you can utilize:</p>
@@ -605,7 +605,7 @@ Head over to the <a href="../server/index.html">server documentation</a> for ins
 </div>
 <h3 id="example-usage">Example usage</h3>
 <p>Here's an example of using these parameters:</p>
-<div class="highlight"><pre><span></span><code>java<span class="w"> </span>-jar<span class="w"> </span>./softeng-gc07.jar<span class="w"> </span>--cli<span class="w"> </span>--socket<span class="w"> </span>--server-address<span class="o">=</span><span class="m">192</span>.168.1.51
+<div class="copy-to-clipboard highlight"><pre><span></span><code>java<span class="w"> </span>-jar<span class="w"> </span>./client-myshelfie.jar<span class="w"> </span>--cli<span class="w"> </span>--socket<span class="w"> </span>--server-address<span class="o">=</span><span class="m">192</span>.168.1.51
 </code></pre></div></div>
 
 

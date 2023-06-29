@@ -13,7 +13,7 @@ of the game.
 
 ## Prerequisites
 
-The Softeng-gc07 client is built on Java, therefore it requires a Java Runtime Environment (JRE) to function. Please make sure that you have JRE installed on your system and it is of version 19 or later.
+The MyShelfie client is built on Java, therefore it requires a Java Runtime Environment (JRE) to function. Please make sure that you have JRE installed on your system and it is of version 19 or later.
 
 To check your Java version, use the following command in your terminal or command prompt:
 
@@ -23,12 +23,12 @@ java -version
 
 ## Getting Started
 
-Kickstarting the client is a straightforward process. First, navigate to the `deliverables/jar` directory. The file `client.jar` is what you're looking for, this is the compiled JAR file for the client.
+Kickstarting the client is a straightforward process. First, navigate to the `deliverables/jar` directory. The file `client-myshelfie.jar` is what you're looking for, this is the compiled JAR file for the client.
 
 The format of the command to run the client is the following:
 
 ```sh
-java -jar ./softeng-gc07.jar [--cli|--gui] [--server-address=<server-address>] [--socket|--rmi]
+java -jar ./client-myshelfie.jar [--cli|--gui] [--server-address=<server-address>] [--socket|--rmi]
 ```
 
 ### Command-line arguments
@@ -46,6 +46,6 @@ To customize your gaming experience, there are several optional command-line par
 
 Here's an example of using these parameters:
 
-```sh
-java -jar ./softeng-gc07.jar --cli --socket --server-address=192.168.1.51
+```{.sh .copy-to-clipboard}
+java -jar ./client-myshelfie.jar --cli --socket --server-address=192.168.1.51
 ```

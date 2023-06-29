@@ -36,11 +36,11 @@ or later. You can check your Java version by typing `java -version` in your comm
 
 ### Running the client
 
-To run the client, navigate to the `deliverables` directory where the `client.jar` file is located and run it.
+To run the client, navigate to the `deliverables` directory where the `client-myshelfie.jar` file is located and run it.
 This is done via the command line with the following command:
 
 ```sh
-java -jar ./client.jar [--cli|--gui] [--server-address=<server-address>] [--socket|--rmi]
+java -jar ./client-myshelfie.jar [--cli|--gui] [--server-address=<server-address>] [--socket|--rmi]
 ```
 
 The startup command has these optional parameters:
@@ -54,19 +54,19 @@ in the DNS server used by the client.
 Example usage:
 
 ```sh
-java -jar ./softeng-gc07.jar --cli --socket --server-address=192.168.1.100
+java -jar ./client-myshelfie.jar --cli --socket --server-address=192.168.1.100
 ```
 
-Also note that you can start the client in GUI mode even by just double-clicking on the `client.jar` file!
+Also note that you can start the client in GUI mode even by just double-clicking on the `client-myshelfie.jar` file!
 This will start the client in GUI mode with all the default settings.
 
 ### Running the server
 
-To run the server, navigate to the `deliverables` directory where the `server.jar` file is located and run it.
+To run the server, navigate to the `deliverables` directory where the `server-myshelfie.jar` file is located and run it.
 This is done via the command line with the following command:
 
 ```{.sh .copy-to-clipboard}
-java -jar ./server.jar [--logging=<debug|info|error>] [--server-address=<server-address>]
+java -jar ./server-myshelfie.jar [--logging=<debug|info|error>] [--server-address=<server-address>]
 ```
 
 The `--server-address` option should take as a parameter the IP address of the interface you want the server to listen on as seen from the client. If you don't specify anything, the server will listen on `localhost`
@@ -79,7 +79,7 @@ The startup command has these optional parameters:
 Example usage:
 
 ```{.sh .copy-to-clipboard}
-java -jar ./server.jar --server-address=192.168.1.100 --logging=debug
+java -jar ./server-myshelfie.jar --server-address=192.168.1.100 --logging=debug
 ```
 
 > Note that the server uses the ports `1099` for RMI and `1234` for socket communication. 
