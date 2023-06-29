@@ -406,7 +406,6 @@ public class GameControllerFX implements Initializable {
             showErrorDialog("You can't fit the selected tiles in this column!");
             return;
         }
-        selectedColumn = column;
         ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(200), arrowImage);
         scaleTransition.setToX(arrowImage.getScaleX() * 1.1);
         scaleTransition.setToY(arrowImage.getScaleY() * 1.1);

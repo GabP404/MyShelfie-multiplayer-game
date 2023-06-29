@@ -27,8 +27,7 @@ public class Game implements Serializable {
     private Map<String, String> errorState;
 
     private Player winner;
-    // errorState maps every player nickname to a corresponding (possible) error message
-     private Map<String, String> errorState;
+
     private boolean playing;
 
     /**

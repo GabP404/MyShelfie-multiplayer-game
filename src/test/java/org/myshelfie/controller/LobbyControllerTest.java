@@ -9,6 +9,7 @@ import org.myshelfie.model.Game;
 import org.myshelfie.model.ItemType;
 import org.myshelfie.model.ModelState;
 import org.myshelfie.network.client.Client;
+import org.myshelfie.network.client.UserInputEvent;
 import org.myshelfie.network.messages.commandMessages.*;
 import org.myshelfie.network.server.Server;
 import org.myshelfie.network.server.ServerEventManager;

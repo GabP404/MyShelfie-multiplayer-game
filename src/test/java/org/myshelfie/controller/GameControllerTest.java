@@ -188,7 +188,7 @@ public class GameControllerTest {
             throw new RuntimeException(e);
         }
         assertDoesNotThrow(() -> gameController.getGame().getCommonGoals().get(0));
-        assertEquals(1, gameController.getNumGoalCards());
+        assertEquals(1, gameController.getNumCommonGoals());
 
     }
 

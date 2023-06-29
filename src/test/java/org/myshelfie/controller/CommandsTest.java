@@ -86,7 +86,7 @@ public class CommandsTest {
         assertThrows(WrongArgumentException.class, pt::execute);
         // Check with wrong model state
         pt = new PickTilesCommand(game.getBoard(), players.get(0), new PickedTilesCommandMessage("User0", "testGame", tiles), ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN);
-        assertThrows(InvalidCommand.class, pt::execute);
+        assertThrows(InvalidCommandException.class, pt::execute);
 
         // Check with two non-adjacent tiles
         tiles.clear();
@@ -115,7 +115,7 @@ public class CommandsTest {
 
         // Check with wrong model status
         st = new SelectTileFromHandCommand(players.get(0), new SelectedTileFromHandCommandMessage("User0", "testGame", 0, ItemType.BOOK), ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN);
-        assertThrows(InvalidCommand.class, st::execute);
+        assertThrows(InvalidCommandException.class, st::execute);
 
         // Check with null tile
         st = new SelectTileFromHandCommand(players.get(0), new SelectedTileFromHandCommandMessage("User0", "testGame", 1, ItemType.BOOK), ModelState.WAITING_1_SELECTION_TILE_FROM_HAND);
