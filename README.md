@@ -1,39 +1,53 @@
 # Software Engineering I - final project
 
-This is the final project for the Software Engineering I course at *Politecnico di Milano*.
+This is the final project for the Software Engineering I course at *Politecnico di Milano*, taught by Professor *Gianpaolo Cugola* during the academic year 2022/2023.
 The project consists of a client-server application for a multiplayer game.
 
 Authors:
-- [Gabriele Puglisi]()
-- [Matteo Santelmo]()
-- [Giuseppe Steduto](https://giuseppesteduto.me)
-- [Mattia Vicenzotto]()
+- [Gabriele Puglisi](https://github.com/GabP404)
+- [Matteo Santelmo](https://github.com/matsant01)
+- [Giuseppe Steduto](https://github.com/giuseppe-steduto)
+- [Mattia Vicenzotto](https://github.com/Vice41)
 
-Read the documentation at [https://softeng-gc07.github.io/](https://softeng-gc07.github.io/).
+> Note that this is just a README file with the basic instructions on how to run the game.
+For the full documentation, please refer to the project documentation, that you can find under 
+[`deliverables/documentation/site`](/deliverables/documentation/site/index.html).
 
-## Introduction
+## What was implemented
 
-Welcome to the Softeng-gc07 client, a part of an interactive, multiplayer game. This README covers the steps to get you up and running with the client side of the game.
+| Feature                  | Implemented?       |
+|--------------------------|--------------------|
+| CLI                      | ✔️ |
+| Base rules               | ✔️ |
+| Complete rules           | ✔️ |
+| CLI                      | ✔️ |
+| GUI                      | ✔️ |
+| RMI                      | ✔️ |
+| Socket                   | ✔️ |
+| Disconnection  (1FA)     | ✔️ |
+| Server Persistence (2FA) | ✔️ |
+| Multiple games (3FA)     | ✔️ |
+| Chat (4FA)               | ❌                 |
 
-## Prerequisites
+## Instructions
 
-To run this project, you need to have a Java Runtime Environment (JRE) installed. This project requires Java version 11 or later. You can check your Java version by typing `java -version` in your command prompt or terminal.
+To run this project, you need to have a Java Runtime Environment (JRE) installed. This project requires Java version 19
+or later. You can check your Java version by typing `java -version` in your command prompt or terminal.
 
-## Getting Started
+### Running the client
 
-To start the client, navigate to the project root directory where the `softeng-gc07.jar` file is located. This is done via the command line with the following command:
+To run the client, navigate to the `deliverables` directory where the `client.jar` file is located and run it.
+This is done via the command line with the following command:
 
 ```sh
-java -jar ./softeng-gc07.jar [--cli|--gui] [--server-address=<server-address>] [--socket|--rmi]
+java -jar ./client.jar [--cli|--gui] [--server-address=<server-address>] [--socket|--rmi]
 ```
-
-## Command-line arguments
 
 The startup command has these optional parameters:
 
-- `--cli`: If set, this flag runs the game in textual mode. If it is not set, the game will run with a graphical interface.
-- `--server-address=<server-address>`: This parameter allows you to specify the server address if it's different from the default one.
-- `--socket`: If set, this flag forces the client to use the socket connection. If the `--rmi` flag is set instead, the client will use the RMI connection.
+- `[--cli|--gui]`: This parameter allows you to specify the client mode. If you don't specify anything or specify `--gui`, the client will run in GUI mode. If you specify `--cli`, the client will run in textual mode.
+- `--server-address=<server-address>`: This parameter allows you to specify the server address if it's different from the default one (`127.0.0.1`).
+- `[--socket|--rmi]`: This parameter allows you to specify the communication method. If you don't specify anything or specify `--socket`, the client will use the socket communication method. If you specify `--rmi`, the client will use the RMI communication method.
 
 Note that it is possible also to use a hostname instead of an IP address, as long as there is a valid DNS record for it
 in the DNS server used by the client.
@@ -42,15 +56,14 @@ Example usage:
 ```sh
 java -jar ./softeng-gc07.jar --cli --socket --server-address=192.168.1.100
 ```
-This command runs the game in textual mode and connects to the server at 192.168.1.100.
 
-It is also possible to pass a valid domain name, like myshelfie.polimi.it, as the server address (as long as the DNS server used by the client can resolve it to an IP address).
+Also note that you can start the client in GUI mode even by just double-clicking on the `client.jar` file!
+This will start the client in GUI mode with all the default settings.
 
-Please ensure your server is up and running before starting the client.
+### Running the server
 
-## Running the server
-
-To run the server, navigate to the `deliverables` directory where the `server.jar` file is located and run it. This is done via the command line with the following command:
+To run the server, navigate to the `deliverables` directory where the `server.jar` file is located and run it.
+This is done via the command line with the following command:
 
 ```{.sh .copy-to-clipboard}
 java -jar ./server.jar [--logging=<debug|info|error>] [--server-address=<server-address>]
@@ -58,21 +71,16 @@ java -jar ./server.jar [--logging=<debug|info|error>] [--server-address=<server-
 
 The `--server-address` option should take as a parameter the IP address of the interface you want the server to listen on as seen from the client. If you don't specify anything, the server will listen on `localhost`
 
-### Logging options
+The startup command has these optional parameters:
 
-The server has extensive logging capabilities. Every log message is both printed to the console and saved in a log file. 
-The log file name is `server.log` and it is appended to every time the server is run.
-
-You can specify the logging level by setting the `--logging` parameter
-when running the JAR from the command line. The possible values are:
-- `info`: Logs all the important events that happen in the server. Matches the `Loglevel.INFO` enum value.
-- `debug`: Logs all the events that happen in the server. Matches the `Loglevel.FINE` enum value.
-- `error`: Logs only the errors that happen in the server. Matches the `Loglevel.SEVERE` enum value.
-
-If you don't specify anything, the default logging level is `info`.
+- `--server-address=<server-address>`: This parameter allows you to specify the IP address of the interface used by the server if it's different from the default one (`127.0.0.1`).
+- `--logging=<debug|info|error>`: This parameter allows you to specify the logging level. The logs with the desired detail will be shown to the console and saved on a log file (`server.log`). The default value is `info`.
 
 Example usage:
 
 ```{.sh .copy-to-clipboard}
-java -jar ./server.jar --logging=debug
+java -jar ./server.jar --server-address=192.168.1.100 --logging=debug
 ```
+
+> Note that the server uses the ports `1099` for RMI and `1234` for socket communication. 
+> Make sure that these ports are not used by other applications on your machine.

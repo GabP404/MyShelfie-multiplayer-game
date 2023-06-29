@@ -2,6 +2,9 @@ package org.myshelfie.network.server;
 
 import java.util.logging.LogRecord;
 
+/**
+ * Custom formatter for the server logger.
+ */
 public class LoggingFormatterWithColor extends LoggingFormatter {
     // Define ANSI escape codes
     private final String ANSI_RESET = "\u001B[0m";

@@ -1,7 +1,5 @@
 package org.myshelfie.network;
 
-import org.myshelfie.network.server.GameListener;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,9 +7,9 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- *  This class is used to manage the listeners and the events.
+ *  This class is used to manage the {@link Listener} and the events.
  *  It stores a map that links the eventType to the listeners.
- *  When an event is generated, notify() will be called passing
+ *  When an event is generated, {@link #notify(Enum, Object...)} will be called passing
  *  the event (of one of the specified eventType) and some argument.
  */
 public class EventManager {
@@ -35,7 +33,7 @@ public class EventManager {
      * Return the first listener of a certain class that matches a function
      * @param classToListen The class that is being listened
      * @param func A function that returns true if the listener is the required one
-     * @return
+     * @return the first listener of a certain class that matches a function
      */
     public Listener<? extends Enum<?>> getListener(Class<? extends Enum<?>> classToListen, Function<Listener<? extends Enum<?>>, Boolean> func) {
         List<Listener<? extends Enum<?>>> listened = listeners.get(classToListen);
@@ -64,14 +62,13 @@ public class EventManager {
 
     /**
      * Notify all the listeners of the event and forward the argument.
-     *
      * @param event    The event that has been emitted
+     * @param args     The arguments to forward to the listeners
      */
     public <E extends Enum<E>> void notify(E event, Object... args) {
         List<Listener<?>> eventListeners = listeners.get(event.getClass());
         if (eventListeners != null) {
             for (Listener<?> listener : eventListeners) {
-                // TODO: try to avoid this cast if possible
                 Listener<E> typedListener = (Listener<E>) listener;
                 typedListener.update(event, args);
             }

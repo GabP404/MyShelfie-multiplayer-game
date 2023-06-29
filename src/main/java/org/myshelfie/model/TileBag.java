@@ -6,6 +6,9 @@ import java.util.Collections;
 import java.util.List;
 import org.myshelfie.controller.Configuration;
 
+/**
+ * Class representing the bag containing all the tiles.
+ */
 public class TileBag implements Serializable {
     private static final int TILEPERTYPE = Configuration.getTilesPerType();
     private List<Tile> tiles;

@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+/**
+ * This class is used to read the JSON configuration file, that will be bundled in the JAR.
+ */
 public class Configuration {
     private static final String JSONfile = "constants.json";
 
@@ -84,8 +87,9 @@ public class Configuration {
     }
 
     /**
-     * Get a map of the number of completed goals to the number of points
-     * @return
+     * Return the association between the number of tiles matching a personal goal
+     * and the corresponding number of points.
+     * @return The map of points for each number of matches
      */
     static public Map<Integer, Integer> getPersonalGoalPoints() {
         JSONObject jo = getJSON().getJSONObject("personal_goal_cards");
@@ -222,8 +226,8 @@ public class Configuration {
     }
 
     /**
-     * Get the name of the file used to backup the server state.
-     * @return The name of the file used to backup the server state
+     * Get the name of the file used to back up the server state.
+     * @return The name of the file used to back up the server state
      */
     public static String getServerBackupFileName() {
         JSONObject serverInfo = getJSON().getJSONObject("server");
@@ -250,5 +254,22 @@ public class Configuration {
         } catch (Exception e) {
             return Level.INFO;
         }
+    }
+
+    /**
+     * Get the interval, in milliseconds, at which the clients send a heartbeat message to the server
+     * @return The heartbeat interval
+     */
+    public static int getHeartbeatInterval() {
+        return getJSON().getInt("heartbeat_interval");
+    }
+
+    /**
+     * Get the timeout, in milliseconds, after which the server considers a client disconnected if it does not receive
+     * a heartbeat message from it
+     * @return The heartbeat timeout
+     */
+    public static int getHeartbeatTimeout() {
+        return getJSON().getInt("heartbeat_timeout");
     }
 }

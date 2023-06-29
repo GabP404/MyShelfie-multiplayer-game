@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+/**
+ * Class that represents the deck of personal goal cards. It is a singleton, so its constructor is private.
+ */
 public final class PersonalGoalDeck {
     private final List<PersonalGoalCard> cards;
     private static PersonalGoalDeck single_istance;
@@ -22,7 +25,7 @@ public final class PersonalGoalDeck {
     }
 
     /**
-     * Get PersonalGoalDeck instance
+     * Get PersonalGoalDeck instance, if it does not exist create it.
      * @return An instance of the PersonalGoalDeck
      * @throws IOException If the file does not exist
      */
@@ -36,8 +39,7 @@ public final class PersonalGoalDeck {
     }
 
     /**
-     * Draw a variable number of distinct cards from the deck, without
-     * removing them
+     * Draw a variable number of distinct cards from the deck, without removing them.
      * @param x The number of cards to be drawn
      * @return A list containing the drawn cards
      */
@@ -50,8 +52,7 @@ public final class PersonalGoalDeck {
         List<Integer> positions= new Random().ints(0, cards.size())
                 .distinct()
                 .limit(x)
-                .boxed()
-                .collect(Collectors.toList());
+                .boxed().toList();
         for(Integer i: positions) {
             drawnCards.add(cards.get(i));
         }

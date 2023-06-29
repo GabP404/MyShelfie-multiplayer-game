@@ -6,7 +6,7 @@ import org.myshelfie.model.Tile;
 import org.myshelfie.model.WrongArgumentException;
 
 /**
- * Four tiles of the same type in the four corners of the bookshelf.
+ * Common Goal Card: four tiles of the same type in the four corners of the bookshelf.
  */
 public class EqualCorners extends CommonGoalCard {
 
@@ -14,6 +14,12 @@ public class EqualCorners extends CommonGoalCard {
         super(id);
     }
 
+    /**
+     * Check if the goal is satisfied.
+     * @param bookshelf the bookshelf to check
+     * @return true if the goal is satisfied, false otherwise
+     * @throws WrongArgumentException when trying to access a tile outside the bookshelf
+     */
     @Override
     public Boolean checkGoalSatisfied(Bookshelf bookshelf) throws WrongArgumentException{
         //ItemType typesupp;

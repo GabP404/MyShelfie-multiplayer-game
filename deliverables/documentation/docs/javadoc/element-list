@@ -1,0 +1,12 @@
+org.myshelfie.controller
+org.myshelfie.model
+org.myshelfie.model.commonGoal
+org.myshelfie.model.util
+org.myshelfie.network
+org.myshelfie.network.client
+org.myshelfie.network.messages.commandMessages
+org.myshelfie.network.messages.gameMessages
+org.myshelfie.network.server
+org.myshelfie.view
+org.myshelfie.view.CLI
+org.myshelfie.view.GUI

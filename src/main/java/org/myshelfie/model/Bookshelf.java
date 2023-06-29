@@ -8,13 +8,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class represents the bookshelf of a player.
+ */
 public class Bookshelf implements Serializable {
-
     public static final int NUMROWS = Configuration.getBookshelfRows();
     public static final int NUMCOLUMNS = Configuration.getBookshelfCols();
-
     private Tile[][] tiles;
-
 
     /**
      * Bookshelf constructor.
@@ -53,7 +53,7 @@ public class Bookshelf implements Serializable {
     }
 
     /**
-     * Retrieves tile in position (r,c)
+     * Retrieves the tile in the specified position, without removing it.
      * @param r The row of the bookshelf
      * @param c The column of the bookshelf
      * @return The tile in (r, c)
@@ -62,7 +62,6 @@ public class Bookshelf implements Serializable {
     public Tile getTile(int r, int c) throws WrongArgumentException {
         if(r < 0 || r >= NUMROWS || c < 0 || c >= NUMCOLUMNS)
             throw new WrongArgumentException("Tile selected is unreachable (out of bound)");
-
         return tiles[r][c];
     }
 
@@ -81,7 +80,12 @@ public class Bookshelf implements Serializable {
         return NUMROWS - r;
     }
 
-    //method that returns the minimum height of the bookshelf
+    /**
+     * Method that cheks all the columns and returns the height of the shortest one.
+     * This is used in {@link org.myshelfie.controller.PickTilesCommand#execute} to prevent the player from
+     * picking tiles that would make the bookshelf exceed the maximum height.
+     * @return The minimum height of the bookshelf
+     */
     public int getMinHeight() throws WrongArgumentException {
         int min = getHeight(0);
         for(int i = 1; i < NUMCOLUMNS; i++){
@@ -99,7 +103,6 @@ public class Bookshelf implements Serializable {
      */
     public List<Integer> getAdjacentSizes() {
         List<Integer> groupSizes = new ArrayList<>();
-
         boolean[][] visited = new boolean[tiles.length][tiles[0].length];
 
         for (int i = 0; i < tiles.length; i++) {
@@ -149,6 +152,10 @@ public class Bookshelf implements Serializable {
         return size;
     }
 
+    /**
+     * Checks if the bookshelf is full.
+     * @return true if the bookshelf is full, false otherwise
+     */
     public boolean isFull() {
         for(int i = 0; i < NUMROWS; i++) {
             for(int j = 0; j < NUMCOLUMNS; j++) {

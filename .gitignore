@@ -14,8 +14,10 @@
 # IntelliJ
 .idea/
 
+# build folders
+out
+
 # Package Files #
-*.jar
 *.war
 *.nar
 *.ear

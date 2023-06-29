@@ -10,8 +10,8 @@ import java.io.Serializable;
 import java.util.Map;
 
 /**
- * This class is the immutable version of the Game (model) class, which allows the distributed MVC paradigm to work.
- * In particular this class provides to the View all the information it needs to show the users the game state.
+ * This class is the immutable version of the {@link Game} class, which allows the distributed MVC paradigm to work.
+ * In particular this class provides to the {@link org.myshelfie.view.View View} all the information it needs to show the users the game state.
  */
 public class GameView implements Serializable {
     static final long serialVersionUID = 1L;
@@ -22,8 +22,12 @@ public class GameView implements Serializable {
     private final ImmutableBoard board;
     private final Map<String, String> errorState;
     private final ModelState modelState;
-
     private final String gameName;
+
+    /**
+     * Constructor starting from all the information of a {@link Game} object.
+     * @param model the {@link Game} object to be converted into an immutable version.
+     */
     public GameView(Game model) {
         this.currPlayer = new ImmutablePlayer(model.getCurrPlayer());
         this.commonGoals = model.getCommonGoals();
@@ -31,7 +35,6 @@ public class GameView implements Serializable {
         model.getCommonGoalsMap().forEach(
                 (key,value) -> this.commonGoalsTokens.put(key.getId(), new ArrayList<>(value))
         );
-        // this.commonGoals.putAll(model.getCommonGoalsMap()); -> possible error here
         this.players = new ArrayList<>();
         for(Player p: model.getPlayers()) {
             this.players.add(new ImmutablePlayer(p));
@@ -43,28 +46,60 @@ public class GameView implements Serializable {
         this.modelState = model.getModelState();
     }
 
-
+    /**
+     * @param nickname Nickname of the player to get the error state of.
+     * @return The error string of the player with the given nickname.
+     */
     public String getErrorState(String nickname) {
         return errorState.get(nickname);
     }
+
+    /**
+     * @return Current player of the game as a {@link ImmutablePlayer} object.
+     */
     public ImmutablePlayer getCurrPlayer() {
         return currPlayer;
     }
+
+    /**
+     * @return List of players in the game as {@link ImmutablePlayer} objects.
+     */
     public List<ImmutablePlayer> getPlayers() {
         return players;
     }
+
+    /**
+     * @return List of common goals in the game as {@link CommonGoalCard} objects.
+     */
     public List<CommonGoalCard> getCommonGoals() {
         return new ArrayList<>(commonGoals);
     }
+
+    /**
+     * @param id Id of the common goal to get the tokens of.
+     * @return List of tokens of the common goal with the given id.
+     */
     public List<ScoringToken> getCommonGoalTokens(String id) {
         return commonGoalsTokens.get(id);
     }
+
+    /**
+     * @return Immutable version of the game board as an {@link ImmutableBoard} object.
+     */
     public ImmutableBoard getBoard() {
         return board;
     }
+
+    /**
+     * @return Name of the game.
+     */
     public String getGameName() {
         return gameName;
     }
+
+    /**
+     * @return State of the game as a {@link ModelState} object.
+     */
     public ModelState getModelState() {
         return modelState;
     }

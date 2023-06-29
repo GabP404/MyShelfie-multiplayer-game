@@ -6,7 +6,7 @@ import org.myshelfie.network.client.Client;
 import org.myshelfie.network.messages.commandMessages.CommandMessage;
 import org.myshelfie.network.messages.commandMessages.CreateGameMessage;
 import org.myshelfie.network.messages.commandMessages.JoinGameMessage;
-import org.myshelfie.network.messages.commandMessages.UserInputEvent;
+import org.myshelfie.network.client.UserInputEvent;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.server.GameListener;
 import org.myshelfie.network.server.Server;
@@ -20,14 +20,16 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
+/**
+ * This class is the entry point of every command received by the server.
+ * It manages all the games and the lobbies, and forwards the commands to the right {@link GameController}.
+ */
 public class LobbyController {
     private static Server server;
 
-    private static LobbyController single_istance;
-
     private static HashMap<String,GameController> gameControllers;
 
-    private LobbyController(Server server) {
+    public LobbyController(Server server) {
         this.server = server;
         if(server.shouldResumeFromBackup()) {
             try {
@@ -52,12 +54,12 @@ public class LobbyController {
         }
     }
 
-    public static LobbyController getInstance(Server server){
-        if (single_istance == null) {
-            single_istance = new LobbyController(server);
-        }
-        return single_istance;
-    }
+    /**
+     * Main execution method, called by {@link Server#update}. Makes the correct {@link GameController} execute the command.
+     * Send the update to all the interested clients. Check if the game has ended and delete it if so. Save the server status.
+     * @param command The command to execute
+     * @param t The event that triggered the command
+     */
     public void executeCommand(CommandMessage command, UserInputEvent t) {
         // Queue the command
         gameControllers.get(command.getGameName()).queueAndExecuteCommand(command, t);
@@ -109,6 +111,10 @@ public class LobbyController {
     }
 
 
+    /**
+     * Returns the list of {@link GameController.GameDefinition} of all the available games.
+     * @return The list of available games
+     */
     public List<GameController.GameDefinition> getGames() {
         ArrayList<GameController.GameDefinition> l = new ArrayList<>();
         for (GameController g : gameControllers.values()) {
@@ -117,6 +123,12 @@ public class LobbyController {
         return l;
     }
 
+    /**
+     * Executes the {@link CreateGameCommand} to create a new game, adds the player to the list of players inside the game
+     * and subscribes the client to the event listener to make it receive updates from that game.
+     * @param message The message containing the information to create the game
+     * @throws IllegalArgumentException If the game cannot be created
+     */
     public void createGame(CreateGameMessage message) throws IllegalArgumentException {
         CreateGameCommand c = new CreateGameCommand(gameControllers, message);
         // The reference to the Game is created inside the execute method and stored in the GameController
@@ -124,14 +136,19 @@ public class LobbyController {
 
         Client client = server.getClient(message.getNickname());
         Game gameToSubscribe = gameControllers.get(message.getGameName()).getGame();
-
         // Add the player to the list of players inside the Game
         gameControllers.get(message.getGameName()).addPlayer(message.getNickname());
-
         // Subscribe the client to the event listener (if no exception is thrown)
         Server.eventManager.subscribe(GameEvent.class, new GameListener(this.server, client, gameToSubscribe));
     }
 
+    /**
+     * Executes the {@link JoinGameCommand} to join an existing game, adds the player to the list of players inside the game
+     * and subscribes the client to the event listener to make it receive updates from that game.
+     * Then checks if the game has reached the maximum number of players and set it up if so.
+     * @param message The {@link JoinGameMessage} containing the name of the game to join and the nickname of the player
+     * @throws IllegalArgumentException If the game is not found or not joinable
+     */
     public void joinGame(JoinGameMessage message) throws IllegalArgumentException {
         JoinGameCommand c = new JoinGameCommand(gameControllers, message);
         c.execute();
@@ -153,8 +170,8 @@ public class LobbyController {
                     try {
                         server.log(Level.FINE, "Setting game " + message.getGameName() + " up...");
                         gameController.setupGame();
+                        // Send the update to all the clients (containing the first update, i.e. board refill)
                         gameController.queueAndExecuteInstruction(() -> {
-                            // Send the update to all the clients
                             Server.eventManager.sendToClients();
                         });
                         server.log(Level.INFO, "Game " + message.getGameName() + " set up!");

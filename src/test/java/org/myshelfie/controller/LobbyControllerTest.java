@@ -9,6 +9,7 @@ import org.myshelfie.model.Game;
 import org.myshelfie.model.ItemType;
 import org.myshelfie.model.ModelState;
 import org.myshelfie.network.client.Client;
+import org.myshelfie.network.client.UserInputEvent;
 import org.myshelfie.network.messages.commandMessages.*;
 import org.myshelfie.network.server.Server;
 import org.myshelfie.network.server.ServerEventManager;
@@ -43,7 +44,7 @@ class LobbyControllerTest {
             throw new RuntimeException(e);
         }
 
-        single_istance = LobbyController.getInstance(server);
+        single_istance = new LobbyController(server);
 
         //delete the game in case it was in the backup
         try{
@@ -111,7 +112,7 @@ class LobbyControllerTest {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        single_istance = LobbyController.getInstance(noResumeServer);
+        single_istance = new LobbyController(noResumeServer);
         try {
             beforeAll();
         } catch (IllegalAccessException e) {

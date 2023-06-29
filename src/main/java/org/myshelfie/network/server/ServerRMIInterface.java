@@ -9,6 +9,10 @@ import org.myshelfie.network.messages.commandMessages.JoinGameMessage;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
+/**
+ * The RMI interface implemented by the server that is used by the client to communicate with the server using
+ * remote method invocation.
+ */
 public interface ServerRMIInterface extends Remote {
     /**
      * Update of the server after a client has made a choice

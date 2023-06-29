@@ -1,0 +1,12 @@
+title: MyShelfie documentation
+arrange:
+    - index.md
+    - client
+    - server
+    - advanced-features
+    - demo
+    - uml
+    - test-coverage
+    - development-process
+    - manual-installation
+    - legal

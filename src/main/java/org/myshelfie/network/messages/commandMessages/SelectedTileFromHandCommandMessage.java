@@ -24,10 +24,16 @@ public class SelectedTileFromHandCommandMessage extends CommandMessage implement
         this.tileType = tileType;
     }
 
+    /**
+     * @return The index in the hand of the tile the player wants to insert.
+     */
     public int getIndex() {
         return index;
     }
 
+    /**
+     * @return The type of the tile the player wants to insert. (used only for testing)
+     */
     public ItemType getTileType() {
         return tileType;
     }

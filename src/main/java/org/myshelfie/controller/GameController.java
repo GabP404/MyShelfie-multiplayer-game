@@ -4,6 +4,7 @@ import org.myshelfie.model.*;
 import org.myshelfie.network.messages.commandMessages.*;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.server.Server;
+import org.myshelfie.network.client.UserInputEvent;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -12,22 +13,39 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * This class is the controller of a game. It contains the game logic and state.
+ */
 public class GameController implements Serializable {
+    private transient Timer timer; // declared as transient to not serialize it
+    private final int timeout;
+    private boolean isRunning;
+    private transient ExecutorService commandExecutor;     // declared as transient to not serialize it
+    private final String gameName;
+    private final Game game;
+    private final List<String> nicknames;
+    private final int numPlayerGame;
+    private final int numCommonGoals;
 
+    /**
+     * Inner class used to represent a game. Objects of this class are sent to the clients
+     * to let them know the available games and their state. See {@link Server#updatePreGame}.
+     */
     public static class GameDefinition implements Serializable {
         private final String gameName;
         private final int maxPlayers;
         private final List<String> nicknames;
-
         private final boolean simplifyRules;
 
-
-
+        /**
+         * Constructor used to create a GameDefinition from a GameController.
+         * @param gc The GameController used to retrieve the information.
+         */
         public GameDefinition(GameController gc) {
             this.gameName = gc.getGameName();
             this.maxPlayers = gc.getNumPlayerGame();
             this.nicknames = new ArrayList<>(gc.getNicknames());
-            this.simplifyRules = gc.getNumGoalCards() == 1;
+            this.simplifyRules = gc.getNumCommonGoals() == 1;
         }
 
         public String getGameName() {
@@ -49,21 +67,21 @@ public class GameController implements Serializable {
         public boolean isFull() {
             return nicknames.size() == maxPlayers;
         }
+
     }
-    private transient Timer timer; // declared as transient to not serialize it
 
-    private int timeout;
-    private boolean isRunning;
-
-    // declared as transient to not serialize it
-    private transient ExecutorService commandExecutor;
-
+    /**
+     * Method used to scheduler the timer.
+     */
     public void startTimer() {
         timer = new Timer();
         timer.schedule(new GameTimerTask(), this.timeout); // 1 minute = 60,000 milliseconds
         isRunning = true;
     }
 
+    /**
+     * Method used to stop and cancel the timer. This is called in {@link #setOnlinePlayer} when a disconnected player reconnects.
+     */
     public void stopTimer() {
         if (timer != null) {
             timer.cancel();
@@ -75,6 +93,10 @@ public class GameController implements Serializable {
         return isRunning;
     }
 
+    /**
+     * Timer task used to delete a game a certain amount of time after only one player has been online (with game paused).
+     * When the {@link #run()} method is called, the END_GAME event is sent to the client and the game is deleted.
+     */
     private class GameTimerTask extends TimerTask {
         @Override
         public void run() {
@@ -88,42 +110,44 @@ public class GameController implements Serializable {
     }
 
 
-    private String gameName;
-
-    private Game game;
-    private List<String> nicknames;
-
-    private int numPlayerGame;
-
-    public int getNumGoalCards() {
-        return numGoalCards;
+    public int getNumCommonGoals() {
+        return numCommonGoals;
     }
 
-    private int numGoalCards;
-
+    /**
+     * Constructor for the GameController.
+     * @param gameName The name of the game.
+     * @param numPlayerGame The number of players in the game.
+     * @param numGoalCards The number of common goal cards in the game (depends on rules).
+     */
     public GameController(String gameName, int numPlayerGame, int numGoalCards) {
         this.gameName = gameName;
         this.nicknames = new ArrayList<>();
         this.numPlayerGame = numPlayerGame;
-        this.numGoalCards = numGoalCards;
+        this.numCommonGoals = numGoalCards;
         this.timeout = Configuration.getTimerTimeout();
         this.game = new Game();
         createCommandExecutor();
     }
 
-    //creates a new command executor
+    /**
+     * Creates a new command executor.
+     */
     public void createCommandExecutor() {
         this.commandExecutor = Executors.newSingleThreadExecutor();
     }
 
+    /**
+     * Set up the game and start it by performing the first action, i.e. refilling the board.
+     */
     public void setupGame() throws IOException, URISyntaxException {
+        // Prepares all the game elements
         CommonGoalDeck commonGoalDeck = CommonGoalDeck.getInstance();
         PersonalGoalDeck personalGoalDeck = PersonalGoalDeck.getInstance();
         List<PersonalGoalCard> personalGoalCardsGame = personalGoalDeck.draw(numPlayerGame);
-        List<CommonGoalCard> commonGoalCards = commonGoalDeck.drawCommonGoalCard(numGoalCards);
+        List<CommonGoalCard> commonGoalCards = commonGoalDeck.drawCommonGoalCard(numCommonGoals);
         List<Player> players = new ArrayList<>();
-        for (String nickname :
-                nicknames) {
+        for (String nickname : nicknames) {
             players.add(new Player(nickname,personalGoalCardsGame.remove(0)));
         }
         HashMap<CommonGoalCard,List<ScoringToken>> commonGoal = new HashMap<>();
@@ -132,8 +156,10 @@ public class GameController implements Serializable {
         }
         TileBag tileBag = new TileBag();
 
+        // Assign all the elements to the game object
         this.game.setupGame(players, new Board(numPlayerGame),commonGoal,tileBag,ModelState.WAITING_SELECTION_TILE,gameName);
 
+        // Refill the board
         try {
             this.game.getBoard().refillBoard(this.getNumPlayerGame(), this.game.getTileBag());
         } catch (WrongArgumentException e) {
@@ -141,6 +167,12 @@ public class GameController implements Serializable {
         }
     }
 
+    /**
+     * Utility method used to create the scoring tokens stack for a common goal card.
+     * @param id The id of the common goal card.
+     * @param numPlayer The number of players in the game.
+     * @return List of scoring tokens.
+     */
     private LinkedList<ScoringToken> createTokensCommonGoalCard(String id, int numPlayer) {
         LinkedList<ScoringToken> tokens = new LinkedList<>();
         switch (numPlayer) {
@@ -163,11 +195,18 @@ public class GameController implements Serializable {
         return tokens;
     }
 
-
+    /**
+     * Method used to set the game state to END_GAME.
+     */
     private void endGame() {
         this.game.setModelState(ModelState.END_GAME);
     }
 
+
+    /**
+     * Method used to check if the game is ended by looking if any player has completed the bookshelf.
+     * @return True if the game is ended, false otherwise.
+     */
     private boolean checkEndGameBookShelfFull() {
         if(this.game.getPlayers().stream().anyMatch(x -> x.getBookshelf().isFull())) {
             this.game.getCurrPlayer().setHasFinalToken(true);
@@ -213,6 +252,10 @@ public class GameController implements Serializable {
         checkPlayersOnline();
     }
 
+    /**
+     * Switch the player status to online. If the game was paused it's resumed and the timer is stopped.
+     * @param nickname The nickname of the player to set online.
+     */
     public void setOnlinePlayer(String nickname) {
         // If the game was paused, resume it
         this.game.getPlayers().stream().filter(x -> x.getNickname().equals(nickname)).toList().get(0).setOnline(true);
@@ -235,6 +278,10 @@ public class GameController implements Serializable {
         }
     }
 
+    /**
+     * Utility method that checks the number of online players and starts the timer if there is only one player online.
+     * It ends the game if there are no more online players.
+     */
     private void checkPlayersOnline() {
         switch (this.game.getNumOnlinePlayers()) {
             case 0 -> endGame();
@@ -263,6 +310,13 @@ public class GameController implements Serializable {
         commandExecutor.execute(instruction);
     }
 
+    /**
+     * Main method of the execution flow of the GameController.
+     * Given a command and the event that triggered it, it creates the corresponding Command object and executes it.
+     * Reset the error state if everything went fine, the makes the game state transition to the next state.
+     * @param command The command to execute
+     * @param t The event that triggered the command
+     */
     public void executeCommand(CommandMessage command, UserInputEvent t) {
         Command c;
         try {
@@ -273,43 +327,43 @@ public class GameController implements Serializable {
                 case SELECTED_TILES -> c = new PickTilesCommand(game.getBoard(), game.getCurrPlayer(), (PickedTilesCommandMessage) command, this.game.getModelState());
                 case SELECTED_HAND_TILE -> c = new SelectTileFromHandCommand(game.getCurrPlayer(), (SelectedTileFromHandCommandMessage) command, this.game.getModelState());
                 case SELECTED_BOOKSHELF_COLUMN -> c = new SelectColumnCommand(game.getCurrPlayer(), (SelectedColumnMessage) command, this.game.getModelState());
-                default -> throw new InvalidCommand();
+                default -> throw new InvalidCommandException();
             }
             c.execute();
             game.resetErrorState();
             nextState();
         } catch (WrongTurnException e) {
             game.setErrorState(command.getNickname(), "Wait for your turn to perform this action. " + e.getMessage());
-        } catch (InvalidCommand e) {
+        } catch (InvalidCommandException e) {
             game.setErrorState(command.getNickname(), "You tried to perform the wrong action: " + e.getMessage());
         } catch (WrongArgumentException e){
             game.setErrorState(command.getNickname(), "Your request has an invalid argument: " + e.getMessage());
         }
     }
 
-
+    /**
+     * Method responsible for the transition of the game's state.
+     * @throws WrongArgumentException If the player that will be set as current player is invalid.
+     */
     private void nextState() throws WrongArgumentException {
         ModelState currentGameState = game.getModelState();
         ModelState nextState = null;
         switch (currentGameState) {
-            case WAITING_SELECTION_TILE:
-                nextState = ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN;
-                break;
-            case WAITING_3_SELECTION_TILE_FROM_HAND:
+            case WAITING_SELECTION_TILE -> nextState = ModelState.WAITING_SELECTION_BOOKSHELF_COLUMN;
+            case WAITING_3_SELECTION_TILE_FROM_HAND -> {
                 checkTokenAchievement();
                 nextState = ModelState.WAITING_2_SELECTION_TILE_FROM_HAND;
-                break;
-            case WAITING_2_SELECTION_TILE_FROM_HAND:
+            }
+            case WAITING_2_SELECTION_TILE_FROM_HAND -> {
                 checkTokenAchievement();
                 nextState = ModelState.WAITING_1_SELECTION_TILE_FROM_HAND;
-                break;
-            case WAITING_1_SELECTION_TILE_FROM_HAND:
+            }
+            case WAITING_1_SELECTION_TILE_FROM_HAND -> {
                 checkTokenAchievement();
-                if(checkEndGameBookShelfFull()) {
+                if (checkEndGameBookShelfFull()) {
                     findWinners();
                     nextState = ModelState.END_GAME;
-                }else {
-                    // TODO optimize this with a check to send the player update only once
+                } else {
                     try {
                         nextState = ModelState.WAITING_SELECTION_TILE;
                         game.setModelState(nextState);
@@ -317,7 +371,7 @@ public class GameController implements Serializable {
                     } catch (WrongArgumentException e) {
                         throw new RuntimeException(e);
                     }
-                    while(!game.getCurrPlayer().isOnline()) {
+                    while (!game.getCurrPlayer().isOnline()) {
                         try {
                             game.setCurrPlayer(game.getNextPlayer());
                         } catch (WrongArgumentException e) {
@@ -326,34 +380,31 @@ public class GameController implements Serializable {
                     }
                     updateEndTurn();
                 }
-                break;
-            case WAITING_SELECTION_BOOKSHELF_COLUMN:
-                switch (this.game.getCurrPlayer().getTilesPicked().size()){
-                    case 3:
-                        nextState = ModelState.WAITING_3_SELECTION_TILE_FROM_HAND;
-                        break;
-                    case 2:
-                        nextState = ModelState.WAITING_2_SELECTION_TILE_FROM_HAND;
-                        break;
-                    case 1:
-                        nextState = ModelState.WAITING_1_SELECTION_TILE_FROM_HAND;
-                        break;
-                }
-                break;
-            case END_GAME:
+            }
+            case WAITING_SELECTION_BOOKSHELF_COLUMN ->
+                    nextState = switch (this.game.getCurrPlayer().getTilesPicked().size()) {
+                        case 3 -> ModelState.WAITING_3_SELECTION_TILE_FROM_HAND;
+                        case 2 -> ModelState.WAITING_2_SELECTION_TILE_FROM_HAND;
+                        case 1 -> ModelState.WAITING_1_SELECTION_TILE_FROM_HAND;
+                        default -> null;
+                    };
+            case END_GAME -> {
                 findWinners();
                 nextState = ModelState.END_GAME;
-                break;
+            }
         }
         game.setModelState(nextState);
     }
 
+    /**
+     * Method that checks if the board needs to be refilled and do so if needed.
+     * @throws WrongArgumentException If the tiles bag is empty (should never happen)
+     */
     public void updateEndTurn() throws WrongArgumentException {
         if(game.getBoard().isRefillNeeded()) {
             this.game.getBoard().refillBoard(this.getNumPlayerGame(), this.game.getTileBag());
         }
     }
-
 
     /**
      * Setting the winner attribute to true of the players who have the maximum points and are online.
@@ -370,6 +421,9 @@ public class GameController implements Serializable {
 
     }
 
+    /**
+     * Method that checks if any player has completed a common goal and gives them the corresponding token.
+     */
     public void checkTokenAchievement() throws WrongArgumentException {
         Player p = this.game.getCurrPlayer();
         for(CommonGoalCard x: this.game.getCommonGoals()) {
@@ -382,17 +436,25 @@ public class GameController implements Serializable {
     }
 
 
+    /**
+     * Method use during game creation to add a player to the list of players.
+     * @param nickname The nickname of the player to add
+     * @throws IllegalArgumentException If the player already exists in the game
+     */
     public void addPlayer(String nickname) throws IllegalArgumentException{
         if (nicknames.contains(nickname))
             throw new IllegalArgumentException("Player already exists in the game");
         this.nicknames.add(nickname);
     }
 
+    /**
+     * Method use during game creation to remove a player from the list of players.
+     * @param nickname The nickname of the player to remove
+     */
     public void removePlayer(String nickname) {
-        if(this.game != null)
+        if (this.game != null)
             this.nicknames.remove(nickname);
     }
-
 
     public Game getGame() {
         return game;

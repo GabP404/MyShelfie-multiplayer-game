@@ -6,11 +6,11 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * This class extends Tile adding the information about the location of the tile in the bookshelf.
+ * This class extends Tile adding the information about the location of the tile in the board.
  */
 public class LocatedTile extends Tile implements Serializable {
-    private int row;
-    private int col;
+    private final int row;
+    private final int col;
 
     /**
      * Constructor for the LocatedTile class
@@ -24,6 +24,13 @@ public class LocatedTile extends Tile implements Serializable {
         col = c;
     }
 
+    /**
+     * Constructor for the LocatedTile class
+     * @param itemType Type of the tile
+     * @param id The id of the tile
+     * @param r The row in the board
+     * @param c The column in the board
+     */
     public LocatedTile(ItemType itemType, int id, int r, int c) {
         super(itemType, id);
         row = r;
@@ -45,16 +52,19 @@ public class LocatedTile extends Tile implements Serializable {
         return Objects.hash(super.hashCode(), row, col);
     }
 
-
+    /**
+     * Getter for the row
+     * @return The row
+     */
     public int getRow() {
         return row;
     }
 
+    /**
+     * Getter for the column
+     * @return The column
+     */
     public int getCol() {
         return col;
-    }
-
-    public Pair<Integer, Integer> getCoordinates() {
-        return new Pair<>(row, col);
     }
 }

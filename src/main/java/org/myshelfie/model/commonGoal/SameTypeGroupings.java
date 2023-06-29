@@ -6,6 +6,7 @@ import org.myshelfie.model.Tile;
 import org.myshelfie.model.WrongArgumentException;
 
 /**
+ * Common Goal Card: two types of cards are of this type.
  *  - card 1: Six groups each containing at least 2 tiles of the same type. The tiles of one group can be different from those of another group.
  *  - card 2: Four groups each containing at least 4 tiles of the same type.The tiles of one group can be different from those of another group.
  * This class represents an abstraction of cards 1 and 3, since it generalizes all the possible constraint of the type:
@@ -26,10 +27,10 @@ public class SameTypeGroupings extends CommonGoalCard {
     }
 
     /**
-     * This CommonGoalCard checks for the presence of numGroups standalone groups of at least groupDim adjacent tiles
-     * of the same type. This method exploits Bookshelf getGroupSize() recursive method to determine groups' size.
-     * @param bookshelf The Bookshelf to be analyzed
-     * @return Boolean TRUE whether the constraint is satisfied, FALSE if not
+     * Check if the goal is satisfied.
+     * @param bookshelf the bookshelf to check
+     * @return true if the goal is satisfied, false otherwise
+     * @throws WrongArgumentException when trying to access a tile outside the bookshelf
      */
     @Override
     public Boolean checkGoalSatisfied(Bookshelf bookshelf) throws WrongArgumentException {

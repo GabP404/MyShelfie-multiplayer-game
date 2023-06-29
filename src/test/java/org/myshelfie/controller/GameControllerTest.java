@@ -3,6 +3,7 @@ package org.myshelfie.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.myshelfie.model.*;
+import org.myshelfie.network.client.UserInputEvent;
 import org.myshelfie.network.messages.commandMessages.*;
 
 import java.io.IOException;
@@ -43,7 +44,7 @@ public class GameControllerTest {
      * Tests the correct execution of a {@link PickTilesCommand} command.
      */
     @Test
-    public void testExecuteCommandPickTilesCommand() throws InvalidCommand, WrongTurnException, WrongArgumentException {
+    public void testExecuteCommandPickTilesCommand() throws InvalidCommandException, WrongTurnException, WrongArgumentException {
         //Try selecting a list of tiles: (0, 3) and (0, 4)
         assertNotNull(gameController.getGame());
         Game game = gameController.getGame();
@@ -187,7 +188,7 @@ public class GameControllerTest {
             throw new RuntimeException(e);
         }
         assertDoesNotThrow(() -> gameController.getGame().getCommonGoals().get(0));
-        assertEquals(1, gameController.getNumGoalCards());
+        assertEquals(1, gameController.getNumCommonGoals());
 
     }
 
