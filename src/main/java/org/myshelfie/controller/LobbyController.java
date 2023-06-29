@@ -20,6 +20,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
+/**
+ * This class is the entry point of every command received by the server.
+ * It manages all the games and the lobbies, and forwards the commands to the right {@link GameController}.
+ */
 public class LobbyController {
     private static Server server;
 

@@ -5,7 +5,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import org.myshelfie.network.client.Client;
 import org.myshelfie.network.client.UserInputEvent;
@@ -15,6 +14,9 @@ import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * This class is the controller for the view of the login screen.
+ */
 public class LoginControllerFX implements Initializable{
     @FXML
     private TextField nickname_LBL;

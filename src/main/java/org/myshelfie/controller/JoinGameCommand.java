@@ -4,6 +4,9 @@ import org.myshelfie.network.messages.commandMessages.JoinGameMessage;
 
 import java.util.HashMap;
 
+/**
+ * This class implements a command (following the command design pattern) that adds a player to a game.
+ */
 public class JoinGameCommand implements Command{
 
     private final HashMap<String,GameController> gameControllers;

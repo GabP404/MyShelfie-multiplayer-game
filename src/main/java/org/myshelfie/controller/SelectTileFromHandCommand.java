@@ -6,6 +6,9 @@ import org.myshelfie.network.messages.commandMessages.SelectedTileFromHandComman
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class implements a command (following the command design pattern) that selects a tile from the hand.
+ */
 public class SelectTileFromHandCommand implements Command {
     private final String nickname;
     private final Player currPlayer;

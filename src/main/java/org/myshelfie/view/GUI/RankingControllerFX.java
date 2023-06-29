@@ -4,14 +4,15 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
-import org.myshelfie.model.Player;
-import org.myshelfie.model.WrongArgumentException;
 import org.myshelfie.model.util.Pair;
 import org.myshelfie.network.messages.gameMessages.ImmutablePlayer;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * This class is the controller for the view of the ranking component in the leaderboard in the end game screen.
+ */
 public class RankingControllerFX implements Initializable {
 
     @FXML

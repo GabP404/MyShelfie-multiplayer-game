@@ -7,6 +7,9 @@ import org.myshelfie.network.messages.commandMessages.PickedTilesCommandMessage;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * This class implements a command (following the command design pattern) that picks tiles from the board.
+ */
 public class PickTilesCommand implements Command {
     private final Board board;
     private Player currPlayer;

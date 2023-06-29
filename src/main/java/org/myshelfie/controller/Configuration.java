@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+/**
+ * This class is used to read the JSON configuration file, that will be bundled in the JAR.
+ */
 public class Configuration {
     private static final String JSONfile = "constants.json";
 

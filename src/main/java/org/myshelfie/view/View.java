@@ -6,6 +6,9 @@ import org.myshelfie.network.messages.gameMessages.GameView;
 
 import java.util.List;
 
+/**
+ * This is the view interface (intended as in the MVC pattern) that is implemented by the GUI and CLI.
+ */
 public interface View extends Runnable {
 
     /**

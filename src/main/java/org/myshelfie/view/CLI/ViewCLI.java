@@ -20,6 +20,9 @@ import java.util.stream.Collectors;
 
 import static org.myshelfie.view.PrinterCLI.*;
 
+/**
+ * This class is the command-line interface of the game.
+ */
 public class ViewCLI implements View{
     public static final int inputOffsetX = 0;
     public static final int inputOffsetY = 29;

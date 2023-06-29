@@ -6,6 +6,9 @@ import org.myshelfie.model.Player;
 import org.myshelfie.model.WrongArgumentException;
 import org.myshelfie.network.messages.commandMessages.SelectedColumnMessage;
 
+/**
+ * This class implements a command (following the command design pattern) that selects a column in the bookshelf.
+ */
 public class SelectColumnCommand implements Command {
     private final Player currPlayer;
     private final String nickname;

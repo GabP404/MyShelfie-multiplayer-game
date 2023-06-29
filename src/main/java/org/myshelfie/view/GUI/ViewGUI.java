@@ -23,6 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
+/**
+ * This class is the graphical interface of the client.
+ */
 public class ViewGUI extends Application implements View  {
     private final HashMap<String, String> scenes;
     private String nickname;

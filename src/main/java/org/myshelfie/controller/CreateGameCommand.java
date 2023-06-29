@@ -1,12 +1,12 @@
 package org.myshelfie.controller;
 
-import org.myshelfie.model.WrongArgumentException;
 import org.myshelfie.network.messages.commandMessages.CreateGameMessage;
-import org.myshelfie.network.messages.commandMessages.PickedTilesCommandMessage;
 
 import java.util.HashMap;
-import java.util.UUID;
 
+/**
+ * This class implements a command (following the command design pattern) that creates a new game.
+ */
 public class CreateGameCommand implements Command {
 
     private final HashMap<String, GameController> gameControllers;

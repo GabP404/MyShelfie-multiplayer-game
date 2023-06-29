@@ -11,7 +11,7 @@ Authors:
 
 > Note that this is just a README file with the basic instructions on how to run the game.
 For the full documentation, please refer to the project documentation, that you can find under 
-[`deliverables/docs/site`](/deliverables/docs/site).
+[`deliverables/documentation/site`](/deliverables/documentation/site/index.html).
 
 ## What was implemented
 
@@ -29,7 +29,8 @@ For the full documentation, please refer to the project documentation, that you 
 
 ## Instructions
 
-To run this project, you need to have a Java Runtime Environment (JRE) installed. This project requires Java version 11 or later. You can check your Java version by typing `java -version` in your command prompt or terminal.
+To run this project, you need to have a Java Runtime Environment (JRE) installed. This project requires Java version 19
+or later. You can check your Java version by typing `java -version` in your command prompt or terminal.
 
 ### Running the client
 
@@ -54,6 +55,9 @@ Example usage:
 java -jar ./softeng-gc07.jar --cli --socket --server-address=192.168.1.100
 ```
 
+Also note that you can start the client in GUI mode even by just double-clicking on the `client.jar` file!
+This will start the client in GUI mode with all the default settings.
+
 ### Running the server
 
 To run the server, navigate to the `deliverables` directory where the `server.jar` file is located and run it.
@@ -75,3 +79,6 @@ Example usage:
 ```{.sh .copy-to-clipboard}
 java -jar ./server.jar --server-address=192.168.1.100 --logging=debug
 ```
+
+> Note that the server uses the ports `1099` for RMI and `1234` for socket communication. 
+> Make sure that these ports are not used by other applications on your machine.
