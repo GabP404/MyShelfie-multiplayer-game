@@ -182,7 +182,6 @@ public class LobbyController {
         }
     }
 
-    // TODO: delete if unused
     public Game retrieveGame(String gameName) {
         return gameControllers.get(gameName).getGame();
     }

@@ -43,7 +43,6 @@ public class GameTest {
         assertNotNull(g1.getCurrPlayer());
         assertEquals(g1.getGameName(), "testGame");
         assertTrue(g1.isPlaying());
-        // TODO update this test to take the new state pattern into account
         this.g1.getTopScoringToken(cgc.get(0));
         ScoringToken st = this.g1.popTopScoringToken(cgc.get(0));
         assertNotEquals(this.g1.getTopScoringToken(cgc.get(0)),st);

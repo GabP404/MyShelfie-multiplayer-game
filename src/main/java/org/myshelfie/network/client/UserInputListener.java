@@ -88,7 +88,6 @@ public class UserInputListener implements Listener<UserInputEvent> {
                         e.printStackTrace();
                     }
                 } else if (joinGameResponse instanceof Boolean) {
-                    // TODO do something on the view
                     if ((boolean) joinGameResponse) {
                         System.out.println("Successfully joined game " + args[0]);
                         client.endLobbyPhase();
@@ -100,14 +99,12 @@ public class UserInputListener implements Listener<UserInputEvent> {
                 List<GameController.GameDefinition> games = (List<GameController.GameDefinition>) client.updateServerPreGame(new CommandMessageWrapper(
                         new RefreshAvailableGamesMessage(client.getNickname()), ev)
                 );
-                // FIXME: the actual view should be updated here and the System.out should be removed!
                 client.getView().setAvailableGames(games);
             }
             default -> {
                 CommandMessage m = switch (ev) {
                     case SELECTED_TILES -> new PickedTilesCommandMessage(client.getNickname(), client.getGameName(), (List) args[0]);
                     case SELECTED_BOOKSHELF_COLUMN -> new SelectedColumnMessage(client.getNickname(), client.getGameName(), (Integer) args[0]);
-                    // TODO: remove tileType (redundant)
                     case SELECTED_HAND_TILE -> new SelectedTileFromHandCommandMessage(client.getNickname(), client.getGameName(), (Integer) args[0], null);
                     default -> throw new RuntimeException("Unexpected value: " + ev);
                 };

@@ -403,15 +403,6 @@ public class ViewCLI implements View{
                 System.exit(0);
                 return;
             }
-            case "play" -> {
-                //TODO: TEST THIS OPTION
-                if(game.getModelState().equals(ModelState.END_GAME))
-                {
-                    clear();
-                    threadChoice.run();
-                }
-                return;
-            }
             case "help", "h" -> {
                 //print possible commands
                 showingHelp = true;

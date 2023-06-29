@@ -213,7 +213,6 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
                         EventWrapper ew = (EventWrapper) input.readObject();
                         // If the request is null, the client has disconnected
                         if (ew == null) {
-                            //TODO handle disconnection
                             System.out.println("Client disconnected.");
                             break;
                         }

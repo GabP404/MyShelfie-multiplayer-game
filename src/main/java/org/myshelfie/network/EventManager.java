@@ -69,7 +69,6 @@ public class EventManager {
         List<Listener<?>> eventListeners = listeners.get(event.getClass());
         if (eventListeners != null) {
             for (Listener<?> listener : eventListeners) {
-                // TODO: try to avoid this cast if possible
                 Listener<E> typedListener = (Listener<E>) listener;
                 typedListener.update(event, args);
             }

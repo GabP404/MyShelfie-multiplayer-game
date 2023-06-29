@@ -32,7 +32,6 @@ public interface View extends Runnable {
 
     GameView getGameView();
 
-    // Methods used for testing TODO: possibly remove
     void setNickname(String nickname);
 
     void setAvailableGames(List<GameController.GameDefinition> availableGamesList);
