@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 import static org.myshelfie.view.CLI.Color.*;
 import static org.myshelfie.view.CLI.Color.BLUE;
 
+/**
+ * This is an utility class used to facilitate printing on the command line interface.
+ */
 public class PrinterCLI {
     private static final int frameOffsetX = 10;
     private static final int frameOffsetY = 4;

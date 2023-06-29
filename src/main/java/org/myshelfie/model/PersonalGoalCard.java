@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public class PersonalGoalCard implements Serializable {
     private final int id;
-    private List<Pair<Pair<Integer, Integer>, Tile>> constraints;
+    private final List<Pair<Pair<Integer, Integer>, Tile>> constraints;
     // Needed to associate the personal goal card object to its image file
     private static final Map<Integer, Integer> points_map = Configuration.getPersonalGoalPoints();
 
@@ -21,7 +21,7 @@ public class PersonalGoalCard implements Serializable {
     }
 
     /**
-     * Get the points that the player gets for completing the Personal Goal.
+     * Get the points obtained by a player with the given bookshelf
      * @param shelf The bookshelf
      * @return The number of points
      */
@@ -43,10 +43,18 @@ public class PersonalGoalCard implements Serializable {
         return points_map.get(occurrences);
     }
 
+    /**
+     * Getter for the constraints
+     * @return The constraints
+     */
     public List<Pair<Pair<Integer, Integer>, Tile>> getConstraints() {
         return constraints;
     }
 
+    /**
+     * Getter for the id
+     * @return The id
+     */
     public int getId() {
         return id;
     }

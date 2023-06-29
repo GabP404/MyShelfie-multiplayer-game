@@ -9,15 +9,16 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
-import org.myshelfie.model.Player;
 import org.myshelfie.network.messages.gameMessages.GameView;
 import org.myshelfie.network.messages.gameMessages.ImmutablePlayer;
 
 import java.net.URL;
-import java.util.IllegalFormatCodePointException;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * This class is the controller for the view of the end game screen.
+ */
 public class EndGameControllerFX implements Initializable {
 
     @FXML

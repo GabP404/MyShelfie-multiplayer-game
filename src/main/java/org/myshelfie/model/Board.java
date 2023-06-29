@@ -6,11 +6,10 @@ import org.myshelfie.controller.Configuration;
 
 import java.io.Serializable;
 
+/**
+ * Describes the board on which the tiles are placed.
+ */
 public class Board implements Serializable {
-    /**
-     * Describes the board on which the tiles are placed.
-     */
-
     //Declare the minimum number of players that have to play so that
     //the corresponding box is activated during the game
     private static final int[][] mask = Configuration.getBoardMask();
@@ -85,11 +84,23 @@ public class Board implements Serializable {
         return true;
     }
 
+    /**
+     * Check whether a tile has at least one free border or not
+     * @param row The row of the tile
+     * @param col The column of the tile
+     * @return true if the tile has at least one free border, false otherwise
+     */
     public boolean hasOneOrMoreFreeBorders(int row, int col) {
         return isFreeTileBox(row - 1, col) || isFreeTileBox(row + 1, col) ||
                 isFreeTileBox(row, col - 1) || isFreeTileBox(row, col + 1);
     }
 
+    /**
+     * Check whether a tile box is free or not
+     * @param row The row of the tile
+     * @param col The column of the tile box
+     * @return true if the tile box is free, false otherwise
+     */
     private boolean isFreeTileBox(int row, int col) {
         //A cell is considered to be free if it's null or if it's outside the borders,
         if (row < 0 || row >= DIMBOARD || col < 0 || col >= DIMBOARD)
@@ -97,6 +108,12 @@ public class Board implements Serializable {
         return boardTiles[row][col] == null;
     }
 
+    /**
+     * Place a tile in the board, in the specified position. Notify the that the board has changed.
+     * @param x The row where the tile will be placed
+     * @param y The column where the tile will be placed
+     * @param t The tile to be placed
+     */
     public void setTile(int x, int y, Tile t) {
         this.boardTiles[x][y] = t;
         // notify the server that the board has changed
@@ -107,6 +124,12 @@ public class Board implements Serializable {
         return this.boardTiles[x][y];
     }
 
+    /**
+     * Remove a tile from the board, in the specified position, by setting it to null.
+     * @param x The row where the tile will be removed
+     * @param y The column where the tile will be removed
+     * @return The tile that has been removed
+     */
     public Tile removeTile(int x, int y) {
         Tile t = this.boardTiles[x][y];
         this.boardTiles[x][y] = null;

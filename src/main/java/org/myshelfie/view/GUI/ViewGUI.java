@@ -23,34 +23,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
+/**
+ * This class is the graphical interface of the client.
+ */
 public class ViewGUI extends Application implements View  {
-
-    private HashMap<String, String> scenes;
-
+    private final HashMap<String, String> scenes;
     private String nickname;
-
     private String gameName;
 
     private Stage stage;
-
     private FXMLLoader fxmlLoader;
-
     private GameControllerFX gameControllerFX;
-
     private LobbiesControllerFX lobbiesControllerFX;
-
     private LoginControllerFX loginControllerFX;
 
     private EndGameControllerFX endGameControllerFX;
 
     private Boolean reconnecting = false;
-
     private static Boolean isRMI = false;
-
     private static String serverAddress;
-
     private Client client;
-
     private Media media;
     private MediaPlayer mediaPlayer;
 
@@ -62,6 +54,10 @@ public class ViewGUI extends Application implements View  {
         launch((String) null);
     }
 
+    /**
+     * Start the JavaFX application.
+     * @param stage The primary stage
+     */
     @Override
     public void start(Stage stage) {
         Font.loadFont(getClass().getResource("/fonts/IndieFlower-Regular.ttf").toExternalForm(), 10);
@@ -76,13 +72,18 @@ public class ViewGUI extends Application implements View  {
         run();
     }
 
-
-    //enum sceneName {Game, EndGame, Lobbies, Login}
+    /**
+     * Constructor for the ViewGUI class. It creates a new Client object and connects to the server.
+     * Then it initializes a map containing the names of the scenes and their paths. This will be used
+     * to set the scene of the stage, exploiting the {@link org.myshelfie.network.client.UserInputListener UserInputListener}
+     * responses to transition between scenes, calling the {@link #setScene(String) setScene} method
+     * with appropriate parameters.
+     */
     public ViewGUI() {
         try {
             this.client = new Client(true, isRMI, serverAddress);
             client.connect();
-            client.initializeViewGUI(this);
+            client.initializeView(this);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
@@ -100,7 +101,10 @@ public class ViewGUI extends Application implements View  {
         }
     }
 
-
+    /**
+     * Set the scene of the stage to the one specified by the sceneName parameter.
+     * @param sceneName The name of the scene to set
+     */
     public void setScene(String sceneName) {
         Platform.runLater(() -> {
             fxmlLoader = new FXMLLoader();
@@ -142,9 +146,14 @@ public class ViewGUI extends Application implements View  {
         });
     }
 
-
-//
-
+    /**
+     * Main method of the {@link View} interface, which allows to show the updated model
+     * using information contained in the {@link GameView} object.
+     * This is actually used only when the game is started, that's why it calls the
+     * {@link GameControllerFX#update} method.
+     * @param msg The GameView that represents the immutable version of the updated model
+     * @param ev Event that caused the model's change
+     */
     @Override
     public void update(GameView msg, GameEvent ev) {
         this.gameName = msg.getGameName();
@@ -175,9 +184,8 @@ public class ViewGUI extends Application implements View  {
     /**
      * Util method to wait for the JavaFX thread to execute a Runnable.
      * Call this method after executing a command that is queued in the JavaFX thread with
-     * a Platform.runLater call.
-     *
-     * You can find an example in the update method, where the gameControllerFX.update has to be called
+     * a {@code Platform.runLater} call.
+     * You can find an example in the update method, where the {@link GameControllerFX#update} has to be called
      * after the Game scene is set.
      */
     protected static void waitForRunLater() throws InterruptedException {
@@ -187,6 +195,10 @@ public class ViewGUI extends Application implements View  {
     }
 
 
+    /**
+     * Run method called at the end of the {@link #start(Stage) start} method.
+     * Sets the scene to the Login one, which is actually the first one.
+     */
     @Override
     public void run() {
         setScene("Login");
@@ -201,7 +213,11 @@ public class ViewGUI extends Application implements View  {
         }
     }
 
-
+    /**
+     * Method called by the {@link org.myshelfie.network.client.UserInputListener UserInputListener}
+     * when the login phase is ended, triggering the transition to the Lobbies scene or to the
+     * Game scene if the client is reconnecting.
+     */
     @Override
     public void endLoginPhase() {
         // the Client object is created during the login phase, after a name has been chosen
@@ -213,6 +229,10 @@ public class ViewGUI extends Application implements View  {
         }
     }
 
+    /**
+     * Method called by the {@link org.myshelfie.network.client.UserInputListener UserInputListener}
+     * when the Lobby phase is ended, triggering the transition to the Game scene.
+     */
     @Override
     public void endLobbyPhase() {
         setScene("Game");
@@ -229,21 +249,38 @@ public class ViewGUI extends Application implements View  {
             }
         }
     }
+
+    /**
+     * @return The name of the game that is currently being played.
+     */
     @Override
     public String getGameName() {
         return gameName;
     }
 
+    /**
+     * @return The latest {@link GameView} message received.
+     */
     @Override
     public GameView getGameView() {
         return null;
     }
 
+    /**
+     * Sets the nickname of the player that is using this GUI.
+     * @param nickname The nickname of the player
+     */
     @Override
     public void setNickname(String nickname) {
         this.nickname = nickname;
     }
 
+    /**
+     * Setter for the list of available games. Once retrieved, this information
+     * is forwarded to the {@link LobbiesControllerFX} object, which is the controller
+     * responsible for the Lobby scene.
+     * @param availableGamesList The list of available games
+     */
     @Override
     public void setAvailableGames(List<GameController.GameDefinition> availableGamesList) {
         Platform.runLater(() -> {
@@ -256,19 +293,23 @@ public class ViewGUI extends Application implements View  {
         });
     }
 
+    /**
+     * Method called when the server signals that the nickname chosen by the player
+     * is already used by another player. Forwards the call to the
+     * {@link LoginControllerFX} object, which is the controller responsible
+     * for the Login scene. Called by the {@link org.myshelfie.network.client.UserInputListener UserInputListener}.
+     */
     @Override
     public void nicknameAlreadyUsed() {
         loginControllerFX.nicknameAlreadyUsed();
     }
 
-
+    /**
+     * Set the reconnecting status for the player using this GUI.
+     * @param reconnecting True if the player is reconnecting, false otherwise
+     */
     @Override
     public void setReconnecting(boolean reconnecting) {
         this.reconnecting = reconnecting;
-    }
-
-
-    public void setClient(Client client) {
-        this.client = client;
     }
 }

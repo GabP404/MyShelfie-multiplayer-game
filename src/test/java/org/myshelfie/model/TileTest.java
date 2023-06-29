@@ -37,6 +37,7 @@ class TileTest {
         Assertions.assertNotNull(lt);
         Assertions.assertEquals(ItemType.BOOK, lt.getItemType());
         Assertions.assertTrue(lt.equals(lt2));
-        Assertions.assertEquals(lt.getCoordinates(), new Pair<Integer, Integer>(0, 0));
+        Assertions.assertEquals(lt.getRow(), 0);
+        Assertions.assertEquals(lt.getCol(), 0);
     }
 }

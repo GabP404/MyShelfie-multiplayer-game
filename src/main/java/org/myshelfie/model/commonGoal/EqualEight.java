@@ -6,18 +6,22 @@ import org.myshelfie.model.ItemType;
 import org.myshelfie.model.WrongArgumentException;
 
 /**
- * Eight tiles of the same type. There’s no restriction about the position of these tiles.
+ * Common Goal Card: eight tiles of the same type. There’s no restriction about the position of these tiles.
  */
-
 public class EqualEight extends CommonGoalCard {
 
     public EqualEight(String id) {
         super(id);
     }
 
+    /**
+     * Check if the goal is satisfied.
+     * @param bookshelf the bookshelf to check
+     * @return true if the goal is satisfied, false otherwise
+     * @throws WrongArgumentException when trying to access a tile outside the bookshelf
+     */
     @Override
     public Boolean checkGoalSatisfied(Bookshelf bookshelf) throws WrongArgumentException{
-
         //array to count occurrences of each different type
         int[] enumCount = new int[ItemType.values().length];
 
@@ -29,7 +33,6 @@ public class EqualEight extends CommonGoalCard {
                 }
             }
         }
-
         //analyse the counter
         for (int count : enumCount) {
             if (count >= 8) {

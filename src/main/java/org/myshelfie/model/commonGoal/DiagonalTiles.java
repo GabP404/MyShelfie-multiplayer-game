@@ -6,15 +6,20 @@ import org.myshelfie.model.Tile;
 import org.myshelfie.model.WrongArgumentException;
 
 /**
- * Five tiles of the same type forming a diagonal.
+ * Common Goal Card: five tiles of the same type forming a diagonal.
  */
-
 public class DiagonalTiles extends CommonGoalCard {
 
     public DiagonalTiles(String id) {
         super(id);
     }
 
+    /**
+     * Check if the goal is satisfied.
+     * @param bookshelf the bookshelf to check
+     * @return true if the goal is satisfied, false otherwise
+     * @throws WrongArgumentException when trying to access a tile outside the bookshelf
+     */
     @Override
     public Boolean checkGoalSatisfied(Bookshelf bookshelf) throws WrongArgumentException{
         /*
@@ -38,6 +43,15 @@ public class DiagonalTiles extends CommonGoalCard {
         return Boolean.FALSE;
     }
 
+    /**
+     * Checks the presence of a single diagonal of five tiles of the same type
+     * @param b the bookshelf to check
+     * @param r the row of the first tile
+     * @param c the column of the first tile
+     * @param inclination the inclination of the diagonal
+     * @return true if the diagonal is present, false otherwise
+     * @throws WrongArgumentException when trying to access a tile outside the bookshelf
+     */
     private Boolean checkDiagonal(Bookshelf b, int r, int c, int inclination) throws WrongArgumentException{
 
         Tile tileSupp;
@@ -53,7 +67,7 @@ public class DiagonalTiles extends CommonGoalCard {
         else
             inclination = -1;
 
-        tileSupp = b.getTile(r, c);//.getItemType();
+        tileSupp = b.getTile(r, c);
         if (tileSupp != null) {
             //analyse the diagonal
             for (int i = 0; i < 5; i++) {

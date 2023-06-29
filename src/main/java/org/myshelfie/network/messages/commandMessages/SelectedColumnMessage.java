@@ -19,6 +19,9 @@ public class SelectedColumnMessage extends CommandMessage implements Serializabl
         selectedColumn = col;
     }
 
+    /**
+     * @return The index of the column the player wants to select.
+     */
     public int getSelectedColumn() {
         return selectedColumn;
     }

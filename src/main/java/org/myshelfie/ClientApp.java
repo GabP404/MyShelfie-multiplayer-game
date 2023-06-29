@@ -20,22 +20,17 @@ public class ClientApp {
         // For all the arguments, check if one of them is "--cli"
         // If so, set the isCLI variable to true
         for (String arg : args) {
-            if (arg.equals("--cli")) {
+            if (arg.equals("--cli"))
                 isGUI = false;
-            }
-            if (arg.equals("--gui")) {
+            if (arg.equals("--gui"))
                 isGUI = true;
-            }
-            if (arg.equals("--rmi")) {
+            if (arg.equals("--rmi"))
                 isRMI = true;
-            }
-            if (arg.equals("--socket")) {
+            if (arg.equals("--socket"))
                 isRMI = false;
-            }
             // Get the server address
-            if (arg.startsWith("--server-address=")) {
+            if (arg.startsWith("--server-address="))
                 serverAddress = arg.substring(17);
-            }
         }
 
         String[] arguments = new String[2];

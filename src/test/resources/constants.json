@@ -464,6 +464,8 @@
     "6": 8
   },
   "timer_timeout": 30000,
+  "heartbeat_interval": 5000,
+  "heartbeat_timeout": 10000,
   "server": {
     "address": "localhost",
     "socket_port": 1234,

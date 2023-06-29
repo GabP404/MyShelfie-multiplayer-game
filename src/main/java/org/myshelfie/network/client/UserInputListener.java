@@ -2,12 +2,17 @@ package org.myshelfie.network.client;
 
 import org.myshelfie.controller.GameController;
 import org.myshelfie.model.util.Pair;
+import org.myshelfie.network.EventManager;
 import org.myshelfie.network.Listener;
 import org.myshelfie.network.messages.commandMessages.*;
 import org.myshelfie.network.messages.gameMessages.EventWrapper;
 
 import java.util.List;
 
+/**
+ * Listener responsible for events that are triggered by user input.
+ * It refers to events of type {@link UserInputEvent}.
+ */
 public class UserInputListener implements Listener<UserInputEvent> {
     private final Client client;
 
@@ -16,10 +21,13 @@ public class UserInputListener implements Listener<UserInputEvent> {
     }
 
     /**
-     * This method is called when user input is received from the CLI.
-     * Creates the appropriate message, wraps it and sends it to the server.
-     * @param ev  The event that was fired. NOTE: This must be an element of an enumeration!
-     * @param args Contains different number and types of parameters depending on event type
+     * This method is responsible for packaging and sending the appropriate message to the server.
+     * The type of message is determined by the event that was fired.
+     * This kind of listener handles the response directly after sending the message, which is directly sent
+     * on every event (unlike {@link org.myshelfie.network.server.GameListener GameListener}).
+     * @param ev  The event that was fired. NOTE: This must be an element of an enumeration
+     * @param args Arguments included in the message sent to the server. The number and types
+     *             of these parameters may vary based on the event the user generated.12
      */
     @Override
     public void update(UserInputEvent ev, Object... args) {
@@ -44,7 +52,6 @@ public class UserInputListener implements Listener<UserInputEvent> {
                     client.startServerListener();
                 } else {
                     client.getView().nicknameAlreadyUsed();
-                    //System.out.println("Nickname " + args[0] + " already taken!");
                 }
             }
             case CREATE_GAME -> {
@@ -56,7 +63,6 @@ public class UserInputListener implements Listener<UserInputEvent> {
                             (boolean) args[2]
                     ), ev)
                 );
-                // TODO do something on the view
                 if (successfulCreation) {
                     System.out.println("Successfully created game " + args[0]);
                     client.endLobbyPhase();

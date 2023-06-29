@@ -5,16 +5,21 @@ import org.myshelfie.model.CommonGoalCard;
 import org.myshelfie.model.WrongArgumentException;
 
 /**
- * Five columns of increasing or decreasing height. Starting from the first column on
+ * Common Goal Card: five columns of increasing or decreasing height. Starting from the first column on
  * the left or on the right, each next column must be made of exactly one more tile. Tiles can be of any type.
  */
-
 public class StairTiles extends CommonGoalCard {
 
     public StairTiles(String id) {
         super(id);
     }
 
+    /**
+     * Check if the goal is satisfied.
+     * @param bookshelf the bookshelf to check
+     * @return true if the goal is satisfied, false otherwise
+     * @throws WrongArgumentException when trying to access a tile outside the bookshelf
+     */
     @Override
     public Boolean checkGoalSatisfied(Bookshelf bookshelf) throws WrongArgumentException{
         //checking the stair

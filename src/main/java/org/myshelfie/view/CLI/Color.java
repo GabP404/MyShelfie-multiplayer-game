@@ -1,10 +1,9 @@
 package org.myshelfie.view.CLI;
 
 /**
- * Colors
+ * Colors used in the CLI
  */
 public enum Color {
-
     BLACK("\033[30m"),
     RED("\033[31m"),
     GREEN("\033[32m"),

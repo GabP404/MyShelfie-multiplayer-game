@@ -4,13 +4,10 @@ import org.myshelfie.controller.Configuration;
 import org.myshelfie.network.EventManager;
 import org.myshelfie.network.messages.commandMessages.CommandMessageWrapper;
 import org.myshelfie.network.messages.commandMessages.HeartBeatMessage;
-import org.myshelfie.network.messages.commandMessages.UserInputEvent;
 import org.myshelfie.network.messages.gameMessages.EventWrapper;
 import org.myshelfie.network.messages.gameMessages.GameEvent;
 import org.myshelfie.network.messages.gameMessages.GameView;
 import org.myshelfie.network.server.ServerRMIInterface;
-import org.myshelfie.view.GUI.ViewGUI;
-import org.myshelfie.view.CLI.ViewCLI;
 import org.myshelfie.view.View;
 
 import java.io.IOException;
@@ -27,12 +24,14 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
-import static org.myshelfie.view.PrinterCLI.print;
-
+/**
+ * This class represents a client that can connect to the server via RMI or Socket.
+ * The client is a network object used by the CLI and GUI.
+ */
 public class Client extends UnicastRemoteObject implements ClientRMIInterface, Runnable{
 
     // Add a heartbeat interval constant
-    private static final int HEARTBEAT_INTERVAL = 5000; // 5 seconds
+    private static final int HEARTBEAT_INTERVAL = Configuration.getHeartbeatInterval();
     private long lastHeartbeat = System.currentTimeMillis();
 
     private Thread heartbeatThread; // Thread that sends heartbeats to the server
@@ -57,14 +56,21 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
     private String gameName;
 
     /**
-     * Constructor used by the server to create a Client based on the nickname received via socket
-     * @throws RemoteException
+     * Constructor used by the Server class to create a Client based on the nickname received via socket
+     * @throws RemoteException if the remote object cannot be exported
      */
     public Client() throws RemoteException {
         super();
         this.isRMI = false;
     }
 
+    /**
+     * Constructor for the client.
+     * @param isGUI true if the client is a GUI, false if it is a CLI
+     * @param isRMI true if the client uses RMI, false if it uses Socket
+     * @param serverAddress the address of the server. Can be a hostname or an IP address
+     * @throws RemoteException if the remote object cannot be exported
+     */
     public Client(boolean isGUI, boolean isRMI, String serverAddress) throws RemoteException {
         SERVER_ADDRESS = serverAddress;
 
@@ -97,41 +103,46 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
                 serverListener = new SocketServerListener(serverSocket);
             }
         } catch (NoRouteToHostException e) {
-            print("No route to server! Please specify another valid server address.");
+            System.out.println("No route to server! Please specify another valid server address.");
             System.exit(1);
         } catch (AccessException e) {
             throw new RuntimeException(e);
         } catch (UnknownHostException e) {
-            print("Host unknown! Please specify another server address.");
+            System.out.println("Host unknown! Please specify another server address.");
             System.exit(1);
         } catch (NotBoundException e) {
-            print("Server not bound! The provided RMI name for the server is not valid, please change it.");
+            System.out.println("Server not bound! The provided RMI name for the server is not valid, please change it.");
             System.exit(1);
         } catch (RemoteException e) {
-            print("The reference to the RMI registry could not be created! Please check your connection.");
+            System.out.println("The reference to the RMI registry could not be created! Please check your connection.");
             System.exit(1);
         } catch (IOException e) {
-            print("Error opening the socket: " + e.getMessage());
+            System.out.println("Error opening the socket: " + e.getMessage());
             System.exit(1);
         }
     }
 
 
+    /**
+     * End the login phase in the pre-game stage.
+     * This calls the {@link View#endLoginPhase} method, to change the scene accordingly.
+     */
     public void endLoginPhase() {
         view.endLoginPhase();
     }
 
+    /**
+     * End the lobby phase in the pre-game stage.
+     * This calls the {@link View#endLobbyPhase} method, to change the scene accordingly.
+     */
     public void endLobbyPhase() {
         view.endLobbyPhase();
-        if (!isRMI) {
-            try {
-                serverListener.start();
-            } catch (java.lang.IllegalThreadStateException e) {
-                // Should never be thrown, but if thrown, then thread was already started!
-            }
-        }
+        startServerListener();
     }
 
+    /**
+     * Start to listen for messages from the server via socket.
+     */
     public void startServerListener() {
         if (!isRMI) {
             try {
@@ -142,35 +153,56 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
         }
     }
 
+    /**
+     * Getter for the name of the game the client is playing in.
+     * @return the name of the game
+     */
     public String getGameName() {
         return view.getGameName();
     }
 
+    /**
+     * Setter for the last heartbeat of the client
+     * @param l the last heartbeat, as a timestamp
+     */
     public void setLastHeartbeat(long l) {
         this.lastHeartbeat = l;
     }
 
+    /**
+     * Getter for the last heartbeat of the client
+     * @return the last heartbeat, as a timestamp
+     */
     public long getLastHeartBeat() {
         return this.lastHeartbeat;
     }
 
-    public void initializeViewCLI(ViewCLI viewCLI) {
-        this.view = viewCLI;
+    /**
+     * Assign a view to the client.
+     * @param view the view to assign (either {@link org.myshelfie.view.GUI.ViewGUI} or {@link org.myshelfie.view.CLI.ViewCLI}
+     */
+    public void initializeView(View view) {
+        this.view = view;
     }
 
-    public void initializeViewGUI(ViewGUI viewGUI) {
-        this.view = viewGUI;
-    }
-
+    /**
+     * Inner class used to listen for messages from the server via socket.
+     */
     class SocketServerListener extends Thread {
         private Socket serverSocket;
 
-        // Socket client handler constructor
+        /**
+         * Socket client handler constructor
+         */
         public SocketServerListener(Socket socket) {
             this.serverSocket = socket;
         }
 
-        // Thread function that will handle the client requests
+        /**
+         * Run method of the thread.
+         * Handles all the messages that come from the socket server.
+         */
+        @Override
         public void run() {
             try {
                 // Loop to handle every server message
@@ -201,6 +233,12 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
         }
     }
 
+    /**
+     * Constructor for the client, used in the RMI version, to get a Client object starting
+     * from the published RMI interface.
+     * @param rmiInterface the RMI interface of the client
+     * @throws RemoteException if the RMI connection fails
+     */
     public Client(ClientRMIInterface rmiInterface) throws RemoteException {
         super();
         this.RMIInterface = rmiInterface;
@@ -208,16 +246,16 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
         this.nickname = rmiInterface.getNickname();
     }
 
+    /**
+     * Getter for the view of the client
+     * @return the View of the client
+     */
     public View getView() {
         return this.view;
     }
 
-    public Client getClientInstance() {
-        return this;
-    }
-
     /**
-     * Update of the client after the GameView has been modifies (or an Error has been received)
+     * Update of the client after the {@link GameView} has been modified (or an Error has been received)
      * @param argument GameView in case of a model change, String in case of an error
      * @param ev Type of the information received
      */
@@ -226,10 +264,19 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
         view.update(argument, ev);
     }
 
+    /**
+     * Remote method called by the server to update an RMI client. Will call the {@link #update} method
+     * @param argument GameView in case of a model change, String in case of an error
+     * @param ev Type of the information received
+     * @throws RemoteException if the RMI connection fails
+     */
     public void updateRMI(GameView argument, GameEvent ev) throws RemoteException {
         this.RMIInterface.update(argument, ev);
     }
 
+    /**
+     * Start a heartbeat thread, that will periodically send a heartbeat message to the server.
+     */
     public void startHeartBeatThread() {
         if (isRMI) {
             heartbeatThread = new Thread(this::sendHeartbeatRMI);
@@ -253,6 +300,10 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
         view.run();
     }
 
+    /**
+     * Send an update to the server after a user performs an action, using RMI or Socket depending on the type of client
+     * @param msg Message containing information about the command to send to the server
+     */
     public void updateServer(CommandMessageWrapper msg) {
         if (isRMI) {
             try {
@@ -301,7 +352,7 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
 
     /**
      * Send a heartbeat message to the server every HEARTBEAT_INTERVAL milliseconds.
-     * This calls the remote method heartbeat() of the server.
+     * This calls the remote method heartbeat() of the server and should thus be used only by an "RMI" client.
      * This method is supposed to be run inside a dedicated thread.
      */
     private void sendHeartbeatRMI() {
@@ -340,22 +391,42 @@ public class Client extends UnicastRemoteObject implements ClientRMIInterface, R
     }
 
 
+    /**
+     * Getter for the nickname of the client
+     * @return the nickname of the client
+     */
     public String getNickname() {
         return nickname;
     }
 
+    /**
+     * Setter for the nickname of the client
+     * @param nickname the new nickname of the client
+     */
     public void setNickname(String nickname) {
     	this.nickname = nickname;
     }
 
+    /**
+     *
+     * @return true if the client is an RMI client, false if it is a socket client
+     */
     public boolean isRMI() {
         return isRMI;
     }
 
+    /**
+     * Get the client socket, to which the server can send messages
+     * @return the Socket of the client
+     */
     public Socket getClientSocket() {
         return clientSocket;
     }
 
+    /**
+     * Set the client socket, to save the reference to which send messages
+     * @param clientSocket the new Socket of the client
+     */
     public void setClientSocket(Socket clientSocket) {
         this.clientSocket = clientSocket;
     }
