@@ -10,24 +10,11 @@
   <name>my_shelfie</name>
   <url>http://maven.apache.org</url>
 
-  <repositories>
-    <repository>
-      <id>gluon-nexus-repository</id>
-      <url>https://nexus.gluonhq.com/nexus/content/repositories/releases/</url>
-    </repository>
-  </repositories>
-
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.target>
-      19
-    </maven.compiler.target>
-    <maven.compiler.source>
-      19
-    </maven.compiler.source>
-    <javafx.version>
-      19
-    </javafx.version>
+    <maven.compiler.target>19</maven.compiler.target>
+    <maven.compiler.source>19</maven.compiler.source>
+    <javafx.version>19</javafx.version>
     <javafx.maven.plugin.version>0.0.8</javafx.maven.plugin.version>
   </properties>
 
@@ -54,25 +41,48 @@
         </configuration>
       </plugin>
 
+      <!-- Plugin used to build the jar files for both Server and Client -->
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.4</version>
+        <artifactId>maven-assembly-plugin</artifactId>
         <executions>
+          <!-- Execution for the Client -->
           <execution>
+            <id>build-a</id>
+            <configuration>
+              <archive>
+                <manifest>
+                  <mainClass>org.myshelfie.ClientApp</mainClass>
+                </manifest>
+              </archive>
+              <descriptorRefs>
+                <descriptorRef>jar-with-dependencies</descriptorRef>
+              </descriptorRefs>
+              <finalName>client-myshelfie</finalName>
+            </configuration>
             <phase>package</phase>
             <goals>
-              <goal>shade</goal>
+              <goal>single</goal>
             </goals>
+          </execution>
+
+          <!-- Execution for the Server -->
+          <execution>
+            <id>build-b</id>
             <configuration>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <manifestEntries>
-                    <Main-Class>org.myshelfie.ClientApp</Main-Class>
-                  </manifestEntries>
-                </transformer>
-              </transformers>
+              <archive>
+                <manifest>
+                  <mainClass>org.myshelfie.network.server.Server</mainClass>
+                </manifest>
+              </archive>
+              <descriptorRefs>
+                <descriptorRef>jar-with-dependencies</descriptorRef>
+              </descriptorRefs>
+              <finalName>server-myshelfie</finalName>
             </configuration>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
           </execution>
         </executions>
       </plugin>
@@ -80,42 +90,42 @@
   </build>
 
 
-
   <dependencies>
+    <!-- JavaFX's dependencies. Note that they are repeated but with different
+        filters in order to achieve compatibility among different systems -->
     <!-- JavaFX - win -->
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-base</artifactId>
-      <version>
-        19
-      </version>
+      <version>19</version>
       <classifier>win</classifier>
     </dependency>
 
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-controls</artifactId>
-      <version>
-        19
-      </version>
+      <version>19</version>
       <classifier>win</classifier>
     </dependency>
 
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-fxml</artifactId>
-      <version>
-        19
-      </version>
+      <version>19</version>
       <classifier>win</classifier>
     </dependency>
 
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-media</artifactId>
-      <version>
-        19
-      </version>
+      <version>19</version>
+      <classifier>win</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-graphics</artifactId>
+      <version>19</version>
       <classifier>win</classifier>
     </dependency>
 
@@ -123,36 +133,35 @@
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-base</artifactId>
-      <version>
-        19
-      </version>
+      <version>19</version>
       <classifier>mac-aarch64</classifier>
     </dependency>
 
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-controls</artifactId>
-      <version>
-        19
-      </version>
+      <version>19</version>
       <classifier>mac-aarch64</classifier>
     </dependency>
 
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-fxml</artifactId>
-      <version>
-        19
-      </version>
+      <version>19</version>
       <classifier>mac-aarch64</classifier>
     </dependency>
 
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-media</artifactId>
-      <version>
-        19
-      </version>
+      <version>19</version>
+      <classifier>mac-aarch64</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-graphics</artifactId>
+      <version>19</version>
       <classifier>mac-aarch64</classifier>
     </dependency>
 
@@ -160,40 +169,39 @@
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-base</artifactId>
-      <version>
-        19
-      </version>
+      <version>19</version>
       <classifier>linux</classifier>
     </dependency>
 
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-controls</artifactId>
-      <version>
-        19
-      </version>
+      <version>19</version>
       <classifier>linux</classifier>
     </dependency>
 
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-fxml</artifactId>
-      <version>
-        19
-      </version>
+      <version>19</version>
       <classifier>linux</classifier>
     </dependency>
 
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-media</artifactId>
-      <version>
-        19
-      </version>
+      <version>19</version>
       <classifier>linux</classifier>
     </dependency>
 
-    <!-- Other dependencies -->
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-graphics</artifactId>
+      <version>19</version>
+      <classifier>linux</classifier>
+    </dependency>
+
+    <!-- Testing dependencies -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
@@ -208,12 +216,6 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/org.json/json -->
-    <dependency>
-      <groupId>org.json</groupId>
-      <artifactId>json</artifactId>
-      <version>20230227</version>
-    </dependency>
 
     <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
     <dependency>
@@ -230,13 +232,13 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- Provides a nice TextLabel for the GUI -->
+    <!-- JSON dependency -->
+    <!-- https://mvnrepository.com/artifact/org.json/json -->
     <dependency>
-      <groupId>com.gluonhq</groupId>
-      <artifactId>charm-glisten</artifactId>
-      <version>6.0.2</version>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20230227</version>
     </dependency>
+
   </dependencies>
-
-
 </project>
