@@ -9,11 +9,13 @@ the structure of the project and to help us communicate with each other.
 
 We described the architecture of the project using **class diagrams**:
 
-- [Client (overview)]()
-- [Client (detail)]()
-- [Server (overview)]()
-- [Server (detail)]()
-- [Complete architecture](Network-Controller-Model_UML.pdf)
+- [Client (overview)](Client_high_level_UML.png)
+- [Client (detail)](Client_detailed_UML.png)
+- [Server (overview)](Server_high_level_UML.png)
+- [Server (detail)](Server_detailed.png)
+- [Complete architecture](Full_UML.png)
+- [Model](Model_UML.png)
+- [Network](NetworkUML.pdf)
 
 ---
 
