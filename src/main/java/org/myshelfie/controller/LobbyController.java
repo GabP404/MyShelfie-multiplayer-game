@@ -23,11 +23,9 @@ import java.util.logging.Level;
 public class LobbyController {
     private static Server server;
 
-    private static LobbyController single_istance;
-
     private static HashMap<String,GameController> gameControllers;
 
-    private LobbyController(Server server) {
+    public LobbyController(Server server) {
         this.server = server;
         if(server.shouldResumeFromBackup()) {
             try {
@@ -52,12 +50,6 @@ public class LobbyController {
         }
     }
 
-    public static LobbyController getInstance(Server server){
-        if (single_istance == null) {
-            single_istance = new LobbyController(server);
-        }
-        return single_istance;
-    }
     public void executeCommand(CommandMessage command, UserInputEvent t) {
         // Queue the command
         gameControllers.get(command.getGameName()).queueAndExecuteCommand(command, t);
