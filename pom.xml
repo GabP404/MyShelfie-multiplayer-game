@@ -19,9 +19,15 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.target>19</maven.compiler.target>
-    <maven.compiler.source>19</maven.compiler.source>
-    <javafx.version>19</javafx.version>
+    <maven.compiler.target>
+      19
+    </maven.compiler.target>
+    <maven.compiler.source>
+      19
+    </maven.compiler.source>
+    <javafx.version>
+      19
+    </javafx.version>
     <javafx.maven.plugin.version>0.0.8</javafx.maven.plugin.version>
   </properties>
 
@@ -76,31 +82,118 @@
 
 
   <dependencies>
-
+    <!-- JavaFX - win -->
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-base</artifactId>
-      <version>19</version>
+      <version>
+        19
+      </version>
+      <classifier>win</classifier>
     </dependency>
+
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-controls</artifactId>
-      <version>19</version>
+      <version>
+        19
+      </version>
+      <classifier>win</classifier>
     </dependency>
 
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-fxml</artifactId>
-      <version>19</version>
+      <version>
+        19
+      </version>
+      <classifier>win</classifier>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-media -->
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-media</artifactId>
-      <version>19</version>
+      <version>
+        19
+      </version>
+      <classifier>win</classifier>
     </dependency>
 
+    <!-- JavaFX - mac-aarch64OS -->
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-base</artifactId>
+      <version>
+        19
+      </version>
+      <classifier>mac-aarch64</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>
+        19
+      </version>
+      <classifier>mac-aarch64</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+      <version>
+        19
+      </version>
+      <classifier>mac-aarch64</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-media</artifactId>
+      <version>
+        19
+      </version>
+      <classifier>mac-aarch64</classifier>
+    </dependency>
+
+    <!-- JavaFX - linux -->
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-base</artifactId>
+      <version>
+        19
+      </version>
+      <classifier>linux</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>
+        19
+      </version>
+      <classifier>linux</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+      <version>
+        19
+      </version>
+      <classifier>linux</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-media</artifactId>
+      <version>
+        19
+      </version>
+      <classifier>linux</classifier>
+    </dependency>
+
+    <!-- Other dependencies -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
