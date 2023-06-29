@@ -56,7 +56,7 @@ public class Server extends UnicastRemoteObject implements ServerRMIInterface {
     public Server() throws RemoteException {
         super();
         this.clients = new ArrayList<>();
-        this.controller = LobbyController.getInstance(this);
+        this.controller = new LobbyController(this);
 
         // Prevent the logger from using parent handlers
         logger.setUseParentHandlers(false);

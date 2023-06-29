@@ -27,11 +27,9 @@ import java.util.logging.Level;
 public class LobbyController {
     private static Server server;
 
-    private static LobbyController single_istance;
-
     private static HashMap<String,GameController> gameControllers;
 
-    private LobbyController(Server server) {
+    public LobbyController(Server server) {
         this.server = server;
         if(server.shouldResumeFromBackup()) {
             try {
@@ -56,24 +54,6 @@ public class LobbyController {
         }
     }
 
-    /**
-     * Returns the single instance of the LobbyController, implementing the Singleton pattern.
-     * @param server The server that will be used by the LobbyController
-     * @return The single instance of the LobbyController
-     */
-    public static LobbyController getInstance(Server server){
-        if (single_istance == null) {
-            single_istance = new LobbyController(server);
-        }
-        return single_istance;
-    }
-
-    /**
-     * Main execution method, called by {@link Server#update}. Makes the correct {@link GameController} execute the command.
-     * Send the update to all the interested clients. Check if the game has ended and delete it if so. Save the server status.
-     * @param command The command to execute
-     * @param t The event that triggered the command
-     */
     public void executeCommand(CommandMessage command, UserInputEvent t) {
         // Queue the command
         gameControllers.get(command.getGameName()).queueAndExecuteCommand(command, t);

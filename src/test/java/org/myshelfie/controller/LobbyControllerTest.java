@@ -44,7 +44,7 @@ class LobbyControllerTest {
             throw new RuntimeException(e);
         }
 
-        single_istance = LobbyController.getInstance(server);
+        single_istance = new LobbyController(server);
 
         //delete the game in case it was in the backup
         try{
@@ -112,7 +112,7 @@ class LobbyControllerTest {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        single_istance = LobbyController.getInstance(noResumeServer);
+        single_istance = new LobbyController(noResumeServer);
         try {
             beforeAll();
         } catch (IllegalAccessException e) {

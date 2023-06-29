@@ -467,7 +467,7 @@
   "heartbeat_interval": 5000,
   "heartbeat_timeout": 10000,
   "server": {
-    "address": "localhost",
+    "address": "127.0.0.1",
     "socket_port": 1234,
     "rmi_name": "CODServer",
     "backup_file_name": "serverBackup.ser",
