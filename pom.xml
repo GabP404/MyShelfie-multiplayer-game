@@ -19,181 +19,82 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.target>
-      19
-    </maven.compiler.target>
-    <maven.compiler.source>
-      19
-    </maven.compiler.source>
-    <javafx.version>
-      19
-    </javafx.version>
+    <maven.compiler.target>19</maven.compiler.target>
+    <maven.compiler.source>19</maven.compiler.source>
+    <javafx.version>19</javafx.version>
     <javafx.maven.plugin.version>0.0.8</javafx.maven.plugin.version>
   </properties>
 
   <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
-      </plugin>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.1</version>
+        </plugin>
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.22.0</version>
-      </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.22.0</version>
+        </plugin>
 
-      <plugin>
-        <groupId>org.openjfx</groupId>
-        <artifactId>javafx-maven-plugin</artifactId>
-        <version>${javafx.maven.plugin.version}</version>
-        <configuration>
-          <mainClass>org.myshelfie.ClientApp</mainClass>
-        </configuration>
-      </plugin>
+        <plugin>
+          <groupId>org.openjfx</groupId>
+          <artifactId>javafx-maven-plugin</artifactId>
+          <version>19</version>
+          <configuration>
+            <mainClass>org.myshelfie.view.GUI.ViewGUI</mainClass>
+          </configuration>
+        </plugin>
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.4</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <manifestEntries>
-                    <Main-Class>org.myshelfie.ClientApp</Main-Class>
-                  </manifestEntries>
-                </transformer>
-              </transformers>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
+      </plugins>
+    </pluginManagement>
   </build>
 
-
-
   <dependencies>
-    <!-- JavaFX - win -->
+
+    <!-- Force inclusion of the 3 OS and archs combinations we use -->
     <dependency>
       <groupId>org.openjfx</groupId>
-      <artifactId>javafx-base</artifactId>
-      <version>
-        19
-      </version>
+      <artifactId>javafx-graphics</artifactId>
       <classifier>win</classifier>
+      <version>${javafx.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-graphics</artifactId>
+      <classifier>mac-aarch64</classifier>
+      <version>${javafx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-graphics</artifactId>
+      <classifier>linux</classifier>
+      <version>${javafx.version}</version>
+    </dependency>
+
 
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-controls</artifactId>
-      <version>
-        19
-      </version>
-      <classifier>win</classifier>
+      <version>19</version>
     </dependency>
 
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-fxml</artifactId>
-      <version>
-        19
-      </version>
-      <classifier>win</classifier>
+      <version>19</version>
     </dependency>
 
+    <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-media -->
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-media</artifactId>
-      <version>
-        19
-      </version>
-      <classifier>win</classifier>
+      <version>19</version>
     </dependency>
 
-    <!-- JavaFX - mac-aarch64OS -->
-    <dependency>
-      <groupId>org.openjfx</groupId>
-      <artifactId>javafx-base</artifactId>
-      <version>
-        19
-      </version>
-      <classifier>mac-aarch64</classifier>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openjfx</groupId>
-      <artifactId>javafx-controls</artifactId>
-      <version>
-        19
-      </version>
-      <classifier>mac-aarch64</classifier>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openjfx</groupId>
-      <artifactId>javafx-fxml</artifactId>
-      <version>
-        19
-      </version>
-      <classifier>mac-aarch64</classifier>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openjfx</groupId>
-      <artifactId>javafx-media</artifactId>
-      <version>
-        19
-      </version>
-      <classifier>mac-aarch64</classifier>
-    </dependency>
-
-    <!-- JavaFX - linux -->
-    <dependency>
-      <groupId>org.openjfx</groupId>
-      <artifactId>javafx-base</artifactId>
-      <version>
-        19
-      </version>
-      <classifier>linux</classifier>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openjfx</groupId>
-      <artifactId>javafx-controls</artifactId>
-      <version>
-        19
-      </version>
-      <classifier>linux</classifier>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openjfx</groupId>
-      <artifactId>javafx-fxml</artifactId>
-      <version>
-        19
-      </version>
-      <classifier>linux</classifier>
-    </dependency>
-
-    <dependency>
-      <groupId>org.openjfx</groupId>
-      <artifactId>javafx-media</artifactId>
-      <version>
-        19
-      </version>
-      <classifier>linux</classifier>
-    </dependency>
-
-    <!-- Other dependencies -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
