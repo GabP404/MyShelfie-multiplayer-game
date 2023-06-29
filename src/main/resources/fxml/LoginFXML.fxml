@@ -1,26 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
-<?import com.gluonhq.charm.glisten.control.TextField?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="760" prefWidth="1280.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.myshelfie.view.GUI.LoginControllerFX" styleClass="title-page-image">
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="760" prefWidth="1280.0" styleClass="title-page-image" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.myshelfie.view.GUI.LoginControllerFX">
    <center>
-      <VBox alignment="CENTER" prefHeight="500" maxHeight="500" prefWidth="400" maxWidth="400" spacing="20.0" BorderPane.alignment="CENTER"
-            styleClass="login-container">
+      <VBox alignment="CENTER" maxHeight="500" maxWidth="400" prefHeight="500" prefWidth="400" spacing="20.0" styleClass="login-container" BorderPane.alignment="CENTER">
          <padding>
-            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
          </padding>
-         <Label text="Welcome!" styleClass="h2"/>
-         <Label text="Insert your nickname:" styleClass="h4" />
+         <Label styleClass="h2" text="Welcome!" />
+         <Label styleClass="h4" text="Insert your nickname:" />
          <VBox fx:id="nickname_VB" alignment="CENTER" prefHeight="126.0" prefWidth="180.0" spacing="20.0">
-            <TextField fx:id="nickname_LBL" prefHeight="27.0" prefWidth="120.0" promptText="Username" styleClass="nickname-input"/>
-            <Button fx:id="endLoginPhaseButton_BTN" styleClass="myshelfie-big-button" mnemonicParsing="false" onAction="#sendNickname" text="Enter"/>
+            <TextField fx:id="nickname_LBL" promptText="NickName" styleClass="nickname-input" />
+            <Button fx:id="endLoginPhaseButton_BTN" mnemonicParsing="false" onAction="#sendNickname" styleClass="myshelfie-big-button" text="Enter" />
          </VBox>
       </VBox>
    </center>
@@ -34,12 +35,12 @@
                </image>
             </ImageView>
             <VBox>
-               <Text text="Gabriele Puglisi - Matteo Santelmo - Giuseppe Steduto - Mattia Vicenzotto" styleClass="h4" />
-               <Text text="Software Engineering 1 - final project - Politecnico di Milano" style="-fx-font-size: 1.4em"/>
+               <Text styleClass="h4" text="Gabriele Puglisi - Matteo Santelmo - Giuseppe Steduto - Mattia Vicenzotto" />
+               <Text style="-fx-font-size: 1.4em" text="Software Engineering 1 - final project - Politecnico di Milano" />
             </VBox>
          </children>
          <padding>
-            <Insets top="10" right="10" bottom="10" left="10" />
+            <Insets bottom="10" left="10" right="10" top="10" />
          </padding>
       </HBox>
    </bottom>

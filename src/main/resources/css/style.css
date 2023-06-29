@@ -105,7 +105,6 @@
 
 .nickname-input {
     -fx-font-size: 1.3em;
-    -fx-background-color: #F2E5BC; /* This is a parchment-like color */
 }
 
 .footer {
@@ -233,9 +232,7 @@
 .table-view .table-cell{
     -fx-alignment: CENTER;
     -fx-font-size: 1.5em;
-}
-
-.
+}  .
 
 
 
