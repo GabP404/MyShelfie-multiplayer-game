@@ -1,13 +1,13 @@
 # Software Engineering I - final project
 
-This is the final project for the Software Engineering I course at *Politecnico di Milano*.
+This is the final project for the Software Engineering I course at *Politecnico di Milano*, taught by Professor *Gianpaolo Cugola* during the academic year 2022/2023.
 The project consists of a client-server application for a multiplayer game.
 
 Authors:
-- [Gabriele Puglisi]()
-- [Matteo Santelmo]()
-- [Giuseppe Steduto](https://giuseppesteduto.me)
-- [Mattia Vicenzotto]()
+- [Gabriele Puglisi](https://github.com/GabP404)
+- [Matteo Santelmo](https://github.com/matsant01)
+- [Giuseppe Steduto](https://github.com/giuseppe-steduto)
+- [Mattia Vicenzotto](https://github.com/Vice41)
 
 > Note that this is just a README file with the basic instructions on how to run the game.
 For the full documentation, please refer to the project documentation, that you can find under 
@@ -17,15 +17,17 @@ For the full documentation, please refer to the project documentation, that you 
 
 | Feature                  | Implemented?       |
 |--------------------------|--------------------|
-| Base rules               | :heavy_check_mark: |
-| Complete rules           | :heavy_check_mark: |
-| CLI                      | :heavy_check_mark: |
-| GUI                      | :heavy_check_mark: |
-| RMI                      | :heavy_check_mark: |
-| Socket                   | :heavy_check_mark: |
-| Disconnection  (1FA)     | :heavy_check_mark: |
-| Server Persistence (2FA) | :heavy_check_mark: |
-| Multiple games (3FA)     | :heavy_check_mark: |
+| CLI                      | ✔️ |
+| Base rules               | ✔️ |
+| Complete rules           | ✔️ |
+| CLI                      | ✔️ |
+| GUI                      | ✔️ |
+| RMI                      | ✔️ |
+| Socket                   | ✔️ |
+| Disconnection  (1FA)     | ✔️ |
+| Server Persistence (2FA) | ✔️ |
+| Multiple games (3FA)     | ✔️ |
+| Chat (4FA)               | ❌                 |
 
 ## Instructions
 
