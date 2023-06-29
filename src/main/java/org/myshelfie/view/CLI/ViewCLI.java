@@ -18,7 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.myshelfie.view.PrinterCLI.*;
+import static org.myshelfie.view.CLI.PrinterCLI.*;
 
 /**
  * This class is the command-line interface of the game.

@@ -1,4 +1,4 @@
-package org.myshelfie.view;
+package org.myshelfie.view.CLI;
 
 import org.myshelfie.model.*;
 import org.myshelfie.model.util.Pair;

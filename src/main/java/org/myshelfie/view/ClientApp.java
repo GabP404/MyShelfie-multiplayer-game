@@ -1,4 +1,4 @@
-package org.myshelfie;
+package org.myshelfie.view;
 
 import org.myshelfie.controller.Configuration;
 import org.myshelfie.view.CLI.ViewCLI;
