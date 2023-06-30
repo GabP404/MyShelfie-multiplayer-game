@@ -15,7 +15,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<StackPane styleClass="table" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.myshelfie.view.GUI.GameControllerFX" fx:id="globalPane">
+<StackPane fx:id="globalPane" styleClass="table" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.myshelfie.view.GUI.GameControllerFX">
    <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0">
       <children>
          <VBox alignment="CENTER" prefHeight="59.0" prefWidth="1280.0">
@@ -40,7 +40,7 @@
                   <children>
                      <VBox alignment="CENTER" prefHeight="200.0" prefWidth="500.0">
                         <children>
-                           <AnchorPane fx:id="myBookshelfPane" prefHeight="500.0" prefWidth="200.0">
+                           <AnchorPane fx:id="boardPane" prefHeight="500.0" prefWidth="200.0">
                               <VBox.margin>
                                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                               </VBox.margin>
@@ -86,6 +86,7 @@
                                        <Image url="@../graphics/boards/bookshelfPoints.png" />
                                     </image>
                                  </ImageView>
+                                 <ImageView fx:id="finalTokenGlobal" fitHeight="40.0" fitWidth="40.0" layoutX="380.0" layoutY="326.0" pickOnBounds="true" preserveRatio="true" rotate="10.0" />
                               </children>
                            </AnchorPane>
                            <HBox alignment="CENTER" prefHeight="200.0" prefWidth="200.0" spacing="20.0">

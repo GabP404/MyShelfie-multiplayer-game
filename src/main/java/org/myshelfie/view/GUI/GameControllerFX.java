@@ -54,8 +54,6 @@ public class GameControllerFX implements Initializable {
     @FXML
     private ImageView myBookshelfImage;
     @FXML
-    private AnchorPane myBookshelfPane;
-    @FXML
     private ImageView myFinalToken;
     @FXML
     private Label myNickname;
@@ -85,6 +83,8 @@ public class GameControllerFX implements Initializable {
     private ImageView bookshelfPointsTable;
     @FXML
     private StackPane globalPane;
+    @FXML
+    private ImageView finalTokenGlobal;
 
     private String easterEgg = "";
     private boolean firstSetupDone = false;
@@ -100,6 +100,7 @@ public class GameControllerFX implements Initializable {
     final int SELECTED_TILE_DIM = 55;
     final int SEL_COL_ARROW_WIDTH = 50;
     final double TILE_DIM = 45;
+    final double FINAL_TOKEN_DIM = 40;
 
 
     /**
@@ -247,6 +248,7 @@ public class GameControllerFX implements Initializable {
         updateMyBookshelf(me.getBookshelf());
         updateMyPersGoal(me.getPersonalGoal());
         updateMyTilesPicked(me.getTilesPicked());
+        updateGlobalFinalToken();
         // Update other players (note that they are controlled by a different controller)
         updateOtherPlayers(game);
     }
@@ -258,8 +260,9 @@ public class GameControllerFX implements Initializable {
     private void updateEverything(GameView game) {
         // Update helper
         updateHelper();
-        // Update board
+        // Update board and final token
         updateBoard(game.getBoard());
+        updateGlobalFinalToken();
         // Update other players (note that they are controlled by a different controller)
         updateOtherPlayers(game);
         // Update all MY stuff
@@ -698,6 +701,7 @@ public class GameControllerFX implements Initializable {
                 tokenImage.setFitHeight(40);
                 tokenImage.setVisible(true);
                 tokenImage.toFront();
+                setOnHoverZoom(tokenImage, 1, 1.1);
                 k++;
             }
         }
@@ -722,6 +726,7 @@ public class GameControllerFX implements Initializable {
                 tokenImage.setFitHeight(40);
                 tokenImage.setVisible(true);
                 tokenImage.toFront();
+                setOnHoverZoom(tokenImage, 1, 1.1);
                 k++;
             }
         }
@@ -946,6 +951,27 @@ public class GameControllerFX implements Initializable {
                 Platform.runLater(() -> boardGrid.getChildren().remove(node));
             }
         }
+    }
+
+    /**
+     * This method is responsible for showing the final token on the board,
+     * before anyone gets it.
+     */
+    private void updateGlobalFinalToken() {
+        Platform.runLater(() -> {
+            if (latestGame.getPlayers().stream().noneMatch(ImmutablePlayer::getHasFinalToken)) {
+                finalTokenGlobal.setImage(new Image("graphics/tokens/endGame.jpg"));
+                finalTokenGlobal.setEffect(new DropShadow(10, Color.BLACK));
+                finalTokenGlobal.setFitHeight(FINAL_TOKEN_DIM);
+                finalTokenGlobal.setFitWidth(FINAL_TOKEN_DIM);
+                setOnHoverZoom(finalTokenGlobal, 1, 1.1);
+                finalTokenGlobal.setVisible(true);
+            } else {
+                finalTokenGlobal.setImage(null);
+                finalTokenGlobal.setVisible(false);
+            }
+
+        });
     }
 
     ////////////////////////////////////////////////////////////////////////////
