@@ -49,3 +49,20 @@ The logging level can be defined by setting the `--logging` parameter at startup
 - By default, if not specified, the logging level is set to `info`.
 
 Enjoy your journey as the game server operator and happy gaming!
+
+## Using Docker
+
+You don't want to install Java on your server? No problem, we got you covered!
+We provide a Docker image that you can use to run the server and that bundles everything you need.
+To run it, simply execute the following command:
+
+```{.sh .copy-to-clipboard}
+docker run -p 1099:1099 -p 1234:1234 myshelfiegc07/docker-myshelfie-server:latest
+```
+
+The Docker image also supports the same command-line arguments as the standalone server.
+
+!!! warning
+    Due to the nature of the Docker networking system, you may encounter some issue with the
+    RMI communication. If you encounter such issues, please run the Docker image using the host
+    network: `docker run --network host myshelfiegc07/docker-myshelfie-server:latest`

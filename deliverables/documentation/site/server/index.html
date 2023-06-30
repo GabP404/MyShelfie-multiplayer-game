@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../client/index.html">
+        <link rel="prev" href="../client/">
       
       
-        <link rel="next" href="../advanced-features/disconnection/index.html">
+        <link rel="next" href="../advanced-features/disconnection/">
       
       <link rel="icon" href="../images/icon.png">
       <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.15">
@@ -95,7 +95,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../index.html" title="My Shelfie - GC07" class="md-header__button md-logo" aria-label="My Shelfie - GC07" data-md-component="logo">
+    <a href=".." title="My Shelfie - GC07" class="md-header__button md-logo" aria-label="My Shelfie - GC07" data-md-component="logo">
       
   <img src="../images/logo_banner.png" alt="logo">
 
@@ -194,7 +194,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../index.html" title="My Shelfie - GC07" class="md-nav__button md-logo" aria-label="My Shelfie - GC07" data-md-component="logo">
+    <a href=".." title="My Shelfie - GC07" class="md-nav__button md-logo" aria-label="My Shelfie - GC07" data-md-component="logo">
       
   <img src="../images/logo_banner.png" alt="logo">
 
@@ -224,7 +224,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../index.html" class="md-nav__link">
+      <a href=".." class="md-nav__link">
         Welcome to MyShelfie`s documentation!
       </a>
     </li>
@@ -239,7 +239,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../client/index.html" class="md-nav__link">
+      <a href="../client/" class="md-nav__link">
         Client documentation
       </a>
     </li>
@@ -268,7 +268,7 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <a href="index.html" class="md-nav__link md-nav__link--active">
+      <a href="./" class="md-nav__link md-nav__link--active">
         Server documentation
       </a>
       
@@ -310,6 +310,13 @@
         <li class="md-nav__item">
   <a href="#logging" class="md-nav__link">
     Logging
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-docker" class="md-nav__link">
+    Using Docker
   </a>
   
 </li>
@@ -357,7 +364,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced-features/disconnection/index.html" class="md-nav__link">
+      <a href="../advanced-features/disconnection/" class="md-nav__link">
         Client disconnection
       </a>
     </li>
@@ -371,7 +378,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced-features/multiple-games/index.html" class="md-nav__link">
+      <a href="../advanced-features/multiple-games/" class="md-nav__link">
         Multiple games: one server to rule them all
       </a>
     </li>
@@ -385,7 +392,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../advanced-features/persistence/index.html" class="md-nav__link">
+      <a href="../advanced-features/persistence/" class="md-nav__link">
         Persistence: making the server crash-proof
       </a>
     </li>
@@ -407,7 +414,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../demo/index.html" class="md-nav__link">
+      <a href="../demo/" class="md-nav__link">
         Gameplay Gallery
       </a>
     </li>
@@ -422,7 +429,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../uml/index.html" class="md-nav__link">
+      <a href="../uml/" class="md-nav__link">
         UML diagrams
       </a>
     </li>
@@ -437,7 +444,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../test-coverage/index.html" class="md-nav__link">
+      <a href="../test-coverage/" class="md-nav__link">
         Test coverage report
       </a>
     </li>
@@ -452,7 +459,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development-process/index.html" class="md-nav__link">
+      <a href="../development-process/" class="md-nav__link">
         Tools and development process
       </a>
     </li>
@@ -467,7 +474,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../manual-installation/index.html" class="md-nav__link">
+      <a href="../manual-installation/" class="md-nav__link">
         Manual installation
       </a>
     </li>
@@ -482,7 +489,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../legal/index.html" class="md-nav__link">
+      <a href="../legal/" class="md-nav__link">
         License
       </a>
     </li>
@@ -542,6 +549,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#using-docker" class="md-nav__link">
+    Using Docker
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -577,7 +591,7 @@
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>If you are running the server after a crash, maybe due to a power outage or connectivity problem, use the <code>--backup</code>
-flag to restore the previous state. If you want to learn more about how the server state is backed up, head over to the <a href="../advanced-features/persistence/index.html">persistence</a> page.</p>
+flag to restore the previous state. If you want to learn more about how the server state is backed up, head over to the <a href="../advanced-features/persistence/">persistence</a> page.</p>
 </div>
 <p>Here's an example of using these parameters:</p>
 <div class="highlight"><pre><span></span><code><span class="go">java -jar ./server-myshelfie.jar --server-address=192.168.1.51 --logging=debug</span>
@@ -597,7 +611,20 @@ The log file is appended with new entries each time the server is run.</p>
 <p>By default, if not specified, the logging level is set to <code>info</code>.</p>
 </li>
 </ul>
-<p>Enjoy your journey as the game server operator and happy gaming!</p></div>
+<p>Enjoy your journey as the game server operator and happy gaming!</p>
+<h2 id="using-docker">Using Docker</h2>
+<p>You don't want to install Java on your server? No problem, we got you covered!
+We provide a Docker image that you can use to run the server and that bundles everything you need.
+To run it, simply execute the following command:</p>
+<div class="copy-to-clipboard highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-p<span class="w"> </span><span class="m">1099</span>:1099<span class="w"> </span>-p<span class="w"> </span><span class="m">1234</span>:1234<span class="w"> </span>myshelfiegc07/docker-myshelfie-server:latest
+</code></pre></div>
+<p>The Docker image also supports the same command-line arguments as the standalone server.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Due to the nature of the Docker networking system, you may encounter some issue with the
+RMI communication. If you encounter such issues, please run the Docker image using the host
+network: <code>docker run --network host myshelfiegc07/docker-myshelfie-server:latest</code></p>
+</div></div>
 
 
 
